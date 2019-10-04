@@ -304,8 +304,8 @@ void
 GenericOutputMPVData::buildPorts(){
 
     bool built = true;
-    built = (built && createPortIn<dmpvector1D, GenericOutputMPVData>(this, &mimmo::GenericOutputMPVData::setInput<double>, M_SCALARFIELD));
-    built = (built && createPortIn<dmpvecarr3E, GenericOutputMPVData>(this, &mimmo::GenericOutputMPVData::setInput<darray3E>, M_VECTORFIELD));
+    built = (built && createPortIn<dmpvector1D*, GenericOutputMPVData>(this, &mimmo::GenericOutputMPVData::setInput<double>, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvecarr3E*, GenericOutputMPVData>(this, &mimmo::GenericOutputMPVData::setInput<darray3E>, M_VECTORFIELD));
 
     m_arePortsBuilt = built;
 }

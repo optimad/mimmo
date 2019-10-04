@@ -88,7 +88,7 @@ public:
     /*!Custom constructor of IODataT.
      * \param[in] data Data to be stored.
      */
-    IODataT(T data){
+    IODataT(T &data){
         m_data = data;
     };
 
@@ -105,7 +105,7 @@ public:
     /*!It sets the data stored in the object.
      * \param[in] data Data to be stored.
      */
-    void setData(T data){
+    void setData(T &data){
         m_data = data;
     }
 

@@ -388,8 +388,8 @@ GenericInputMPVData::buildPorts(){
     bool built = true;
 
     built = (built && createPortIn<MimmoObject*, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::setGeometry, M_GEOM));
-    built = (built && createPortOut<dmpvector1D, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<double>, M_SCALARFIELD));
-    built = (built && createPortOut<dmpvecarr3E, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<darray3E>, M_VECTORFIELD));
+    built = (built && createPortOut<dmpvector1D*, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<double>, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvecarr3E*, GenericInputMPVData>(this, &mimmo::GenericInputMPVData::getResult<darray3E>, M_VECTORFIELD));
 
 
     m_arePortsBuilt = built;

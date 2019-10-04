@@ -393,14 +393,9 @@ GenericInput::sendReadDataToAllProcs(T & dataTC){
  * \return copy of the data stored in result member.
  */
 template < typename T>
-MimmoPiercedVector< T >
+MimmoPiercedVector< T > *
 GenericInputMPVData::getResult(){
-    MimmoPiercedVector< T > * pres = _getResult< T >() ;
-    if (pres != nullptr){
-        return *pres;
-    }else{
-        return MimmoPiercedVector< T >();
-    }
+    return _getResult< T >() ;
 }
 
 /*!

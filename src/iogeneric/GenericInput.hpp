@@ -234,8 +234,8 @@ private:
  *     |              Port Output   |               |                       |
  *     |---------------|-------------------|-----------------------|
  *     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- *     | M_SCALARFIELD | getResult         | (MC_MPVECTOR, MD_FLOAT)     |
- *     | M_VECTORFIELD | getResult         | (MC_MPVECARR3, MD_FLOAT)    |
+ *     | M_SCALARFIELD | getResult         | (MC_SCALAR, MD_MPVECFLOAT_)     |
+ *     | M_VECTORFIELD | getResult         | (MC_SCALAR, MD_MPVECARR3FLOAT_)    |
  *
  *    =========================================================
  * \n
@@ -275,7 +275,8 @@ public:
     void buildPorts();
 
     template<typename T>
-    MimmoPiercedVector<T>  getResult();
+    MimmoPiercedVector<T>  * getResult();
+
 
     void setCSV(bool csv);
     void setReadDir(std::string dir);
@@ -318,8 +319,8 @@ REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_VALUEI, MC_SCALAR, MD_INT,__INPUTDOF_HPP__)
 REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL,__INPUTDOF_HPP__)
 REGISTER_PORT(M_DEG, MC_ARRAY3, MD_INT,__INPUTDOF_HPP__)
-REGISTER_PORT(M_VECTORFIELD, MC_MPVECARR3, MD_FLOAT,__INPUTDOF_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__INPUTDOF_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_,__INPUTDOF_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_,__INPUTDOF_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_ ,__INPUTDOF_HPP__)
 
 REGISTER(BaseManipulation, GenericInput, "mimmo.GenericInput")
