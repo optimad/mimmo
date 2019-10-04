@@ -37,11 +37,11 @@ namespace mimmo{
  *
  * ControlDeformMaxDistance is derived from BaseManipulation class.
  * It needs a maximum, isotropic limit distance d w.r.t. geometry undeformed state, which is used to evaluate the isolevel d
- * of the target geometry. 
- * Returns a double value V, namely the maximum signed distance from constraint iso-level amongst all field points, 
+ * of the target geometry.
+ * Returns a double value V, namely the maximum signed distance from constraint iso-level amongst all field points,
  * reporting how much the current deformation field violate the constraint itself.
- * if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs. 
- * Deformation field must be linked to target geometry and defined on points/nodes. 
+ * if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs.
+ * Deformation field must be linked to target geometry and defined on points/nodes.
  * Class absorbs/flushes its parameters from/to xml dictionaries
  *
  * \n
@@ -53,14 +53,14 @@ namespace mimmo{
      |Port Input  | | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_GDISPLS| setDefField       | (MC_MPVECARR3, MD_FLOAT)       |
+     | M_GDISPLS| setDefField       | (MC_SCALAR, MD_MPVECARR3FLOAT_)       |
      | M_VALUED | setLimitDistance  | (MC_SCALAR, MD_FLOAT)         |
      | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)        |
 
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B> |
-     | M_SCALARFIELD | getViolationField | (MC_MPVECTOR, MD_FLOAT)             |
+     | M_SCALARFIELD | getViolationField | (MC_SCALAR, MD_MPVECFLOAT_)             |
      | M_VALUED      | getViolation      | (MC_SCALAR, MD_FLOAT)             |
 
  *    =========================================================
@@ -97,12 +97,12 @@ public:
     void    buildPorts();
 
     double                                     getViolation();
-    dmpvector1D                                getViolationField();
+    dmpvector1D  *                             getViolationField();
 
-    void    setDefField(dmpvecarr3E field);
+    void    setDefField(dmpvecarr3E *field);
     void    setLimitDistance(double dist);
     void    setGeometry(MimmoObject * geo);
-    
+
     void     execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
@@ -114,10 +114,10 @@ protected:
 
 };
 
-REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__CONTROLDEFORMMAXDISTANCE_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_,__CONTROLDEFORMMAXDISTANCE_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__CONTROLDEFORMMAXDISTANCE_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__CONTROLDEFORMMAXDISTANCE_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__CONTROLDEFORMMAXDISTANCE_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_,__CONTROLDEFORMMAXDISTANCE_HPP__)
 
 
 REGISTER(BaseManipulation, ControlDeformMaxDistance, "mimmo.ControlDeformMaxDistance")

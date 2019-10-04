@@ -65,7 +65,7 @@ ControlDeformExtSurface::ControlDeformExtSurface(const bitpit::Config::Section &
  */
 ControlDeformExtSurface::~ControlDeformExtSurface(){};
 
-/*!Copy constructor of ControlDeformExtSurface. Deformation field referred to geometry 
+/*!Copy constructor of ControlDeformExtSurface. Deformation field referred to geometry
  * and result violation field are not copied.
  */
 ControlDeformExtSurface::ControlDeformExtSurface(const ControlDeformExtSurface & other):BaseManipulation(other){
@@ -75,7 +75,7 @@ ControlDeformExtSurface::ControlDeformExtSurface(const ControlDeformExtSurface &
 };
 
 /*!
- * Assignment operator of ControlDeformExtSurface. Deformation field referred to geometry 
+ * Assignment operator of ControlDeformExtSurface. Deformation field referred to geometry
  * and result violation field are not copied.
  */
 ControlDeformExtSurface & ControlDeformExtSurface::operator=(ControlDeformExtSurface other){
@@ -104,22 +104,22 @@ void
 ControlDeformExtSurface::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<dmpvecarr3E, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::setDefField, M_GDISPLS, true));
+    built = (built && createPortIn<dmpvecarr3E*, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::setDefField, M_GDISPLS, true));
     built = (built && createPortIn<MimmoObject*, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::setGeometry, M_GEOM, true));
 
     built = (built && createPortOut<double, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolation, M_VALUED));
-    built = (built && createPortOut<dmpvector1D, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolationField, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvector1D*, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolationField, M_SCALARFIELD));
     m_arePortsBuilt = built;
 };
 
-/*! 
- * Return the value of violation of deformed geometry, after class execution. 
- *  If value is positive or at least zero, constraint violation occurs, penetrating or touching at least in one point the 
- *  constraint sourface. Otherwise, returning negative values means that no violation occurs 
+/*!
+ * Return the value of violation of deformed geometry, after class execution.
+ *  If value is positive or at least zero, constraint violation occurs, penetrating or touching at least in one point the
+ *  constraint sourface. Otherwise, returning negative values means that no violation occurs
  *  delimited by the plane (where plane normal pointing), true the exact opposite.
  * \return violation value
  */
-double 
+double
 ControlDeformExtSurface::getViolation(){
 
     double result = -1.0E+18;
@@ -130,16 +130,16 @@ ControlDeformExtSurface::getViolation(){
     return    result;
 };
 
-/*! 
- * Return the violation distances of each point of deformed geometry, on the geometry itself. The info is available after class execution. 
- *  If value is positive or at least zero, constraint violation occurs, penetrating or touching at least in one point the 
- *  constraint sourface. Otherwise, returning negative values means that no violation occurs 
+/*!
+ * Return the violation distances of each point of deformed geometry, on the geometry itself. The info is available after class execution.
+ *  If value is positive or at least zero, constraint violation occurs, penetrating or touching at least in one point the
+ *  constraint sourface. Otherwise, returning negative values means that no violation occurs
  *  delimited by the plane (where plane normal pointing), true the exact opposite.
  * \return violation field values
  */
-dmpvector1D
+dmpvector1D *
 ControlDeformExtSurface::getViolationField(){
-    return(m_violationField);
+    return  &m_violationField;
 };
 
 
@@ -166,19 +166,20 @@ ControlDeformExtSurface::getBackgroundDetails(){
 }
 
 /*!
- * Set the deformative field associated to each point of the target geometry. 
+ * Set the deformative field associated to each point of the target geometry.
  * Field resize occurs in execution, if point dimension between field and geoemetry does not match.
  * \param[in]    field of deformation
  */
 void
-ControlDeformExtSurface::setDefField(dmpvecarr3E field){
+ControlDeformExtSurface::setDefField(dmpvecarr3E *field){
+    if(!field)  return;
     m_defField.clear();
     m_violationField.clear();
-    m_defField = field;
+    m_defField = *field;
 };
 
 /*!
- * Set link to target geometry for your selection. Reimplementation of 
+ * Set link to target geometry for your selection. Reimplementation of
  * GenericSelection::setGeometry();
  * \param[in] target pointer to target geometry
  */
@@ -198,9 +199,9 @@ ControlDeformExtSurface::setGeometry( MimmoObject * target){
 
 /*!
  * Set the number of Cells NC necessary to determine the spacing of a background grids.
- * A background axis-aligned cartesian volume grid wrapping each constraint + deformed body is created to evaluate 
+ * A background axis-aligned cartesian volume grid wrapping each constraint + deformed body is created to evaluate
  * distances of each deformed point from constraint surface. Spacing of such grid is
- * calculated as dh = D/NC where dh is the spacing, D is the diagonal of grid bounding-box.  
+ * calculated as dh = D/NC where dh is the spacing, D is the diagonal of grid bounding-box.
  * \param[in] nCell number of cells for cartesian background grid
  */
 void
@@ -211,7 +212,7 @@ ControlDeformExtSurface::setBackgroundDetails(int nCell){
 
 /*!
  * Return the actual list of external geometry files selected as constraint to check your deformation.
- * Fixed tolerance for each file are reported as first argument of the map, integer identifying format 
+ * Fixed tolerance for each file are reported as first argument of the map, integer identifying format
  * type of the file (as FileType enum) as second argument of the map.
  * \return list of external geometries files with their tolerance and type
  */
@@ -221,8 +222,8 @@ const std::unordered_map<std::string, std::pair<double, int> >
 }
 
 /*!
- * Set a list of external geometry files w/ their relative offset tolerance as constraint 
- * to check your deformation violation. The int format of the file (see FileType enum) must be 
+ * Set a list of external geometry files w/ their relative offset tolerance as constraint
+ * to check your deformation violation. The int format of the file (see FileType enum) must be
  * present as second argument
  * \param[in] files list external geometries to be read
  */
@@ -234,10 +235,10 @@ ControlDeformExtSurface::setFiles(std::unordered_map<std::string, std::pair<doub
 };
 
 /*!
- * Add a new file with its offset tolerance to a list of external constraint geometry files 
+ * Add a new file with its offset tolerance to a list of external constraint geometry files
  *\param[in] file of external geometry to be read
  *\param[in] tol  offset tolerance, negative or positive, to consider a deformed body close to target constraints already not touching or penetrating them
- *\param[in] format  type of file as integer (see Filetype enum). only nas, stl, stvtu and sqvtu are supported. 
+ *\param[in] format  type of file as integer (see Filetype enum). only nas, stl, stvtu and sqvtu are supported.
  */
 void
 ControlDeformExtSurface::addFile(std::string file, double tol, int format){
@@ -247,18 +248,18 @@ ControlDeformExtSurface::addFile(std::string file, double tol, int format){
 };
 
 /*!
- * Add a new file with its offset tolerance to a list of external constraint geometry files 
+ * Add a new file with its offset tolerance to a list of external constraint geometry files
  *\param[in] file of external geometry to be read
  *\param[in] tol  offset tolerance, negative or positive, to consider a deformed body close to target constraints already not touching or penetrating them
- *\param[in] format  type of file as  Filetype enum. only nas, stl, stvtu and sqvtu are supported. 
+ *\param[in] format  type of file as  Filetype enum. only nas, stl, stvtu and sqvtu are supported.
  */
 void     ControlDeformExtSurface::addFile(std::string file, double tol, FileType format){
     addFile(file,tol,format._to_integral());
 };
 
 /*!
- * Remove an existent file to a list of external geometry files. If not in the list, do nothing 
- * \param[in] file to be removed from the list 
+ * Remove an existent file to a list of external geometry files. If not in the list, do nothing
+ * \param[in] file to be removed from the list
  */
 void
 ControlDeformExtSurface::removeFile(std::string file){
@@ -266,7 +267,7 @@ ControlDeformExtSurface::removeFile(std::string file){
 };
 
 /*!
- * Empty your list of external constraint geometry files 
+ * Empty your list of external constraint geometry files
  */
 void
 ControlDeformExtSurface::removeFiles(){
@@ -311,7 +312,7 @@ ControlDeformExtSurface::execute(){
         throw std::runtime_error (m_name + " : Unsuitable deformation field linked.");
     }
 
-    
+
     int nDFS = m_defField.size();
     m_violationField.clear();
 
@@ -571,7 +572,7 @@ ControlDeformExtSurface::absorbSectionXML(const bitpit::Config::Section & slotXM
     BITPIT_UNUSED(name);
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     std::unordered_map<std::string, std::pair<double, int> > mapp;
     if(slotXML.hasSection("Files")){
 
@@ -662,7 +663,7 @@ ControlDeformExtSurface::flushSectionXML(bitpit::Config::Section & slotXML, std:
 };
 
 /*!
- * Read all external geoemetries from files (whose name is stored in m_geolist) and return it 
+ * Read all external geoemetries from files (whose name is stored in m_geolist) and return it
  * in a list of unique pointers pointing to MimmoGeometry objects.
  * \param[in,out] extGeo list of read external constraint geoemetries.
  * \param[in,out] tols   tolerance for each effective geometry read
@@ -726,18 +727,18 @@ ControlDeformExtSurface::extractInfo(std::string file){
 }
 
 /*!
- * Evaluate Signed Distance for a point from given BvTree of a open/closed geometry 3D surface. 
- * Return distance from target geometry with sign. Positive distance is returned, 
+ * Evaluate Signed Distance for a point from given BvTree of a open/closed geometry 3D surface.
+ * Return distance from target geometry with sign. Positive distance is returned,
  * if the point is placed on the same side of simplex support normal. Negative otherwise.
  * Wrapper to bvTreeUtils::signedDistance
  *
  * \param[in] point 3D target point
  * \param[in] geo    target geometry w/ bvTree in it
- * \param[in,out] id returns id of support geometry simplex from which distance is evaluated 
- * \param[in,out] normal returns normal of support geometry simplex from which distance is evaluated 
+ * \param[in,out] id returns id of support geometry simplex from which distance is evaluated
+ * \param[in,out] normal returns normal of support geometry simplex from which distance is evaluated
  * \param[in,out] initRadius guess initial distance.
- * 
- * \return signed distance from target surface.  
+ *
+ * \return signed distance from target surface.
  */
 double
 ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::MimmoObject * geo, long & id, darray3E & normal, double &initRadius){
@@ -775,14 +776,14 @@ ControlDeformExtSurface::plotOptionalResults(){
     dvecarr3E deff = m_defField.getDataAsVector();
     //get violation field
     dvector1D viol = m_violationField.getDataAsVector();
-    
+
     //add deformation field as vector field
     getGeometry()->getPatch()->getVTK().addData("Deformation Field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, deff);
     //add violation field as a custom data field of the original geometry
     getGeometry()->getPatch()->getVTK().addData("Violation Distance Field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
     getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
-    
-    //reset geometry VTK to its original setup 
+
+    //reset geometry VTK to its original setup
     getGeometry()->getPatch()->getVTK().removeData("Deformation Field");
     getGeometry()->getPatch()->getVTK().removeData("Violation Distance Field");
 }

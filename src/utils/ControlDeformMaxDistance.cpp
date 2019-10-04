@@ -58,7 +58,7 @@ ControlDeformMaxDistance::ControlDeformMaxDistance(const bitpit::Config::Section
  */
 ControlDeformMaxDistance::~ControlDeformMaxDistance(){};
 
-/*!Copy constructor of ControlDeformMaxDistance.Deformation field referred to geometry 
+/*!Copy constructor of ControlDeformMaxDistance.Deformation field referred to geometry
  * and result violation field are not copied.
  */
 ControlDeformMaxDistance::ControlDeformMaxDistance(const ControlDeformMaxDistance & other):BaseManipulation(other){
@@ -66,7 +66,7 @@ ControlDeformMaxDistance::ControlDeformMaxDistance(const ControlDeformMaxDistanc
 };
 
 /*!
- * Assignment operator of ControlDeformMaxDistance. Deformation field referred to geometry 
+ * Assignment operator of ControlDeformMaxDistance. Deformation field referred to geometry
  * and result violation field are not copied.
  */
 ControlDeformMaxDistance & ControlDeformMaxDistance::operator=(ControlDeformMaxDistance other){
@@ -94,23 +94,23 @@ void
 ControlDeformMaxDistance::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<dmpvecarr3E, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setDefField, M_GDISPLS,true));
+    built = (built && createPortIn<dmpvecarr3E*, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setDefField, M_GDISPLS,true));
     built = (built && createPortIn<double, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setLimitDistance, M_VALUED));
     built = (built && createPortIn<MimmoObject*, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setGeometry, M_GEOM, true));
 
     built = (built && createPortOut<double, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolation, M_VALUED));
-    built = (built && createPortOut<dmpvector1D, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolationField, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvector1D*, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolationField, M_SCALARFIELD));
     m_arePortsBuilt = built;
 };
 
-/*! 
- * Return the value of violation of deformed geometry, after class execution. 
- *  If value is positive or at least zero, constraint violation occurs, penetrating or touching at least in one point the 
- *  constraint sourface. Otherwise, returning negative values means that no violation occurs 
+/*!
+ * Return the value of violation of deformed geometry, after class execution.
+ *  If value is positive or at least zero, constraint violation occurs, penetrating or touching at least in one point the
+ *  constraint sourface. Otherwise, returning negative values means that no violation occurs
  *  delimited by the plane (where plane normal pointing), true the exact opposite.
  * \return violation value
  */
-double 
+double
 ControlDeformMaxDistance::getViolation(){
 
     double result = -1.0E+18;
@@ -123,41 +123,42 @@ ControlDeformMaxDistance::getViolation(){
 
 
 /*!
- * Return the violation distances of each point of deformed geometry, on the geometry itself. The info is available after class execution. 
- *  If value is positive or at least zero, constraint violation occurs, penetrating or touching at least in one point the 
- *  constraint sourface. Otherwise, returning negative values means that no violation occurs 
+ * Return the violation distances of each point of deformed geometry, on the geometry itself. The info is available after class execution.
+ *  If value is positive or at least zero, constraint violation occurs, penetrating or touching at least in one point the
+ *  constraint sourface. Otherwise, returning negative values means that no violation occurs
  *  delimited by the plane (where plane normal pointing), true the exact opposite.
  * \return violation field values
  */
-dmpvector1D
+dmpvector1D *
 ControlDeformMaxDistance::getViolationField(){
-    return(m_violationField);
+    return  &m_violationField;
 };
 
 /*!
- * Set the deformative field associated to each point of the target geometry. 
+ * Set the deformative field associated to each point of the target geometry.
  * Field resize occurs in execution, if point dimension between field and geoemetry does not match.
  * \param[in]    field of deformation
  */
 void
-ControlDeformMaxDistance::setDefField(dmpvecarr3E field){
+ControlDeformMaxDistance::setDefField(dmpvecarr3E *field){
+    if(!field) return;
     m_defField.clear();
     m_violationField.clear();
-    m_defField = field;
+    m_defField = *field;
 };
 
 /*! Set limit distance d of the constraint surface. Must be a positive definite value (>= 0).
- *  Given a target geometry surface (open or closed), its constraint surface is intended 
+ *  Given a target geometry surface (open or closed), its constraint surface is intended
  *  as the iso-level surface where every points are at distance d from the target surface.
  * \param[in] dist limit distance value
  */
-void 
+void
 ControlDeformMaxDistance::setLimitDistance(double dist){
     m_maxDist = std::fmax(1.0E-12,dist);
 };
 
 /*!
- * Set the link to MimmoObject target geometry. Geometry must be a 3D surface 
+ * Set the link to MimmoObject target geometry. Geometry must be a 3D surface
  * (MimmoObject of type 1). Reimplemented from BaseManipulation::setGeometry().
  * \param[in] geo pointer to target geometry
  */
@@ -166,7 +167,7 @@ ControlDeformMaxDistance::setGeometry(MimmoObject * geo){
     if (geo ==NULL) return;
     if (geo->isEmpty()) return;
     if (geo->getType() != 1 ) return;
-    
+
     BaseManipulation::setGeometry(geo);
 }
 
@@ -256,7 +257,7 @@ ControlDeformMaxDistance::absorbSectionXML(const bitpit::Config::Section & slotX
 
     //start absorbing
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("LimitDistance")){
         std::string input = slotXML.get("LimitDistance");
         input = bitpit::utils::string::trim(input);
@@ -280,7 +281,7 @@ ControlDeformMaxDistance::flushSectionXML(bitpit::Config::Section & slotXML, std
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("LimitDistance", std::to_string(m_maxDist));
 
 };
@@ -305,8 +306,8 @@ ControlDeformMaxDistance::plotOptionalResults(){
     //add violation field as a custom data field of the original geometry
     getGeometry()->getPatch()->getVTK().addData("Violation Distance Field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
     getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
-    
-    //reset geometry VTK to its original setup 
+
+    //reset geometry VTK to its original setup
     getGeometry()->getPatch()->getVTK().removeData("Deformation Field");
     getGeometry()->getPatch()->getVTK().removeData("Violation Distance Field");
 }

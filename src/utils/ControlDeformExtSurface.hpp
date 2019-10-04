@@ -36,10 +36,10 @@ namespace mimmo{
  *   for eventual penetrations,  w.r.t. one or more external constraint surface meshes.
  *
  * ControlDeformExtSurface is derived from BaseManipulation class.
- * Needs one or more external surface meshes, representing the constraint of your deformed object. 
- * Returns a double value V, namely the maximum signed distance from constraint surfaces amongst all field points, 
+ * Needs one or more external surface meshes, representing the constraint of your deformed object.
+ * Returns a double value V, namely the maximum signed distance from constraint surfaces amongst all field points,
  * reporting how much the current deformation field violate the constraint itself.
- * if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs. 
+ * if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs.
  * Need to link the deformation field in examination, as MimmoPiercedVector referred to target geometry and defined
  * to POINT as location.
  * Class absorbs/flushes its parameters from/to xml dictionaries
@@ -52,14 +52,14 @@ namespace mimmo{
     | Port Input | | |
     |-|-|-|
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_GDISPLS| setDefField       | (MC_MPVECARR3, MD_FLOAT)       |
+    | M_GDISPLS| setDefField       | (MC_SCALAR, MD_MPVECARR3FLOAT_)       |
     | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)        |
 
 
     |Port Output | | |
     |-|-|-|
     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-    | M_SCALARFIELD | getViolationField | (MC_MPVECTOR, MD_FLOAT)             |
+    | M_SCALARFIELD | getViolationField | (MC_SCALAR, MD_MPVECFLOAT_)             |
     | M_VALUED      | getViolation      | (MC_SCALAR, MD_FLOAT)             |
 
  *    =========================================================
@@ -112,11 +112,11 @@ public:
     void    buildPorts();
 
     double                                     getViolation();
-    dmpvector1D                                getViolationField();
+    dmpvector1D *                               getViolationField();
     double                                     getToleranceWithinViolation(std::string);
     int                                     getBackgroundDetails();
 
-    void    setDefField(dmpvecarr3E field);
+    void    setDefField(dmpvecarr3E *field);
     void     setGeometry(MimmoObject * geo);
     void     setBackgroundDetails(int nCell=50);
     const     std::unordered_map<std::string, std::pair<double, int> > &     getFiles() const;
@@ -144,10 +144,10 @@ private:
     void writeLog();
 };
 
-REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__CONTROLDEFORMEXTSURFACE_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_,__CONTROLDEFORMEXTSURFACE_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__CONTROLDEFORMEXTSURFACE_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__CONTROLDEFORMEXTSURFACE_HPP__)
-REGISTER_PORT(M_SCALARFIELD, MC_MPVECTOR, MD_FLOAT,__CONTROLDEFORMEXTSURFACE_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_,__CONTROLDEFORMEXTSURFACE_HPP__)
 
 
 REGISTER(BaseManipulation, ControlDeformExtSurface,"mimmo.ControlDeformExtSurface")

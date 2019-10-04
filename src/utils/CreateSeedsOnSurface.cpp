@@ -144,7 +144,7 @@ CreateSeedsOnSurface::buildPorts(){
     //input
     built = (built && createPortIn<MimmoObject *, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setGeometry,M_GEOM, true));
     built = (built && createPortIn<darray3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSeed, M_POINT));
-    built = (built && createPortIn<dmpvector1D, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSensitivityMap, M_FILTER));
+    built = (built && createPortIn<dmpvector1D*, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSensitivityMap, M_FILTER));
 
     //output
     built = (built && createPortOut<dvecarr3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::getPoints, M_COORDS));
@@ -336,8 +336,9 @@ CreateSeedsOnSurface::setRandomSignature( uint32_t signature){
  *\param[in] field sensitivity
  */
 void
-CreateSeedsOnSurface::setSensitivityMap( dmpvector1D field){
-    m_sensitivity = field;
+CreateSeedsOnSurface::setSensitivityMap( dmpvector1D *field){
+    if(!field) return;
+    m_sensitivity = *field;
 }
 
 /*!

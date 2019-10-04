@@ -72,7 +72,7 @@ enum class CSeedSurf{
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_POINT        | setSeed                               | (MC_ARRAY3, MD_FLOAT)       |
      | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_)      |
-     | M_FILTER       | setSensitivityField                   | (MC_MPVECTOR, MD_FLOAT)       |
+     | M_FILTER       | setSensitivityField                   | (MC_SCALAR, MD_MPVECFLOAT_)       |
 
      |Port Output  | | |
      |-|-|-|
@@ -149,7 +149,7 @@ public:
     void         setGeometry(MimmoObject *);
     void         setRandomFixed(bool fix);
     void         setRandomSignature(uint32_t signature);
-    void         setSensitivityMap(dmpvector1D field);
+    void         setSensitivityMap(dmpvector1D *field);
 
     void         clear();
 
@@ -190,7 +190,7 @@ private:
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__CREATESEEDSONSURFACE_HPP__)
 REGISTER_PORT(M_VALUEI, MC_SCALAR, MD_INT,__CREATESEEDSONSURFACE_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__CREATESEEDSONSURFACE_HPP__)
-REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__CREATESEEDSONSURFACE_HPP__)
+REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_,__CREATESEEDSONSURFACE_HPP__)
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__CREATESEEDSONSURFACE_HPP__)
 
 
