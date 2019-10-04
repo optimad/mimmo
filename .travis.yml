@@ -3,7 +3,8 @@ language:
 - cpp
 branches:
   only:
-  - travis
+  - master
+  - devel
   - coverity_scan
 addons:
   apt:
