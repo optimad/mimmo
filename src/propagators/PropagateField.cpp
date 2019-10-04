@@ -106,8 +106,8 @@ void PropagateScalarField::swap(PropagateScalarField & x) noexcept {
 void
 PropagateScalarField::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dmpvector1D, PropagateScalarField>(this, &PropagateScalarField::setDirichletConditions, M_FILTER));
-	built = (built && createPortOut<dmpvector1D, PropagateScalarField>(this, &PropagateScalarField::getPropagatedField, M_FILTER));
+	built = (built && createPortIn<dmpvector1D*, PropagateScalarField>(this, &PropagateScalarField::setDirichletConditions, M_FILTER));
+	built = (built && createPortOut<dmpvector1D*, PropagateScalarField>(this, &PropagateScalarField::getPropagatedField, M_FILTER));
 	PropagateField<1>::buildPorts();
 	m_arePortsBuilt = built;
 };
@@ -116,17 +116,17 @@ PropagateScalarField::buildPorts(){
  * It gets the resulting propagated field on the whole bulk mesh.
  * \return Deformation field.
  */
-dmpvector1D
+dmpvector1D*
 PropagateScalarField::getPropagatedField(){
-	dmpvector1D field;
-	field.reserve(m_field.size());
-	field.setDataLocation(m_field.getDataLocation());
-	field.setGeometry(m_field.getGeometry());
+	m_tempfield.clear();
+	m_tempfield.reserve(m_field.size());
+	m_tempfield.setDataLocation(m_field.getDataLocation());
+	m_tempfield.setGeometry(m_field.getGeometry());
 	for(auto it = m_field.begin(); it != m_field.end(); ++it){
-		field.insert(it.getId(), (*it)[0]);
+		m_tempfield.insert(it.getId(), (*it)[0]);
 	}
 
-	return(field);
+	return &m_tempfield;
 }
 
 /*!
@@ -135,12 +135,12 @@ PropagateScalarField::getPropagatedField(){
  * \param[in] bc dirichlet conditions
  */
 void
-PropagateScalarField::setDirichletConditions(dmpvector1D bc){
-//	if (bc.isEmpty()) return;
-	m_surface_bc_dir.reserve(bc.size());
-	m_surface_bc_dir.setDataLocation(bc.getDataLocation());
-	m_surface_bc_dir.setGeometry(bc.getGeometry());
-	for(auto it = bc.begin(); it != bc.end(); ++it){
+PropagateScalarField::setDirichletConditions(dmpvector1D * bc){
+	if (!bc) return;
+	m_surface_bc_dir.reserve(bc->size());
+	m_surface_bc_dir.setDataLocation(bc->getDataLocation());
+	m_surface_bc_dir.setGeometry(bc->getGeometry());
+	for(auto it = bc->begin(); it != bc->end(); ++it){
 		m_surface_bc_dir.insert(it.getId(), std::array<double,1>({*it}));
 	}
 }
@@ -496,11 +496,11 @@ void PropagateVectorField::swap(PropagateVectorField & x) noexcept {
 void
 PropagateVectorField::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dmpvecarr3E, PropagateVectorField>(this, &PropagateVectorField::setDirichletConditions, M_GDISPLS));
+	built = (built && createPortIn<dmpvecarr3E *, PropagateVectorField>(this, &PropagateVectorField::setDirichletConditions, M_GDISPLS));
 	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::setSlipBoundarySurface, M_GEOM4));
 	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::setSlipReferenceSurface, M_GEOM6));
 	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::addPeriodicBoundarySurface, M_GEOM5));
-	built = (built && createPortOut<dmpvecarr3E, PropagateVectorField>(this, &PropagateVectorField::getPropagatedField, M_GDISPLS));
+	built = (built && createPortOut<dmpvecarr3E *, PropagateVectorField>(this, &PropagateVectorField::getPropagatedField, M_GDISPLS));
 	PropagateField<3>::buildPorts();
 	m_arePortsBuilt = built;
 };
@@ -509,9 +509,9 @@ PropagateVectorField::buildPorts(){
  * It gets the resulting deformation field on points cloud.
  * \return Deformation field.
  */
-dmpvecarr3E
+dmpvecarr3E*
 PropagateVectorField::getPropagatedField(){
-	return(m_field);
+	return &m_field;
 }
 
 /*!
@@ -572,8 +572,9 @@ PropagateVectorField::forcePlanarSlip(bool planar){
  * \param[in] bc dirichlet conditions
  */
 void
-PropagateVectorField::setDirichletConditions(dmpvecarr3E bc){
-	m_surface_bc_dir = bc;
+PropagateVectorField::setDirichletConditions(dmpvecarr3E * bc){
+    if(!bc) return;
+	m_surface_bc_dir = *bc;
 }
 
 /*!

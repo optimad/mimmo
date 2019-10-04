@@ -229,12 +229,12 @@ protected:
     | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_) |
     | M_GEOM2        | setDirichletBoundarySurface           | (MC_SCALAR, MD_MIMMO_) |
     | M_GEOM3        | setDumpingBoundarySurface             | (MC_SCALAR, MD_MIMMO_) |
-    | M_FILTER       | setDirichletConditions                | (MC_MPVECTOR, MD_FLOAT)|
+    | M_FILTER       | setDirichletConditions                | (MC_SCALAR, MD_MPVECFLOAT_)|
 
     |Port Output|||
     ||||
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_FILTER         | getPropagatedField                  | (MC_MPVECTOR, MD_FLOAT) |
+    | M_FILTER         | getPropagatedField                  | (MC_SCALAR, MD_MPVECFLOAT_) |
 
  *    =========================================================
  *
@@ -277,9 +277,9 @@ public:
 
     void buildPorts();
 
-    dmpvector1D getPropagatedField();
+    dmpvector1D* getPropagatedField();
 
-    void    setDirichletConditions(dmpvector1D bc);
+    void    setDirichletConditions(dmpvector1D *bc);
     void    setSolverMultiStep(unsigned int sstep);
 
     //execute
@@ -298,6 +298,7 @@ protected:
     virtual void plotOptionalResults();
 
 private:
+    dmpvector1D m_tempfield;
     void    setUpdateThreshold(double thres) override{
         BITPIT_UNUSED(thres);
     };
@@ -335,7 +336,7 @@ private:
     | M_GEOM          | setGeometry                 | (MC_SCALAR, MD_MIMMO_)  |
     | M_GEOM2         | setDirichletBoundarySurface |(MC_SCALAR, MD_MIMMO_)   |
     | M_GEOM3         | setDumpingBoundarySurface   | (MC_SCALAR, MD_MIMMO_)  |
-    | M_GDISPLS       | setDirichletConditions      | (MC_MPVECARR3, MD_FLOAT)|
+    | M_GDISPLS       | setDirichletConditions      | (MC_SCALAR, MD_MPVECARR3FLOAT_)|
     | M_GEOM4         | setSlipBoundarySurface      | (MC_SCALAR, MD_MIMMO_)  |
     | M_GEOM5         | addPeriodicBoundarySurface  | (MC_SCALAR, MD_MIMMO_)  |
     | M_GEOM6         | setSlipReferenceSurface     | (MC_SCALAR, MD_MIMMO_)  |
@@ -343,7 +344,7 @@ private:
     |Port Output|||
     ||||
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_GDISPLS         | getPropagatedField   | (MC_MPVECARR3, MD_FLOAT) |
+    | M_GDISPLS         | getPropagatedField   | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
 
  *    =========================================================
  *
@@ -408,7 +409,7 @@ public:
 
     void buildPorts();
 
-    dmpvecarr3E getPropagatedField();
+    dmpvecarr3E * getPropagatedField();
     bool        isForcingPlanarSlip();
 
     void    setSlipBoundarySurface(MimmoObject *);
@@ -416,7 +417,7 @@ public:
     void    addPeriodicBoundarySurface(MimmoObject *);
     void    forcePlanarSlip(bool planar);
     void    forceBoundarySlip(bool boundaries);
-    void    setDirichletConditions(dmpvecarr3E bc);
+    void    setDirichletConditions(dmpvecarr3E * bc);
 
     void    setSolverMultiStep(unsigned int sstep);
 
@@ -467,8 +468,8 @@ REGISTER_PORT(M_GEOM3, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GEOM4, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GEOM5, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
 REGISTER_PORT(M_GEOM6, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)
-REGISTER_PORT(M_FILTER, MC_MPVECTOR, MD_FLOAT,__PROPAGATEFIELD_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_MPVECARR3, MD_FLOAT,__PROPAGATEFIELD_HPP__)
+REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_,__PROPAGATEFIELD_HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_,__PROPAGATEFIELD_HPP__)
 
 REGISTER(BaseManipulation, PropagateScalarField, "mimmo.PropagateScalarField")
 REGISTER(BaseManipulation, PropagateVectorField, "mimmo.PropagateVectorField")
