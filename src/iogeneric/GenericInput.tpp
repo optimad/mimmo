@@ -179,7 +179,10 @@ std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< std::array< T,d
         if(x.intIsValidLocation(location)) x.setDataLocation(static_cast<MPVLocation>(location));
     }
     if(ifstreamcsvend(in, readSizeData) && !in.bad()){
-        sizeData = long(readSizeData);
+        if (readSizeData < std::numeric_limits<long>::max())
+        	sizeData = long(readSizeData);
+        else
+        	sizeData = 0;
     }
     x.reserve(sizeData);
     for(long count = 0; count<sizeData; ++count){
