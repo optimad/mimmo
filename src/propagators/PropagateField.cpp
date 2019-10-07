@@ -1206,9 +1206,9 @@ void PropagateVectorField::propagateMaskMovingPoints(livector1D & vertexList) {
 
 	std::unordered_set<long> core(vertexList.begin(), vertexList.end());
 
-    if (!getGeometry()->isPointConnectivitySync())
-    	getGeometry()->buildPointConnectivity();
-
+    if (!getGeometry()->isPointConnectivitySync()){
+        getGeometry()->buildPointConnectivity();
+    }
 	std::unordered_set<long> tempV1;
 	for(long id: vertexList){
 		tempV1 = getGeometry()->getPointConnectivity(id);
