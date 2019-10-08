@@ -3775,7 +3775,7 @@ MimmoObject::triangulate(){
 #if MIMMO_ENABLE_MPI
 	if (m_nprocs > 1){
 		//TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
-		(*m_log)<< "WARNING " <<m_name <<" : forced triangulation is not available yet in MPI compilation."<<std::endl;
+		(*m_log)<< "WARNING  : forced triangulation is not available yet in MPI compilation."<<std::endl;
 	}
 #else
 
