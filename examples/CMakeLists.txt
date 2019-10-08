@@ -58,7 +58,7 @@ if(BUILD_EXAMPLES)
     isModuleEnabled("utils" MODULE_UTILS_ENABLED)
     isModuleEnabled("propagators" MODULE_PROPAGATORS_ENABLED)
     isModuleEnabled("parallel" MODULE_PARALLEL_ENABLED)
-    isModuleEnabled("iovkt" MODULE_IOVTK_ENABLED)
+    isModuleEnabled("iovtk" MODULE_IOVTK_ENABLED)
     isModuleEnabled("ioofoam" MODULE_IOOFOAM_ENABLED)
     isModuleEnabled("iocgns" MODULE_IOCGNS_ENABLED)
 

@@ -576,7 +576,7 @@ IOOFOAM::read(){
 		std::size_t sizeFList = bitCells[iDC].getInterfaceCount();
 
         long iBIT = bitpit::Interface::NULL_ID;
-        int j=0;
+        std::size_t j(0);
         while(iBIT < 0 && j<sizeFList){
             long * vconn = bitInterfaces[bitFaceList[j]].getConnect();
             std::size_t vconnsize = bitInterfaces[bitFaceList[j]].getConnectSize();
@@ -843,7 +843,6 @@ IOOFOAMScalarField::read(){
 
 		const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
 		long startIndex;
-		long endIndex;
 
 		std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
 		dmpvector1D boundaryFieldOnFace;
@@ -856,7 +855,6 @@ IOOFOAMScalarField::read(){
 				if (size > 0){
 					long iBoundary = pid-1;
 					startIndex = foamBMesh[iBoundary].start();
-					endIndex = startIndex + long(foamBMesh[iBoundary].size());
 					long ind = startIndex;
 					for (double val : field){
 						boundaryFieldOnFace.insert(m_OFbitpitmapfaces[ind], val);
@@ -1091,7 +1089,6 @@ IOOFOAMVectorField::read(){
 
 		const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
 		long startIndex;
-		long endIndex;
 
 		std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
 		dmpvecarr3E boundaryFieldOnFace;
@@ -1104,7 +1101,6 @@ IOOFOAMVectorField::read(){
 				if (size > 0){
 					long iBoundary = pid-1;
 					startIndex = foamBMesh[iBoundary].start();
-					endIndex = startIndex + long(foamBMesh[iBoundary].size());
 					long ind = startIndex;
 					for (std::array<double,3> val : field){
 						boundaryFieldOnFace.insert(m_OFbitpitmapfaces[ind], val);

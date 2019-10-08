@@ -37,6 +37,7 @@ namespace mimmo{
  */
 IOCGNS::IOCGNS(IOCGNS::IOCGNS_Mode mode){
     setDefaults();
+    m_mode = mode;
 }
 
 /*!
@@ -375,6 +376,7 @@ void    IOCGNS::setWritingFormat(IOCGNS::IOCGNS_WriteType type){
 void    IOCGNS::setWritingMultiZone(bool multizone){
     //TODO uncomment
     //m_multizone = multizone;
+    BITPIT_UNUSED(multizone);
     m_multizone = false;
 }
 
@@ -683,7 +685,7 @@ IOCGNS::read(const std::string & file){
             cgsize_t normalListSize;
             CGNS_ENUMT(DataType_t) normalDataType;
             int ndataset;
-            CGNS_ENUMT(GridLocation_t) location;
+            //CGNS_ENUMT(GridLocation_t) location;
 
             //reading information of the boundary. What i need here is
             // the name (for sewing betwenn zones after) and the ptset_type-nBCElements.
@@ -948,7 +950,7 @@ IOCGNS::read(const std::string & file){
 
         //you have bc on points, you need to pass from patchVol first.
         bitpit::PiercedVector<bitpit::Cell> & cells = patchVol->getCells();
-        bitpit::PiercedVector<bitpit::Vertex> & verts = patchVol->getVertices();
+        //bitpit::PiercedVector<bitpit::Vertex> & verts = patchVol->getVertices();
         std::unordered_map<long, std::set<int> > borderFaceCells;
 
         //loop on local bc;
@@ -1168,7 +1170,7 @@ if(m_multizone){
         throw std::runtime_error ("cgns error during write " + file);
     }
 
-    std::unordered_map<long, std::string> & zonePidList = vol->getPIDTypeListWNames();
+    //std::unordered_map<long, std::string> & zonePidList = vol->getPIDTypeListWNames();
 
     std::string zonename = "Zone0001";
 
