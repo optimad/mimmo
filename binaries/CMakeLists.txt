@@ -70,6 +70,8 @@ if(BUILD_XMLTUI)
 	##    target_link_libraries(${TEST_NAME} ${VTK_LIBRARIES})
 		install(TARGETS ${BIN_NAME} DESTINATION bin)
         install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/samples DESTINATION bin)
+        install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../input DESTINATION bin)
+        install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../geodata DESTINATION bin)
 	endforeach()
 
 	add_custom_target(binaries DEPENDS ${MIMMO_BINS_TARGETS})
