@@ -606,9 +606,7 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
 
     result->reserve(geo.getNInternalVertices());
     for(auto id : geo.getVertices().getIds()){
-#if MIMMO_ENABLE_MPI
     	if (geo.isPointInterior(id))
-#endif
     		result->insert(id, bitpit::StencilScalar());
     }
 
@@ -638,9 +636,7 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
             d_1 *= avgdiff;
             sums[id1] += d_1;
 
-#if MIMMO_ENABLE_MPI
     		if (geo.isPointInterior(id1))
-#endif
     		{
     			result->at(id1).appendItem(id2, d_1);
     		}
@@ -656,9 +652,7 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
 
     //Insert diagonal values (-1)
     for (long id : geo.getPatch()->getVertices().getIds()){
-#if MIMMO_ENABLE_MPI
     	if (geo.isPointInterior(id))
-#endif
     	{
     		result->at(id).addComplementToZero(id); // adding the central node weight as minus sum of other weights.
     		result->at(id).flatten();
@@ -698,9 +692,7 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, std::vector<long>* no
 
     result->reserve(nodesList->size());
     for(auto id : *nodesList){
-#if MIMMO_ENABLE_MPI
     	if (geo.isPointInterior(id))
-#endif
     	{
     		result->insert(id, bitpit::StencilScalar());
     	}
@@ -731,9 +723,7 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, std::vector<long>* no
             d_1 =1.0/std::pow(norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2)),p);
             d_1 *= avgdiff;
             sums[id1] += d_1;
-#if MIMMO_ENABLE_MPI
     		if (geo.isPointInterior(id1))
-#endif
     		{
     			result->at(id1).appendItem(id2, d_1);
     		}
@@ -749,9 +739,7 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, std::vector<long>* no
 
     //Insert diagonal values (-1)
     for (long id : *nodesList){
-#if MIMMO_ENABLE_MPI
     	if (geo.isPointInterior(id))
-#endif
     	{
     		result->at(id).addComplementToZero(id); // adding the central node weight as minus sum of other weights.
     		result->at(id).flatten();

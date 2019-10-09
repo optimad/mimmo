@@ -906,9 +906,7 @@ void PropagateVectorField::initializeSlipSurfaceAsPlane(){
     }
 	//start evaluating barycenter of interior points.
 	for(auto itV = surfkernss->vertexBegin(); itV != surfkernss->vertexEnd(); ++itV){
-#if MIMMO_ENABLE_MPI
 		if(m_slipsurface->isPointInterior(itV.getId()))
-#endif
 		{
 			m_AVGslipCenter += itV->getCoords();
 			++countV;
@@ -956,9 +954,7 @@ std::unique_ptr<MimmoPiercedVector<std::array<double,3> > >
     if(!dumptarget) dumptarget = m_bsurface;
 
     for(long id: dumptarget->getVertices().getIds()){
-#if MIMMO_ENABLE_MPI
         if(dumptarget->isPointInterior(id))
-#endif
         {
             mpvres->insert(id, m_field.at(id));
         }
@@ -1390,9 +1386,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 
 	//loop on all dirichlet boundary nodes.
 	for(long id : m_bc_dir.getIds()){
-#if MIMMO_ENABLE_MPI
 		if (geo->isPointInterior(id))
-#endif
 		{
 			//apply the correction relative to bc @ dirichlet node.
 			correction.clear(true);
@@ -1406,9 +1400,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 
 	//Loop on all periodic boundary points and force to be fixed (dirichlet 0)
 	for (long id : m_periodicBoundaryPoints){
-#if MIMMO_ENABLE_MPI
 			if (geo->isPointInterior(id))
-#endif
 			{
 				correction.clear(true);
 				correction.appendItem(id, 1.);
@@ -1424,9 +1416,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 	//Correct if it is the correction step. If not the neumann condition are automatically imposed by Graph-Laplace scheme.
 	if(slipCorrect){
 		for(long id : m_surface_slip_bc_dir.getIds()){
-#if MIMMO_ENABLE_MPI
 			if (geo->isPointInterior(id))
-#endif
 			{
 				//apply the correction relative to bc @ dirichlet node.
 				correction.clear(true);
