@@ -210,6 +210,7 @@ public:
     int getRank() const;
 	int getProcessorCount() const;
 
+    bool isPointInterior(long id);
 #if MIMMO_ENABLE_MPI
 	const MPI_Comm & getCommunicator() const;
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeSources() const;
@@ -217,7 +218,6 @@ public:
     bool arePointGhostExchangeInfoSync();
     void updatePointGhostExchangeInfo();
     void resetPointGhostExchangeInfo();
-    bool isPointInterior(long id);
     bool cleanParallelSkdTreeSync();
     bool cleanParallelKdTreeSync();
     bool cleanParallelAdjacenciesSync();

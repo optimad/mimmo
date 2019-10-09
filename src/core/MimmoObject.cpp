@@ -1293,6 +1293,34 @@ MimmoObject::getKdTree(){
 	return m_kdTree.get();
 }
 
+/*!
+ * Get if a vertex is local or not. The structures have to be previously updated (not internal sync).
+ * \param[in] id Vertex id
+ * Note: if not mpi support enabled or patch not partitioned return true (no check if node exists).
+ */
+bool
+MimmoObject::isPointInterior(long id)
+{
+#if MIMMO_ENABLE_MPI
+
+	//TODO Initialize structure to true if not partitioned
+	//If not partitioned return true
+	if (!getPatch()->isPartitioned())
+		return true;
+
+//	if (!arePointGhostExchangeInfoSync())
+//		updatePointGhostExchangeInfo();
+
+//	if (!m_isPointInterior.count(id))
+//		return false;
+
+	return m_isPointInterior.at(id);
+
+#else
+	return true;
+#endif
+}
+
 #if MIMMO_ENABLE_MPI
 
 /*!
@@ -1683,32 +1711,6 @@ void MimmoObject::resetPointGhostExchangeInfo()
 	m_pointGhostExchangeInfoSync = false;
 }
 
-
-
-/*!
- * Get if a vertex is local or not. The structures have to be previously updated (not internal sync).
- * \param[in] id Vertex id
- */
-bool
-MimmoObject::isPointInterior(long id)
-{
-
-//	if (!getVertices().exists(id))
-//		return false;
-
-	//TODO Initialize structure to true if not partitioned
-	//If not partitioned return true
-	if (!getPatch()->isPartitioned())
-		return true;
-
-//	if (!arePointGhostExchangeInfoSync())
-//		updatePointGhostExchangeInfo();
-
-//	if (!m_isPointInterior.count(id))
-//		return false;
-
-	return m_isPointInterior.at(id);
-}
 
 /*!
     General checker for SkdTree status throughout all procs. If at least one partition
