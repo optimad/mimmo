@@ -206,7 +206,6 @@ std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSk
  * currently found placed at a distance <= tol from the bounding boxes of the
  * leaf nodes in leafSelection.
  * \param[in] tol Distance threshold used to select the elements of target.
- * \param[in] next Index of the node of the bv-tree target to be checked. If
  * the next-th node is not a leaf node the method is recursively called.
  *
  *

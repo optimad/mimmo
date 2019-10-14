@@ -259,7 +259,7 @@ RefineGeometry::plotOptionalResults(){
 	getGeometry()->getPatch()->write(name);
 }
 
-/*
+/*!
  * Global refinement by ternary method. A vertex is added on the barycenter of each cell.
  * One triangle for each edge is added for every cell.
  */

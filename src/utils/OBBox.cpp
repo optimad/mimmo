@@ -691,7 +691,7 @@ OBBox::adjustBasis(dmatrix33E & eigVec, darray3E & eigVal){
 
 /*!
     Transpose a 3x3 double matrix
-    \param[in] target matrix
+    \param[in] mat target matrix
     \return new matrix transposed
 */
 dmatrix33E OBBox::transpose(const dmatrix33E & mat){
@@ -706,8 +706,8 @@ dmatrix33E OBBox::transpose(const dmatrix33E & mat){
 }
 
 /*!
-    invert a 3x3 double matrix
-    \param[in] target matrix
+    Invert a 3x3 double matrix
+    \param[in] mat target matrix
     \return new matrix transposed
 */
 dmatrix33E OBBox::inverse(const dmatrix33E & mat){

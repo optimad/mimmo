@@ -1227,8 +1227,6 @@ MimmoObject::getPID() {
 
 /*!
  * Return if the skdTree ordering structure for cells is built/synchronized
- * \param[in] global (parallel archs) true to check if all partitions have the tree built,
- * false to check only the local one. Serial arch will check always the local.
  * \return true if the skdTree ordering structure for cells is built/synchronized
  * with your current geometry.
  */
@@ -1274,8 +1272,6 @@ MimmoObject::getPatchInfo(){
 
 /*!
  * Return if the kdTree ordering structure for vertices is built/synchronized
- * \param[in] global (parallel archs) true to check if all partitions have the tree built,
- * false to check only the local one. Serial arch will check always the local.
  * \return true if the kdTree vertices ordering structure is
  * built/synchronized with your current geometry
  */
@@ -1321,6 +1317,27 @@ MimmoObject::isPointInterior(long id)
 #endif
 }
 
+/*!
+	Gets the MPI rank associated to the object.
+    For serial version return always 0.
+	\return The MPI rank associated to the object.
+*/
+int MimmoObject::getRank() const
+{
+	return m_rank;
+}
+
+/*!
+	Gets the MPI processors in the communicator associated to the object.
+    For serial version return always 1
+	\return The MPI processors in the communicator associated to the object
+*/
+int MimmoObject::getProcessorCount() const
+{
+	return m_nprocs;
+}
+
+
 #if MIMMO_ENABLE_MPI
 
 /*!
@@ -1333,25 +1350,6 @@ const MPI_Comm & MimmoObject::getCommunicator() const
 	return m_communicator;
 }
 
-/*!
-	Gets the MPI rank associated to the object
-
-	\return The MPI rank associated to the object.
-*/
-int MimmoObject::getRank() const
-{
-	return m_rank;
-}
-
-/*!
-	Gets the MPI processors in the communicator associated to the object
-
-	\return The MPI processors in the communicator associated to the object
-*/
-int MimmoObject::getProcessorCount() const
-{
-	return m_nprocs;
-}
 
 /*!
 	Gets a constant reference to the ghost targets needed for point data exchange.
@@ -3681,7 +3679,10 @@ double MimmoObject::evalInterfaceArea(const long & id){
     return result;
 }
 
-
+/*!
+  Build the Node-Node connectivity of the tessellated mesh,(nodes connected by edges)
+  and store it internally.
+ */
 void
 MimmoObject::buildPointConnectivity()
 {
@@ -3741,6 +3742,9 @@ MimmoObject::buildPointConnectivity()
     m_pointConnectivitySync = true;
 }
 
+/*!
+    Clean the point connectivity structure.
+ */
 void
 MimmoObject::cleanPointConnectivity()
 {
@@ -3748,6 +3752,11 @@ MimmoObject::cleanPointConnectivity()
     m_pointConnectivitySync = false;
 }
 
+/*!
+    Get the connectivity of a target node/vertex
+    \param[in] id of target node
+    \return connectivity nodes list of id-target.
+ */
 std::unordered_set<long> &
 MimmoObject::getPointConnectivity(const long & id)
 {
@@ -3755,6 +3764,9 @@ MimmoObject::getPointConnectivity(const long & id)
 	return m_pointConnectivity[id];
 }
 
+/*!
+    \return true if the node-node connectivity is built.
+*/
 bool
 MimmoObject::isPointConnectivitySync(){
 	return m_pointConnectivitySync;

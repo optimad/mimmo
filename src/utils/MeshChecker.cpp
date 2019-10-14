@@ -158,7 +158,7 @@ MeshChecker::buildPorts(){
 
 /*!
     Overload BaseManipulation setGeometry
-    \param[in] obj target geometry
+    \param[in] geo target geometry
 */
 void MeshChecker::setGeometry(MimmoObject * geo){
     if(geo){

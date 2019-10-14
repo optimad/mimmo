@@ -399,7 +399,7 @@ BaseManipulation::getId(){
 }
 
 /*!Set the logger.
- * \param[in] Pointer to logger object.
+ * \param[in] log logger object.
  */
 void
 BaseManipulation::setLog(bitpit::Logger& log){

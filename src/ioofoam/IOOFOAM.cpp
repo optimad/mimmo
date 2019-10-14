@@ -184,7 +184,7 @@ IOOFOAM_Kernel::setGeometry(MimmoObject * bulk){
 /*!
  * Set current boundary geometry -> mesh coherent with bulk set with setGeometry();
  * Any previous mesh internally allocated will be destroyed. See MimmoFvMesh::setBoundaryGeometry
- * \param[in] bulk pointer to external boundary mesh MimmoObject.
+ * \param[in] boundary pointer to external boundary mesh MimmoObject.
  */
 void
 IOOFOAM_Kernel::setBoundaryGeometry(MimmoObject * boundary){
@@ -194,7 +194,7 @@ IOOFOAM_Kernel::setBoundaryGeometry(MimmoObject * boundary){
 
 /*!
  * Set current map between OFOAM faces -> bitpit interfaces.
- * \param[in] reference to interfaces map.
+ * \param[in] mapFaces reference to interfaces map.
  */
 void
 IOOFOAM_Kernel::setFacesMap(std::unordered_map<long,long> mapFaces){

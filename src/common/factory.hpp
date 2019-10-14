@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -30,20 +30,20 @@
 #include "configuration.hpp"
 #include "bitpit_common.hpp"
 
-namespace mimmo{
-
-    
 /*!
  *   \ingroup common
  *   \{
- */    
-    
+ */
+
+
+namespace mimmo{
+
 /*!
  * \class Factory
- * \brief Factory base template singleton for automatic 
+ * \brief Factory base template singleton for automatic
  *  factorization of executable classes
  *
- * Factory register a list of Base classes with their own custom 
+ * Factory register a list of Base classes with their own custom
  * method which create and instance them automatically.
  */
 template <class Base>
@@ -57,14 +57,14 @@ private:
     /*!Prevent assignment for singleton*/
     Factory& operator=(const Factory&);
     /*! Destructor */
-    ~Factory() { 
-        deleteCreators(); 
-    }; 
+    ~Factory() {
+        deleteCreators();
+    };
 
 public:
     /*!
     * \class AbstractCreator
-    * \brief Abstract class embedded in Factory to link creators 
+    * \brief Abstract class embedded in Factory to link creators
     * of type Base* <>(const bitpit::Config::Section & xml_root)
     */
     class AbstractCreator {
@@ -86,16 +86,16 @@ public:
      * \param[in] name name of a creator registered in the singleton
      * \param[in] xml_root reference to info, passed as xml-data tree, referred to the creator
      * \return pointer to the newly instantiated base class
-     */ 
+     */
     static Base * create(const std::string name, const bitpit::Config::Section & xml_root){
         Factory<Base>& factory = instance();
         if (factory.creators.count(name) == 0) return 0;
         return (factory.creators[name])->create(xml_root);
     }
-    
+
     /*! Remove a creator from registered list
      * \param[in] name name of the creator
-     */ 
+     */
     void removeCreator(const std::string name){
         if (creators.count(name) > 0) {
             delete creators[name];
@@ -103,19 +103,19 @@ public:
         }
         return;
     }
-    
+
     /*! Add a creator of type AbstractCreator to registered list
      * \param[in] name name of the creator
      * \param[in] creator pointer to the creator
      * \return current size of creators registered in the list
-     */ 
+     */
     int addCreator(const std::string name, const AbstractCreator* creator){
         removeCreator(name);
         creators[name]= creator;
         return (int) creators.size() + 1;
     }
 
-    /*! Check if a class is already registered 
+    /*! Check if a class is already registered
      * \param[in] name name of the creator
      * \return true if the creator exists
      */
@@ -123,7 +123,7 @@ public:
         return creators.count(name) > 0;
     }
 
-    /*! It sets a default creator for all your possible 
+    /*! It sets a default creator for all your possible
      * registered classes.
      * \param[in] creator pointer to a creator
      */
@@ -150,7 +150,7 @@ private:
 
     /*!
      * Empty the whole current list of registered creators
-     */ 
+     */
     void deleteCreators(){
         for(auto & val : creators){
             delete val.second;
@@ -162,28 +162,28 @@ private:
 /*!
 * \class Creator
 * \brief Template class to create an object Base * = new Derived creator class,
-* where Derived is a generic derived class of Base. Creator can be any constructor 
-* of the derived class who takes as argument a const reference to a xml-data tree 
+* where Derived is a generic derived class of Base. Creator can be any constructor
+* of the derived class who takes as argument a const reference to a xml-data tree
 * bitpit::Config::Section.
 */
 template <class Base, class Derived>
 class Creator : public Factory<Base>::AbstractCreator {
 
-/*! 
+/*!
  * \typedef CreateFn
- * for generic Creator function. 
- * All function must have as argument a reference to bitpit::Config::Section object 
+ * for generic Creator function.
+ * All function must have as argument a reference to bitpit::Config::Section object
  */
 typedef Derived* (*CreateFn) (const bitpit::Config::Section & );
 
 public:
     CreateFn createFn; /**< function linked as Creator */
-    
+
     /*! Constructor
      * \param[in] fn CreateFn function
      */
     Creator(CreateFn fn = NULL) : createFn(fn) {}
-    /*! Function to create a new object of class Derived, 
+    /*! Function to create a new object of class Derived,
      * with custom function of type CreateFn linked as Creator
      * \param[in] xml_root reference of xml-data tree
      * \return pointer to newly created object
@@ -200,12 +200,8 @@ public:
  */
 
 /*!
- * \ingroup macro
- * \{
- */
-
-/*!
  * \def REGISTER(Base, Derived, name)
+   \ingroup macro
  *  Register an executable mimmo class in the Factory singleton.
  * \param[in]   Base name of Derived's base class
  * \param[in]   Derived name of the class
@@ -218,6 +214,7 @@ static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCrea
 
 /*!
  * \def REGISTER_CUSTOM(Base, Derived, name, customCreator)
+   \ingroup macro
  * Register an executable mimmo class in the Factory singleton, and passing with it the method
  * also a custom creator method
  * \param[in]   Base name of Derived's base class
@@ -225,13 +222,14 @@ static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCrea
  * \param[in]   name string to register the creator's name
  * \param[in]   customCreator method to create the class
  * \return counter of the already registered classes
- * 
+ *
  */
 #define REGISTER_CUSTOM(Base, Derived, name, customCreator) \
 /* register a Derived class a custom xml constructor/creator method that will be instantiate as Base*/ \
 static int factory_##Base##_##Derived = mimmo::Factory<Base>::instance().addCreator(name, new Creator<Base, Derived>(&customCreator));
 
 /*!
+    \ingroup macro
  * Return if a creator name referencing to a Base class is already registered or not.
  * \param[in]   name string to register the creator's name
  * \return boolean true/false if the creator name is already registered
@@ -241,9 +239,4 @@ inline bool isREGISTERED(const std::string name){
     return mimmo::Factory<Base>::instance().containsCreator(name);
 }
 
-/*!
- * \}
- */ 
-
 #endif
-

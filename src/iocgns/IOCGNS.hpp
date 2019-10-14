@@ -132,12 +132,23 @@ class IOCGNS: public BaseManipulation{
 
 public:
 
+    /*!
+        \enum IOCGNS_Mode
+        \ingroup iocgns
+        \brief enumeration of IOCGNS class I/O modes.
+    */
     enum IOCGNS_Mode{
         READ = 0        , /**< 0-rank only, Read the cgns from file */
         RESTORE=1       , /**< Read the mesh from a previous <>.dump file*/
         WRITE=2         , /**< 0-rank only, Write the mesh on a cgns file */
         DUMP=3            /**<Write the mesh to dump file*/
     };
+
+    /*!
+        \enum IOCGNS_WriteType
+        \ingroup iocgns
+        \brief enumeration of IOCGNS class format type for writing only.
+    */
     enum IOCGNS_WriteType{
         NONE = 0        ,
         HDF5 = 1        , /**< 1-write cgns in default HDF5 mode */

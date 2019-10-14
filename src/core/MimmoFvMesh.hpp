@@ -44,7 +44,9 @@ struct InfoBoundaryPatch{
 
     InfoBoundaryPatch();
     ~InfoBoundaryPatch();
+    /*! Copy constructor*/
     InfoBoundaryPatch(const InfoBoundaryPatch &) = default;
+    /*! Assignment Operator */
     InfoBoundaryPatch & operator=(const InfoBoundaryPatch &) = default;
 };
 
@@ -125,9 +127,9 @@ protected:
     bool    checkMeshCoherence();
 };
 
-REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __MIMMOFVMESH_HPP__);
-REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __MIMMOFVMESH_HPP__);
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __MIMMOFVMESH_HPP__)
+REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __MIMMOFVMESH_HPP__)
 
-};
+}
 
 #endif /* __MIMMOFVMESH_HPP__*/

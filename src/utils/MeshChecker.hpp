@@ -8,7 +8,7 @@ namespace mimmo{
 
 /*!
  * \class MeshChecker
- * \ingroup MeshChecker
+ * \ingroup utils
  * \brief MeshChecker is the class to evaluate the quality of a mesh
  *
  * The available quality indices computed are :
@@ -65,8 +65,8 @@ class MeshChecker: public BaseManipulation {
 public:
 
     /*!
-     * \enum CHECKMESH
-     * \ingroup
+     * \enum CMeshOutput
+     * \ingroup utils
      * Check error flag given by MehsChecker class.
      */
     enum CMeshOutput{
@@ -123,21 +123,21 @@ protected:
 protected:
 
 	// check values
-	double	m_minVolume;
-	double	m_maxVolume;
-	double	m_maxSkewness;
-	double	m_maxSkewnessBoundary;
-	double	m_minFaceValidity;
-	double	m_maxFaceValidity;
-	double	m_minVolumeChange;
+	double	m_minVolume;            /**< minVolume variable*/
+	double	m_maxVolume;            /**< maxVolume variable*/
+	double	m_maxSkewness;          /**< maxSkewness variable*/
+	double	m_maxSkewnessBoundary;  /**< maxSkewness on Boundary variable*/
+	double	m_minFaceValidity;      /**< minFaceValidity variable*/
+	double	m_maxFaceValidity;      /**< maxFaceValidity variable*/
+	double	m_minVolumeChange;      /**< minVolumeChange variable*/
 
 	// tolerance values
-	double	m_minVolumeTol;
-	double	m_maxVolumeTol;
-	double	m_maxSkewnessTol;
-	double	m_maxSkewnessBoundaryTol;
-	double	m_minFaceValidityTol;
-	double	m_minVolumeChangeTol;
+	double	m_minVolumeTol;             /**< check tolerance for minVolume variable*/
+	double	m_maxVolumeTol;             /**< check tolerance for maxVolume variable*/
+	double	m_maxSkewnessTol;           /**< check tolerance for maxSkewness variable*/
+	double	m_maxSkewnessBoundaryTol;   /**< check tolerance for maxSkewness on Boundary variable*/
+	double	m_minFaceValidityTol;       /**< check tolerance for minFaceValidity variable*/
+	double	m_minVolumeChangeTol;       /**< check tolerance for minVolumeChange variable*/
 
 	bool		m_isGood;		/**< true is good, false there are some errors*/
     CMeshOutput	m_qualityStatus;/**< Quality check flag of the mesh related to tolerance exceeded (first error encountered with this order): -1, not computed; 0, mesh good with input tolerances;
@@ -152,7 +152,7 @@ protected:
 	std::unique_ptr<MimmoObject>	m_facevalidity; /**<Cells with poor face validity.*/
 	std::unique_ptr<MimmoObject>	m_volumechange; /**<Cells with poor volume change ratio.*/
 
-    bool m_printResumeFile;
+    bool m_printResumeFile; /**< true, print a resume file after checking */
 
 };
 

@@ -659,7 +659,10 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double 
  * Cell data to Point data interpolation by using gradients on cell centers. A inverse cell volume
  * weighted extrapolation of reconstructed values is placed on points.
  * The current object is a MimmoPiercedVector object with data located on MPVLocation::CELL
- * \param[in] cellGradients gradients on cell centers
+ * \param[in] cellGradientsX x-gradient comp on cell centers
+ * \param[in] cellGradientsY y-gradient comp on cell centers
+ * \param[in] cellGradientsZ z-gradient comp on cell centers
+ * \param[in] maximum boolean true, use simple averaging, false cubic-distance weighted averaging.
  * \return point data MimmoPiercedVector object located on MPVLocation::POINT
  */
 template<typename mpv_t>

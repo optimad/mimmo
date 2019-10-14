@@ -104,7 +104,9 @@ public:
 protected:
     void 			swap(IOOFOAM_Kernel & x) noexcept;
     virtual void    setDefaults();
+    /*! writing execution*/
     virtual bool    write() = 0;
+    /*! reading execution*/
     virtual bool    read() = 0;
 
 };

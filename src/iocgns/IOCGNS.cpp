@@ -260,7 +260,7 @@ IOCGNS::setDir(const string &dir){
     m_dir = dir;
 }
 
-/*!It sets the  filename without .<tag> for IO operation.
+/*!It sets the  filename without tag (.***) for IO operation.
    Given a target name "test", for each mode ew will have:
    - READ        : read from Dir the cgns file test.cgns (MPI with 0-rank only).
    - RESTORE     : read from Dir the dump file test.xxx.dump.
@@ -285,7 +285,7 @@ IOCGNS::setFilename(const string & filename){
    - WRITE       : write the mesh to abs path file pathdir/test.cgns.
    - DUMP        : write the mesh to dump abs path pathdir/test.xxx.dump.
 
- * \param[in] Mode working mode of the class
+ * \param[in] mode working mode of the class
  */
 void
 IOCGNS::setMode(IOCGNS::IOCGNS_Mode mode){
@@ -503,8 +503,8 @@ void IOCGNS::writeInfoFile(){
 }
 
 /*!It reads the mesh geometry from an input file.
-   \param[in] file, abs path to read cgns.
-   \return False if problems occur diring reading stage.
+   \param[in] file abs path to read cgns.
+   \return False if problems occur during reading stage.
  */
 bool
 IOCGNS::read(const std::string & file){
@@ -1505,7 +1505,7 @@ bool IOCGNS::belongToPool(const bitpit::ConstProxyVector<long> & elementconn, co
 
     \param[in] cellIds  list of cells
     \param[in] mapToLocVert map from volmesh globla enumeration to local one starting from 0 up to max Number of vertices involved.
-    \param[out] map of number of cells for each type of elements.
+    \param[out] ncells map of number of cells for each type of elements.
 
     \return the Zone connectivity of a certain portion of volume mesh.
 
@@ -1577,7 +1577,7 @@ IOCGNS::getZoneConn(const livector1D& cellIds,
 
     \param[in] cellIds  list of cells
     \param[in] mapToLocVert map from volmesh globla enumeration to local one starting from 0 up to max Number of vertices involved.
-    \param[out] map of number of cells for each type of elements.
+    \param[out] ncells map of number of cells for each type of elements.
     \param[out] surfCellGlobToLoc  map form surface cell id to local compact consecutive id.
     \return the Zone connectivity of a certain portion of volume mesh.
 
@@ -1643,7 +1643,7 @@ IOCGNS::getBCElementsConn(const livector1D& cellIds,
     Unpack conns array of mixed elements.
     \param[in] connsArray of mixed conns as read by cgns.
     \param[in,out] patchVol mimmoObject to store volume elements.
-    \param[in,out] surfElements map to store surface elements for boundary purposes (key ordered according to the element type)
+    \param[in,out] surfElem map to store surface elements for boundary purposes (key ordered according to the element type)
     \param[in] idVertexOffset id offset for remapping local vertices.
     \param[in] idCellOffset id offset for remapping local cells.
     \param[in] PIDZoneVolume PID to be assigned to volumtric cells
@@ -1958,7 +1958,7 @@ void IOCGNS::communicateAllProcsStoredBC(){
 
 /*!
     Dump class contents on a stream
-    \param[in] stream output stream
+    \param[in] out output stream
 */
 void BCCGNS::dump(std::ostream & out){
 
@@ -2019,7 +2019,7 @@ void BCCGNS::dump(std::ostream & out){
 
 /*!
     Restore class contents from a stream
-    \param[in] stream input stream
+    \param[in] in input stream
 */
 void BCCGNS::restore(std::istream & in){
     int pidtobc_size, zonetobndpid_size, pidtolisttype_size, bcpidnames_size, zonepidnames_size;

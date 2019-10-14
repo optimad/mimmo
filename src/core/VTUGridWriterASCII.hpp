@@ -34,7 +34,7 @@ namespace mimmo{
  */
 
 /*!
- * \class VTUAbsorbStreamer
+ * \class VTUFlushStreamerASCII
  * \brief Abstract class for custom ASCII writer/flusher of *.vtu mesh external files
  *
  * Writer/flusher is focused to mesh data only retained by PatchKernel classes.

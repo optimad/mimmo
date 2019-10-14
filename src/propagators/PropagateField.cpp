@@ -1127,8 +1127,8 @@ PropagateVectorField::restoreBC(){
 }
 
 /*!
- * restore geometry to target vertices and reevaluate m_field as whole
- * \param[in] list of vertices to be restored
+ * restore geometry to target vertices and re-evaluate m_field as whole
+ * \param[in] vertices list  to be restored
  */
 void
 PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices){
@@ -1166,7 +1166,7 @@ PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & ve
  * Given an ensemble of cell marked as moving, enrich this list adding the first ring of
  * their vertex neighbours V1Ring, and the second ring of face neighbours F2Ring.
  *
- * \param[in,out] pool of moving cells in input, V1Ring+F2Ring augmented in output.
+ * \param[in,out] cellList pool of moving cells in input, V1Ring+F2Ring augmented in output.
  */
 void PropagateVectorField::propagateMaskMovingCells(livector1D & cellList) {
 
@@ -1196,7 +1196,7 @@ void PropagateVectorField::propagateMaskMovingCells(livector1D & cellList) {
  * Given an ensemble of points marked as moving, enrich this list adding the first neighbours of
  * these vertices.
  *
- * \param[in,out] pool of moving points in input, 1Ring augmented in output.
+ * \param[in,out] vertexList pool of moving points in input, 1Ring augmented in output.
  */
 void PropagateVectorField::propagateMaskMovingPoints(livector1D & vertexList) {
 
@@ -1238,7 +1238,7 @@ void PropagateVectorField::propagateMaskMovingPoints(livector1D & vertexList) {
  * \param[in] borderLaplacianStencil list of laplacian Stencil on border cells, where the bc is temporarely imposed as homogeneous Neumann
  * \param[in] borderCCGradientStencil list of Center cell gradient stencils defined on border cells.
  * \param[in] maplocals map from global id numbering to local system solver numbering.
- * \param[in,out] rhs, vector of right-hand-side's to append constant data from bc corrections.
+ * \param[in,out] rhs vector of right-hand-side's to append constant data from bc corrections.
  */
 void
 PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
@@ -1353,7 +1353,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
  * \param[in] slipCorrect true to apply the bc slip corrector step(Dirichlet), false for bc slip predictor(Neumann).
  * \param[in] borderLaplacianStencil list of laplacian Stencil on border nodes, where the bc is temporarely imposed as homogeneous Neumann
  * \param[in] maplocals map from global id numbering to local system solver numbering.
- * \param[in,out] rhs, vector of right-hand-side's to append constant data from bc corrections.
+ * \param[in,out] rhs vector of right-hand-side's to append constant data from bc corrections.
  */
 void
 PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,

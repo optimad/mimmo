@@ -117,11 +117,11 @@ protected:
 
     bool m_forceDirichletConditions; /**<If true the dirichlet boundaries values are forced during reconstruction on points phase in finite volume solver. */
 
-    std::unique_ptr<bitpit::SystemSolver> m_solver; /**! linear system solver for laplace */
+    std::unique_ptr<bitpit::SystemSolver> m_solver; /**< linear system solver for laplace */
     bool	m_print;				/**<If true residuals and other info are print during system solving.*/
 
     PropagatorMethod	m_method;	/**<Solver method enum.*/
-    std::unique_ptr<MimmoObject> m_originalDumpingSurface; /**! recollect of the whole dumping surface*/
+    std::unique_ptr<MimmoObject> m_originalDumpingSurface; /**< recollect of the whole dumping surface*/
 
 #if MIMMO_ENABLE_MPI
     std::unique_ptr<GhostCommunicator> m_ghostCommunicator; 			/**<Ghost communicator object */
@@ -392,7 +392,7 @@ protected:
     bool m_forcePlanarSlip; /**< force slip surface to be treated as plane */
 
     std::vector<MimmoObject*> m_periodicsurfaces;	/**< MimmoObject boundary patch identifying periodic conditions */
-    std::vector<long> m_periodicBoundaryPoints;
+    std::vector<long> m_periodicBoundaryPoints;     /**< list of mesh nodes flagged as periodic */
 
 private:
     std::array<double,3> m_AVGslipNormal;
@@ -416,7 +416,6 @@ public:
     void    setSlipReferenceSurface(MimmoObject *);
     void    addPeriodicBoundarySurface(MimmoObject *);
     void    forcePlanarSlip(bool planar);
-    void    forceBoundarySlip(bool boundaries);
     void    setDirichletConditions(dmpvecarr3E * bc);
 
     void    setSolverMultiStep(unsigned int sstep);

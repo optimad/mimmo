@@ -28,11 +28,10 @@ namespace mimmo{
 
 /*!
  * Base Constructor
- * @param[in] patch target patchkernel
  */
 VTUFlushStreamerASCII::VTUFlushStreamerASCII() : VTKBaseStreamer(){
     m_patch = nullptr;
-    m_vtkVertexMap = nullptr; 
+    m_vtkVertexMap = nullptr;
 }
 
 /*!
@@ -295,6 +294,7 @@ VTUGridWriterASCII::~VTUGridWriterASCII(){}
  * Write to file. Overloading of VTK::write();
   *@param[in] dir path to write.
   *@param[in] file name of file to write.
+   @param[in] mode vtk writing mode.
  */
 void VTUGridWriterASCII::write(const std::string & dir, const std::string & file,  bitpit::VTKWriteMode mode){
     setDirectory(dir);

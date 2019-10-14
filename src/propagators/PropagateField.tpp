@@ -227,7 +227,7 @@ PropagateField<NCOMP>::setDumpingType(int type){
 
 /*!
  * Set the dumping factor.
- * \param[in] dump Exponential of dumping function.
+ * \param[in] decay exponential decay factor of dumping function.
  */
 template <std::size_t NCOMP>
 void
@@ -905,7 +905,7 @@ PropagateField<NCOMP>::updateDumpingFunction(){
     // you don't need to communicate ghost data for dumping. Everyone, ghost included had the correct info.
 }
 
-///*!
+///*
 // * Prepare your system solver, feeding the laplacian stencils you previosly calculated.
 // * Provide the map that get consecutive Index from Global Pierced vector Index system for CELLS or POINTS
 // * The stencil will be renumerated with the consecutiveIdIndexing provided.
@@ -957,22 +957,22 @@ PropagateField<NCOMP>::updateDumpingFunction(){
 //		nNZ += it->size();
 //	}
 //
-//#if MIMMO_ENABLE_MPI==1
+// # if MIMMO_ENABLE_MPI==1
 //	//instantiate the SparseMatrix
 //	bitpit::SparseMatrix matrix(m_communicator, getGeometry()->getPatch()->isPartitioned(), nDOFs, nDOFs, nNZ);
-//#else
+// # else
 //	//instantiate the SparseMatrix
 //	bitpit::SparseMatrix matrix(nDOFs, nDOFs, nNZ);
-//#endif
+// # endif
 //
 //	std::vector<long> mapsort(laplacianStencils->size());
 //	long id, ind;
 //	for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
 //		id = it.getId();
 //		ind = maplocals.at(id);
-//#if MIMMO_ENABLE_MPI
+// # if MIMMO_ENABLE_MPI
 //		ind -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
-//#endif
+// # endif
 //		mapsort[ind] = id;
 //	}
 //
@@ -1132,7 +1132,7 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
  * \param[in] borderLaplacianStencil list of laplacian Stencil on border cells, where the bc is temporarely imposed as homogeneous Neumann
  * \param[in] borderCCGradientStencil list of Center cell gradient stencils defined on border cells.
  * \param[in] maplocals map from global id numbering to local system solver numbering.
- * \param[in,out] rhs, vector of right-hand-side's to append constant data from bc corrections.
+ * \param[in,out] rhs vector of right-hand-side's to append constant data from bc corrections.
  */
 
 template<std::size_t NCOMP>
@@ -1233,7 +1233,7 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
  * \param[in] unused boolean
  * \param[in] borderLaplacianStencil list of laplacian Stencil on border nodes, where the bc is temporarely imposed as homogeneous Neumann
  * \param[in] maplocals map from global id numbering to local system solver numbering.
- * \param[in,out] rhs, vector of right-hand-side's to append constant data from bc corrections.
+ * \param[in,out] rhs vector of right-hand-side's to append constant data from bc corrections.
  */
 template<std::size_t NCOMP>
 void

@@ -732,9 +732,5 @@ REGISTER(BaseManipulation, SelectionByPID, "mimmo.SelectionByPID")
 REGISTER(BaseManipulation, SelectionByBoxWithScalar, "mimmo.SelectionByBoxWithScalar")
 };
 
-/*!
- * \}
- */
-
 
 #endif /* __MESHSELECTION_HPP__ */

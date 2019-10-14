@@ -107,7 +107,7 @@ public:
 
     virtual void plotOptionalResults();
     bool checkCoherenceBulkBoundary();
-    
+
 protected:
     /*!
      * Extract selection from target geometry
@@ -401,10 +401,6 @@ REGISTER(BaseManipulation, FVSelectionByBox,"mimmo.FVSelectionByBox")
 REGISTER(BaseManipulation, FVSelectionByCylinder, "mimmo.FVSelectionByCylinder")
 REGISTER(BaseManipulation, FVSelectionBySphere,"mimmo.FVSelectionBySphere")
 };
-
-/*!
- * \}
- */
 
 
 #endif /* __FVMESHSELECTION_HPP__ */

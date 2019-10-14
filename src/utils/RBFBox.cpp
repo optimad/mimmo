@@ -310,7 +310,7 @@ RBFBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 /*!
     Transpose a 3x3 double matrix
-    \param[in] target matrix
+    \param[in] mat target matrix
     \return new matrix transposed
 */
 dmatrix33E RBFBox::transpose(const dmatrix33E & mat){

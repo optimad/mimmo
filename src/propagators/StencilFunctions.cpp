@@ -39,7 +39,7 @@ namespace FVolStencil{
      *
      * \param[in] P distance set
      * \param[in] w initial  guess weights
-     * \param[out] weights evaluated gradient weights
+     * \param[out] gweights evaluated gradient weights
      */
 void computeWeightsWLS( const std::vector<std::vector<double>> &P,
                         const std::vector<double> &w,
@@ -145,7 +145,7 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vec
     std::vector< long >                   neighs;
     std::array<double,3>                  dist;
     std::array<double,3>                  targetCentroid;
-    
+
     for(const long &cellID : list){
 
         targetCentroid = patch->evalCellCentroid(cellID);
@@ -257,7 +257,7 @@ MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, const std::vect
  *         You need to sum the right correction to recover the proper condition.
  *
  * \param[in] geo target mesh
- * \param[in] list of Center Cell Gradient stencils involved into update.
+ * \param[in] cellGradientStencil MPV of Center Cell Gradient stencils involved into update.
  * \return a INTERFACE data pierced vector containing gradient stencils at all interfaces relative to the selected cells.
  */
 MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, MPVGradient & cellGradientStencil ){
