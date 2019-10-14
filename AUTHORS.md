@@ -7,12 +7,12 @@ All the modules available up to now are developed by
 
   * [Edoardo Lombardi](mailto:edoardo.lombardi@optimad.it)
   * [Rocco Arpa](mailto:rocco.arpa@optimad.it)
-  * [Andrea Iob](mailto:andrea.iob@optimad.it)
 
 # Contributors
 
 These people have contributed to mimmo's development:
 
+* [Andrea Iob](mailto:andrea.iob@optimad.it)
 
 *We're keenly sorry if we've missed your name on this list, please email us to
 get it fixed.*

@@ -5,36 +5,55 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Fixed
-- fixed cmake retracking dependancies (as in case of bitpit)
-- fixed BasicShape: XML interface
-- fixed BasicShape: selections method
+### Added
+### Changed
+### Removed
+
+
+ ## [1.3.0] - 2019-10-??
+### Fixed
+- fixed cmake retracking dependancies (as in case of bitpit v.1.6.0).
+- fixed BasicShape: XML interface.
+- fixed BasicShape: selections method.
 - fixed IOCGNS: prism element mapping from/to cgns data structure.
-- fixed w/ CGNS compilation-> bump to 3.3.1 version
+- fixed w/ CGNS compilation-> bump to 3.3.1 version.
 - fixed compilation with Openfoam search: find LABEL_SIZE, ARCH_OPTION and PRECISION directly from FOAM env variables.
+- fixed ExtractFields: fixed execution of classes workflow.
+- fixed SwitchFields: fixed execution of classes workflow.
+- fixed SelectionByMapping: fixed execution of class workflow.
 
 ### Added
-- MRBF class: added heaviside functions to Mimmo Radial Basis Function object
-- added variable radius inner limits for cylindrical and spherical BasicShapes and Lattices.
-- added new elementary basic shape and lattice WEDGE (triangular prism)
-- added Linear System Solver Class based on PETSc
-- added Volume Mesh handler class MimmoFvMesh
-- added new modules "system" and "propagators"
-- added new kit of functions FVolStencil for Laplacian stencils calculation with Finite Volumes techniques (propagators module).
-- added new selectors FVSelectionBy (Box,Sphere,Cylinder) suitable for MimmoFvMesh objects.
-- added reading and writing STL solid names in multiSolid STL.
-- added MeshChecker class  in "utils" module
-- added SurfaceTriangulator class to handle mixed type 3D surface tessellation as homogeneous triangulations.
+- MRBF class: added heaviside functions to Mimmo Radial Basis Function object.
+- BasicShapes/Lattice classes: added variable radius inner limits for cylindrical and spherical shapes.
+- BasicShapes/Lattice classes: added new elementary basic shape and lattice WEDGE (triangular prism).
+- SurfaceTriangulator class: added block to handle mixed type 3D surface tessellation as homogeneous triangulations ("geohandlers" module).
+- RefineGeometry class: added new class to refine surface meshes ("geohandlers" module).
+- MimmoFVMesh class: prototype of Volume Mesh handler. Can be used also as stand alone executable block.
+- FVSelectionBy (Box,Sphere,Cylinder) classes: added new geometry handlers/selectors suitable for MimmoFvMesh objects (geohandlers module).
+- added new modules "propagators".
+- added new kit of functions for handling Stencils of linear systems (propagators module).
+- added solving of linear systems through LA module classes of bitpit (v1.6.0).
+- PropagateField classes: handling propagation of bc scalar/vector field inside bulk volume mesh employing solution of Laplacian systems.
+- GenericInput/OutputMPVData: added classes to read/write MimmoPiercedVector fields to file (ascii/binary).
+- MeshChecker class : added new class to check Volume mesh quality ("utils" module).
+- Project(Segment/3DCurve/Patch)OnSurface classes: added classes to project a segment/3DCurve/SurfacePatch onto a target surface mesh.
+- Module class: calculate magnitude scalar field from a generic input vector field.
 
 ### Changed
-- PropagateField classes: solution of Laplacian system solved by using bitpit LA module.
-- PropagateField classes: employing direct solution of Laplacian system as well as smoothing. Changed
-                          also User Interface and parameters controlling field propagation. Moved into the new module "propagators".
-
-- MimmoPiercedVector: changes to class interface
+- MimmoGeometry/MimmoObject class: added reading and writing STL solid names in multiSolid STL.
+- MimmoObject: structural changes to class interface
+- MimmoPiercedVector class: structural changes to class interface
 - IOOFOAM class : OpenFoam class interface now depending on OpenFoam native libraries, instead on VTK.
                   User interface has changed. Compatibility is ensured fro 2.x, 3.x 4.x and 5.x OpenFoam
                   Foundation versions, and ESI-OpenFoam v1606+, v1806+.
-- SkdTreeUtils : extractTarget method changed in algorithm and interface.
+- IOCGNS class : rework of I/O of the class. Reading multizone unstructured mesh.
+- OBBox class : rework of basic workflow.
+- SkdTreeUtils namespace : extractTarget method changed in algorithm and interface.
+- Scalar/Vector MimmoPiercedVector field PORTS are now exchanging data by structure pointer (M_GDISPLS, M_FILTER, M_SCALARFIELD, M_VECTORFIELD).
+- Coefficients PORT M_BCOEFFS in class manipulators::BendGeometry are now exchanging data by structure pointer.
+- XML executable mimmo++ : tiny fixes to User interface.
+
+### Removed
 - CGNSPidExtractor class: Removed. Use SelectionByPID and SurfaceTriangulator instead.
 
 
