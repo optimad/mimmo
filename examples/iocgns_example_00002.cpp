@@ -35,11 +35,11 @@ using namespace mimmo;
  *
  * \brief Reading of a CGNS volume mesh and check it with MeshChecker class.
  *
- * Using: IOCGNS, Partition (if parallel), MeshChecker.
+ * Using: IOCGNS, MeshChecker.
  *
  * Depends on mimmo optional module geohandlers
  *
- * <b>To run</b>: ./iocgns_example_00002 - mpirun -np 2 iocgns_example_00002 \n
+ * <b>To run</b>: ./iocgns_example_00002  \n
  *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */

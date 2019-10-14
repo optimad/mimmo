@@ -38,7 +38,7 @@ using namespace mimmo::pin;
 
 	\brief Example of usage of global deformation blocks of an input geometry.
 
-	Global geometry deformation blocks used: translation, scaling, twisting, bending and rotation.
+	Global geometry deformation blocks used: TranslationGeometry, ScaleGeometry, TwistGeometry, BendGeometry and RotationGeometry.
 
 	<b>To run</b>: ./manipulators_example_00001 \n
 
@@ -280,5 +280,5 @@ int main(int argc, char *argv[]) {
     MPI_Finalize();
 #endif
 
-    return (1);
+    return 0;
 }

@@ -125,5 +125,5 @@ int main(int argc, char *argv[]) {
     MPI_Finalize();
 #endif
 
-    return (1);
+    return 0;
 }

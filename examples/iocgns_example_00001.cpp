@@ -35,10 +35,16 @@ using namespace mimmo;
 /*!
  * \example iocgns_example_00001.cpp
  *
- * \brief Reading of a CGNS volume mesh and boundary extraction.
+ * \brief Morphing of a CGNS volume mesh, following step are performed:
+         - reading a CGNS volume mesh
+         - boundary extraction
+         - definition of a surface deformation on boundaries
+         - propagation of deformation field from boundaries to volume mesh bulk
+         - application of deformation to volume mesh
+         - write deformed mesh to CGNS file
  *
- * Using: IOCGNS, SelectionByPID, SelectionByBox
- *
+ * Using: IOCGNS, SelectionByPID, SelectionByBox, ReconstructVector, RotationGeometry, Apply, ExtractVectorFields
+ * 
  * Depends on mimmo optional module geohandlers
  *
  * <b>To run</b>: ./iocgns_example_00001 \n

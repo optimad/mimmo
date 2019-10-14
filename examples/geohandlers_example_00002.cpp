@@ -38,7 +38,7 @@ using namespace mimmo::pin;
 
 	\brief Example of usage of stitching block of two input geometry.
 
-	Geometry handler block used: StitchingGeometry.
+	Geometry handler block used: StitchGeometry.
 
 	<b>To run</b>: ./geohandlers_example_00002 \n
 
@@ -140,5 +140,5 @@ int main( int argc, char *argv[] ) {
 	MPI_Finalize();
 #endif
 
-	return(1);
+	return 0;
 }

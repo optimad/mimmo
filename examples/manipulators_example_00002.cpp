@@ -38,7 +38,7 @@ using namespace mimmo::pin;
 
 	\brief Example of usage of free form deformation block to manipulate an input geometry.
 
-	Geometry deformation block used: FFD (shape cube).
+	Geometry deformation block used: FFDLattice (Shape->cube).
 
 	<b>To run</b>: ./manipulators_example_00002 \n
 
@@ -179,5 +179,5 @@ int main( int argc, char *argv[] ) {
     MPI_Finalize();
 #endif
 
-    return(1);
+    return  0;
 }

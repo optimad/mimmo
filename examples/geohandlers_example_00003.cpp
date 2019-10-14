@@ -37,7 +37,8 @@ using namespace mimmo::pin;
 /*!
 	\example geohandlers_example_00003.cpp
 
-	\brief Example of usage of selection block to select a sub-patch of an input geometry.
+	\brief Example of usage of selection block to select sub-patches from an input geometry,
+           define fields onto them, and reconstruct the final field on the original geometry.
 
     Geometry handler block used: SelectionByMap, ReconstructVector
 

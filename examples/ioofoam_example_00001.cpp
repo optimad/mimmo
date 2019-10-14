@@ -32,14 +32,23 @@
 /*!
  * \example ioofoam_example_00001.cpp
  *
- * \brief Example of reading/writing of a OpenFOAM case mesh.
+ * \brief Example of reading,morphing and writing of a OpenFOAM case mesh.
  *
+ * PART1 - reading,morphing and writing of a OpenFOAM case mesh.
+
  * Mesh is read from an OpenFOAM case. A FFD deformation is applied.
  * The bulk volume mesh is deformed accordingly.
  * In writing, moved bulk points update those on the target mesh.
+
+   PART 2 -  Example of reading field from a OpenFOAM case mesh
+
+   Mesh and its boundary pressure scalar field are read from an OpenFOAM case.
+   The applier get the scalar field and convert it in a vectorfield of
+   geometrical displacements using the local boundary mesh normals.
+   Then apply the displacements to the boundary mesh and save the deformed version in a vtu file.
  *
- * Using: IOOFOAM
- *
+ * Using: IOOFOAM, FFDLattice, IOOFOAMScalarField, Apply
+
  * <b>To run</b>: ./ioofoam_example_00001 \n
  *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
@@ -147,14 +156,14 @@ int main( int argc, char *argv[] ) {
              OFOAM_sensi() ;
         }
         catch(std::exception & e){
-            std::cout<<"test_ioofoam_00001 exit with the following errors :"<<e.what()<<std::endl;
+            std::cout<<"test_ioofoam_00001 PART1 exit with the following errors :"<<e.what()<<std::endl;
             return 1;
         }
         try{
              OFOAM_manip() ;
         }
         catch(std::exception & e){
-            std::cout<<"test_ioofoam_00001 exit with the following errors :"<<e.what()<<std::endl;
+            std::cout<<"test_ioofoam_00001 PART2 exit with the following errors :"<<e.what()<<std::endl;
             return 1;
         }
 
