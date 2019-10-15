@@ -107,7 +107,7 @@ RefineGeometry::buildPorts(){
 
 	built = (built && createPortIn<MimmoObject*, RefineGeometry>(this, &BaseManipulation::setGeometry, M_GEOM, true));
 
-	built = (built && createPortOut<MimmoObject*, RefineGeometry>(this, &mimmo::RefineGeometry::getGeometry, M_GEOM));
+	built = (built && createPortOut<MimmoObject*, RefineGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
 	m_arePortsBuilt = built;
 }
 
@@ -232,6 +232,17 @@ void RefineGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 		setSmoothingSteps(value);
 	}
 
+	if(slotXML.hasOption("RefineSteps")){
+		std::string input = slotXML.get("RefineSteps");
+		input = bitpit::utils::string::trim(input);
+		int value = 0;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		setRefineSteps(value);
+	}
+
 	BaseManipulation::absorbSectionXML(slotXML, name);
 
 };
@@ -245,6 +256,7 @@ void RefineGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 
 	BaseManipulation::flushSectionXML(slotXML, name);
 	slotXML.set("RefineType", int(m_type));
+	slotXML.set("RefineSteps", m_refinements);
 	slotXML.set("SmoothingSteps", m_steps);
 
 };
