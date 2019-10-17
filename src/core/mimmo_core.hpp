@@ -52,5 +52,6 @@
 #include "MimmoCGUtils.hpp"
 #include "MimmoFvMesh.hpp"
 #include "VTUGridReader.hpp"
+#include "Module.hpp"
 
 #endif
