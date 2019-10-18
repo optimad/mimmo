@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "ReconstructFields.hpp"
+#include <unordered_set>
 namespace mimmo{
 
 /*!
@@ -345,7 +346,7 @@ ReconstructScalar::execute(){
 
     if(getGeometry() == NULL){
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        return;
+        throw std::runtime_error("Error in "+m_name + " : NULL pointer to linked geometry found");
     }
 
     if(getGeometry()->isEmpty()){

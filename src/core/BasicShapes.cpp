@@ -23,13 +23,10 @@
  \ *---------------------------------------------------------------------------*/
 #include "BasicShapes.hpp"
 #include "customOperators.hpp"
-#include "SortAlgorithms.hpp"
+#include <CG.hpp>
 #include <algorithm>
 
-using namespace bitpit;
-
 namespace mimmo{
-
 
 /*!
  * Basic Constructor
@@ -561,7 +558,7 @@ bool BasicShape::isSimplexIncluded(const dvecarr3E & simplexVert){
  */
 bool BasicShape::isSimplexIncluded(bitpit::PatchKernel * tri, const long int &indexT){
 
-  Cell & cell = tri->getCell(indexT);
+  bitpit::Cell & cell = tri->getCell(indexT);
   bitpit::ConstProxyVector<long> vIds = cell.getVertexIds();
   bool check = true;
   for(const auto & val: vIds){
@@ -685,7 +682,7 @@ void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::Pa
     nodeStack.push_back(rootId);
     while(!nodeStack.empty()){
         std::size_t nodeId = nodeStack.back();
-        const SkdNode & node  = tree.getNode(nodeId);
+        const bitpit::SkdNode & node  = tree.getNode(nodeId);
         nodeStack.pop_back();
 
         //second step: if the current node AABB does not intersect or does not completely contains the Shape, then thrown it away and continue.
@@ -696,10 +693,10 @@ void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::Pa
         //now the only option is to visit node's children. If node is not leaf, add children to the stack,
         //otherwise add current node as a possible candidate in shape inclusion.
         bool isLeaf = true;
-        for (int i = SkdNode::CHILD_BEGIN; i != SkdNode::CHILD_END; ++i) {
-            SkdNode::ChildLocation childLocation = static_cast<SkdNode::ChildLocation>(i);
+        for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {
+            bitpit::SkdNode::ChildLocation childLocation = static_cast<bitpit::SkdNode::ChildLocation>(i);
             std::size_t childId = node.getChildId(childLocation);
-            if (childId != SkdNode::NULL_ID) {
+            if (childId != bitpit::SkdNode::NULL_ID) {
                 isLeaf = false;
                 nodeStack.push_back(childId);
             }
@@ -712,9 +709,9 @@ void    BasicShape::searchBvTreeMatches(bitpit::PatchSkdTree & tree,  bitpit::Pa
     result.clear();
     result.reserve(toBeCandidates.size());
     for (const auto & idCand : toBeCandidates){
-        const SkdNode &node = tree.getNode(idCand);
+        const bitpit::SkdNode &node = tree.getNode(idCand);
         std::vector<long> cellids = node.getCells();
-        for(const auto & id : cellids){
+        for(long id : cellids){
             if(isSimplexIncluded(geo, id)){
                 result.push_back(id);
             }

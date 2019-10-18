@@ -24,7 +24,6 @@
 #ifndef __MODULE_HPP__
 #define __MODULE_HPP__
 
-#include "MimmoObject.hpp"
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
@@ -58,7 +57,7 @@ namespace mimmo{
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- * - <B>ClassName</B>: name of the class as "mimmo.Extract< Scalar/Vector >Field"
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.Module</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
@@ -75,7 +74,7 @@ public:
     virtual ~Module();
 
     Module(const Module & other);
-    Module& operator=(const Module & other);
+    Module& operator=(Module other);
 
     void buildPorts();
 

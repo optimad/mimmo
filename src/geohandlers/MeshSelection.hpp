@@ -26,31 +26,27 @@
 #define __MESHSELECTION_HPP__
 
 #include "BaseManipulation.hpp"
-#include "MimmoObject.hpp"
-#include "BasicShapes.hpp"
-#include "MimmoGeometry.hpp"
-#include "SkdTreeUtils.hpp"
-#include "mimmo_common.hpp"
 
 #include <memory>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 namespace mimmo{
 
 /*!
- * \enum SelectionType
  * \ingroup geohandlers
  * \brief Enum class for choiche of method to select sub-patch
- * of a tessellated mesh.
+ * of a MimmoObject tessellated mesh.
  */
 enum class SelectionType{
-    UNDEFINED    = 0,
-    BOX          = 1,
-    CYLINDER     = 2,
-    SPHERE       = 3,
-    MAPPING      = 4,
-    PID          = 5,
-    BOXwSCALAR   = 11
+    UNDEFINED    = 0, /**< undefined selection */
+    BOX          = 1, /**< box volume intersection selection */
+    CYLINDER     = 2, /**< cylinder volume intersection selection */
+    SPHERE       = 3, /**< sphere volume intersection selection */
+    MAPPING      = 4, /**< surface mesh driven mapping selection */
+    PID          = 5, /**< part identifier driven selection */
+    BOXwSCALAR   = 11 /**< box volume intersection selection + scalar field eventually attached to target mesh */
 };
 
 /*!
@@ -173,15 +169,14 @@ protected:
  * Proper of the class:
 
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
- * - <B>Origin</B>: array of 3 doubles identifying origin;
- * - <B>Span</B>: span of the box (width, height, depth);
- * - <B>RefSystem</B>: reference system of the box: \n
- *                <tt>\<RefSystem\> \n
- *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
- *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
- *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
- *                  \</RefSystem\> </tt> \n
- *
+ * - <B>Origin</B>: array of 3 doubles identifying origin (space separated);
+ * - <B>Span</B>: span of the box (width height  depth);
+ * - <B>RefSystem</B>: reference system of the box: \n\n
+ *                <tt><B>\<RefSystem\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis0\></B> 1.0 0.0 0.0 <B>\</axis0\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis1\></B> 0.0 1.0 0.0 <B>\</axis1\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis2\></B> 0.0 0.0 1.0 <B>\</axis2\></B> \n
+ *                  <B>\</RefSystem\></B> </tt> \n\n
  * Geometry has to be mandatorily passed through port.
  *
  */
@@ -259,14 +254,14 @@ protected:
  *
  * Proper of the class:
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
- * - <B>Origin</B>: array of 3 doubles identifying origin of cylinder;
- * - <B>Span</B>: span of the cylinder (base radius, angular azimuthal width, height);
- * - <B>RefSystem</B>: reference system of the cylinder(axis2 along the cylinder's height): \n
- *                <tt>\<RefSystem\> \n
- *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
- *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
- *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
- *                  \</RefSystem\> </tt> \n
+ * - <B>Origin</B>: array of 3 doubles identifying origin of cylinder (space separated);
+ * - <B>Span</B>: span of the cylinder (base_radius angular_azimuthal_width height);
+ * - <B>RefSystem</B>: reference system of the cylinder (axis2 along the cylinder's height): \n\n
+ *                <tt><B>\<RefSystem\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis0\></B> 1.0 0.0 0.0 <B>\</axis0\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis1\></B> 0.0 1.0 0.0 <B>\</axis1\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis2\></B> 0.0 0.0 1.0 <B>\</axis2\></B> \n
+ *                  <B>\</RefSystem\></B> </tt> \n\n
  * - <B>InfLimits</B>: set starting point for each cylindrical coordinate. Useful to assign different starting angular coordinate to azimuthal width.
  *
  *
@@ -349,14 +344,14 @@ protected:
  *
  * Proper of the class:
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
- * - <B>Origin</B>: array of 3 doubles identifying origin of sphere;
- * - <B>Span</B>: span of the sphere (radius, angular azimuthal width, angular polar width);
- * - <B>RefSystem</B>: reference system of the sphere: \n
- *                <tt>\<RefSystem\> \n
- *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
- *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
- *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
- *                  \</RefSystem\> </tt> \n
+ * - <B>Origin</B>: array of 3 doubles identifying origin of sphere (space separated);
+ * - <B>Span</B>: span of the sphere (radius angular_azimuthal_width  angular_polar_width);
+ * - <B>RefSystem</B>: reference system of the sphere: \n\n
+ *                <tt><B>\<RefSystem\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis0\></B> 1.0 0.0 0.0 <B>\</axis0\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis1\></B> 0.0 1.0 0.0 <B>\</axis1\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis2\></B> 0.0 0.0 1.0 <B>\</axis2\></B> \n
+ *                  <B>\</RefSystem\></B> </tt> \n\n
  * - <B>InfLimits</B>: set starting point for each spherical coordinate. Useful to assign different starting angular coordinate to azimuthal width/ polar width.
  *
  *
@@ -394,8 +389,9 @@ protected:
  * of the same topology.
  *
  * Selection Object managing selection of sub-patches of a MimmoObject
- * unstructured surface mesh, unstructured volume mesh or 3D Curve mesh. Extract portion of mesh in common between
- * a target geometry and a second one of the same topology, provided externally. Extraction criterium
+ * unstructured surface mesh, unstructured volume mesh or 3D Curve mesh.
+   Extract portion of mesh in common between a target geometry and a second one
+   of the same topology, provided externally. Extraction criterium
  * is based on euclidean nearness, within a prescribed tolerance.
  * Point clouds are not suitable for this selection method.
  *
@@ -443,18 +439,18 @@ protected:
  * - <B>Topology</B>: number indentifying topology of tesselated mesh. 1-surfaces, 2-voume. no other types are supported;
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
  * - <B>Tolerance</B>: proximity threshold to activate mapping;
- * - <B>Files</B>: list of external files to map on the target surface: \n
- *                <tt>\<Files\> \n
- *                      \<file0\> \n
- *                          \<fullpath> absolute path to your file with extension \<fullpath\> \n
- *                          \<tag\> tag extension as supported format STL,NAS,STVTU,etc...\<tag\> \n
- *                      \<file0\> \n
- *                      \<file1\> \n
- *                          \<fullpath> absolute path to your file with extension \<fullpath\> \n
- *                          \<tag\> tag extension as supported format STL,NAS,STVTU,etc...\<tag\> \n
- *                      \<file1\> \n
- *                      ...
- *                  \</Files\> </tt> \n
+ * - <B>Files</B>: list of external files to map on the target surface: \n\n
+        <tt><B>\<Files\></B> \n
+            &nbsp;&nbsp;&nbsp;<B>\<file0\></B> \n
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<fullpath></B> absolute path to your file with extension <B>\<fullpath\></B> \n
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<tag\></B> tag extension as supported format STL,NAS,STVTU,etc...<B>\<tag\></B> \n
+            &nbsp;&nbsp;&nbsp;<B>\<file0\></B> \n
+            &nbsp;&nbsp;&nbsp;<B>\<file1\></B> \n
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<fullpath></B> absolute path to your file with extension <B>\<fullpath\></B> \n
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<tag\></B> tag extension as supported format STL,NAS,STVTU,etc...<B>\<tag\></B> \n
+            &nbsp;&nbsp;&nbsp;<B>\<file1\></B> \n
+            &nbsp;&nbsp;&nbsp;<B>...</B> \n
+        <B>\</Files\></B> </tt> \n\n
  *
  * Geometry has to be mandatorily passed through port.
  */
@@ -668,15 +664,14 @@ protected:
  *Inherited from SelectionByBox:
 
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
- * - <B>Origin</B>: array of 3 doubles identifying origin;
- * - <B>Span</B>: span of the box (width, height, depth);
+ * - <B>Origin</B>: array of 3 doubles identifying origin (space separated);
+ * - <B>Span</B>: span of the box (width height depth);
  * - <B>RefSystem</B>: reference system of the box: \n
- *                <tt>\<RefSystem\> \n
- *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
- *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
- *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
- *                  \</RefSystem\> </tt> \n
- *
+ *                <tt><B>\<RefSystem\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis0\></B> 1.0 0.0 0.0 <B>\</axis0\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis1\></B> 0.0 1.0 0.0 <B>\</axis1\></B> \n
+ *                     &nbsp;&nbsp;&nbsp;<B>\<axis2\></B> 0.0 0.0 1.0 <B>\</axis2\></B> \n
+ *                  <B>\</RefSystem\></B> </tt> \n\n
  * Geometry and fields have to be mandatorily passed/recovered through ports.
  */
 class SelectionByBoxWithScalar: public SelectionByBox{

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -26,13 +26,12 @@
 #define __CUSTOMOPERATORS_HH__
 
 #include <cmath>
-#include <queue>
 #include <vector>
 #include <array>
 #include <algorithm>
 
 #include "mimmoTypeDef.hpp"
-#include "bitpit_patchkernel.hpp"
+#include <bitpit_patchkernel.hpp>
 
 
 
@@ -44,25 +43,26 @@ std::array<double, 3> operator-(const bitpit::Vertex &v1, const bitpit::Vertex &
  */
 
 /*!
-* Template for freeing any std::vector container, by swap  
+* Template for freeing any std::vector container, by swap
 *  \param[in] t std::vector structure to be freed.
 */
 template <class T>
 void freeContainer (std::vector<T> & t){
-        std::vector<T> tmp;
-        t.swap(tmp);
-    }
+        t.swap(std::vector<T>());
+}
 
 /*!
-* Template for summing elements of any std::vector container, provided that 
+* Template for summing elements of any std::vector container, provided that
 *  sum operators is defined for your element class in std library
 *  \param[in] t std::vector structure to summed.
 */
 template <class T>
 T summing_Vector(std::vector<T> & t){
-    T result;
-    result = t[0];
-    for(int i=1; i<t.size(); i++) result += t[i];
+    T result = t[0];
+    std::size_t size = t.size();
+    for(int i=1; i<size; ++i){
+        result += t[i];
+    }
     return  result;
 }
 
@@ -72,17 +72,17 @@ T summing_Vector(std::vector<T> & t){
 *  -  policy[0] = true -> function return the result of target.
 *  -  policy[1] = true -> function return the boolean sum of root and target.
 *  -  policy[2] = true -> function return the boolean difference of root and target.
-* 
-* An exception is made if root is FALSE and target is TRUE; the boolean difference 
-* here is handled as FALSE.		 
-* If more than one TRUE is defined in the policy array, the policy with high index 
-* in the array is applied. 
-* 
+*
+* An exception is made if root is FALSE and target is TRUE; the boolean difference
+* here is handled as FALSE.
+* If more than one TRUE is defined in the policy array, the policy with high index
+* in the array is applied.
+*
 * \param[in] root first boolean
 * \param[in] target second boolean
 * \param[in] policy pointer to a boolean C-array of 3 Elements.
 * \return boolean true/false
-* 
+*
 */
 bool inline logical_summing(bool &root, bool & target, bool * policy){
     bool result;
@@ -104,17 +104,17 @@ bool inline logical_summing(bool &root, bool & target, bool * policy){
 *  -  policy[0] = true -> function return the result of target.
 *  -  policy[1] = true -> function return the boolean sum of root and target.
 *  -  policy[2] = true -> function return the boolean difference of root and target.
-* 
-* An exception is made if root is FALSE and target is TRUE; the boolean difference 
-* here is handled as FALSE.         
-* If more than one TRUE is defined in the policy array, the policy with high index 
-* in the array is applied. 
-* 
+*
+* An exception is made if root is FALSE and target is TRUE; the boolean difference
+* here is handled as FALSE.
+* If more than one TRUE is defined in the policy array, the policy with high index
+* in the array is applied.
+*
 * \param[in] root first boolean
 * \param[in] target second boolean
 * \param[in] policy pointer to a boolean C-array of 3 Elements.
 * \return integer 1/0 for true/false
-* 
+*
 */
 int inline logical_summing(int &root, int &target, bool policy){
     bool result;
@@ -130,7 +130,7 @@ int inline logical_summing(int &root, int &target, bool policy){
 };
 
 /*!
-* Get sign of a scalar element of Class T 
+* Get sign of a scalar element of Class T
 * \param[in] t element
 * \return return sign of the element
 */
@@ -142,7 +142,7 @@ T getSign (T & t){
 }
 
 /*!
-* Get index position of a target element in a std::vector list. 
+* Get index position of a target element in a std::vector list.
 * If the element is not found, return -1.
 * \param[in] vect std::vector list
 * \param[in] target target element
@@ -159,13 +159,13 @@ int  inline posVectorFind( std::vector<T>	&vect,	T& target){
 return pos;
 };
 
-/*! 
-* Get index position of a target element in an std::array list. 
+/*!
+* Get index position of a target element in an std::array list.
 * If the element is not found, return -1.
 * \param[in] vect std::array list
 * \param[in] target target element
 * \return position of the element in the list
-*/   
+*/
 template <class T, size_t d >
 int  inline posVectorFind( std::array<T, d> &vect, T& target){
     int pos = -1;
@@ -176,8 +176,8 @@ int  inline posVectorFind( std::array<T, d> &vect, T& target){
     return pos;
 };
 
-/*! 
-* Check if a target element belong to a std::vector list. 
+/*!
+* Check if a target element belong to a std::vector list.
 * If the element is not found, return false.
 * \param[in] vect std::vector list
 * \param[in] target target element
@@ -191,22 +191,22 @@ bool inline checkVectorFind( std::vector<T> &vect, T& target){
     return check;
 };
 
-/*! 
+/*!
 * Check if a target element belong to a std::array list.
 * If the element is not found, return false.
 * \param[in] vect std::array list
 * \param[in] target target element
 * \return true if the element belongs to the list
-*/   
+*/
 template <class T, size_t d>
 bool inline checkVectorFind( std::array<T,d> &vect, T& target){
     bool check = false;
     typename std::array< T,d >::iterator it_find = std::find(vect.begin(),vect.end(),target);
     if (it_find!=vect.end()) check=true;
     return check;
-}; 
+};
 
-/*! 
+/*!
 * Converter from array to vector
 * \param[in] origin std::array
 * \return std::vector result
@@ -219,7 +219,7 @@ std::vector<T> inline conVect(std::array<T, d> & origin ){
     return  result;
 }
 
-/*! 
+/*!
 * Converter from vector to array
 * \param[in] origin std::vector
 * \return std::array result
@@ -232,7 +232,7 @@ std::array<T,d> inline conArray(std::vector<T> & origin ){
     return  result;
 }
 
-/*! 
+/*!
 * Converter from vector of arrays to vector of vectors
 * \param[in] origin std::vector of std::array's
 * \return std::vector of std::vector's
@@ -245,7 +245,7 @@ std::vector< std::vector < T > > inline conVect(std::vector< std::array<T, d> > 
     return  result;
 }
 
-/*! 
+/*!
 * Converter from vector of vectors to vector of arrays
 * \param[in] origin std::vector of std::vector's
 * \return std::vector of std::array's
@@ -258,8 +258,8 @@ std::vector< std::array< T, d > > inline conArray(std::vector<std::vector<T> > &
     return  result;
 }
 
-/*! 
-* Find position of a target T value in a vector source of T elements. 
+/*!
+* Find position of a target T value in a vector source of T elements.
 * Returns -1 if value is not found.
 * \param[in] value target
 * \param[in] source vector source
@@ -275,9 +275,9 @@ T findPosition(T & value, std::vector<T> & source){
 };
 
 
-/*! 
-* Get a subset of a std::vector structure containing all source elements included between 
-* two consecutive local positions i and j, with j-th element excluded. 
+/*!
+* Get a subset of a std::vector structure containing all source elements included between
+* two consecutive local positions i and j, with j-th element excluded.
 * According to i and j values, the following behaviours occurr:
 *
 * - i < 0, j < 0                            ==> fill nothing;
@@ -287,7 +287,7 @@ T findPosition(T & value, std::vector<T> & source){
 * - i = j                                   ==> fill whole source;
 * - i < j                                   ==> fill subset from i-th element up to j-th element excluded
 * - j > i                                   ==> source looped, fill subset from ith -> up to vector end + vector begin -> up to jth element
-* 
+*
 * \param[in] i start position
 * \param[in] j end position
 * \param[in] source std::vector< > structure
@@ -308,16 +308,16 @@ std::vector< T > getVectorSubset(int i, int j, std::vector<T> & source){
 
     if(i>=j){
         for(int k=i; k<source.size(); ++k ){
-            result[counter] = source[k]; 
+            result[counter] = source[k];
             ++counter;
         }
         for(int k=0; k<j; ++k ){
-            result[counter] = source[k]; 
+            result[counter] = source[k];
             ++counter;
         }
     }else{
         for(int k=i; k<j; ++k ){
-            result[counter] = source[k]; 
+            result[counter] = source[k];
             ++counter;
         }
     }
@@ -325,9 +325,9 @@ std::vector< T > getVectorSubset(int i, int j, std::vector<T> & source){
     return  result;
 }
 
-/*! 
-* Fill std::vector structure subset containing all source elements included between 
-* two consecutive local positions i and j, with j-th element excluded. With a custom value. 
+/*!
+* Fill std::vector structure subset containing all source elements included between
+* two consecutive local positions i and j, with j-th element excluded. With a custom value.
 * According to i and j values, the following behaviours occurr:
 *
 * - i < 0, j < 0                            ==> return empty subset;
@@ -337,7 +337,7 @@ std::vector< T > getVectorSubset(int i, int j, std::vector<T> & source){
 * - i = j                                   ==> return whole source, reordered starting from i-th element;
 * - i < j                                   ==> return subset from i-th element up to j-th element excluded
 * - j > i                                   ==> source looped, return subset with ith -> up to vector end + vector begin -> up to jth element
-* 
+*
 * \param[in] i start position
 * \param[in] j end position
 * \param[in,out] source std::vector< > structure
@@ -345,13 +345,13 @@ std::vector< T > getVectorSubset(int i, int j, std::vector<T> & source){
 */
 template <class T>
 void fillVectorSubset(int i, int j, std::vector<T> & source, T cValue){
-    if(i >= source.size() || j < 0) return; 
-        
+    if(i >= source.size() || j < 0) return;
+
     // check your controlling indices
     int maxElement = source.size() -1;
     i = std::max(std::min(i,maxElement), 0);
     j = std::max(std::min(j,maxElement), 0);
-    
+
     if(i>=j){
         for(int k=i; k<source.size(); ++k ){
             source[k] = cValue;

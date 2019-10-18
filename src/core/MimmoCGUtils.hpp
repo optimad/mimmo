@@ -24,8 +24,7 @@
 # ifndef __MIMMOCGUTILS_HPP__
 # define __MIMMOCGUTILS_HPP__
 
-# include "CG.hpp"
-# include "mimmo_common.hpp"
+# include "mimmoTypeDef.hpp"
 
 namespace mimmo{
 
@@ -40,7 +39,7 @@ namespace mimmoCGUtils{
     bool   isPointInsideSegment(const darray3E & point, const darray3E &  V0, const darray3E &  V1);
     bool   isPointInsideTriangle(const darray3E & point, const darray3E &  V0, const darray3E &  V1, const darray3E &  V2);
     bool   isPointInsidePolygon(const darray3E & point, const dvecarr3E & vertCoords);
-    
+
 }; //end namespace mimmoCGUtils
 
 } //end namespace mimmo

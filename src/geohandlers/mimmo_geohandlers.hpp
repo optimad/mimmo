@@ -35,12 +35,12 @@
 #include "mimmo_iogeneric.hpp"
 
 #include "ClipGeometry.hpp"
+#include "ExtractFields.hpp"
+#include "FVMeshSelection.hpp"
 #include "MeshSelection.hpp"
 #include "ReconstructFields.hpp"
-#include "SwitchFields.hpp"
-#include "ExtractFields.hpp"
-#include "StitchGeometry.hpp"
-#include "FVMeshSelection.hpp"
 #include "RefineGeometry.hpp"
+#include "StitchGeometry.hpp"
 #include "SurfaceTriangulator.hpp"
+#include "SwitchFields.hpp"
 #endif

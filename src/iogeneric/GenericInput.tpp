@@ -22,8 +22,6 @@
  *
 \*---------------------------------------------------------------------------*/
 
-#include <fstream>
-#include "Operators.hpp"
 
 namespace mimmo{
 

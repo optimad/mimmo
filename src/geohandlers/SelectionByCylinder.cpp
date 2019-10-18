@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -23,8 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "MeshSelection.hpp"
-#include "levelSet.hpp"
-#include <cstddef>
+
 namespace mimmo{
 
 /*!
@@ -108,9 +107,9 @@ void SelectionByCylinder::swap(SelectionByCylinder & x) noexcept
 void
 SelectionByCylinder::buildPorts(){
 
-    bool built = true;
 
     GenericSelection::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<darray3E, SelectionByCylinder>(this, &SelectionByCylinder::setOrigin,M_POINT));
     built = (built && createPortIn<darray3E, SelectionByCylinder>(this, &SelectionByCylinder::setSpan, M_SPAN));

@@ -150,8 +150,12 @@ checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, PortID p
 
 }//end pin namespace
 
-
-/*!Change the name of the logger.
+/*!
+    \ingroup core
+    \{
+*/
+/*!
+   Change the name of the mimmo custom logger.
  * \param[in] log name of the logger file.
  */
 void    setLogger(std::string log){
@@ -163,7 +167,7 @@ void    setLogger(std::string log){
     MIMMO_LOG_FILE = log;
 }
 
-/*!Base warning for no data found in xml dictionary.
+/*!Return basic warning for no data found in xml dictionary.
  * \param[in] log pointer to logger file.
  * \param[in] name name of the mimmo block.
  */
@@ -172,23 +176,16 @@ void    warningXML(bitpit::Logger* log, std::string name){
 }
 
 /*!
- * Active/inactive the expert mode for mimmo.
+ * If true activate the expert mode for mimmo, i.e. to bypass cross-check of unlinked mandatory ports in workflow-chain mode.
+ * \param[in] flag boolean true activate, false deactivate
  */
 void setExpertMode(bool flag){
     MIMMO_EXPERT = flag;
 }
 
+/*!
+    \}
+*/
 
-/*!Maximum value function for MimmoPiercedVector<double>.
- * \param[in] field MimmoPiercedVector<double>
- * \return Maximum value
- */
-double  maxvalmp(const MimmoPiercedVector<double> & field){
-    double val = 1.0e-18;
-    for (const auto v : field){
-        val = std::max(val,v);
-    }
-    return val;
-}
 
 }//end mimmo namespace

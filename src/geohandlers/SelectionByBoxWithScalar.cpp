@@ -24,8 +24,7 @@
 
 #include "MeshSelection.hpp"
 #include "ExtractFields.hpp"
-#include "levelSet.hpp"
-#include <cstddef>
+
 namespace mimmo{
 
 /*!
@@ -94,7 +93,6 @@ SelectionByBoxWithScalar & SelectionByBoxWithScalar::operator=(SelectionByBoxWit
  */
 void SelectionByBoxWithScalar::swap(SelectionByBoxWithScalar & x) noexcept
 {
-    //std::swap(m_field, x.m_field);
     m_field.swap(x.m_field);
     SelectionByBox::swap(x);
 
@@ -106,12 +104,10 @@ void SelectionByBoxWithScalar::swap(SelectionByBoxWithScalar & x) noexcept
 void
 SelectionByBoxWithScalar::buildPorts(){
 
-    bool built = true;
-
     SelectionByBox::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<dmpvector1D*, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::setField, M_SCALARFIELD));
-
     built = (built && createPortOut<dmpvector1D*, SelectionByBoxWithScalar>(this, &SelectionByBoxWithScalar::getField, M_SCALARFIELD));
 
     m_arePortsBuilt = built;
@@ -156,13 +152,13 @@ SelectionByBoxWithScalar::execute(){
 
     SelectionByBox::execute();
 
-    if(m_field.isEmpty()){
-        (*m_log)<<"warning in "<<m_name<<" : empty scalar field found"<<std::endl;
-        return;
-    }
     //check m_field in input if coherent with the linked geometry
     if(m_field.getGeometry() != getGeometry())  {
         throw std::runtime_error(m_name+" : linked scalar field is not referred to target geometry");
+    }
+    if(m_field.isEmpty()){
+        (*m_log)<<"warning in "<<m_name<<" : empty scalar field found"<<std::endl;
+        return;
     }
     if(getPatch()->getType()==3 && m_field.getDataLocation()!= MPVLocation::POINT){
         (*m_log)<<"warning in "<<m_name<<" : Attempting to extract a non POINT located field on a Point Cloud target geometry. Do Nothing."<<std::endl;

@@ -26,25 +26,18 @@
 #define __RECONSTRUCTSCALAR_HPP__
 
 #include "BaseManipulation.hpp"
-#include <unordered_map>
-#include <utility>
 
 namespace mimmo{
 
 /*!
- * @enum OverlapMethod
  * \ingroup geohandlers
- * @brief class for setting overlapping criterium for two different scalar fields:
- *             1) MAX = get max(with sign) between available field values
- *             2) MIN = get min(with sign) between available field values
- *             3) AVERAGE = get simple average between available values
- *             4) SUM = take sum of both values between overlapped fields
+ * \brief class for setting overlapping criterium for two different fields
  */
 enum class OverlapMethod{
-    MAX = 1 /**< take max values between overlapped fields*/,
-            MIN = 2 /**< take min values between overlapped fields*/,
-            AVERAGE = 3 /**< take averaged values between overlapped fields*/,
-            SUM = 4 /**< take sum of both values between overlapped fields*/
+    MAX = 1, /**< take max value (with sign) between overlapping fields*/
+    MIN = 2, /**< take min value (with sign) between overlapping fields*/
+    AVERAGE = 3, /**< take an average value between overlapping fields*/
+    SUM = 4 /**< take sum of values between overlapping fields*/
 };
 
 /*!

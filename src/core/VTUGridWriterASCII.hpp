@@ -24,19 +24,16 @@
 #ifndef __VTUGRIDASCIIWRITER_HPP__
 #define __VTUGRIDASCIIWRITER_HPP__
 
-#include "bitpit_patchkernel.hpp"
+#include <bitpit_patchkernel.hpp>
 #include "mimmoTypeDef.hpp"
 
 namespace mimmo{
 
 /*!
- * \ingroup core
- */
-
-/*!
  * \class VTUFlushStreamerASCII
  * \brief Abstract class for custom ASCII writer/flusher of *.vtu mesh external files
- *
+ * \ingroup core
+
  * Writer/flusher is focused to mesh data only retained by PatchKernel classes.
  * Abstract class need to provide:
  *  - A custom implementation of flushData method to write bitpit::PatchKernel data on target file.
@@ -59,7 +56,8 @@ private:
 /*!
  * \class VTUGridWriterASCII
  * \brief Custom writer of ASCII unstructured grids to external files *.vtu
- *
+ * \ingroup core
+ 
  * Writer of bitpit::PatchKernel 's as unstructured grids to external files *.vtu in ASCII format only.
  */
 class VTUGridWriterASCII: protected bitpit::VTKUnstructuredGrid

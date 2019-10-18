@@ -23,8 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "MeshSelection.hpp"
-#include "levelSet.hpp"
-#include <cstddef>
+
 namespace mimmo {
 
 /*!
@@ -220,14 +219,11 @@ GenericSelection::constrainedBoundary(){
 void
 GenericSelection::execute(){
     if(getGeometry() == NULL) {
-//        throw std::runtime_error (m_name + " : NULL pointer to target geometry found");
         (*m_log)<<m_name + " : NULL pointer to target geometry found"<<std::endl;
-        return;
+        throw std::runtime_error (m_name + " : NULL pointer to target geometry found");
     }
     if(getGeometry()->isEmpty()){
-//        throw std::runtime_error (m_name + " : empty geometry linked");
         (*m_log)<<m_name + " : empty geometry linked"<<std::endl;
-//        return;
     };
 
     m_subpatch.reset(nullptr);
@@ -236,9 +232,7 @@ GenericSelection::execute(){
     livector1D extracted = extractSelection();
 
     if(extracted.empty()) {
-//        throw std::runtime_error (m_name + " : empty selection performed. check block set-up");
         (*m_log)<<m_name + " : empty selection performed. check block set-up"<<std::endl;
-//        return;
     }
 
     /*Create subpatch.*/

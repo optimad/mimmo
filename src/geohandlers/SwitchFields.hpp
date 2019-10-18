@@ -24,7 +24,6 @@
 #ifndef __SWITCHFIELDS_HPP__
 #define __SWITCHFIELDS_HPP__
 
-#include "MimmoObject.hpp"
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
@@ -36,7 +35,7 @@ namespace mimmo{
  *         switching a field from a list of fields.
  *
  *
- * SwitchField takes as input the target geometry used to identify the field to choose from
+ * SwitchField takes as input the target geometry used to identify the related field to choose from
  * the input list. First it tries to switch the field by investigating the linked geometries
  * in the MimmoPiercedVector input fields and by extracting the first corresponding field.
  * In case of none of the input fields is linked to the target geometry
@@ -68,7 +67,7 @@ namespace mimmo{
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- * - <B>ClassName</B>: name of the class as "mimmo.Switch<Scalar/Vector>Fields"
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.Switch<...>Fields</tt>
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
@@ -150,11 +149,13 @@ private:
  *    =========================================================
  * The xml available parameters, sections and subsections are the following :
  *
- * Inherited from SwitchField:
- * - <B>ClassName</B>: name of the class as "mimmo.SwitchScalarField"
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.SwitchScalarField</tt>
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
+
+ * Inherited from SwitchField:
  * - <B>Mapping</B>: boolen 0/1 to force the research by mapping.
  * - <B>Tolerance</B>: double > 0, set tolerance of mapping. The option is ignored if mapping is not active.
  *
@@ -198,6 +199,7 @@ private:
 
 /*!
  *  \class SwitchVectorField
+    \ingroup geohandlers
  *    \brief SwitchVectorField is specialized derived class of SwitchField to switch a
  *         vector field.
  *
@@ -233,14 +235,16 @@ private:
  *    =========================================================
  * The xml available parameters, sections and subsections are the following :
  *
- * Inherited from SwitchField:
- * - <B>ClassName</B>: name of the class as "mimmo.SwitchVectorField"
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.SwitchVectorField</tt>
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
+
+ * Inherited from SwitchField:
  * - <B>Mapping</B>: boolen 0/1 to force the research by mapping.
  * - <B>Tolerance</B>: double > 0, set tolerance of mapping. The option is ignored if mapping is not active.
- *
+*
  * Proper of the class:
  * - <B>Location</B> set unique data location for all fields 1-POINT, 2-CELL, 3-INTERFACE.
  *

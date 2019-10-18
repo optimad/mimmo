@@ -23,10 +23,7 @@
 \*---------------------------------------------------------------------------*/
 
 #include "GenericInput.hpp"
-#include "Operators.hpp"
-#include <fstream>
 
-using namespace std;
 namespace mimmo {
 
 ////////GENERICINPUT///////////////////////////////////////

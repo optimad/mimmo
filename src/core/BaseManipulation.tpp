@@ -22,10 +22,10 @@
  *
 \*---------------------------------------------------------------------------*/
 namespace mimmo{
-	
-/*!It adds an output port to the object.The input ports with compatible tags can receive data 
+
+/*!It adds an output port to the object.The input ports with compatible tags can receive data
  * form this output port. The compatibility between ports with same tag is automatic.
- * 
+ *
  * \param[in] var_ Pointer to T member to communicate.
  * \param[in] portS marker of the port; the port will be created at portS-th slot of the output ports of the object.
  * \return true/false, if port is created
@@ -34,15 +34,15 @@ template<typename T, typename O>
 bool
 BaseManipulation::createPortOut(T* var_, PortID portS){
 	bool check = false;
-    
+
     //checking if portS containerTAG and dataTAG are registered in mimmo::PortManager
-    
+
     if(!mimmo::PortManager::instance().containsPort(portS) || m_portOut.count(portS) != 0 ){
         (*m_log)<<"Unable to physically create the Output Port."<<std::endl;
         (*m_log)<<"Port name was not regularly registered or a port with the same name was already instantiated in the current class."<<std::endl;
         return check;
     }
-    
+
     auto info = mimmo::PortManager::instance().getPortData(portS);
 	DataType datat(info.container, info.datatype);
 	PortOutT<T, O>* portOut = new PortOutT<T, O>(var_, datat);
@@ -51,9 +51,9 @@ BaseManipulation::createPortOut(T* var_, PortID portS){
 	return(check);
 }
 
-/*!It adds an output port to the object.The input ports with compatible tags can receive data 
+/*!It adds an output port to the object.The input ports with compatible tags can receive data
  * form this output port. The compatibility between ports with same tag is automatic.
- * 
+ *
  * \param[in] obj_ Pointer to BaseManipulation object.
  * \param[in] getVar_ Get function of the object (copy return) linked by the sender port.
  * \param[in] portS marker of the port; the port will be created at portS-th slot of the output ports of the object.
@@ -65,14 +65,14 @@ BaseManipulation::createPortOut(O* obj_, T (O::*getVar_)(), PortID portS){
 	bool check = false;
 
     //checking if portS containerTAG and dataTAG are registered in mimmo::PortManager
-  
+
     if(!mimmo::PortManager::instance().containsPort(portS) || m_portOut.count(portS) != 0 ){
         (*m_log)<<"Unable to physically create the Output Port."<<std::endl;
         (*m_log)<<"Port name was not regularly registered or a port with the same name was already instantiated in the current class."<<std::endl;
         return check;
     }
-    
-    auto info = mimmo::PortManager::instance().getPortData(portS);    
+
+    auto info = mimmo::PortManager::instance().getPortData(portS);
     DataType datat(info.container, info.datatype);
 	PortOutT<T, O>* portOut = new PortOutT<T, O>(obj_, getVar_, datat);
 	m_portOut[portS] = portOut;
@@ -80,9 +80,9 @@ BaseManipulation::createPortOut(O* obj_, T (O::*getVar_)(), PortID portS){
 	return(check);
 }
 
-/*!It adds an input port to the object. The output ports with compatible container/data tags can send data 
+/*!It adds an input port to the object. The output ports with compatible container/data tags can send data
  * to this input port. The compatibility between ports with same tag is automatic.
- * 
+ *
  * \param[in] var_ Pointer to member to fill.
  * \param[in] portR marker of the port; the port will be created at portR-th slot of the input ports of the object.
  * \param[in] mandatory does the port have to be mandatorily linked?
@@ -93,15 +93,15 @@ template<typename T, typename O>
 bool
 BaseManipulation::createPortIn(T* var_, PortID portR, bool mandatory, int family ){
 	bool check = false;
-	
+
     //checking if portR containerTAG and dataTAG are registered in mimmo::PortManager
-    
+
     if(!mimmo::PortManager::instance().containsPort(portR) || m_portOut.count(portR) != 0 ){
         (*m_log)<<"Unable to physically create the Input Port."<<std::endl;
         (*m_log)<<"Port name was not regularly registered or a port with the same name was already instantiated in the current class."<<std::endl;
         return check;
     }
-    
+
     auto info = mimmo::PortManager::instance().getPortData(portR);
 	DataType datat(info.container, info.datatype);
 	PortInT<T, O>* portIn = new PortInT<T, O>(var_, datat, mandatory, family);
@@ -110,9 +110,9 @@ BaseManipulation::createPortIn(T* var_, PortID portR, bool mandatory, int family
 	return(check);
 }
 
-/*!It adds an input port to the object.The output ports compatible tags can send data 
+/*!It adds an input port to the object.The output ports compatible tags can send data
  * to this input port. The compatibility between ports with same tag is automatic.
- * 
+ *
  * \param[in] obj_ Pointer to BaseManipulation object.
  * \param[in] setVar_ Get function of the object (copy return) linked by the sender port.
  * \param[in] portR marker of the port; the port will be created at portR-th slot of the input ports of the object.
@@ -124,14 +124,14 @@ template<typename T, typename O>
 bool
 BaseManipulation::createPortIn(O* obj_, void (O::*setVar_)(T), PortID portR, bool mandatory, int family ){
 	bool check = false;
-    
+
     //checking if portR containerTAG and dataTAG are registered in mimmo::PortManager
     if(!mimmo::PortManager::instance().containsPort(portR) || m_portOut.count(portR) != 0 ){
         (*m_log)<<"Unable to physically create the Input Port."<<std::endl;
         (*m_log)<<"Port name was not regularly registered or a port with the same name was already instantiated in the current class."<<std::endl;
         return check;
     }
-    
+
     auto info = mimmo::PortManager::instance().getPortData(portR);
 	DataType datat(info.container, info.datatype);
 	PortInT<T, O>* portIn = new PortInT<T, O>(obj_, setVar_, datat, mandatory, family);

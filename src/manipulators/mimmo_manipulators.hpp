@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- #                                                                           
+ #
  #  mimmo
  #
  #  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -37,12 +37,12 @@
 #include "mimmo_core.hpp"
 
 #include "Apply.hpp"
+#include "BendGeometry.hpp"
 #include "FFDLattice.hpp"
 #include "MRBF.hpp"
 #include "RotationGeometry.hpp"
-#include "TranslationGeometry.hpp"
 #include "ScaleGeometry.hpp"
+#include "TranslationGeometry.hpp"
 #include "TwistGeometry.hpp"
-#include "BendGeometry.hpp"
 
 #endif

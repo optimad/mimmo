@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -26,9 +26,8 @@
 // TEMPLATE DERIVED INOUT CLASS	TEMPLATE METHODS                //
 //==============================================================//
 
-#include <iostream>
 namespace mimmo {
-    
+
 /*!
  * Default constructor of PortOutT
  */
@@ -50,7 +49,7 @@ PortOutT<T,O>::PortOutT(T *var_){
 
 /*!
  * Custom constructor of PortOutT
- * \param[in] var_ Pointer to variable to be streamed. 
+ * \param[in] var_ Pointer to variable to be streamed.
  * \param[in] datatype TAG of datat type communicated.
  */
 template<typename T, typename O>

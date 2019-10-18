@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -23,8 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "MeshSelection.hpp"
-#include "levelSet.hpp"
-#include <cstddef>
+
 namespace mimmo{
 
 /*!
@@ -104,9 +103,8 @@ void SelectionByBox::swap(SelectionByBox & x) noexcept
 void
 SelectionByBox::buildPorts(){
 
-    bool built = true;
-
     GenericSelection::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<darray3E, SelectionByBox>(this, &SelectionByBox::setOrigin, M_POINT ));
     built = (built && createPortIn<darray3E, SelectionByBox>(this, &SelectionByBox::setSpan, M_SPAN));
@@ -156,7 +154,7 @@ SelectionByBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
 
     BITPIT_UNUSED(name);
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("Dual")){
         std::string input = slotXML.get("Dual");
         input = bitpit::utils::string::trim(input);
@@ -245,7 +243,7 @@ SelectionByBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string n
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML,name);
-    
+
     int value = m_dual;
     slotXML.set("Dual", std::to_string(value));
 

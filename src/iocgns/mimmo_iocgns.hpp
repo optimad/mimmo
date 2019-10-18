@@ -32,7 +32,7 @@
 #ifndef __MIMMO_MODULE_IOCGNS_HPP__
 #define __MIMMO_MODULE_IOCGNS_HPP__
 
-#include "mimmo_iogeneric.hpp"
+#include "mimmo_core.hpp"
 
 #include "IOCGNS.hpp"
 

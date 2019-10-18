@@ -22,11 +22,9 @@
  *
 \*---------------------------------------------------------------------------*/
 
-# include "MimmoCGUtils.hpp"
-# include <cmath>
-#include  "bitpit_operators.hpp"
-
-using namespace bitpit;
+#include "MimmoCGUtils.hpp"
+#include <CG.hpp>
+#include <bitpit_operators.hpp>
 
 namespace mimmo{
 
@@ -41,14 +39,14 @@ namespace mimmoCGUtils{
  * \return distance from the polygon
  */
 double distancePointPolygon(const darray3E & p,const dvecarr3E & vertCoords){
-    
-    //calculate barycenter 
+
+    //calculate barycenter
     darray3E barycenter = {{0.0,0.0,0.0}};
     for(const auto & vv : vertCoords){
         barycenter += vv;
     }
     barycenter /= double(vertCoords.size());
-    
+
     //split it in subtriangles - fixed barycenter, run 2-by-2 along vertCoords to get the other two vertices
     double distance(std::numeric_limits<double>::max());
     std::size_t sizeV = vertCoords.size();
@@ -88,12 +86,12 @@ bool isPointInsideTriangle(const darray3E & p, const darray3E & V0,const darray3
     double normNormal = norm2(normal);
     if(normNormal > std::numeric_limits<double>::min()) normal /= normNormal;
     else return false;
-    
+
     if(std::abs(dotProduct((p-V0), normal)) > std::numeric_limits<double>::min()){ return false;}
 
-    double a1 =CGElem::areaTriangle(p,V0,V1)/(0.5*normNormal);
-    double a2 =CGElem::areaTriangle(p,V1,V2)/(0.5*normNormal);
-    double a3 =CGElem::areaTriangle(p,V2,V0)/(0.5*normNormal);
+    double a1 = bitpit::CGElem::areaTriangle(p,V0,V1)/(0.5*normNormal);
+    double a2 = bitpit::CGElem::areaTriangle(p,V1,V2)/(0.5*normNormal);
+    double a3 = bitpit::CGElem::areaTriangle(p,V2,V0)/(0.5*normNormal);
     return ( (a1+a2+a3 -1.0) <=1.0E-12 );
 }
 
@@ -106,7 +104,7 @@ bool isPointInsideTriangle(const darray3E & p, const darray3E & V0,const darray3
  */
 bool isPointInsidePolygon(const darray3E & p,const dvecarr3E & vertCoords){
 
-    //calculate barycenter 
+    //calculate barycenter
     darray3E barycenter = {{0.0,0.0,0.0}};
     for(const auto & vv : vertCoords){
         barycenter += vv;

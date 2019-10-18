@@ -26,15 +26,15 @@
 #define __TRACKINGPOINTER_HPP__
 
 namespace mimmo{
-    
+
     /*!
      * \ingroup common
      * \{
      */
-    
+
 /*!
  * \class TrackingPointer
- * \brief Basic virtual class to derive a generic object whose pointer can return 
+ * \brief Basic virtual class to derive a generic object whose pointer can return
  * an identifying name through the method whichClass.
  */
 class TrackingPointer{
@@ -43,7 +43,7 @@ public:
     virtual ~TrackingPointer(){};
 
     /*!
-     * Pure virtual class to recover the identifying name 
+     * Pure virtual class to recover the identifying name
      */
     virtual std::string whichClass() = 0;
 };

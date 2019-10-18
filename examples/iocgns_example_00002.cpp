@@ -75,11 +75,11 @@ void example00002() {
 
     /* Create PINs. */
 #if MIMMO_ENABLE_MPI
-    addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
-    addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
-    addPin(partition, checkmesh, M_GEOM, M_GEOM);
+    pin::addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
+    pin::addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
+    pin::addPin(partition, checkmesh, M_GEOM, M_GEOM);
 #else
-    addPin(cgnsI, checkmesh, M_GEOM, M_GEOM)  ;
+    pin::addPin(cgnsI, checkmesh, M_GEOM, M_GEOM)  ;
 #endif
 
     /* Create and execute chain. */

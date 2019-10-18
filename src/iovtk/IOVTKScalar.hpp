@@ -32,7 +32,7 @@ namespace mimmo{
 /*!
  * \class IOVTKScalar
  * \ingroup iovtk
- * \brief IOVTKScalar is the class to import/export and modify a surface vtk Polydata geometry.
+ * \brief IOVTKScalar is the class to import/export and modify a 3Dsurface vtkPolydata geometry.
  *
  * The object provides an interface to retrieve/modify a scalar field evaluated on
  * the points of the surface polymesh.

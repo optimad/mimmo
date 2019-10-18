@@ -23,14 +23,12 @@
 \ *---------------------------------------------------------------------------*/
 
 #include "Lattice.hpp"
-#include "Operators.hpp"
 #include "customOperators.hpp"
+#include <bitpit_operators.hpp>
 
-
-using namespace std;
 namespace mimmo{
 
-/*! 
+/*!
  * Basic Constructor
  */
 Lattice::Lattice(){
@@ -47,12 +45,12 @@ Lattice::Lattice(const bitpit::Config::Section & rootXML){
     m_np = 0;
     m_intMapDOF.clear();
     m_name = "mimmo.Lattice";
-    std::string fallback_name = "ClassNONE";	
+    std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::string::trim(input);
     if(input == "mimmo.Lattice"){
         absorbSectionXML(rootXML);
-    }else{	
+    }else{
         warningXML(m_log, m_name);
     };
 }
@@ -76,7 +74,7 @@ void Lattice::swap(Lattice & x) noexcept
 {
     std::swap(m_intMapDOF, x.m_intMapDOF);
     std::swap(m_np, x.m_np);
-    
+
     UStructMesh::swap(x);
     BaseManipulation::swap(x);
 }
@@ -119,7 +117,7 @@ void Lattice::clearLattice(){
     m_intMapDOF.clear();
 };
 
-/*! 
+/*!
  * Get the total number of control nodes.
  * \return number of control nodes
  */
@@ -127,7 +125,7 @@ int Lattice::getNNodes(){
     return(m_np);
 }
 
-/*! 
+/*!
  * Return position of effective mesh nodes in the lattice, in absolute reference system.
  *  Reimplemented from UstructMesh::getGlobalCoords.
  * \return effective mesh nodes position
@@ -145,7 +143,7 @@ Lattice::getGlobalCoords(){
     return(coords);
 };
 
-/*! 
+/*!
  * Return position of effective mesh nodes in the lattice, in local shape reference system.
  *  Reimplemented from UstructMesh::getLocalCoords.
  * \return effective mesh nodes position
@@ -163,7 +161,7 @@ Lattice::getLocalCoords(){
     return(coords);
 };
 
-/*! 
+/*!
  * Find a corrispondent degree of freedom index of a lattice grid node.
  * Not found indices are marked as -1.
  * \param[in] index lattice grid global index
@@ -174,7 +172,7 @@ Lattice::accessDOFFromGrid(int index){
     return(m_intMapDOF[index]);
 }
 
-/*! 
+/*!
  * Find a corrispondent lattice grid index of a degree of freedom node.
  * Not found indices are marked as -1.
  * \param[in] index DOF global index
@@ -185,7 +183,7 @@ Lattice::accessGridFromDOF(int index){
     return(posVectorFind(m_intMapDOF, index));
 }
 
-/*! 
+/*!
  * Find a corrispondent degree of freedom index list of a lattice grid node list.
  * Not found indices are marked as -1.
  * \param[in] gNindex lattice grid global index list
@@ -202,7 +200,7 @@ Lattice::accessDOFFromGrid(ivector1D gNindex) {
     return(result);
 };
 
-/*! 
+/*!
  * Find a corrispondent lattice grid index list of a degree of freedom node list.
  * Not found indices are marked as -1.
  * \param[in] dofIndex DOF global index list
@@ -219,8 +217,8 @@ Lattice::accessGridFromDOF(ivector1D dofIndex){
     return(result);
 };
 
-/*! 
- * Plot your current lattice as a structured grid to a VTK *.vtu file. 
+/*!
+ * Plot your current lattice as a structured grid to a VTK *.vtu file.
  * Wrapped method of plotGrid of its base class UStructMesh.
  * \param[in] directory output directory
  * \param[in] filename  output filename w/out tag
@@ -229,12 +227,19 @@ Lattice::accessGridFromDOF(ivector1D dofIndex){
  */
 void
 Lattice::plotGrid(std::string directory, std::string filename,int counter, bool binary){
-    dvecarr3E* pnull = NULL;
-    UStructMesh::plotGrid(directory, filename, counter, binary,  pnull);
+    dvecarr3E* pnull = nullptr;
+
+    iarray3E n = getDimension();
+    int size = n[0]*n[1]*n[2];
+    ivector1D labels(size);
+    for(int i=0; i<size; ++i){
+        labels[i] = accessDOFFromGrid(i);
+    }
+    UStructMesh::plotGrid(directory, filename, counter, binary, labels, pnull);
 };
 
-/*! 
- * Plot your current lattice as a point cloud to VTK *.vtu file. 
+/*!
+ * Plot your current lattice as a point cloud to VTK *.vtu file.
  * Wrapped method of plotCloud of its base class UStructMesh.
  * \param[in] directory output directory
  * \param[in] filename  output filename w/out tag
@@ -243,17 +248,24 @@ Lattice::plotGrid(std::string directory, std::string filename,int counter, bool 
  */
 void
 Lattice::plotCloud(std::string directory, std::string filename, int counter, bool binary){
-    dvecarr3E* pnull = NULL;
-    UStructMesh::plotCloud(directory, filename, counter, binary, pnull);
+    dvecarr3E* pnull = nullptr;
+
+    iarray3E n = getDimension();
+    int size = n[0]*n[1]*n[2];
+    ivector1D labels(size);
+    for(int i=0; i<size; ++i){
+        labels[i] = accessDOFFromGrid(i);
+    }
+    UStructMesh::plotCloud(directory, filename, counter, binary, labels, pnull);
 };
 
-/*! 
- * Build the structured mesh and create a wrapped map of effective degree of freedom 
- * of the current lattice mesh. Map is stored in internal member m_intMapDOF and accessible 
+/*!
+ * Build the structured mesh and create a wrapped map of effective degree of freedom
+ * of the current lattice mesh. Map is stored in internal member m_intMapDOF and accessible
  * through methods accessDOFFromGrid and accessGridFromDOF. Reimplemented from UstructMesh::build();
  * \return true if the mesh is built.
  */
-bool 
+bool
 Lattice::build(){
     bool check = UStructMesh::build();
     resizeMapDof();
@@ -261,7 +273,7 @@ Lattice::build(){
 };
 
 /*!
- * Execute your object, that is, recall the method Lattice::build(). 
+ * Execute your object, that is, recall the method Lattice::build().
  */
 void
 Lattice::execute(){
@@ -279,9 +291,9 @@ Lattice::execute(){
 void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
-    
+
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("Shape")){
         std::string input = slotXML.get("Shape");
         input = bitpit::utils::string::trim(input);
@@ -290,10 +302,12 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
             setShape(ShapeType::CYLINDER);
         }else if(input =="SPHERE"){
             setShape(ShapeType::SPHERE);
+        }else if(input =="WEDGE"){
+            setShape(ShapeType::WEDGE);
         }else{
             setShape(ShapeType::CUBE);
         }
-    }; 
+    };
 
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
@@ -304,7 +318,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
             for(auto &val : temp) ss>>val;
         }
         setOrigin(temp);
-    }; 
+    };
 
     if(slotXML.hasOption("Span")){
         std::string input = slotXML.get("Span");
@@ -315,7 +329,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
             for(auto &val : temp) ss>>val;
         }
         setSpan(temp);
-    }; 
+    };
 
     if(slotXML.hasSection("RefSystem")){
         const bitpit::Config::Section & rfXML = slotXML.getSection("RefSystem");
@@ -325,7 +339,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
         temp[0].fill(0.0); temp[0][0] = 1.0;
         temp[1].fill(0.0); temp[1][1] = 1.0;
         temp[2].fill(0.0); temp[2][2] = 1.0;
-        for(int i=0; i<3; ++i){			
+        for(int i=0; i<3; ++i){
             axis = rootAxis + std::to_string(i);
             std::string input = rfXML.get(axis);
             input = bitpit::utils::string::trim(input);
@@ -335,7 +349,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
             }
         }
         setRefSystem(temp);
-    }; 
+    };
 
     if(slotXML.hasOption("InfLimits")){
         std::string input = slotXML.get("InfLimits");
@@ -346,7 +360,7 @@ void Lattice::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
             for(auto &val : temp) ss>>val;
         }
         setInfLimits(temp);
-    }; 
+    };
 
     if(slotXML.hasOption("Dimension")){
         std::string input = slotXML.get("Dimension");
@@ -377,7 +391,9 @@ void Lattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
         towrite = "CYLINDER";
     } else if(getShapeType() == ShapeType::SPHERE){
         towrite = "SPHERE";
-    }	
+    } else if(getShapeType() == ShapeType::WEDGE){
+        towrite = "WEDGE";
+    }
     slotXML.set("Shape", towrite);
 
     {
@@ -423,7 +439,7 @@ void Lattice::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
 
 
 /*!
- * Plot Optional results of the class, that is, the lattice grid as an 
+ * Plot Optional results of the class, that is, the lattice grid as an
  * unstructured mesh of hexahedrons in a VTK *.vtu format.
  */
 void 	Lattice::plotOptionalResults(){
@@ -437,7 +453,7 @@ void 	Lattice::plotOptionalResults(){
  * \param[in] nx number of points in the first coordinate
  * \param[in] ny number of points in the second coordinate
  * \param[in] nz number of points in the third coordinate
- * \param[out] info boolean list, if all true, dof map of the lattice can be built safely. 
+ * \param[out] info boolean list, if all true, dof map of the lattice can be built safely.
  */
 int
 Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
@@ -450,7 +466,7 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
             delta = ny*(1 -nz);
             info.push_back(true);
             break;
-            
+
         case ShapeType::CYLINDER :
             if(!(getShape()->getLocalOrigin()[0] >0.0 )){
                 info.push_back(false);
@@ -461,7 +477,7 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
             }
             if(getCoordType(1) == CoordType::PERIODIC)	ny--;
 
-            
+
             info.push_back(getCoordType(1) == CoordType::PERIODIC);
             break;
 
@@ -498,9 +514,9 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
     return(result);
 };
 
-/*! 
- * Resize map of effective nodes of the lattice grid to fit 
- * a total number od degree of freedom nx*ny*nz. Old structure 
+/*!
+ * Resize map of effective nodes of the lattice grid to fit
+ * a total number od degree of freedom nx*ny*nz. Old structure
  * is deleted and reset to zero.
  */
 void
@@ -513,44 +529,44 @@ Lattice::resizeMapDof(){
     ivector1D::iterator itMapEnd = m_intMapDOF.end();
     bvector1D info;
     m_np = reduceDimToDOF(m_nx+1,m_ny+1,m_nz+1, info);
-    
+
     //set m_intMapDOF
-    
+
     int target;
     int index;
     ivector1D dummy;
-    
+
     int i0,i1,i2;
     switch(getShapeType()){
-        
+
         case ShapeType::WEDGE :
-            
+
             target=0;
             while(itMap != itMapEnd){
-                
+
                 *itMap = target;
                 index = std::distance(itMapBegin, itMap);
                 accessPointIndex(index,i0,i1,i2);
-                
+
                 if(info[0] && i0 == m_nx){
                     for(int k=0; k<=m_nz;++k){
                         m_intMapDOF[accessPointIndex(i0,i1,k)] = target;
                     }
                 }
-                
+
                 itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
                 target++;
             }
         break;
-        
+
         case ShapeType::CYLINDER :
             target=0;
             while(itMap != itMapEnd){
-                
+
                 *itMap = target;
                 index = std::distance(itMapBegin, itMap);
                 accessPointIndex(index,i0,i1,i2);
-                
+
                 if(info[0] && i0 == 0){
                     for(int k=0; k<=m_ny;++k){
                         m_intMapDOF[accessPointIndex(i0,k,i2)] = target;
@@ -559,21 +575,21 @@ Lattice::resizeMapDof(){
                 if(info[1] && i1 == 0){
                     m_intMapDOF[accessPointIndex(i0,m_ny,i2)] = target;
                 }
-                
+
                 itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
                 target++;
             }
             break;
-            
+
         case ShapeType::SPHERE :
-            
+
             target = 0;
             while(itMap != itMapEnd){
-                
+
                 *itMap = target;
                 index = std::distance(itMapBegin, itMap);
                 accessPointIndex(index,i0,i1,i2);
-                
+
                 if(info[0] && i0 == 0){
                     for(int k1=0; k1<=m_ny;++k1){
                         for(int k2=0; k2<=m_nz; ++k2){
@@ -581,43 +597,43 @@ Lattice::resizeMapDof(){
                         }
                     }
                 }
-                
+
                 if(info[1] && i1 == 0){
                     m_intMapDOF[accessPointIndex(i0,m_ny-1,i2)] = target;
                 }
-                
+
                 if(info[2] && i2 == 0){
                     for(int k1=0; k1<=m_ny; ++k1){
                         m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
                     }
                 }
-                
+
                 if(info[3] && i2 == (m_nz)){
                     for(int k1=0; k1<=m_ny;++k1){
                         m_intMapDOF[accessPointIndex(i0,k1,i2)] = target;
                     }
                 }
-                
+
                 itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
                 target++;
             }
             break;
-            
-            
+
+
         case ShapeType::CUBE :
             target = 0;
             while(itMap != itMapEnd){
-                
+
                 *itMap = target;
                 itMap = find(m_intMapDOF.begin(), itMapEnd,-1);
                 target++;
             }
             break;
-            
+
         default: //doing nothing
             break;
     }//end switch
-    
+
 }
 
 

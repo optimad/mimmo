@@ -24,8 +24,6 @@
 
 #include "MRBF.hpp"
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 
@@ -100,8 +98,6 @@ void MRBF::swap(MRBF & x) noexcept
 	std::swap(m_supRIsValue, x.m_supRIsValue);
 	std::swap(m_bfilter, x.m_bfilter);
     std::swap(m_functype, x.m_functype);
-	//    std::swap(m_filter, x.m_filter);
-	//    std::swap(m_displ, x.m_displ);
 	m_filter.swap(x.m_filter);
 	m_displ.swap(x.m_displ);
 	RBF::swap(x);
@@ -151,13 +147,13 @@ MRBF::getMode(){
 void
 MRBF::setMode(MRBFSol solver){
 	m_solver = solver;
-	if (m_solver == MRBFSol::NONE)    RBF::setMode(RBFMode::PARAM);
-	else                            RBF::setMode(RBFMode::INTERP);
+	if (m_solver == MRBFSol::NONE)    RBF::setMode(bitpit::RBFMode::PARAM);
+	else                            RBF::setMode(bitpit::RBFMode::INTERP);
 };
 /*!
  * Overloading of MRBF::setSolver(MRBFSol solver) with int input parameter
  * Reimplemented from RBF::setMode() of bitpit;
- * \param[in] type of solver 1-WHOLE, 2-GREEDY, see MRBFSol enum;
+ * \param[in] type of solver see MRBFSol enum;
  */
 void
 MRBF::setMode(int type){
@@ -399,9 +395,6 @@ MRBF::setTol(double tol){
 void
 MRBF::setDisplacements(dvecarr3E displ){
 	int size = displ.size();
-	//    if(size != getTotalNodesCount()){
-	//        (*m_log) << "warning: " << getName() << " sets displacements with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-	//    }
 
 	removeAllData();
 
@@ -445,7 +438,7 @@ MRBF::setFunction( const MRBFBasisFunction &bfunc )
             break;
 
 	default:
-            RBF::setFunction(RBFBasisFunction::WENDLANDC2);
+            bitpit::RBF::setFunction(bitpit::RBFBasisFunction::WENDLANDC2);
             m_functype = -1;
             break;
 	}
@@ -458,7 +451,7 @@ MRBF::setFunction( const MRBFBasisFunction &bfunc )
 void
 MRBF::setFunction( const bitpit::RBFBasisFunction &bfunc )
 {
-	RBF::setFunction(bfunc);
+	bitpit::RBF::setFunction(bfunc);
     m_functype = -1;
 }
 
@@ -502,9 +495,6 @@ MRBF::setWeight(dvector2D value){
 	if(m_solver != MRBFSol::NONE)    return;
 
 	int size = value.size();
-	//    if(size != getTotalNodesCount()){
-	//        (*m_log) << "warning: " << getName() << " sets weights with size (" << size << ") that does not fit number of RBF nodes ("<< getTotalNodesCount() << ")" << std::endl;
-	//    }
 
 	removeAllData();
 
@@ -529,9 +519,8 @@ MRBF::execute(){
 
 	MimmoObject * container = getGeometry();
     if(container == NULL){
-//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        return;
+        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
     }
 
     if(container->isEmpty()){
@@ -609,7 +598,7 @@ MRBF::execute(){
 	dvector1D displ;
 	darray3E adispl;
 	for(const auto & vertex : container->getVertices()){
-		displ = RBF::evalRBF(vertex.getCoords());
+		displ = bitpit::RBF::evalRBF(vertex.getCoords());
 		for (int j=0; j<3; ++j)
 			adispl[j] = displ[j];
 		m_displ.insert(vertex.getId(), adispl);
@@ -689,7 +678,7 @@ void
 MRBF::plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed){
 
 	int nnodes = getTotalNodesCount();
-	nnodes = min(nnodes, int(m_displ.size()));
+	nnodes = std::min(nnodes, int(m_displ.size()));
 	dvecarr3E* nodes_ = getNodes();
 	dvecarr3E nodes(nnodes);
 	dvecarr3E data(nnodes);
@@ -724,6 +713,8 @@ MRBF::plotCloud(std::string directory, std::string filename, int counterFile, bo
 	vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, nodes) ;
 	vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
 	vtk.setDimensions(conn.size(), nnodes);
+    //use connectivity as node labels also;
+    vtk.addData("labels",bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, conn) ;
 	vtk.setCodex(codex);
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 	vtk.write();
@@ -840,7 +831,7 @@ MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	}
 
 	int type = getFunctionType();
-	if(type != static_cast<int>(RBFBasisFunction::CUSTOM)){
+	if(type != static_cast<int>(bitpit::RBFBasisFunction::CUSTOM)){
 		slotXML.set("RBFShape", std::to_string(type));
 	}
 

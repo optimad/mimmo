@@ -21,8 +21,6 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#include <fstream>
-#include "Operators.hpp"
 
 namespace mimmo{
 

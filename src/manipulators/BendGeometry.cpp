@@ -22,14 +22,12 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "BendGeometry.hpp"
-#include "customOperators.hpp"
-
-using namespace bitpit;
 
 namespace mimmo{
 
 
-/*!Default constructor of BendGeometry
+/*!
+    Default constructor of BendGeometry
  */
 BendGeometry::BendGeometry(){
     m_name = "mimmo.BendGeometry";
@@ -62,11 +60,13 @@ BendGeometry::BendGeometry(const bitpit::Config::Section & rootXML){
     };
 }
 
-/*!Default destructor of BendGeometry
+/*!
+    Default destructor of BendGeometry
  */
 BendGeometry::~BendGeometry(){};
 
-/*!Copy constructor of BendGeometry. Resulting displacements are not copied.
+/*!
+    Copy constructor of BendGeometry. Resulting displacements are not copied.
  */
 BendGeometry::BendGeometry(const BendGeometry & other):BaseManipulation(other){
     m_origin = other.m_origin;
@@ -78,7 +78,7 @@ BendGeometry::BendGeometry(const BendGeometry & other):BaseManipulation(other){
 };
 
 /*!
- * Assignment operator. Resulting displacements are not copied.
+ * Assignment operator.
  */
 BendGeometry & BendGeometry::operator=(BendGeometry other){
     swap(other);
@@ -94,15 +94,14 @@ void BendGeometry::swap(BendGeometry & x) noexcept
    std::swap(m_origin, x.m_origin);
    std::swap(m_system, x.m_system);
    std::swap(m_local , x.m_local);
-   //std::swap(m_filter, x.m_filter);
    m_filter.swap(x.m_filter);
    std::swap(m_degree, x.m_degree);
    std::swap(m_coeffs, x.m_coeffs);
-   //std::swap(m_displ, x.m_displ);
    m_displ.swap(x.m_displ);
-    BaseManipulation::swap(x);
+   BaseManipulation::swap(x);
 }
-/*! It builds the input/output ports of the object
+/*!
+It builds the input/output ports of the object
  */
 void
 BendGeometry::buildPorts(){
@@ -118,16 +117,16 @@ BendGeometry::buildPorts(){
     m_arePortsBuilt = built;
 };
 
-/*! Return current origin of reference system
- * \return origin
+/*!
+    \return current origin of reference system
  */
 darray3E
 BendGeometry::getOrigin(){
     return(m_origin);
 }
 
-/*! Return current reference system axes
- * \return local reference system
+/*!
+    \return current reference system axes
  */
 dmatrix33E
 BendGeometry::getRefSystem(){
@@ -142,24 +141,27 @@ BendGeometry::getDegree(){
     return(m_degree);
 };
 
-/*!It gets the coefficients of the polynomial laws.
- * \return Coefficients of the polynomial laws. (coeffs[i][j][k] = coefficients aijk of term si = aij * xj^k).
+/*!
+    It gets the matrix of coefficients of the polynomial functions.
+    coeffs[i][j] = \f${a_{ij0},a_{ij1},a_{ij2},...,a_{ijN}}\f$
+ * \return polynomials coefficents matrix.
  */
 dmat33Evec *
 BendGeometry::getCoeffs(){
     return  &m_coeffs;
 };
 
-/*!It gets the displacements of the geometry computed during the execution.
- * \return Displacements of the points of the input MimmoObject.
+/*!
+    \return bending displacements computed on geometry nodes
  */
 dmpvecarr3E*
 BendGeometry::getDisplacements(){
     return &m_displ;
 };
 
-/*!It sets the degrees of polynomial law for each component of displacements of degrees of freedom.
- * \param[in] degree Degrees of polynomial laws (degree[i][j] = degree of displacement function si = f(xj)).
+/*!
+    It sets the degrees matrix (3x3) of each polynomial law.
+ * \param[in] degree matrix of degrees \f$d_{ij}\f$
  */
 void
 BendGeometry::setDegree(umatrix33E degree){
@@ -170,10 +172,11 @@ BendGeometry::setDegree(umatrix33E degree){
     }
 };
 
-/*!It sets the degrees of a term of a polynomial law for a component of displacements of degrees of freedom.
- * \param[in] i Components of displacement.
- * \param[in] j Coordinate of the function related to input degree.
- * \param[in] degree Degrees of polynomial laws (degree[i][j] = degree of displacement function si = f(xj)).
+/*!
+    It sets the degree \f$d_{ij}\f$ of polynomial \f$P_{ij}\f$.
+ * \param[in] i component of displacement vector.
+ * \param[in] j coordinate of the axis
+ * \param[in] degree \f$d_{ij}\f$
  */
 void
 BendGeometry::setDegree(int i, int j, uint32_t degree){
@@ -181,8 +184,11 @@ BendGeometry::setDegree(int i, int j, uint32_t degree){
     m_coeffs[i][j].resize(degree+1, 0.0);
 };
 
-/*!It sets the coefficients of the polynomial laws.
- * \param[in] coeffs Coefficients of the polynomial laws. (coeffs[i][j][k] = coefficients aijk of term si = aij * xj^k).
+/*!
+    It sets the matrix of coefficients of the polynomial functions.
+    Singular entry ij of the matrix is a vector
+    coeffs[i][j] = \f${a_{ij0},a_{ij1},a_{ij2},...,a_{ijN}}\f$
+ * \param[in] coeffs pointer to matrix of coefficients
  */
 void
 BendGeometry::setCoeffs(dmat33Evec * coeffs){
@@ -190,18 +196,20 @@ BendGeometry::setCoeffs(dmat33Evec * coeffs){
     m_coeffs = *coeffs;
 };
 
-/*!It sets the coefficients of the polynomial laws.
- * \param[in] i Components of displacement.
- * \param[in] j Coordinate of the function related to input degree.
- * \param[in] coeffs Coefficients of the polynomial laws. (coeffs[i][j][k] = coefficients aijk of term si = aij * xj^k).
+/*!
+   It sets the coefficients of polynomial \f$P_{ij}\f$
+ * \param[in] i component of displacement vector
+ * \param[in] j coordinate of the axis
+ * \param[in] coeffs vector of polynomial coefficients coeffs[i][j] = \f${a_{ij0},a_{ij1},a_{ij2},...,a_{ijN}}\f$
  */
 void
 BendGeometry::setCoeffs(int i, int j, dvector1D coeffs){
     m_coeffs[i][j] = coeffs;
 };
 
-/*!It sets the origin of the local reference system.
- * \param[in] origin Origin of local reference system.
+/*!
+It sets the origin of the local reference system.
+ * \param[in] origin  of local reference system.
  */
 void
 BendGeometry::setOrigin(darray3E origin){
@@ -209,8 +217,9 @@ BendGeometry::setOrigin(darray3E origin){
     m_local = true;
 }
 
-/*! Set new axis orientation of the local reference system.
- * \param[in] axes new direction of all local axes.
+/*!
+    It sets a new axes orientation frame for bending s.d.r.
+ * \param[in] axes matrix.
  */
 void
 BendGeometry::setRefSystem(dmatrix33E axes){
@@ -220,18 +229,19 @@ BendGeometry::setRefSystem(dmatrix33E axes){
     m_local        = true;
 }
 
-/*!It sets the filter field to modulate the displacements of the vertices
- * of the target geometry.
- * \param[in] filter filter field defined on geometry vertices.
+/*!
+   It sets a filter field to modulate the displacementsof the target geometry nodes.
+ * \param[in] filter field defined on geometry vertices.
  */
 void
 BendGeometry::setFilter(dmpvector1D * filter){
     m_filter = *filter;
 }
 
-/*!Execution command. It computes the nodes displacements with the polynomial law by
- * using the local reference system (by default the absolute one is used).
- * After exec() the displacements are stored in local m_displ variable.
+/*!
+    Execution command. It computes the displacements on geometry nodes
+    with the bending polynomial set.
+    The displacements are stored in local m_displ variable.
  */
 void
 BendGeometry::execute(){
@@ -323,7 +333,7 @@ BendGeometry::checkFilter(){
     }
 }
 
-/*! It gets the local coordinates of a point wrt the local reference system
+/*! It gets the local coordinates of a point w.r.t. the bending local reference system
  * \param[in] point Input point global coordinates
  * \return Local point coordinates
  */
@@ -337,7 +347,7 @@ BendGeometry::toLocalCoord(darray3E  point){
 };
 
 /*!
- * Transform point from local reference system of the shape,
+ * Transform point from local reference system of the bending,
  * to world reference system.
  * \param[in] point target
  * \return transformed point

@@ -33,11 +33,13 @@ namespace mimmo{
  *    \ingroup manipulators
  *    \brief TwistGeometry is the class that applies a twist to a given geometry patch.
  *
- *    The used parameters are a twist max reference value in radians, the direction, the origin
- *    of the twist axis and the distance from the origin where the max value is fixed and maintained
- *    for higher distances from the origin.
- *    The twist is applied following the right-hand rule by using as direction the distance
- *    vector from the origin.
+ *    The used parameters are:
+      - twist max reference value in radians
+      - twist axis
+      - origin of the twist axis
+      - distance from the origin (and along the axis) where the max twist is applied
+
+ *    The twist is applied following the right-hand rule w.r.t its reference axis.
  *
  * \n
  * Ports available in TwistGeometry Class :
@@ -71,11 +73,11 @@ namespace mimmo{
  * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
  *
  * Proper of the class:
- * - <B>Origin</B>: twist axis origin;
- * - <B>Direction</B>: axis direction coordinates;
+ * - <B>Origin</B>: twist axis origin coordinates (space separated);
+ * - <B>Direction</B>: axis direction coordinates (space separated);
  * - <B>Twist</B>: twist angle in radians. Positive on counterclockwise twists around reference axis;
  * - <B>Distance</B>: distance from the origin (on twist axis) where the twist angle is reached.
- * - <B>Symmetric</B>: boolean 0/1 activate symmetric twisting
+ * - <B>Symmetric</B>: boolean 0/1 deactive/activate a symmetric twisting w.r.t the plane defined by twist axis
  *
  * Geometry has to be mandatorily passed through port.
  *

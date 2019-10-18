@@ -40,7 +40,7 @@ using namespace mimmo::pin;
 
 	Geometry handler block used: SelectionByCylinder.
 
-	<b>To run</b>: ./geohandlers_example_00001 \n
+	<b>To run</b>: ./geohandlers_example_00000 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -70,17 +70,6 @@ void test00001() {
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("geohandlers_output_00000.0001");
 
-    Lattice * latt3 = new Lattice();
-    latt3->setShape(ShapeType::CYLINDER);
-    latt3->setOrigin({{0.5, 0.0, 0.0}});
-    latt3->setSpan({{0.75, 2.0*M_PI, 0.4}});
-    latt3->setInfLimits({{0.25, 0.0, 0.0}});
-    latt3->setRefSystem({{0,1,0}}, {{0,0,1}}, {{1,0,0}});
-    iarray3E dim2 = {{2, 35, 2}};
-    latt3->setDimension(dim2);
-    latt3->setPlotInExecution(true);
-    latt3->exec();
-
     SelectionByCylinder * sel3 = new SelectionByCylinder();
     sel3->setOrigin({{0.5, 0.0, 0.0}});
     sel3->setSpan({{0.75, 2.0*M_PI, 0.4}});
@@ -108,7 +97,6 @@ void test00001() {
     /* Clean up & exit;
      */
 	delete sel3;
-    delete latt3;
     delete mimmo0;
     delete mimmo1;
 

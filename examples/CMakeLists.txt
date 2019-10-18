@@ -67,12 +67,17 @@ if(BUILD_EXAMPLES)
 	# List of examples
 	set(EXAMPLE_LIST "")
     list(APPEND EXAMPLE_LIST "core_example_00001")
+    list(APPEND EXAMPLE_LIST "core_example_00002")
     list(APPEND EXAMPLE_LIST "manipulators_example_00001")
     list(APPEND EXAMPLE_LIST "manipulators_example_00002")
     list(APPEND EXAMPLE_LIST "manipulators_example_00003")
     list(APPEND EXAMPLE_LIST "manipulators_example_00004")
     list(APPEND EXAMPLE_LIST "manipulators_example_00005")
     list(APPEND EXAMPLE_LIST "genericinput_example_00001")
+    list(APPEND EXAMPLE_LIST "genericinput_example_00002")
+    list(APPEND EXAMPLE_LIST "genericinput_example_00003")
+    list(APPEND EXAMPLE_LIST "genericinput_example_00004")
+
 
     #0
     #Add examples of enabled modules
@@ -81,6 +86,7 @@ if(BUILD_EXAMPLES)
         list(APPEND EXAMPLE_LIST "geohandlers_example_00001")
         list(APPEND EXAMPLE_LIST "geohandlers_example_00002")
         list(APPEND EXAMPLE_LIST "geohandlers_example_00003")
+        list(APPEND EXAMPLE_LIST "geohandlers_example_00004")
     endif ()
 
     #4
@@ -231,6 +237,33 @@ if(BUILD_EXAMPLES)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/generic_input_00001.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_input_00001.csv"
     )
     endif()
+
+    list(FIND EXAMPLE_LIST "genericinput_example_00002" _index)
+    if ( ${_index} GREATER -1)
+    add_custom_command(
+        TARGET "genericinput_example_00002" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/generic_inputMPVData_00002.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_inputMPVData_00002.csv"
+    )
+    endif()
+
+    list(FIND EXAMPLE_LIST "genericinput_example_00003" _index)
+    if ( ${_index} GREATER -1)
+    add_custom_command(
+        TARGET "genericinput_example_00003" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/generic_displ_00002.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_displ_00002.txt"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/plane4.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane4.stl"
+    )
+    endif()
+
+    list(FIND EXAMPLE_LIST "genericinput_example_00004" _index)
+    if ( ${_index} GREATER -1)
+    add_custom_command(
+        TARGET "genericinput_example_00004" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/generic_iocloud.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/generic_iocloud.txt"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/plane4.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/plane4.stl"
+    )
+    endif()
+
 
     list(FIND EXAMPLE_LIST "iocgns_example_00001" _index)
     if ( ${_index} GREATER -1)

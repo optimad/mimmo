@@ -25,9 +25,7 @@
 #define __IOOFOAM_HPP__
 
 #include "MimmoFvMesh.hpp"
-
 #include "enum.hpp"
-#include <unordered_map>
 
 BETTER_ENUM(IOOFMode, int, READ = 0, WRITE = 1, WRITEPOINTSONLY = 2);
 

@@ -24,10 +24,6 @@
 
 #include "IOCGNS.hpp"
 #include <cgnslib.h>
-#include <unordered_map>
-
-using namespace std;
-using namespace bitpit;
 
 namespace mimmo{
 
@@ -256,7 +252,7 @@ bool    IOCGNS::isWritingMultiZone(){
    \param[in] dir path to directory
  */
 void
-IOCGNS::setDir(const string &dir){
+IOCGNS::setDir(const std::string &dir){
     m_dir = dir;
 }
 
@@ -273,7 +269,7 @@ IOCGNS::setDir(const string &dir){
  * \param[in] filename Name of target file.
  */
 void
-IOCGNS::setFilename(const string & filename){
+IOCGNS::setFilename(const std::string & filename){
     m_filename = filename;
 }
 

@@ -25,7 +25,6 @@
 #ifndef __INPUTDOF_HPP__
 #define __INPUTDOF_HPP__
 
-#include <string>
 #include "BaseManipulation.hpp"
 #include "IOData.hpp"
 
@@ -109,14 +108,6 @@ namespace inputCSVStream{
  *
  */
 class GenericInput: public BaseManipulation{
-
-// template<typename T>
-// friend bitpit::OBinaryStream & (::operator<<)(bitpit::OBinaryStream &buffer, const std::array<T,3> &array3);
-// template<typename T>
-// friend bitpit::OBinaryStream & (::operator<<)(bitpit::OBinaryStream &buffer, const std::vector<T> &vector);
-// template<typename T>
-// friend bitpit::OBinaryStream & (::operator<<)(bitpit::OBinaryStream &buffer, const std::vector<std::array<T,3>> &vecarray3);
-
 
 private:
     bool            m_readFromFile; /**<True if the object reads the values from file.*/

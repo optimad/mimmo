@@ -23,7 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "FVMeshSelection.hpp"
-#include <cstddef>
+
 namespace mimmo {
 
 /*!
@@ -31,6 +31,7 @@ namespace mimmo {
  * Parameter topo get topology of the target MimmoFvMesh where performing extraction:
  * - 1 for volume bulk and surface boundary
  * - 2 for surface bulk and 3DCurve boundary
+ 
  * No other values are allowed
  * \param[in] topo topology of the target MimmoFvMesh.
  */
@@ -177,15 +178,10 @@ FVGenericSelection::setBoundaryGeometry( MimmoObject * target){
 
 /*!
  * Set your class behavior selecting a portion of a target geoemetry.
- * Given a initial set up, gets the dual
- * result (its negative) of current selection.
+ * Given a initial set up, gets the dual result (its negative) of current selection.
  * For instance, in a class extracting geometry inside the volume of an
  * elemental shape, gets all other parts of it not included in the shape.
- * For a class extracting portions of geometry
- * matching an external tessellation, gets all the other parts not matching it.
- * For a class extracting portion of
- * geometry identified by a PID list, get all other parts not marked by such list.
- * \param[in] flag Active/Inactive "dual" feature true/false.
+ * \param[in] flag true-Activate / false-Deactivate "dual" feature .
  */
 void
 FVGenericSelection::setDual(bool flag ){

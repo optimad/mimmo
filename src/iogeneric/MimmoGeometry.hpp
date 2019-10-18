@@ -25,7 +25,6 @@
 #define __MIMMOGEOMETRY_HPP__
 
 #include "BaseManipulation.hpp"
-#include "MimmoNamespace.hpp"
 #include "enum.hpp"
 
 BETTER_ENUM(FileType, int, STL = 0, SURFVTU = 1, VOLVTU = 2, NAS = 3, OFP = 4, PCVTU = 5, CURVEVTU = 6, MIMMO = 99);
@@ -36,12 +35,12 @@ namespace mimmo{
 class NastranInterface;
 
 /*!
- * \enum WFORMAT
  * \ingroup iogeneric
  * Format of data to read/write the Nastran geometries.
  */
-enum WFORMAT{    /*!Single precision data.*/        Short,
-    /*!Double precision data.*/        Long
+enum WFORMAT{
+    Short = 0, /**<Single precision data.*/
+    Long =  1  /**<Double precision data.*/
 };
 
 
@@ -160,10 +159,8 @@ public:
 
 public:
     void        setReadDir(std::string dir);
-    BITPIT_DEPRECATED(void        setRead(bool read = true) );
     void        setWriteDir(std::string dir);
     void        setReadFilename(std::string filename);
-    BITPIT_DEPRECATED(void        setWrite(bool write = true) );
     void        setWriteFilename(std::string filename);
 
     void        setIOMode(IOMode mode);
@@ -179,7 +176,6 @@ public:
     void        setCodex(bool binary = true);
     void        setMultiSolidSTL(bool multi = true);
 
-    BITPIT_DEPRECATED(void        setHARDCopy( MimmoGeometry * other));
 
     void        setGeometry( MimmoObject * external);
     void        setGeometry(int type=1);
@@ -194,7 +190,6 @@ public:
 
     void        setFormatNAS(WFORMAT wform);
 
-    BITPIT_DEPRECATED(void        setBuildBvTree(bool build));
     void        setBuildSkdTree(bool build);
     void        setBuildKdTree(bool build);
 

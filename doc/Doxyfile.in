@@ -762,8 +762,8 @@ FILE_PATTERNS          = *.c *.cc *.cxx *.cpp *.c++ \
                          *.cs *.d \
                          *.php *.php4 *.php5 *.phtml \
                          *.m *.markdown *.md *.mm \
-                         *.dox \ 
-                         *.py \ 
+                         *.dox \
+                         *.py \
                          *.tcl *.vhd *.vhdl *.ucf \
                          *.qsf *.as
 
@@ -1059,7 +1059,7 @@ HTML_FOOTER            = @DOXY_HTML_FOOTER@
 # obsolete.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_STYLESHEET        = 
+HTML_STYLESHEET        =
 
 # The HTML_EXTRA_STYLESHEET tag can be used to specify an additional user-
 # defined cascading style sheet that is included after the standard style sheets
@@ -1409,7 +1409,7 @@ FORMULA_TRANSPARENT    = YES
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-USE_MATHJAX            = NO
+USE_MATHJAX            = YES
 
 # When MathJax is enabled you can set the default output format to be used for
 # the MathJax output. See the MathJax site (see:
@@ -1915,7 +1915,7 @@ INCLUDE_PATH           =
 # used.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-INCLUDE_FILE_PATTERNS  = 
+INCLUDE_FILE_PATTERNS  =
 
 # The PREDEFINED tag can be used to specify one or more macro names that are
 # defined before the preprocessor is started (similar to the -D option of e.g.
@@ -2278,4 +2278,3 @@ GENERATE_LEGEND        = YES
 # This tag requires that the tag HAVE_DOT is set to YES.
 
 DOT_CLEANUP            = YES
-

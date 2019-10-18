@@ -93,6 +93,7 @@ MimmoFvMesh::MimmoFvMesh(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<Mi
 /*!
  * Copy Constructor. Softly copy all internal meshes of argument class
  * as external meshes for the current one.
+   \param[in] other object ot be copied
  */
 MimmoFvMesh::MimmoFvMesh(const MimmoFvMesh & other):BaseManipulation(other){
     m_internalBulk = false;
@@ -131,8 +132,8 @@ void MimmoFvMesh::swap(MimmoFvMesh & x) noexcept{
 void MimmoFvMesh::buildPorts(){
 
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::setGeometry, M_GEOM ));
-    built = (built && createPortIn<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::setBoundaryGeometry, M_GEOM2));
+    built = (built && createPortIn<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::setGeometry, M_GEOM, true, 0 ));
+    built = (built && createPortIn<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::setBoundaryGeometry, M_GEOM2, true, 0));
     // creating output ports
     built = (built && createPortOut<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::getGeometry, M_GEOM));
     built = (built && createPortOut<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOM2));
@@ -141,13 +142,13 @@ void MimmoFvMesh::buildPorts(){
 };
 
 /*!
- * Set bulk geometry. The class softly set it, i.e. simply copy pointer to the candidate bulk geometry.
+ * Set bulk geometry. The class softly set it, i.e. simply copy pointer
+   to the candidate bulk geometry.
  * MimmoObject type admitted are 2-Volume or 1-Surface.
  * \param[in] bulk geometry to be linked
  */
 void MimmoFvMesh::setGeometry(MimmoObject *bulk){
     if (bulk == NULL) return;
-//    if (bulk->isEmpty())    return;
     if (bulk->getType() != 2 && bulk->getType() != 1) return;
 
     m_bulkext = bulk;
@@ -156,13 +157,13 @@ void MimmoFvMesh::setGeometry(MimmoObject *bulk){
 }
 
 /*!
- * Set boundary geometry. The class softly set it, i.e. simply copy pointer to the candidate boundary geometry.
+ * Set boundary geometry. The class softly set it, i.e. simply copy pointer
+   to the candidate boundary geometry.
  * MimmoObject type admitted are 1-Surface or 4-3dCurve.
  * \param[in] boundary geometry to be linked
  */
 void MimmoFvMesh::setBoundaryGeometry(MimmoObject * boundary){
     if (boundary == NULL) return;
-//    if (boundary->isEmpty())    return;
     if (boundary->getType() != 1 && boundary->getType() != 4) return;
 
     m_boundaryext = boundary;
@@ -171,7 +172,7 @@ void MimmoFvMesh::setBoundaryGeometry(MimmoObject * boundary){
 }
 
 /*!
- * Get current bulk geometry
+ * \return current bulk geometry
  */
 MimmoObject *
 MimmoFvMesh::getGeometry(){
@@ -180,7 +181,7 @@ MimmoFvMesh::getGeometry(){
 }
 
 /*!
- * Get current boundary geometry
+ * \return current boundary geometry
  */
 MimmoObject *
 MimmoFvMesh::getBoundaryGeometry(){
@@ -190,7 +191,7 @@ MimmoFvMesh::getBoundaryGeometry(){
 
 /*!
  * Add optional information on a boundary patch identified by a Part IDentifier
- * TODO: not coded at the moment.
+ * /TODO: method does nothing at the moment.
  * \param[in] PID patch identifier
  * \param[in] info struct holding option info on the patch.
  */
@@ -203,7 +204,7 @@ MimmoFvMesh::addInfoBoundaryPatch(const long & PID, const InfoBoundaryPatch & in
 
 /*!
  * \return optional information on on a boundary patch identified by a Part IDentifier
- * TODO: not coded at the moment.
+ * /TODO: method does nothing at the moment.
  * \param[in] PID patch identifier
  */
 InfoBoundaryPatch
@@ -235,7 +236,8 @@ void MimmoFvMesh::flushSectionXML(bitpit::Config::Section & slotXML, std::string
 
 
 /*!
- * Create boundary mesh starting from a valid bulk present in your current bulk slot(linked or owned).
+ * Create boundary mesh starting from a valid bulk present in your
+   current bulk slot(linked or owned).
  */
 void MimmoFvMesh::createBoundaryMesh(){
 

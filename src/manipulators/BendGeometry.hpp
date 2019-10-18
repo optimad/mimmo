@@ -25,21 +25,26 @@
 #define __BENDGEOMETRY_HPP__
 
 #include "BaseManipulation.hpp"
-#include "Apply.hpp"
 
 namespace mimmo{
 
 /*!
  * \class BendGeometry
  * \ingroup manipulators
- * \brief BendGeometry is the class that applies the a polynomial bending function of coordinates
- *  to the displacements of the nodes of a MimmoObject.
+ * \brief BendGeometry applies custom bending deformations along axis-directions
+   of a target geometry.
  *
- * The displacements to be bend have to be stored in the input of base class.
- * The bend result is stored in result member of base class.
- * For each component i the bending function of the displacement is Si = sum_jk( aijk * xj^k );
- * where aijk is the polynomial coefficient of term of degree k related to coordinate j in the function
- * applied to the i-th displacements.
+ * Bending deformation is defined as a vector field of displacements along
+   a certain axis (0-x,1-y or 2-z) and modelized by a set of custom polynomial functions
+   of N degree. Each displacement coordinate, for each axis can be influenced
+   by its own bending (9 possible bending functions). In particular, for each
+   displacement component \f$i\in[0,2]\f$ the bending is expressed as:
+
+   \f$ S_i = \sum_{j,k}( a_{ijk} x_{j}^k ) \f$
+
+   where \f$a_{ijk}\f$ is the polynomial coefficient of term of degree
+   \f$k\in[0,N]\f$, related to axis \f$j\in[0,2]\f$ and applied to the \f$i\f$-th
+   displacement coordinate.
  *
  * \n
  * Ports available in BendGeometry Class :
@@ -70,40 +75,47 @@ namespace mimmo{
  * Inherited form BaseManipulation:
  * - <B>ClassName</B> : name of the class as <tt>mimmo.BendGeometry</tt>;
  * - <B>Priority</B>  : uint marking priority of class execution in multichain frame;
- * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
+ * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry
+    directly in execution;
  *
  * Proper of the class:
- * - <B>DegreesMatrix(3x3)</B>: degrees of each polynomial function referred to a displacement
- *                          in direction i (x,y,z) and modulating displacement in direction j (x,y,z). Degree 0
- *                          marks a constant function.
- *                          Written in XML as: \n
- *                          <tt> \<DegreesMatrix\> \n
- *                              \<xDispl\> 1 0 0 \</xDispl\> (linear x-displacement distribution in x bending direction) \n
- *                              \<yDispl\> 2 0 0 \</yDispl\> (quadratic y-displacement distribution in x bending direction) \n
- *                              \<zDispl\> 0 3 0 \</zDispl\> (cubic z-displacement in y bending direction) \n
- *                          \</DegreesMatrix\> </tt> \n
- * - <B>PolyCoefficients</B>: coefficients of each 9 bending polynomial functions. Writing following
- *                        the enumeration n = i*3 + j, where i is the displacement direction and j the bending direction.
- *                        For example n=7 corresponds to i=2, j=1, reflecting in a z displacement distribution in y-bending direction.
- *                        Please note the number of coefficients for a ij-bending function is equal to the degree
- *                        of freedom DegreesMatrix(i,j), ordered as c0 + c1*x +c2*x^2+...
- *                        Written in xml as : \n
- *                        <tt> \<PolyCoefficients\> \n
- *                          \<Poly0\> 1.0 1.5 \</Poly0\> \n
- *                          \<Poly3\> -0.1 0.2 -0.01 \</Poly3\> \n
- *                          \<Poly7\> 1.5 0.0 0.1 0.2 \</Poly7\> \n
- *                        \</PolyCoefficients\> </tt> \n
- * - <B>Origin</B>: 3D point marking the origin of reference system (if not set O = {0,0,0});
- * - <B>RefSystem</B>: axes of local reference system. written in XML as:
- *                  <tt> \<RefSystem\> \n
- *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
- *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
- *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
- *                  \</RefSystem\> </tt> \n
- *
- *
- * Geometry has to be mandatorily passed through port.
- *
+ * - <B>DegreesMatrix(3x3)</B>: degrees \f$d_{ij}\f$ of each polynomial function
+     referred to a displacement component \f$i\in[0,2]\f$ and modulating
+     it along axis \f$j\in[0,2]\f$. \f$d_{ij} = 0\f$ marks a constant
+     function. Written in XML as: \n\n
+      <tt><B>\<DegreesMatrix\></B> \n
+      &nbsp; &nbsp; &nbsp;<B>\<xDispl\></B> 1 0 0 <B>\</xDispl\></B> (linear x-displacement distribution in x bending direction) \n
+      &nbsp; &nbsp; &nbsp;<B>\<yDispl\></B> 2 0 0 <B>\</yDispl\></B> (quadratic y-displacement distribution in x bending direction) \n
+      &nbsp; &nbsp; &nbsp;<B>\<zDispl\></B> 0 3 0 <B>\</zDispl\></B> (cubic z-displacement in y bending direction) \n
+      <B>\</DegreesMatrix\></B> </tt> \n\n
+
+   - <B>PolyCoefficients</B>: coefficients of each 9 bending polynomial functions.
+     Writing following the enumeration \f$n = 3i + j\f$, where i is the displacement
+     component and j the axis of bending. For example, n=7 corresponds to i=2, j=1,
+     reflecting in a z-component displacement distribution in y-axis bending direction.
+     Please note the number of coefficients for a ij-bending function is equal to the function degree
+     \f$d_{ij}\f$ + 1 (DegreesMatrix), ordered as \f$c_0 + c_1x +c_2x^2+...+c_nx^n\f$.
+     If a polynomial function is not specified, it will be treated as 0 constant function.
+     Written in XML as : \n\n
+     <tt> <B>\<PolyCoefficients\></B> \n
+      &nbsp; &nbsp; &nbsp;<B>\<Poly0\></B>  1.0 1.5           <B>\</Poly0\></B>  \n
+      &nbsp; &nbsp; &nbsp;<B>\<Poly3\></B> -0.1 0.2 -0.01     <B>\</Poly3\></B>  \n
+      &nbsp; &nbsp; &nbsp;<B>\<Poly7\></B>  1.5 0.0   0.1 0.2 <B>\</Poly7\></B>  \n
+      <B>...</B> \n
+     <B>\</PolyCoefficients\></B> </tt> \n\n
+
+   - <B>Origin</B>: 3D point marking the origin of reference system (default {0,0,0});
+
+   - <B>RefSystem</B>: define a bending custom reference system of axes.
+      Written in XML as:\n\n\
+      <tt><B>\<RefSystem\></B>\n
+      &nbsp; &nbsp; &nbsp;<B>\<axis0\></B> 1.0 0.0 0.0 <B>\</axis0\></B> \n
+      &nbsp; &nbsp; &nbsp;<B>\<axis1\></B> 0.0 1.0 0.0 <B>\</axis1\></B> \n
+      &nbsp; &nbsp; &nbsp;<B>\<axis2\></B> 0.0 0.0 1.0 <B>\</axis2\></B> \n
+      <B>\</RefSystem\></B> </tt> \n\n
+
+  Geometry has to be mandatorily passed through port.
+
  */
 class BendGeometry: public BaseManipulation{
 private:

@@ -24,8 +24,6 @@
 
 #include "StitchGeometry.hpp"
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 /*!
@@ -380,8 +378,10 @@ void
 StitchGeometry::plotOptionalResults(){
     if(m_patch.get() == NULL) return;
     if(isEmpty()) return;
-    std::string name = m_outputPlot +"/"+ m_name + "_" + std::to_string(getId()) +  "_Patch";
-    m_patch->getPatch()->write(name);
+    bitpit::VTKUnstructuredGrid & vtk = m_patch->getPatch()->getVTK();
+    vtk.setDirectory(m_outputPlot +"/");
+    vtk.setName(m_name + "_" + std::to_string(getId()) +  "_Patch");
+    m_patch->getPatch()->write();
 }
 
 }

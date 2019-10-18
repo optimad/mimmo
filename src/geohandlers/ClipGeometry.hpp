@@ -25,7 +25,6 @@
 #define __CLIPGEOMETRY_HPP__
 
 #include "BaseManipulation.hpp"
-#include "MimmoObject.hpp"
 
 namespace mimmo{
 
@@ -73,11 +72,11 @@ namespace mimmo{
  *
  * Proper of the class:
  * - <B>InsideOut</B>: boolean 0/1 to get direction of clipping according to given plane normal;
- * - <B>ClipPlane</B>: section defining the plane's normal and a point belonging to it: \n
- *         <tt> \<ClipPlane\> \n
- *              \<Point\> 0.0 0.0 0.0 \</Point\> \n
- *              \<Normal\> 0.0 1.0 0.0 \</Normal\> \n
- *              \</ClipPlane\> </tt>;
+ * - <B>ClipPlane</B>: section defining the plane's normal and a point belonging to it: \n\n
+ *         <tt> <B>\<ClipPlane\></B> \n
+ *              &nbsp;&nbsp;&nbsp;<B>\<Point\></B> 0.0 0.0 0.0 <B>\</Point\></B> \n
+ *              &nbsp;&nbsp;&nbsp;<B>\<Normal\></B> 0.0 1.0 0.0 <B>\</Normal\></B> \n
+ *              <B>\</ClipPlane\></B> </tt>;
  *
  *
  * Geometry has to be mandatorily passed through port.

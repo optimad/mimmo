@@ -25,7 +25,6 @@
 #ifndef __IOCLOUDPOINTS_HPP__
 #define __IOCLOUDPOINTS_HPP__
 
-#include <string>
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
@@ -35,48 +34,53 @@ namespace mimmo{
  * \ingroup iogeneric
  * \brief IOCloudPoints is the class to read from file a set of cloud 3D points w/ attached
  * a scalar field of floats and/or a vector field of floats
- * 
+ *
  * The only admissible File format is an ascii list of values, organized as follow:
- * 
+ *
  * <tt>
- * $POINT    l1  0.0 0.0  1.0 \n
- * $POINT    l2 -1.0 0.12 0.0 \n
- * ...
+ * <B>$POINT</B>    l1  0.0 0.0  1.0 \n
+ * <B>$POINT</B>   l2 -1.0 0.12 0.0 \n
+ * <B>...</B>
  * </tt>
  *
- * where $POINT keyword identify the row relative to a single point, l1, l2,... the unique int label associated to the point
- * and the following 3 floats represent the point coordinate. If $POINT is missing, the point will not be read.
+ * where <B>$POINT</B> keyword identify the row relative to a single point,
+   l1, l2,... the unique int label associated to the point and the following 3 floats
+   represent the point coordinate. If <B>$POINT</B> is missing, the point will not be read.
  * After all points declaration, to set a scalar value on a point define:
- * 
+ *
  * <tt>
- * $SCALARF l1 12.0 \n
- * $SCALARF l2 -4.232 \n
- * ...
+ * <B>$SCALARF</B> l1 12.0 \n
+ * <B>$SCALARF</B> l2 -4.232 \n
+ * <B>...</B>
  * </tt>
- * 
- * where l1, l2, are still the unique labels of points. Similarly for vector values on points, define:
- * 
+ *
+ * where l1, l2, are still the unique labels of points.
+   Similarly for vector values on points, define:
+ *
  * <tt>
- * $VECTORF l1 3.0 2.1 3.3 \n
- * $VECTORF l2 -4.2 0.0 0.0 \n
- * ...
+ * <B>$VECTORF</B> l1 3.0 2.1 3.3 \n
+ * <B>$VECTORF</B> l2 -4.2 0.0 0.0 \n
+ * <B>...</B>
  * </tt>
- * 
- * Missing keywords or point without field defined will be considered at values 0.0 or 0.0,0.0,0.0;
- * 
- * IOCloudPoints is derived from BaseManipulation class. The class working in both Read and Write mode, that is can 
- * read from or write to file, provided that its format requirements are met.
- * When in write mode the class can generate a template file for both scalar and vector fields, that can be filled in a second moment for different purposes.
+ *
+ * Missing keywords or point without field defined will be considered
+   at values {0.0} or {0.0,0.0,0.0};
+ *
+ * IOCloudPoints is derived from BaseManipulation class. The class working in
+   both Read and Write mode, that is can read from or write to file, provided
+   that its format requirements are met.
+ * When in write mode the class can generate a template file for both scalar and
+   vector fields, that can be filled in a second moment for different purposes.
  * The layout of this file will be:
- * 
+ *
  * <tt>
- * $SCALARF    l1  {sl1} \n
- * $VECTORF    l2  {xl2} {yl2}  {zl2} \n
- * ...
+ * <B>$SCALARF</B>    l1  {sl1} \n
+ * <B>$VECTORF</B> l2  {xl2} {yl2}  {zl2} \n
+ * <B>...</B>
  * </tt>
- * 
+ *
  * where {xxx} uniquely naming the component of displacement
- * 
+ *
  * \n
  * Ports available in IOCloudPoints Class :
  *
@@ -166,7 +170,7 @@ public:
 
 protected:
     void swap(IOCloudPoints & x) noexcept;
-    
+
 private:
     virtual void read();
     virtual void write();

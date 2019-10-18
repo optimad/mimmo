@@ -24,31 +24,30 @@
 #ifndef __EXTRACTFIELDS_HPP__
 #define __EXTRACTFIELDS_HPP__
 
-#include "MimmoObject.hpp"
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
 /*!
- * \enum ExtractMode
  * \ingroup geohandlers
  * \brief Modes available to extract fields.See class ExtractField documentation.
  */
 enum class ExtractMode{
-    ID = 1 /**< Extract via ID*/,
-    PID = 2 /**< Extract via PID*/,
+    ID = 1, /**< Extract via ID*/
+    PID = 2, /**< Extract via PID*/
     MAPPING = 3 /**< Extract by proximity mapping.*/
 };
 
 /*!
  * \class ExtractField
  * \ingroup geohandlers
- * \brief ExtractField is an abstract executable block class capable of
- *         extracting a portion of an input field related to a geometry
- *         sub-portion of the geometry linked to the input field .
+ * \brief ExtractField is an abstract executable block class for
+ *         extracting/restricting an input field defined on a mesh X
+           on a target subportion of X.
  *
- *
- * ExtractField takes as input the target geometry used to extract a portion of
- * an input field linked to the same or another geometry.
+ * ExtractField classes take as inputs:
+   - a target input field defined on a geometry
+   - a subportion of the geometry where the input field is defined.
+
  * Reference data location (POINT, CELLS or INTERFACES) of the input field is used to extract data
  * on vertices, cells or interfaces of the target geometry.
  * Three methods are available:
@@ -81,14 +80,14 @@ enum class ExtractMode{
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- * - <B>ClassName</B>: name of the class as "mimmo.Extract< Scalar/Vector >Field"
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.Extract<...>Field</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or Mapping(3);
- * - <B>Tolerance</B>: tolerance for extraction by patch, valid only in Mapping mode.
+ * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or MAPPING(3);
+ * - <B>Tolerance</B>: tolerance for extraction by patch, meaningful only in Mapping mode.
  *
  * Geometries and fields have to be mandatorily passed through port.
  *
@@ -137,17 +136,6 @@ protected:
  * \brief ExtractScalarField is specialized derived class of ExtractField to extract a
  *         scalar field of doubles.
  *
- * Parameters:
- * Inherited from BaseManipulation:
- * - <B>ClassName</B>: name of the class as "mimmo.Extract< Scalar/Vector >Field"
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
- * - <B>OutputPlot</B>: target directory for optional results writing.
- *
- * Inherited from ExtractField:
- * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or Mapping(3);
- * - <B>Tolerance</B>: tolerance for extraction by patch, valid only in Mapping mode.
-
  * Ports available in ExtractScalarField Class :
  *
  *    =========================================================
@@ -177,6 +165,17 @@ protected:
 
  *    =========================================================
  *
+ * Parameters:
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.ExtractScalarField</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Inherited from ExtractField:
+ * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or MAPPING(3);
+ * - <B>Tolerance</B>: tolerance for extraction by patch, meaningful only in Mapping mode.
+
  */
 
 class ExtractScalarField: public ExtractField{
@@ -216,19 +215,9 @@ private:
 
 /*!
  *  \class ExtractVectorField
- *    \brief ExtractVectorField is specialized derived class of ExtractField to extract a
- *         scalar field of array<double,3>.
- *
- * Parameters:
- * Inherited from BaseManipulation:
- * - <B>ClassName</B>: name of the class as "mimmo.Extract< Scalar/Vector >Field"
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
- * - <B>OutputPlot</B>: target directory for optional results writing.
- *
- * Inherited from ExtractField:
- * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or Mapping(3);
- * - <B>Tolerance</B>: tolerance for extraction by patch, valid only in Mapping mode.
+ *   \brief ExtractVectorField is specialized derived class of ExtractField to extract a
+ *         vector field of array<double,3>.
+ *  \ingroup geohandlers
 
  * Ports available in ExtractVectorField Class :
  *
@@ -259,7 +248,17 @@ private:
 
 
  *    =========================================================
+
+ * Parameters:
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.ExtractVectorField</tt>
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
  *
+ * Inherited from ExtractField:
+ * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or MAPPING(3);
+ * - <B>Tolerance</B>: tolerance for extraction by patch, valid only in Mapping mode.
  */
 class ExtractVectorField: public ExtractField{
 private:

@@ -22,10 +22,9 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "GenericDispls.hpp"
-#include "Operators.hpp"
+#include <bitpit_operators.hpp>
 #include <fstream>
 
-using namespace std;
 namespace mimmo {
 
 /*!
@@ -104,7 +103,7 @@ void GenericDispls::swap(GenericDispls & x )noexcept
     std::swap(m_template, x.m_template);
     BaseManipulation::swap(x);
 }
-/*! 
+/*!
  * It builds the input/output ports of the object
  */
 void
@@ -143,7 +142,7 @@ GenericDispls::getDispl(){
 
 /*!
  * Return the labels attached to displacements actually stored into the class.
- * Labels are always checked and automatically fit to displacements during the class execution 
+ * Labels are always checked and automatically fit to displacements during the class execution
  * \return list of labels
  */
 livector1D
@@ -163,7 +162,7 @@ GenericDispls::isTemplate(){
 
 /*!
  * It sets the name of the input directory. Active only in read mode.
- * \param[in] dir directory path 
+ * \param[in] dir directory path
  */
 void
 GenericDispls::setReadDir(std::string dir){
@@ -183,7 +182,7 @@ GenericDispls::setReadFilename(std::string filename){
 
 /*!
  * It sets the name of the output directory. Active only in write mode.
- * \param[in] dir directory path 
+ * \param[in] dir directory path
  */
 void
 GenericDispls::setWriteDir(std::string dir){
@@ -203,7 +202,7 @@ GenericDispls::setWriteFilename(std::string filename){
 
 /*!
  * It sets the number of displacements desired. This method does nothing
- * if displacements or labels are available already into the class. 
+ * if displacements or labels are available already into the class.
  * The method is not active in Read mode.
  * \param[in] nD number of displacements
  */
@@ -216,7 +215,7 @@ GenericDispls::setNDispl(int nD){
 /*!
  * It sets the labels attached to each displacements.
  * The method is not active in Read mode.
- * \param[in] labels list of label ids 
+ * \param[in] labels list of label ids
  */
 void
 GenericDispls::setLabels(livector1D labels){
@@ -308,19 +307,19 @@ void GenericDispls::absorbSectionXML(const bitpit::Config::Section & slotXML, st
             std::string input = slotXML.get("ReadDir");
             input = bitpit::utils::string::trim(input);
             setReadDir(input);
-        }; 
+        };
 
         if(slotXML.hasOption("ReadFilename")){
             std::string input = slotXML.get("ReadFilename");
             input = bitpit::utils::string::trim(input);
             setReadFilename(input);
-        }; 
-    }else{    
+        };
+    }else{
         if(slotXML.hasOption("WriteDir")){
             std::string input = slotXML.get("WriteDir");
             input = bitpit::utils::string::trim(input);
             setWriteDir(input);
-        }; 
+        };
 
         if(slotXML.hasOption("WriteFilename")){
             std::string input = slotXML.get("WriteFilename");
@@ -363,7 +362,7 @@ void GenericDispls::flushSectionXML(bitpit::Config::Section & slotXML, std::stri
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     slotXML.set("IOmode", std::to_string(int(m_read)));
     if(m_read){
         slotXML.set("ReadDir", m_dir);
@@ -484,4 +483,3 @@ void GenericDispls::write(){
 
 
 }
-

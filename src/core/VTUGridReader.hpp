@@ -24,19 +24,16 @@
 #ifndef __VTUGRIDREADER_HPP__
 #define __VTUGRIDREADER_HPP__
 
-#include "bitpit_patchkernel.hpp"
 #include "mimmoTypeDef.hpp"
+#include <bitpit_patchkernel.hpp>
 
 namespace mimmo{
 
 /*!
- * \ingroup core
- */
-
-/*!
  * \class VTUAbsorbStreamer
  * \brief Abstract class for custom reader/absorber of *.vtu mesh external files
- *
+ * \ingroup core
+
  * Reader/absorber is focused to mesh data only.
  * Abstract class need to provide:
  *  - A custom implementation of absorbData method to read the data from file (actually void).
@@ -59,6 +56,7 @@ public:
 /*!
  * \class VTUGridStreamer
  * \brief Custom mesh/data absorber for unstructured grids given by external files *.vtu
+   \ingroup core
  *
  * Read unstructured mesh data only from an external file vtu (any other data will be skipped).
  * Data will be stored in internal structures of the streamer.
@@ -90,7 +88,8 @@ public:
 /*!
  * \class VTUPointCloudStreamer
  * \brief Custom mesh/data absorber for point clouds defined as an unstructured grid and given by external files *.vtu
- *
+ * \ingroup core
+
  * Read unstructured point cloud data only from an external file vtu (any other data will be skipped).
  * Data will be stored in internal structures of the streamer.
  */
@@ -116,7 +115,8 @@ public:
 /*!
  * \class VTUGridReader
  * \brief Custom reader of unstructured grids from external files *.vtu
- *
+ * \ingroup core
+ 
  * Reader of unstructured grids from external files *.vtu. if successfull reading,
  * store the mesh fields in target bitpit::Patchkernel data structure.
  * Need in construction to specify a streamer of type VTUAbsorbStreamer.

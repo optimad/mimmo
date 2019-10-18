@@ -24,16 +24,16 @@
 #ifndef __INOUT_HPP__
 #define __INOUT_HPP__
 
-#include "binary_stream.hpp"
-#include "MimmoNamespace.hpp"
 #include "BasicShapes.hpp"
 #include "MimmoPiercedVector.hpp"
-#include "TrackingPointer.hpp"
+#include <binary_stream.hpp>
 #include <functional>
 
 namespace mimmo{
 
 class BaseManipulation;
+struct FileDataInfo;
+class TrackingPointer;
 
 /*!
  * \ingroup typedefs

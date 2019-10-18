@@ -44,7 +44,7 @@ using namespace mimmo;
          - write deformed mesh to CGNS file
  *
  * Using: IOCGNS, SelectionByPID, SelectionByBox, ReconstructVector, RotationGeometry, Apply, ExtractVectorFields
- * 
+ *
  * Depends on mimmo optional module geohandlers
  *
  * <b>To run</b>: ./iocgns_example_00001 \n
@@ -152,56 +152,56 @@ void example00001() {
 
     /* Create PINs. */
 #if MIMMO_ENABLE_MPI
-    addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
-    addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
-    addPin(partition, cgnsDirichlet, M_GEOM2, M_GEOM)  ;
-    addPin(partition, cgnsSlip, M_GEOM2, M_GEOM)  ;
+    pin::addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
+    pin::addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
+    pin::addPin(partition, cgnsDirichlet, M_GEOM2, M_GEOM)  ;
+    pin::addPin(partition, cgnsSlip, M_GEOM2, M_GEOM)  ;
 #else
-    addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM)  ;
-    addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM)  ;
+    pin::addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM)  ;
+    pin::addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM)  ;
 #endif
 
-    addPin(cgnsDirichlet, boxSel, M_GEOM, M_GEOM)  ;
+    pin::addPin(cgnsDirichlet, boxSel, M_GEOM, M_GEOM)  ;
 
-    addPin(boxSel, rotation, M_GEOM, M_GEOM)  ;
-    addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD)  ;
-    addPin(cgnsDirichlet, recon, M_GEOM, M_GEOM)  ;
+    pin::addPin(boxSel, rotation, M_GEOM, M_GEOM)  ;
+    pin::addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD)  ;
+    pin::addPin(cgnsDirichlet, recon, M_GEOM, M_GEOM)  ;
 
 #if MIMMO_ENABLE_MPI
-    addPin(partition, prop, M_GEOM, M_GEOM)  ;
+    pin::addPin(partition, prop, M_GEOM, M_GEOM)  ;
 #else
-    addPin(cgnsI, prop, M_GEOM, M_GEOM)  ;
+    pin::addPin(cgnsI, prop, M_GEOM, M_GEOM)  ;
 #endif
-    addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2)  ;
-    addPin(cgnsSlip, prop, M_GEOM, M_GEOM4)  ;
-    addPin(boxSel, prop, M_GEOM, M_GEOM3)  ;
+    pin::addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2)  ;
+    pin::addPin(cgnsSlip, prop, M_GEOM, M_GEOM4)  ;
+    pin::addPin(boxSel, prop, M_GEOM, M_GEOM3)  ;
 
-    addPin(recon, prop, M_VECTORFIELD, M_GDISPLS)  ;
-    addPin(prop, applier, M_GDISPLS, M_GDISPLS)  ;
+    pin::addPin(recon, prop, M_VECTORFIELD, M_GDISPLS)  ;
+    pin::addPin(prop, applier, M_GDISPLS, M_GDISPLS)  ;
 #if MIMMO_ENABLE_MPI
-    addPin(partition, applier, M_GEOM, M_GEOM)  ;
-    addPin(partition, extrF, M_GEOM2, M_GEOM)  ;
-    addPin(partition, applierS, M_GEOM2, M_GEOM)  ;
+    pin::addPin(partition, applier, M_GEOM, M_GEOM)  ;
+    pin::addPin(partition, extrF, M_GEOM2, M_GEOM)  ;
+    pin::addPin(partition, applierS, M_GEOM2, M_GEOM)  ;
 #else
-    addPin(cgnsI, applier, M_GEOM, M_GEOM)  ;
-    addPin(cgnsI, extrF, M_GEOM2, M_GEOM)  ;
-    addPin(cgnsI, applierS, M_GEOM2, M_GEOM)  ;
+    pin::addPin(cgnsI, applier, M_GEOM, M_GEOM)  ;
+    pin::addPin(cgnsI, extrF, M_GEOM2, M_GEOM)  ;
+    pin::addPin(cgnsI, applierS, M_GEOM2, M_GEOM)  ;
 #endif
 
-    addPin(prop, extrF, M_GDISPLS, M_VECTORFIELD)  ;
-    addPin(extrF, applierS, M_VECTORFIELD, M_GDISPLS)  ;
+    pin::addPin(prop, extrF, M_GDISPLS, M_VECTORFIELD)  ;
+    pin::addPin(extrF, applierS, M_VECTORFIELD, M_GDISPLS)  ;
 
 #if MIMMO_ENABLE_MPI
-    addPin(applier, serialize, M_GEOM, M_GEOM)  ;
-    addPin(applierS, serialize, M_GEOM, M_GEOM2)  ;
-    addPin(serialize, cgnsO, M_GEOM, M_GEOM)  ;
-    addPin(serialize, cgnsO, M_GEOM2, M_GEOM2)  ;
+    pin::addPin(applier, serialize, M_GEOM, M_GEOM)  ;
+    pin::addPin(applierS, serialize, M_GEOM, M_GEOM2)  ;
+    pin::addPin(serialize, cgnsO, M_GEOM, M_GEOM)  ;
+    pin::addPin(serialize, cgnsO, M_GEOM2, M_GEOM2)  ;
 #else
-    addPin(applier, cgnsO, M_GEOM, M_GEOM)  ;
-    addPin(applierS, cgnsO, M_GEOM, M_GEOM2)  ;
+    pin::addPin(applier, cgnsO, M_GEOM, M_GEOM)  ;
+    pin::addPin(applierS, cgnsO, M_GEOM, M_GEOM2)  ;
 #endif
 
-    addPin(cgnsI, cgnsO, M_BCCGNS, M_BCCGNS)  ;
+    pin::addPin(cgnsI, cgnsO, M_BCCGNS, M_BCCGNS)  ;
 
     /* Create and execute chain. */
     Chain ch0, ch1;

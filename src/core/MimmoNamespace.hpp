@@ -24,31 +24,26 @@
 #ifndef __MIMMONAMESPACE_HPP__
 #define __MIMMONAMESPACE_HPP__
 
-// #include "enum.hpp"
-#include "bitpit.hpp"
+#include <logger.hpp>
 
 namespace mimmo{
 
 class BaseManipulation;
 
-template<typename value_t>
-class MimmoPiercedVector;
-
 /*!
  * \class FileDataInfo
- * \brief FileDataInfo is a struct to stock data relative to names of external files. 
  * \ingroup core
- * 
+ * \brief FileDataInfo is a struct to stock data relative to names of external files.
  *
- * FileDataInfo has three fields: an integer relative to the type of file stored, 
+ * FileDataInfo has three fields: an integer relative to the type of file stored,
  * a string reporting the path to the file and a string reporting the name of the file
- * 
+ *
  */
 struct FileDataInfo{
     int ftype;          /**< file type identifier*/
     std::string fname;  /**< file name*/
     std::string fdir;   /**< file directory*/
-    
+
     FileDataInfo();
     virtual ~FileDataInfo();
     FileDataInfo(const FileDataInfo & other);
@@ -56,7 +51,7 @@ struct FileDataInfo{
 
 
 /*!
-* 
+*
 *  \brief Utilities to create port connections between executable blocks.
 *  \ingroup core
 * Here are collected enums and methods to create connections between blocks throughout established ports.
@@ -101,9 +96,6 @@ extern bool MIMMO_EXPERT; /**<Flag that defines expert mode (true) or safe mode 
                                 In case of expert mode active the mandatory ports are not checked. */
 
 void setExpertMode(bool flag = true);
-
-//miscellanea
-double  maxvalmp(const MimmoPiercedVector<double> & field);
 
 }//end namespace mimmo
 

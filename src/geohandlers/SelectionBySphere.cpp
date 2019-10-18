@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -23,8 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "MeshSelection.hpp"
-#include "levelSet.hpp"
-#include <cstddef>
+
 namespace mimmo{
 
 /*!
@@ -55,7 +54,7 @@ SelectionBySphere::SelectionBySphere(const bitpit::Config::Section & rootXML){
 }
 
 /*!
- * Custom Constructor. Pay attention span of angular and polar coords are at most 2*pi and pi respectively. 
+ * Custom Constructor. Pay attention span of angular and polar coords are at most 2*pi and pi respectively.
  *  Inf limits of polar coordinate must be > 0 and < pi.
  * \param[in] origin Origin of the sphere->baricenter
  * \param[in] span     Span of the cylinder, main radius/ span of angular coord in radians/span of the polar coord in radians
@@ -109,9 +108,9 @@ void SelectionBySphere::swap(SelectionBySphere & x) noexcept
 void
 SelectionBySphere::buildPorts(){
 
-    bool built = true;
 
     GenericSelection::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<darray3E, SelectionBySphere>(this, &SelectionBySphere::setOrigin,M_POINT));
     built = (built && createPortIn<darray3E, SelectionBySphere>(this, &SelectionBySphere::setSpan, M_SPAN));
@@ -131,7 +130,7 @@ void SelectionBySphere::clear(){
 
 /*!
  * Extract portion of target geometry which are enough near to the external geometry provided
- * \return ids of cell of target tesselation extracted 
+ * \return ids of cell of target tesselation extracted
  */
 livector1D
 SelectionBySphere::extractSelection(){
@@ -159,7 +158,7 @@ SelectionBySphere::absorbSectionXML(const bitpit::Config::Section & slotXML, std
 
     //start absorbing
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("Dual")){
         std::string input = slotXML.get("Dual");
         input = bitpit::utils::string::trim(input);
@@ -260,7 +259,7 @@ SelectionBySphere::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-    
+
     int value = m_dual;
     slotXML.set("Dual", std::to_string(value));
 

@@ -25,7 +25,7 @@
 #define __CHAIN_HPP__
 
 #include "BaseManipulation.hpp"
-#include "MimmoNamespace.hpp"
+#include <memory>
 
 namespace mimmo{
 
@@ -34,10 +34,10 @@ namespace mimmo{
  * \ingroup core
  * \brief Chain is the class used to manage the chain execution of multiple executable blocks (manipulation object).
  *
- * Chain is a wrapper, executable container capable to manage the workflow execution of multiple 
+ * Chain is a wrapper, executable container capable to manage the workflow execution of multiple
  * manipulation objects, connected each other through port PINs.
- * Each object added to the chain is inserted in the chain. According to the mutual connections with other object, 
- * the class will automatically assign to it a priority of execution. 
+ * Each object added to the chain is inserted in the chain. According to the mutual connections with other object,
+ * the class will automatically assign to it a priority of execution.
  * An ID is assigned to a new chain and to every object in the chain, in order to give to the user a persistent
  * information to recover or the position or the ID of the object in the chain.
  * The execution is performed following the correct order of the object chain in order to avoid
@@ -46,6 +46,7 @@ namespace mimmo{
  *
  */
 class Chain{
+
 protected:
 	//members
 	uint8_t							m_id;				/**<ID of the chain.*/
@@ -63,9 +64,9 @@ protected:
 
 public:
 	Chain();
-	~Chain();
+	virtual ~Chain();
 
-	Chain(const Chain & other);
+    std::unique_ptr<Chain> clone() const;
 
     //get/set methods
 	uint32_t	getNObjects();
@@ -83,15 +84,20 @@ public:
     void            setOutputDebugResults(std::string path);
     bool            isPlottingDebugResults();
     std::string     getOutputDebugResults();
-    
+
 	//relationship methods
 	void 		exec(bool debug = false);
 	void 		exec(int idobj);
 
-private:
-	//check methods
+protected:
+    void swap(Chain &x) noexcept;
+    //check methods
 	void		checkLoops();
 
+private:
+    // preventing copy constr and assignment. use clone instead.
+    Chain(const Chain & other);
+    Chain & operator=(const Chain & other);
 };
 
 }

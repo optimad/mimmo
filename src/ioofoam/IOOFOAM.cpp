@@ -243,6 +243,17 @@ IOOFOAM_Kernel::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
 
 	BaseManipulation::absorbSectionXML(slotXML, name);
 
+    if(slotXML.hasOption("IOMode")){
+        std::string fallback_type = "IOModeNONE";
+    	std::string input_type = slotXML.get("IOMode", fallback_type);
+    	input_type = bitpit::utils::string::trim(input_type);
+
+    	auto maybeIOOFMode = IOOFMode::_from_string_nothrow(input_type.c_str());
+        if(maybeIOOFMode){
+            setType(maybeIOOFMode->_to_integral());
+        }
+    }
+
 	if(slotXML.hasOption("Dir")){
 		input = slotXML.get("Dir");
 		input = bitpit::utils::string::trim(input);
@@ -316,14 +327,7 @@ IOOFOAM::IOOFOAM(const bitpit::Config::Section & rootXML){
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::string::trim(input);
 
-	std::string fallback_type = "IOModeNONE";
-	std::string input_type = rootXML.get("IOMode", fallback_type);
-	input_type = bitpit::utils::string::trim(input_type);
-
-	auto maybeIOOFMode = IOOFMode::_from_string_nothrow(input_type.c_str());
-
-	if(input == "mimmo.IOOFOAM" && maybeIOOFMode){
-		m_type = maybeIOOFMode->_to_integral();
+	if(input == "mimmo.IOOFOAM"){
 		setDefaults();
 		absorbSectionXML(rootXML);
 	}else{
@@ -674,14 +678,8 @@ IOOFOAMScalarField::IOOFOAMScalarField(const bitpit::Config::Section & rootXML){
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::string::trim(input);
 
-	std::string fallback_type = "IOModeNONE";
-	std::string input_type = rootXML.get("IOMode", fallback_type);
-	input_type = bitpit::utils::string::trim(input_type);
 
-	auto maybeIOOFMode = IOOFMode::_from_string_nothrow(input_type.c_str());
-
-	if(input == "mimmo.IOOFOAMScalarField" && maybeIOOFMode){
-		m_type = maybeIOOFMode->_to_integral();
+	if(input == "mimmo.IOOFOAMScalarField"){
 		setDefaults();
 		absorbSectionXML(rootXML);
 	}else{
@@ -924,14 +922,7 @@ IOOFOAMScalarField::write(){
  	std::string input = rootXML.get("ClassName", fallback_name);
  	input = bitpit::utils::string::trim(input);
 
- 	std::string fallback_type = "IOModeNONE";
- 	std::string input_type = rootXML.get("IOMode", fallback_type);
- 	input_type = bitpit::utils::string::trim(input_type);
-
- 	auto maybeIOOFMode = IOOFMode::_from_string_nothrow(input_type.c_str());
-
- 	if(input == "mimmo.IOOFOAMVectorField" && maybeIOOFMode){
- 		m_type = maybeIOOFMode->_to_integral();
+ 	if(input == "mimmo.IOOFOAMVectorField"){
  		setDefaults();
  		absorbSectionXML(rootXML);
  	}else{

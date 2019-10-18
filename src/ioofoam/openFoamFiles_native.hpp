@@ -22,19 +22,14 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-//=========================================================================
-//  Description:   Handling of OpenFoam Files
-//  Author:        Andrea Iob
-//=========================================================================
-
 #ifndef FOAM_FILES_NATIVE_H
 #define FOAM_FILES_NATIVE_H
 
-#include <bitpit_patchkernel.hpp>
 #include "InOut.hpp"
+#include <bitpit_patchkernel.hpp>
 #include <array>
 #include <vector>
-#include "fvCFD.H"
+#include <fvCFD.H>
 
 namespace mimmo{
 

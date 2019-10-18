@@ -26,28 +26,34 @@
 #define __IOCGNS_HPP__
 
 #include "BaseManipulation.hpp"
-
+#include <map>
+#include <unordered_map>
+#include <memory>
 
 namespace mimmo{
 
-typedef int M_CG_BCType_t;          /**<Casting of CG_BCType_t to int.*/
+/*! \ingroup typedefs{ */
+typedef int M_CG_BCType_t;          /**<custom typedef for IOCGNS .*/
+/*! } */
 
 /*!
  * \class BCCGNS
  * \ingroup iocgns
  * \brief Class to store the Info related to boundary conditions of CGNS grid.
  *
- *  It works only if the boundary conditions are previously read from a CGNS file and passed by the related input port.
+ *  It works only if the boundary conditions are previously read from
+    a CGNS file and passed by the related input port.
  *
  */
 class BCCGNS{
     friend class IOCGNS;
-private:
+
+protected:
     std::map<int, M_CG_BCType_t >       mcg_pidtobc;      /**<Converter of boundary conditions types (PID->conditionType).*/
     std::map<int, std::vector<int> >    mcg_zonetobndpid;  /**<map that associates volume zone to interested boundary pid*/
-    std::map<int, int >       mcg_pidtolisttype;                  /**! Track the list type for BC 0-PointList, 1-ElementList */
-    std::map<int, std::string >       mcg_bcpidnames;                  /**! map bc pid and its names if any*/
-    std::map<int, std::string >       mcg_zonepidnames;                  /**! map bc pid and its names if any*/
+    std::map<int, int >               mcg_pidtolisttype;  /**< Track the list type for BC 0-PointList, 1-ElementList */
+    std::map<int, std::string >       mcg_bcpidnames;     /**< map boundary conditions pids and their names if any*/
+    std::map<int, std::string >       mcg_zonepidnames;   /**< map zone pids and their names if any*/
 
 public:
     BCCGNS(){};
@@ -79,11 +85,14 @@ private:
  *
  * The class is in beta version and has the following limitations:
  * - Only unstructured mesh with single base supported.
- * - Singular of multi-zone meshes are supported are supported in reading native cgns.
+ * - Singular of multi-zone meshes are supported in reading native cgns.
  * - Singular zone meshes are supported in writing cgns format.
  * - Multi-zone meshes cgns writing will be supported in future, but not yet available.
  * - Data attached to boundary conditions patches are not read/written, except for
  *   their names and their cgns type.
+   - CGNS meshes exported from Pointwise16 and StarCCM++ are still unreadable with
+     the current class. Errors are known and will be fixed in later versions.
+   - Reading/writing partitioned mesh in cgns format is not yet available.
  *
  * Dependencies : cgns libraries.
  *
@@ -115,14 +124,11 @@ private:
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
 
  * Proper of the class:
- * - <B>IOCGNS_Mode</B>: 0-read from file cgns (MPI archs reading with 0 rank only),
- *                       1-restore from dump file
- *                       2-write file to cgns (MPI archs writing with 0 rank only),
- *                       3-dump data to file.
+ * - <B>IOCGNS_Mode</B>: working mode of the class, see IOCGNS_Mode enum.
  * - <B>Dir</B>: directory path for reading/writing;
  * - <B>Filename</B>: name of file to read/write without .cgns/dump tag;
  * - <B>WriteInfo</B>: boolean (1/0) write on file zoneNames, bcNames, either in reading and writing mode. The save directory path is specified with Dir.
- * - <B>WriteFormat</B>: 1- write in default format HDF5, 2- write in old format ADF, 3-ADF2 (version 2.5 ADF for 32 bit systems)
+ * - <B>WriteFormat</B>: writing format supported by the class, see IOCGNS_WriteType enum
  * - <B>WriteMultiZone</B>: 0- write single zone, 1- write multizone(if multi zone are available in the mesh).
  *
  * Geometry has to be mandatorily read or passed through port.
@@ -133,27 +139,24 @@ class IOCGNS: public BaseManipulation{
 public:
 
     /*!
-        \enum IOCGNS_Mode
         \ingroup iocgns
         \brief enumeration of IOCGNS class I/O modes.
     */
     enum IOCGNS_Mode{
-        READ = 0        , /**< 0-rank only, Read the cgns from file */
-        RESTORE=1       , /**< Read the mesh from a previous <>.dump file*/
-        WRITE=2         , /**< 0-rank only, Write the mesh on a cgns file */
-        DUMP=3            /**<Write the mesh to dump file*/
+        READ = 0        , /**< 0 - 0rank only, Read the cgns from file */
+        RESTORE=1       , /**< 1 - Read the mesh from a previous <>.dump file*/
+        WRITE=2         , /**< 2 - 0rank only, Write the mesh on a cgns file */
+        DUMP=3            /**< 3 - Write the mesh to dump file*/
     };
 
     /*!
-        \enum IOCGNS_WriteType
         \ingroup iocgns
         \brief enumeration of IOCGNS class format type for writing only.
     */
     enum IOCGNS_WriteType{
-        NONE = 0        ,
         HDF5 = 1        , /**< 1-write cgns in default HDF5 mode */
-        ADF  = 2         , /**< 2-write cgns in ADF mode*/
-        ADF2 = 3         /**< 3-write cgns in old ADF2 mode for 2.5 cgns on 32 bit system only*/
+        ADF  = 2        , /**< 2-write cgns in ADF mode*/
+        ADF2 = 3          /**< 3-write cgns in old ADF2 mode for 2.5 cgns on 32 bit system only*/
     };
 
     IOCGNS(IOCGNS_Mode mode= IOCGNS_Mode::READ);
@@ -236,7 +239,6 @@ private:
     std::unique_ptr<MimmoObject>        m_surfmesh;         /**<Original boundary mesh, instantiated in reading */
     MimmoObject *                       m_surfmesh_not;     /**<Pointed external boundary mesh*/
 
-//    std::unique_ptr<InfoCGNS>           m_storedInfo;     /**<Information of a CGNS read mesh.*/
     std::unique_ptr<BCCGNS>             m_storedBC;         /**<Information of boundary conditions of a CGNS read mesh.*/
 
     bool    m_writeOnFile;                                  /**! write mesh info on file */

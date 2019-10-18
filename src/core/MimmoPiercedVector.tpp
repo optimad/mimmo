@@ -22,6 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 
+#include "MimmoNamespace.hpp"
 
 namespace mimmo{
 
@@ -113,8 +114,6 @@ MimmoPiercedVector<mpv_t>::getGeometry() const{
 
 /*!
  * Get data location w.r.t geometry inner structures.
- * It returns what is stored in the respective member, and does not attempt to
- * recover the reference location from geometry eventually.
  * \return MPVLocation enum
  */
 template<typename mpv_t>
@@ -125,8 +124,6 @@ MimmoPiercedVector<mpv_t>::getConstDataLocation() const{
 
 /*!
  * Get data location w.r.t geometry inner structures.
- * If location is UNDEFINED, attempt to recover reference location from linked
- * geometry employing recoverGeometryReferenceLocation() method.
  * \return MPVLocation enum
  */
 template<typename mpv_t>

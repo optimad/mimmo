@@ -25,9 +25,8 @@
 #include "SwitchFields.hpp"
 #include "SkdTreeUtils.hpp"
 #include "ExtractFields.hpp"
+#include <unordered_map>
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 /*!
@@ -125,7 +124,7 @@ SwitchVectorField::getSwitchedField(){
  * \param[in] fields scalar fields
  */
 void
-SwitchVectorField::setFields(vector<dmpvecarr3E*> fields){
+SwitchVectorField::setFields(std::vector<dmpvecarr3E*> fields){
     m_fields.clear();
     m_fields.reserve(fields.size());
     for(dmpvecarr3E * ff : fields){
@@ -323,12 +322,6 @@ void SwitchVectorField::flushSectionXML(bitpit::Config::Section & slotXML, std::
     BITPIT_UNUSED(name);
     slotXML.set("DataLocation", std::to_string(int(m_loc)));
     SwitchField::flushSectionXML(slotXML, name);
-
-    if(m_mapping){
-        slotXML.set("Mapping", std::to_string(1));
-        slotXML.set("Tolerance", std::to_string(m_tol));
-    }
-
 };
 
 

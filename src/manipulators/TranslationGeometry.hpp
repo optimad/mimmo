@@ -65,7 +65,7 @@ namespace mimmo{
  * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
  *
  * Proper of the class:
- * - <B>Direction</B>: axis direction coordinates;
+ * - <B>Direction</B>: axis direction coordinates (space separated);
  * - <B>Translation</B>: translation value in length unity.
 
  *

@@ -21,11 +21,9 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
 \*---------------------------------------------------------------------------*/
-#include <iterator>
-#include <utility>
 #include "BaseManipulation.hpp"
-
-using namespace std;
+#include <utility>
+#include <map>
 
 namespace mimmo {
 
@@ -159,8 +157,8 @@ void BaseManipulation::swap(BaseManipulation & x) noexcept
 
 /*! Initialize the logger.
  *  \param[in] logexist does a logger already exist?
- * NOTE: console verbosity set to NORMAL as default (file verbosity set to DEBUG). If a logger already exists
- * the verbosities of the external logger are used.
+ * NOTE: console verbosity set to NORMAL as default.
+   If a logger already exists the verbosities of the external logger are used.
  */
 void
 BaseManipulation::initializeLogger(bool logexist){
@@ -203,7 +201,7 @@ BaseManipulation::getLog(){
 
 /*!
  * It gets if the ports of this object are already built.
- * \return True/false if ports are set.
+ * \return true/false if ports are set.
  */
 bool
 BaseManipulation::arePortsBuilt(){
@@ -224,7 +222,7 @@ BaseManipulation::getPriority(){
  * It gets the name of the manipulator object.
  * \return Name of the manipulator object.
  */
-string
+std::string
 BaseManipulation::getName(){
     return m_name;
 };
@@ -254,7 +252,7 @@ BaseManipulation::getNParent(){
  */
 BaseManipulation*
 BaseManipulation::getParent(int i){
-    if (i>(int)m_parent.size()-1) return NULL;
+    if (i>(int)m_parent.size()-1) return nullptr;
     return next(m_parent.begin(), i)->first;
 };
 
@@ -266,7 +264,7 @@ BaseManipulation::getParent(int i){
  */
 bool
 BaseManipulation::isParent(BaseManipulation * target, int &index){
-    unordered_map<BaseManipulation *, int>::iterator it;
+    std::unordered_map<BaseManipulation *, int>::iterator it;
     it = m_parent.find(target);
     index = -1;
     if(it == m_parent.end()) return false;
@@ -299,11 +297,11 @@ BaseManipulation::getChild(int i){
  * Return true if the target is contained in the child list.
  * \param[in] target BaseManipulation target object
  * \param[out] index Actual position in the list.
- * \return False if not found.
+ * \return false if not found.
  */
 bool
 BaseManipulation::isChild(BaseManipulation * target, int &index){
-    unordered_map<BaseManipulation *, int>::iterator it;
+    std::unordered_map<BaseManipulation *, int>::iterator it;
     it = m_child.find(target);
     index = -1;
     if(it == m_child.end()) return false;
@@ -382,13 +380,6 @@ BaseManipulation::isActive(){
     return (m_active);
 }
 
-/*!
- * \return integer identifier of the object (deprecated : use getId())
- */
-int
-BaseManipulation::getClassCounter(){
-    return getId();
-}
 
 /*!
  * \return integer identifier of the object
@@ -455,15 +446,6 @@ BaseManipulation::setOutputPlot(std::string path){
 }
 
 /*!
- * Set (force) integer identifier of the object (deprecated : use setId())
- * \param[in] id integer identifier
- */
-void
-BaseManipulation::setClassCounter(int id){
-    setId(id);
-}
-
-/*!
  * Activates the feature to apply directly the results of the block if possible.
  * \param[in] flag true/false to activate/deactivate the feature
  */
@@ -502,7 +484,7 @@ BaseManipulation::disable(){
  */
 void
 BaseManipulation::unsetGeometry(){
-    m_geometry = NULL;
+    m_geometry = nullptr;
 };
 
 /*!
@@ -521,7 +503,7 @@ BaseManipulation::removePins(){
  */
 void
 BaseManipulation::removePinsIn(){
-    unordered_map<BaseManipulation*, int>::iterator it;
+    std::unordered_map<BaseManipulation*, int>::iterator it;
     while(m_parent.size()){
         it = m_parent.begin();
         mimmo::pin::removeAllPins(it->first, this);
@@ -534,7 +516,7 @@ BaseManipulation::removePinsIn(){
  */
 void
 BaseManipulation::removePinsOut(){
-    unordered_map<BaseManipulation*, int>::iterator it;
+    std::unordered_map<BaseManipulation*, int>::iterator it;
     while(m_child.size()){
         it = m_child.begin();
         mimmo::pin::removeAllPins(this, it->first);
@@ -560,16 +542,16 @@ void
 BaseManipulation::exec(){
 
     if (!MIMMO_EXPERT){
-        std::map<int, vector<PortIn*> > families;
-        std::map<int, vector<PortID> > familiesID;
+        std::map<int, std::vector<PortIn*> > families;
+        std::map<int, std::vector<PortID> > familiesID;
         for (std::unordered_map<PortID, PortIn*>::iterator i=m_portIn.begin(); i!=m_portIn.end(); i++){
             if (i->second->isMandatory()){
                 families[i->second->getFamily()].push_back(i->second);
                 familiesID[i->second->getFamily()].push_back(i->first);
             }
         }
-        std::map<int, vector<PortID> >::iterator itID = familiesID.begin();
-        for (std::map<int, vector<PortIn*> >::iterator i=families.begin(); i!=families.end(); i++){
+        std::map<int, std::vector<PortID> >::iterator itID = familiesID.begin();
+        for (std::map<int, std::vector<PortIn*> >::iterator i=families.begin(); i!=families.end(); i++){
             if (i->first == 0){
                 int count = 0;
                 for (auto ip : i->second){
@@ -743,7 +725,7 @@ void
 BaseManipulation::addParent(BaseManipulation* parent){
 
     if(!m_parent.count(parent)){
-        m_parent.insert(pair<BaseManipulation*,int>(parent,1)); //add new parent with counter 1;
+        m_parent.insert(std::pair<BaseManipulation*,int>(parent,1)); //add new parent with counter 1;
     }else{
         m_parent[parent]++; //just incrementing pre-existent parent counter;
     }
@@ -756,7 +738,7 @@ BaseManipulation::addParent(BaseManipulation* parent){
 void
 BaseManipulation::addChild(BaseManipulation* child){
     if(!m_child.count(child)){
-        m_child.insert(pair<BaseManipulation*,int>(child,1)); //add new child with counter 1;
+        m_child.insert(std::pair<BaseManipulation*,int>(child,1)); //add new child with counter 1;
     }else{
         m_child[child]++; //just incrementing pre-existent child counter;
     }
@@ -771,7 +753,7 @@ BaseManipulation::addChild(BaseManipulation* child){
 void
 BaseManipulation::unsetParent(BaseManipulation * parent){
 
-    unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
+    std::unordered_map<BaseManipulation*, int>::iterator got = m_parent.find(parent);
     if(got != m_parent.end()){
         m_parent[parent]--;
         if(m_parent[parent] <1)	m_parent.erase(parent);
@@ -786,7 +768,7 @@ BaseManipulation::unsetParent(BaseManipulation * parent){
  */
 void
 BaseManipulation::unsetChild(BaseManipulation * child){
-    unordered_map<BaseManipulation*, int>::iterator got = m_child.find(child);
+    std::unordered_map<BaseManipulation*, int>::iterator got = m_child.find(child);
     if(got != m_child.end()){
         m_child[child]--;
         if(m_child[child] <1) m_child.erase(child);

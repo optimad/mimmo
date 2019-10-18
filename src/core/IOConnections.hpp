@@ -30,27 +30,29 @@ namespace mimmo{
 
 /*!
  * \class IOConnections_MIMMO
- * \brief IOConnections_MIMMO is a class to read/write mimmo pin connections from XML IO/parser defined in bitpit::Config.  
+ * \brief IOConnections_MIMMO is a class to read/write mimmo pin connections from XML IO/parser defined in bitpit::Config.
  * \ingroup core
  *
  * Read and write declared connections from/to an external input/output XML configuration file. Needs to be constructed
- * with an external map reporting a string with "name of the object in XML file" as key, and a "BaseManipulation pointer" 
- * of all the object instantiated and connectable as argument. Search the right couple of object to connect and connects 
+ * with an external map reporting a string with "name of the object in XML file" as key, and a "BaseManipulation pointer"
+ * of all the object instantiated and connectable as argument. Search the right couple of object to connect and connects
  * them, in input mode, or write existing connections in output mode.
- * 
- * In the XML interface a connection between two executable blocks must be declared following the nomenclature:
- *   <tt> \n \< name of connection (must be unique)\> \n
- *               \<sender\> name of the sender \</sender\> \n
- *               \<senderPort\> type of the sender Port \</senderPort\> \n
- *               \<receiver\> name of the receiver \</receiver\> \n
- *               \<receiverPort\> name of the receiver Port \</receiverPort\> \n
- *           \</name of connection (must be unique)\> \n </tt>
- * 
+ *
+ * In the XML interface a connection between two executable blocks must
+   be declared following the nomenclature:
+
+<tt><B>\< name_of_connection\></B> \n
+&nbsp;&nbsp;&nbsp;<B>\<sender\></B> name of the sender <B>\</sender\></B> \n
+&nbsp;&nbsp;&nbsp;<B>\<senderPort\></B> type of the sender Port <B>\</senderPort\></B> \n
+&nbsp;&nbsp;&nbsp;<B>\<receiver\></B> name of the receiver <B>\</receiver\></B> \n
+&nbsp;&nbsp;&nbsp;<B>\<receiverPort\></B> name of the receiver Port <B>\</receiverPort\></B> \n
+<B>\</name_of_connection\></B> \n</tt>
+
  * Multiple connections are declared repeating this block format as many times as necessary
  */
 class IOConnections_MIMMO{
 
-protected:	
+protected:
     std::unordered_map<std::string, BaseManipulation * > m_mapConn;         /**< direct map of connectable object */
     std::unordered_map<BaseManipulation *, std::string > m_invMapConn;      /**< inverse map of connectable object */
 

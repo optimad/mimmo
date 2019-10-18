@@ -27,19 +27,16 @@
 
 #include <unordered_map>
 #include <vector>
-#include "configuration.hpp"
-#include "bitpit_common.hpp"
+#include <configuration.hpp>
+#include <bitpit_common.hpp>
 
-/*!
- *   \ingroup common
- *   \{
- */
 
 
 namespace mimmo{
 
 /*!
  * \class Factory
+   \ingroup common
  * \brief Factory base template singleton for automatic
  *  factorization of executable classes
  *
@@ -96,7 +93,7 @@ public:
     /*! Remove a creator from registered list
      * \param[in] name name of the creator
      */
-    void removeCreator(const std::string name){
+    void removeCreator(const std::string & name){
         if (creators.count(name) > 0) {
             delete creators[name];
             creators.erase(name);
@@ -119,7 +116,7 @@ public:
      * \param[in] name name of the creator
      * \return true if the creator exists
      */
-    bool containsCreator(const std::string name){
+    bool containsCreator(const std::string & name){
         return creators.count(name) > 0;
     }
 
@@ -161,6 +158,7 @@ private:
 
 /*!
 * \class Creator
+  \ingroup common
 * \brief Template class to create an object Base * = new Derived creator class,
 * where Derived is a generic derived class of Base. Creator can be any constructor
 * of the derived class who takes as argument a const reference to a xml-data tree
@@ -195,9 +193,6 @@ public:
 
 };
 
-/*!
- * \}
- */
 
 /*!
  * \def REGISTER(Base, Derived, name)

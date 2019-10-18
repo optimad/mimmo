@@ -24,9 +24,6 @@
 
 #include "VTUGridReader.hpp"
 
-using namespace std;
-using namespace bitpit;
-
 namespace mimmo{
 
 /*!
@@ -55,6 +52,13 @@ void VTUAbsorbStreamer::absorbData(std::fstream &stream, const std::string &name
 }
 /*!
  * Absorber to get BITPIT_LEGACY from versions lesser then 1.6 release.
+ * Absorber of VTU mesh data. Reimplemented from bitpit::VTKBaseStreamer class
+ * \param[in] stream    stream to read from
+ * \param[in] name      name of the geometry field
+ * \param[in] format    ASCII or APPENDED
+ * \param[in] entries   number of entries for data container
+ * \param[in] components number of components of current data container
+ * \param[in] datatype   data format for binary casting
  */
 void VTUAbsorbStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format,
                                  uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
@@ -96,16 +100,16 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
                     case bitpit::VTKDataType::Float32 :
                     {
                         float val;
-                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                        else                                    genericIO::absorbBINARY(stream, val);
+                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
                         pval = val;
                     }
                     break;
                     case bitpit::VTKDataType::Float64:
                     {
                         double val;
-                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                        else                                    genericIO::absorbBINARY(stream, val);
+                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
                         pval = val;
                     }
                     break;
@@ -123,56 +127,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
@@ -191,56 +195,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
@@ -312,56 +316,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
@@ -378,56 +382,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
@@ -444,56 +448,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
@@ -510,56 +514,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
@@ -576,56 +580,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
@@ -642,56 +646,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
@@ -706,6 +710,13 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
 
 /*!
  * Absorber to get BITPIT_LEGACY from versions lesser then 1.6 release.
+ * Absorber of VTU mesh data. Reimplemented from bitpit::VTKBaseStreamer class
+ * \param[in] stream    stream to read from
+ * \param[in] name      name of the geometry field
+ * \param[in] format    ASCII or APPENDED
+ * \param[in] entries   number of entries for data container
+ * \param[in] components number of components of current data container
+ * \param[in] datatype   data format for binary casting
  */
 void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format,
                                  uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
@@ -720,16 +731,16 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                     case bitpit::VTKDataType::Float32 :
                     {
                         float val;
-                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                        else                                    genericIO::absorbBINARY(stream, val);
+                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
                         pval = val;
                     }
                     break;
                     case bitpit::VTKDataType::Float64:
                     {
                         double val;
-                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                        else                                    genericIO::absorbBINARY(stream, val);
+                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
                         pval = val;
                     }
                     break;
@@ -747,56 +758,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     voffset = val;
                 }
                 break;
@@ -815,56 +826,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     dumType = val;
                 }
                 break;
@@ -936,56 +947,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vconn = val;
                 }
                 break;
@@ -1002,56 +1013,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vface = val;
                 }
                 break;
@@ -1068,56 +1079,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vfoffset = val;
                 }
                 break;
@@ -1134,56 +1145,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vcid = val;
                 }
                 break;
@@ -1200,56 +1211,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     pid = val;
                 }
                 break;
@@ -1266,56 +1277,56 @@ void VTUGridStreamer::absorbData(std::fstream &stream, std::string name, bitpit:
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
@@ -1475,16 +1486,16 @@ void VTUPointCloudStreamer::absorbData(std::fstream &stream, const std::string &
                     case bitpit::VTKDataType::Float32 :
                     {
                         float val;
-                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                        else                                    genericIO::absorbBINARY(stream, val);
+                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
                         pval = val;
                     }
                     break;
                     case bitpit::VTKDataType::Float64:
                     {
                         double val;
-                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                        else                                    genericIO::absorbBINARY(stream, val);
+                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
                         pval = val;
                     }
                     break;
@@ -1502,56 +1513,56 @@ void VTUPointCloudStreamer::absorbData(std::fstream &stream, const std::string &
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
@@ -1565,6 +1576,12 @@ void VTUPointCloudStreamer::absorbData(std::fstream &stream, const std::string &
 }
 /*!
  * method to ensure bitpit_legacy with versions lesser then 1.6 release
+ * \param[in] stream    stream to read from
+ * \param[in] name      name of the geometry field
+ * \param[in] format    ASCII or APPENDED
+ * \param[in] entries   number of entries for the data container
+ * \param[in] components number of components of current data container
+ * \param[in] datatype   data format for binary casting
  */
 
 void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format,
@@ -1580,16 +1597,16 @@ void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, b
                     case bitpit::VTKDataType::Float32 :
                     {
                         float val;
-                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                        else                                    genericIO::absorbBINARY(stream, val);
+                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
                         pval = val;
                     }
                     break;
                     case bitpit::VTKDataType::Float64:
                     {
                         double val;
-                        if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                        else                                    genericIO::absorbBINARY(stream, val);
+                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
                         pval = val;
                     }
                     break;
@@ -1607,56 +1624,56 @@ void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, b
                 case bitpit::VTKDataType::Int8 :
                 {
                     int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt8 :
                 {
                     uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int16 :
                 {
                     int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt16 :
                 {
                     uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int32 :
                 {
                     int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::UInt32 :
                 {
                     uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;
                 case bitpit::VTKDataType::Int64 :
                 {
                     int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  genericIO::absorbASCII(stream,val);
-                    else                                    genericIO::absorbBINARY(stream, val);
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
                     vpid = val;
                 }
                 break;

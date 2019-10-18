@@ -332,15 +332,14 @@ ClipGeometry::plotOptionalResults(){
     if(getClippedPatch() == NULL) return;
     if(getClippedPatch()->isEmpty()) return;
 
-    std::string dir = m_outputPlot;
+    std::string dir = m_outputPlot+"/";
     std::string name = m_name + "_Patch."+ std::to_string(getId());
 
-    std::cout<<getClippedPatch()->getNVertices()<<std::endl;
-    std::cout<<getClippedPatch()->getNCells()<<std::endl;
-
     if (getClippedPatch()->getType() != 3){
-        std::string totPath = dir+"/"+name;
-        getClippedPatch()->getPatch()->write(totPath);
+        bitpit::VTKUnstructuredGrid & vtk = getClippedPatch()->getPatch()->getVTK();
+        vtk.setDirectory(dir);
+        vtk.setName(name);
+        getClippedPatch()->getPatch()->write();
     }
     else{
         liimap mapDataInv;

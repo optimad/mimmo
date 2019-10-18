@@ -22,13 +22,9 @@
  *
 \*---------------------------------------------------------------------------*/
 #include "MimmoGeometry.hpp"
-#include "customOperators.hpp"
 #include "VTUGridReader.hpp"
 #include "VTUGridWriterASCII.hpp"
 #include <iostream>
-
-using namespace std;
-using namespace bitpit;
 
 namespace mimmo {
 
@@ -177,13 +173,6 @@ MimmoGeometry::setDefaults(){
     m_multiSolidSTL = false;
 }
 
-/*!It sets the condition to read the geometry on file during the execution.
- * \param[in] read Does it read the geometry in execution?
- */
-void
-MimmoGeometry::setRead(bool read){
-    m_read = read;
-}
 
 /*!It sets the condition to read the geometry on file during the execution.
  * \param[in] read Does it read the geometry in execution?
@@ -218,7 +207,7 @@ MimmoGeometry::setReadFileType(int type){
  * NOTE: use it only for converter mode, otherwise setDir is recommended
  */
 void
-MimmoGeometry::setReadDir(string dir){
+MimmoGeometry::setReadDir(std::string dir){
     m_rinfo.fdir = dir;
 }
 
@@ -227,7 +216,7 @@ MimmoGeometry::setReadDir(string dir){
  * NOTE: use it only for converter mode, otherwise setFilename is recommended
  */
 void
-MimmoGeometry::setReadFilename(string filename){
+MimmoGeometry::setReadFilename(std::string filename){
     m_rinfo.fname = filename;
 }
 
@@ -251,13 +240,6 @@ MimmoGeometry::setWriteFileType(int type){
     m_winfo.ftype = type;
 }
 
-/*!It sets the condition to write the geometry on file during the execution.
- * \param[in] write Does it write the geometry in execution?
- */
-void
-MimmoGeometry::setWrite(bool write){
-    m_write = write;
-}
 
 /*!It sets the condition to write the geometry on file during the execution.
  * \param[in] write Does it write the geometry in execution?
@@ -272,7 +254,7 @@ MimmoGeometry::_setWrite(bool write){
  * NOTE: use it only for converter mode, otherwise setDir is recommended
  */
 void
-MimmoGeometry::setWriteDir(string dir){
+MimmoGeometry::setWriteDir(std::string dir){
     m_winfo.fdir = dir;
 }
 
@@ -281,7 +263,7 @@ MimmoGeometry::setWriteDir(string dir){
  * NOTE: use it only for converter mode, otherwise setFilename is recommended
  */
 void
-MimmoGeometry::setWriteFilename(string filename){
+MimmoGeometry::setWriteFilename(std::string filename){
     m_winfo.fname = filename;
 
 }
@@ -344,7 +326,7 @@ MimmoGeometry::setIOMode(int mode){
  * \param[in] dir Name of directory.
  */
 void
-MimmoGeometry::setDir(string dir){
+MimmoGeometry::setDir(std::string dir){
     m_rinfo.fdir = dir;
     m_winfo.fdir = dir;
 }
@@ -353,7 +335,7 @@ MimmoGeometry::setDir(string dir){
  * \param[in] filename Name of output file.
  */
 void
-MimmoGeometry::setFilename(string filename){
+MimmoGeometry::setFilename(std::string filename){
     m_winfo.fname = filename;
     m_rinfo.fname = filename;
 }
@@ -397,31 +379,6 @@ void MimmoGeometry::setCodex(bool binary){
  */
 void MimmoGeometry::setMultiSolidSTL(bool multi){
     m_multiSolidSTL = multi;
-}
-
-
-/*!Sets your current class as a "HARD" copy of the argument.
- * Hard copy means that only your current geometric object MimmoObject is
- * copied as a stand alone internal member and stored in the unique pointer member m_intgeo.
- * Other members are exactly copied
- * \param[in] other pointer to MimmoGeometry class.
- */
-void
-MimmoGeometry::setHARDCopy(MimmoGeometry * other){
-
-    if(other->isEmpty()){
-        (*m_log)<<"warning MimmoGeometry::setHARDCopy() : attempt to set hard copy from an empty object.Do nothing"<<std::endl;
-        return;
-    }
-    //make a soft copy
-    MimmoGeometry temp = *other;
-    swap(temp);
-
-    //hard copy the internal mimmoobject.
-    std::unique_ptr<MimmoObject> obj = other->getGeometry()->clone();
-    m_intgeo = std::move(obj);
-    m_isInternal = true;
-    m_geometry = NULL;
 }
 
 /*!
@@ -508,14 +465,6 @@ MimmoGeometry::setReferencePID(long pid){
     m_refPID = std::max(long(0),pid);
 }
 
-/*!It sets if the SkdTree of the patch has to be built during execution.
- * \param[in] build If true the SkdTree is built in execution and stored in
- * the related MimmoObject member.
- */
-void
-MimmoGeometry::setBuildBvTree(bool build){
-    setBuildSkdTree(build);
-}
 
 /*!It sets if the SkdTree of the patch has to be built during execution.
  * \param[in] build If true the SkdTree is built in execution and stored in
@@ -607,7 +556,7 @@ MimmoGeometry::write(){
 #else
         std::string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
 #endif
-        dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, m_multiSolidSTL, false, &mpp);
+        dynamic_cast<bitpit::SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, m_multiSolidSTL, false, &mpp);
         return true;
     }
     break;
@@ -699,11 +648,11 @@ MimmoGeometry::write(){
     {
     	int archiveVersion = 1;
     	std::string header = m_name;
-    	string filename = (m_winfo.fdir+"/"+m_winfo.fname+".geomimmo");
+    	std::string filename = (m_winfo.fdir+"/"+m_winfo.fname+".geomimmo");
 #if MIMMO_ENABLE_MPI
-    	OBinaryArchive binaryWriter(filename, archiveVersion, header, m_rank);
+    	bitpit::OBinaryArchive binaryWriter(filename, archiveVersion, header, m_rank);
 #else
-    	OBinaryArchive binaryWriter(filename, archiveVersion, header);
+    	bitpit::OBinaryArchive binaryWriter(filename, archiveVersion, header);
 #endif
     	getGeometry()->dump(binaryWriter.getStream());
     	binaryWriter.close();
@@ -733,7 +682,7 @@ MimmoGeometry::read(){
     case FileType::STL :
     {
         setGeometry(1);
-        string name;
+        std::string name;
 #if MIMMO_ENABLE_MPI
         if (m_rank == 0) {
 #endif
@@ -749,10 +698,10 @@ MimmoGeometry::read(){
         		}
         	}
 
-        	ifstream in(name);
-        	string    ss, sstype;
-        	getline(in,ss);
-        	stringstream ins;
+        	std::ifstream in(name);
+        	std::string    ss, sstype;
+        	std::getline(in,ss);
+        	std::stringstream ins;
         	ins << ss;
         	ins >> sstype;
         	bool binary = true;
@@ -760,7 +709,7 @@ MimmoGeometry::read(){
         	in.close();
 
         	std::unordered_map<int,std::string> mapPIDSolid;
-        	dynamic_cast<SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary, 0, false, &mapPIDSolid);
+        	dynamic_cast<bitpit::SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary, 0, false, &mapPIDSolid);
 
         	getGeometry()->cleanGeometry();
 
@@ -947,11 +896,11 @@ MimmoGeometry::read(){
     case FileType::MIMMO :
     	//Import in mimmo (bitpit) restore format
     {
-    	string filename = (m_rinfo.fdir+"/"+m_rinfo.fname+".geomimmo");
+    	std::string filename = (m_rinfo.fdir+"/"+m_rinfo.fname+".geomimmo");
 #if MIMMO_ENABLE_MPI
-    	IBinaryArchive binaryReader(filename, m_rank);
+    	bitpit::IBinaryArchive binaryReader(filename, m_rank);
 #else
-    	IBinaryArchive binaryReader(filename);
+    	bitpit::IBinaryArchive binaryReader(filename);
 #endif
         m_intgeo.reset(nullptr);
         std::unique_ptr<MimmoObject> dum(new MimmoObject());
@@ -1011,30 +960,30 @@ MimmoGeometry::execute(){
  *\param[out]    points        list of points in the cloud
  *
  */
-void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& points){
+void MimmoGeometry::readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points){
 
-    ifstream is(inputDir +"/"+surfaceName);
+    std::ifstream is(inputDir +"/"+surfaceName);
 
     points.clear();
     int ip = 0;
     int np;
     darray3E point;
-    string sread;
+    std::string sread;
     char par;
 
     for (int i=0; i<18; i++){
-        getline(is,sread);
+        std::getline(is,sread);
     }
     is >> np;
-    getline(is,sread);
-    getline(is,sread);
+    std::getline(is,sread);
+    std::getline(is,sread);
 
     points.resize(np);
     while(!is.eof() && ip<np){
         is.get(par);
         for (int i=0; i<3; i++) is >> point[i];
         is.get(par);
-        getline(is,sread);
+        std::getline(is,sread);
         points[ip] = point;
         ip++;
     }
@@ -1047,14 +996,14 @@ void MimmoGeometry::readOFP(string& inputDir, string& surfaceName, dvecarr3E& po
  *\param[out]    points        list of points in the cloud
  *
  */
-void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& points){
+void MimmoGeometry::writeOFP(std::string& outputDir, std::string& surfaceName, dvecarr3E& points){
 
-    ofstream os(outputDir +"/"+surfaceName);
+    std::ofstream os(outputDir +"/"+surfaceName);
     char nl = '\n';
 
-    string separator(" ");
-    string parl("("), parr(")");
-    string hline;
+    std::string separator(" ");
+    std::string parl("("), parr(")");
+    std::string hline;
 
     hline = "/*--------------------------------*- C++ -*----------------------------------*\\" ;
     os << hline << nl;
@@ -1096,9 +1045,9 @@ void MimmoGeometry::writeOFP(string& outputDir, string& surfaceName, dvecarr3E& 
     for (int i=0; i<np; i++){
         os << parl;
         for (int j=0; j<2; j++){
-            os << setprecision(16) << points[i][j] << separator;
+            os << std::setprecision(16) << points[i][j] << separator;
         }
-        os << setprecision(16) << points[i][2] << parr << nl;
+        os << std::setprecision(16) << points[i][2] << parr << nl;
     }
     os << parr << nl;
     os << nl;
@@ -1360,21 +1309,21 @@ void NastranInterface::setWFormat(WFORMAT wf){
  * \param[in,out] os    ofstream where the keyword is written
  */
 void NastranInterface::writeKeyword(std::string key, std::ofstream& os){
-    os.setf(ios_base::left);
+    os.setf(std::ios_base::left);
     switch (wformat)
     {
     case Short:
     {
-        os << setw(8) << key;
+        os << std::setw(8) << key;
         break;
     }
     case Long:
     {
-        os << setw(8) << string(key + '*');
+        os << std::setw(8) << std::string(key + '*');
         break;
     }
     }
-    os.unsetf(ios_base::left);
+    os.unsetf(std::ios_base::left);
 }
 
 /*!
@@ -1395,10 +1344,10 @@ void NastranInterface::writeCoord(const darray3E& p, const long& pointI, std::of
     // 8 PS : single point constraints (blank)
     // 9 SEID : super-element ID
 
-    string separator_("");
-    writeKeyword(string("GRID"), os);
+    std::string separator_("");
+    writeKeyword(std::string("GRID"), os);
     os << separator_;
-    os.setf(ios_base::right);
+    os.setf(std::ios_base::right);
     writeValue(pointI, os);
     os << separator_;
     writeValue("", os);
@@ -1415,15 +1364,15 @@ void NastranInterface::writeCoord(const darray3E& p, const long& pointI, std::of
         os << nl;
         //        os << setw(8) << p[2]
         //                           << nl;
-        os.unsetf(ios_base::right);
+        os.unsetf(std::ios_base::right);
         break;
     }
     case Long:
     {
         os << nl;
-        os.unsetf(ios_base::right);
+        os.unsetf(std::ios_base::right);
         writeKeyword("", os);
-        os.setf(ios_base::right);
+        os.setf(std::ios_base::right);
         writeValue(p[2], os);
         os << nl;
         break;
@@ -1433,7 +1382,7 @@ void NastranInterface::writeCoord(const darray3E& p, const long& pointI, std::of
         throw std::runtime_error ("NastranInterface : Unknown writeFormat enumeration");
     }
     }
-    os.unsetf(ios_base::right);
+    os.unsetf(std::ios_base::right);
 }
 
 /*!
@@ -1444,7 +1393,7 @@ void NastranInterface::writeCoord(const darray3E& p, const long& pointI, std::of
  * \param[in,out] os        ofstream where the face is written
  * \param[in]     PID       part identifier associated to the element
  */
-void NastranInterface::writeFace(string faceType, const livector1D& facePts, const long& nFace, ofstream& os,long PID){
+void NastranInterface::writeFace(std::string faceType, const livector1D& facePts, const long& nFace, std::ofstream& os,long PID){
     // Only valid surface elements are CTRIA3 and CQUAD4
 
     // Fixed short/long formats:
@@ -1461,10 +1410,10 @@ void NastranInterface::writeFace(string faceType, const livector1D& facePts, con
 
     WFORMAT wformat_ = wformat;
     wformat = Short;
-    string separator_("");
+    std::string separator_("");
     writeKeyword(faceType, os);
     os << separator_;
-    os.setf(ios_base::right);
+    os.setf(std::ios_base::right);
     writeValue(nFace, os);
     os << separator_;
     writeValue(PID, os);
@@ -1490,26 +1439,26 @@ void NastranInterface::writeFace(string faceType, const livector1D& facePts, con
             //            if (i == 1)
             //            {
             //                os << nl;
-            //                os.unsetf(ios_base::right);
+            //                os.unsetf(std::ios_base::right);
             //                writeKeyword("", os);
-            //                os.setf(ios_base::right);
+            //                os.setf(std::ios_base::right);
             //            }
         }
         break;
     }
     default:
     {
-        cout << "Unknown writeFormat enumeration" << endl;
+        std::cout << "Unknown writeFormat enumeration" << std::endl;
         throw std::runtime_error ("Unknown writeFormat enumeration");
     }
     }
     os << nl;
-    os.unsetf(ios_base::right);
+    os.unsetf(std::ios_base::right);
     wformat = wformat_;
 }
 
 /*!
- * Write a face to an ofstream
+ * Write a face to an std::ofstream
  * \param[in]     points     list of vertices
  * \param[in]     pointsID   list of vertices labels
  * \param[in]     faces        element points connectivity
@@ -1519,7 +1468,7 @@ void NastranInterface::writeFace(string faceType, const livector1D& facePts, con
  * \return true if the geometry is correctly written.
  */
 bool NastranInterface::writeGeometry(dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D & facesID,
-                                     ofstream& os, livector1D* PIDS){
+                                     std::ofstream& os, livector1D* PIDS){
 
     if(points.size() != pointsID.size())    return false;
     if(faces.size() != facesID.size())    return false;
@@ -1553,8 +1502,8 @@ bool NastranInterface::writeGeometry(dvecarr3E& points, livector1D& pointsID, li
  * \param[in,out] os        ofstream where the footer is written
  * \param[in]     PIDSSET   list of overall available part identifiers
  */
-void NastranInterface::writeFooter(ofstream& os, std::unordered_set<long>* PIDSSET){
-    string separator_("");
+void NastranInterface::writeFooter(std::ofstream& os, std::unordered_set<long>* PIDSSET){
+    std::string separator_("");
     if (PIDSSET == NULL){
         int PID = 1;
         writeKeyword("PSHELL", os);
@@ -1612,10 +1561,10 @@ void NastranInterface::writeFooter(ofstream& os, std::unordered_set<long>* PIDSS
  * \param[in] PIDS        reference to long int vector for Part Identifiers that need to be associated to elements
  * \param[in] PIDSSET    map of overall available Part Identifiers
  */
-void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& points, livector1D & pointsID,
+void NastranInterface::write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, livector1D & pointsID,
                              livector2D& faces, livector1D & facesID, livector1D* PIDS, std::unordered_set<long>* PIDSSET){
 
-    ofstream os(outputDir +"/"+surfaceName + ".nas");
+    std::ofstream os(outputDir +"/"+surfaceName + ".nas");
     os << "TITLE=mimmo " << surfaceName << " mesh" << nl
             << "$" << nl
             << "BEGIN BULK" << nl;
@@ -1624,7 +1573,7 @@ void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& 
         throw std::runtime_error ("Error in NastranInterface::write : geometry mesh cannot be written");
     }
     writeFooter(os, PIDSSET);
-    os << "ENDDATA" << endl;
+    os << "ENDDATA" << std::endl;
 }
 
 //========READ====//
@@ -1638,10 +1587,10 @@ void NastranInterface::write(string& outputDir, string& surfaceName, dvecarr3E& 
  * \param[out] facesID  reference to a label element container to be filled
  * \param[out] PIDS        reference to long int vector for Part Identifier storage
  */
-void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& points, livector1D & pointsID,
+void NastranInterface::read(std::string& inputDir, std::string& surfaceName, dvecarr3E& points, livector1D & pointsID,
                             livector2D& faces, livector1D & facesID, livector1D& PIDS){
 
-    ifstream is(inputDir +"/"+surfaceName + ".nas");
+    std::ifstream is(inputDir +"/"+surfaceName + ".nas");
 
     points.clear();
     pointsID.clear();
@@ -1654,8 +1603,8 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
     darray3E point;
     livector1D face;
     long pid;
-    string sread;
-    string ssub = trim(sread.substr(0,8));
+    std::string sread;
+    std::string ssub = trim(sread.substr(0,8));
 
     while(!is.eof()){
         while(ssub != "GRID" &&
@@ -1667,7 +1616,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
                 ssub != "RBE3" &&
                 !is.eof()){
 
-            getline(is,sread);
+            std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
 
         }
@@ -1678,7 +1627,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
             point[2] = stod(convertVertex(trim(sread.substr(40,8))));
             points.push_back(point);
             pointsID.push_back(ipoint);
-            getline(is,sread);
+            std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
         else if(ssub == "GRID*"){
@@ -1688,7 +1637,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
             point[2] = stod(convertVertex(trim(sread.substr(80,16))));
             points.push_back(point);
             pointsID.push_back(ipoint);
-            getline(is,sread);
+            std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
         else if(ssub == "CTRIA3"){
@@ -1701,7 +1650,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
             faces.push_back(face);
             facesID.push_back(iface);
             PIDS.push_back(pid);
-            getline(is,sread);
+            std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
         else if(ssub == "CTRIA3*"){
@@ -1714,7 +1663,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
             faces.push_back(face);
             facesID.push_back(iface);
             PIDS.push_back(pid);
-            getline(is,sread);
+            std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
         else if(ssub == "CQUAD4"){
@@ -1728,7 +1677,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
             faces.push_back(face);
             facesID.push_back(iface);
             PIDS.push_back(pid);
-            getline(is,sread);
+            std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
         else if(ssub == "CQUAD4*"){
@@ -1742,7 +1691,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
             faces.push_back(face);
             facesID.push_back(iface);
             PIDS.push_back(pid);
-            getline(is,sread);
+            std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
         else if(ssub == "RBE3"){
@@ -1754,7 +1703,7 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
             faces.push_back(face);
             facesID.push_back(iface);
             PIDS.push_back(0);
-            getline(is,sread);
+            std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
     }
@@ -1765,10 +1714,10 @@ void NastranInterface::read(string& inputDir, string& surfaceName, dvecarr3E& po
  * Custom trimming of nas string
  * \return trimmed string
  */
-string
-NastranInterface::trim(string in){
+std::string
+NastranInterface::trim(std::string in){
 
-    stringstream out;
+    std::stringstream out;
     out << in;
     out >> in;
     return in;
@@ -1778,8 +1727,8 @@ NastranInterface::trim(string in){
  * Convert nas string of numerical floats
  * \return string of regular floats
  */
-string
-NastranInterface::convertVertex(string in){
+std::string
+NastranInterface::convertVertex(std::string in){
     int pos = in.find_last_of("-");
     if (pos<(int)in.size() && pos > 0){
         in.insert(pos, "E");

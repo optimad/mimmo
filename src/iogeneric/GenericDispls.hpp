@@ -24,7 +24,6 @@
 #ifndef __GENERICDISPLS_HPP__
 #define __GENERICDISPLS_HPP__
 
-#include <string>
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
@@ -32,31 +31,34 @@ namespace mimmo{
 /*!
  * \class GenericDispls
  * \ingroup iogeneric
- * \brief GenericDispls is the class to read from file an initial set of displacements 
+ * \brief GenericDispls is the class to read from file an initial set of displacements
  * as a generic vector field of floats or write it to file
- * 
+ *
  * The only admissible File format is an ascii list of values, organized as follow:
- * 
+ *
  * <tt>
- * $DISPL   l1  0.0 0.0  1.0 \n
- * $DISPL   l2 -1.0 0.12 0.0 \n
- * ...
+ * <B>$DISPL</B>   l1  0.0 0.0  1.0 \n
+ * <B>$DISPL</B>   l2 -1.0 0.12 0.0 \n
+ * <B>...</B>
  * </tt>
- * 
- * The $DISPL keyword identify the value, l1, l2 the unique int label associated to the displacement and the 
- * following 3 vector coordinate represents the entity of the displacement. If $DISPL is missing, the value will not be read.
- * 
- * GenericDispls is derived from BaseManipulation class. The class working in both Read and Write mode, that is can 
- * read displacement values from file (written in the proper format) or write them on it;
- * When in write mode the class can generate a template file for displacements, that can be filled in a second moment for different purposes.
+ *
+ * The <B>$DISPL</B> keyword identify the value, l1, l2 the unique int label associated
+   to the displacement and the following 3 vector coordinate represents the entity of
+   the displacement. If <B>$DISPL</B> is missing, the value will not be read.
+ *
+ * GenericDispls is derived from BaseManipulation class. The class working in
+   both Read and Write mode, that is can read displacement values from file
+   (written in the proper format) or write them on it.
+ * When in write mode the class can generate a template file for displacements,
+   that can be filled in a second moment for different purposes.
  * The layout of this file will be:
- * 
+ *
  * <tt>
- * $DISPL   l1  {xl1} {yl1}  {zl1} \n
- * $DISPL   l2  {xl2} {yl2}  {zl2} \n
- * ...
+ * <B>$DISPL</B>   l1  {xl1} {yl1}  {zl1} \n
+ * <B>$DISPL</B>   l2  {xl2} {yl2}  {zl2} \n
+ * <B>...</B>
  * </tt>
- * 
+ *
  * where {xxx} uniquely naming the component of displacement
  *
  * \n
@@ -139,11 +141,11 @@ public:
 
 protected:
     void swap(GenericDispls &) noexcept;
-    
+
 private:
     virtual void read();
     virtual void write();
-    
+
 };
 
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__GENERICDISPLS_HPP__)

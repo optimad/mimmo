@@ -23,13 +23,14 @@
 \*---------------------------------------------------------------------------*/
 #include "IOConnections.hpp"
 #include "portManager.hpp"
+
 namespace mimmo{
 
 /*!
  * Default constructor of IOConnections_MIMMO.
  * Needs a map of executable objects actually instantiated externally, with a string identifying the object.
  * Such strings identifies the object in the XML section from/to which reading/writing also.
- * When builds itself, the class evaluates the inverse map of executable objects and compile the maps of 
+ * When builds itself, the class evaluates the inverse map of executable objects and compile the maps of
  * PortType-s actually available in the API.
  * \param[in]  mapConn map of instantiated connectable objects with their XML names as keys.
  */
@@ -59,14 +60,14 @@ IOConnections_MIMMO::IOConnections_MIMMO(const IOConnections_MIMMO & other){
 };
 
 /*!
- * Reading declared connections from a bitpit XML slot Configuration Section and apply them. Map of 
- * instantiated objects helps class to recognize which objects are already istantiated and ready 
+ * Reading declared connections from a bitpit XML slot Configuration Section and apply them. Map of
+ * instantiated objects helps class to recognize which objects are already istantiated and ready
  * to be eventually connected. If the objects map reports a not instantiated object, connection
  * will be refused. The same applies for not existent or not compatible kind of connection ports,
  * declared in the XML section. The method is meant to read connections from xml file.
  *
- * \param[in] slotXML 	Config::Section from which read infos. 
- * \param[in] debug		true, activate verbose debug mode. Default option false.	
+ * \param[in] slotXML 	Config::Section from which read infos.
+ * \param[in] debug		true, activate verbose debug mode. Default option false.
  */
 void
 IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debug){
@@ -77,11 +78,11 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
     if(slotXML.getSectionCount() == 0)	{
         (*m_log)<<"IOConnections::absorbConnections does not found any connection to read in current XML slot."<<std::endl;
         return;
-    }	
+    }
     bool checkConnection = true;
-    
+
     for( auto & sect : slotXML.getSections()){
-        std::string snd_str; 
+        std::string snd_str;
         std::string rcv_str;
         std::string sndP_str;
         std::string rcvP_str;
@@ -119,7 +120,7 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
         m_log->setPriority(bitpit::log::NORMAL);
         bool check = pin::addPin(itSend->second, itRece->second, sndP_str, rcvP_str);
         if(!debug)  m_log->setPriority(bitpit::log::DEBUG);
-            
+
         if(!check){
             (*m_log)<<"---------------------------------------------"<<std::endl;
             (*m_log)<<"sender: "<<snd_str<<std::endl;
@@ -131,7 +132,7 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
             (*m_log)<<"IOConnections::absorbConnections failed creating connection."<<std::endl;
             (*m_log)<<""<<std::endl;
             checkConnection = false;
-        }	
+        }
         else{
             (*m_log)<<"IOConnections::absorbConnections successfully created connection."<<std::endl;
         }
@@ -145,13 +146,13 @@ IOConnections_MIMMO::absorbConnections(const bitpit::Config & slotXML, bool debu
 };
 
 /*!
- * Write declared connections to a bitpit XML slot Configuration Section. The map of 
+ * Write declared connections to a bitpit XML slot Configuration Section. The map of
  * instantiated objects helps class to recognize which objects are are connected and compile correctly
  * their xml field. If the objects map reports a not instantiated object, connection
- * will be refused and not written. The same applies for not existent or not compatible kind of connection ports. 
+ * will be refused and not written. The same applies for not existent or not compatible kind of connection ports.
  * The method is meant to write connections to a xml file.
  *
- * \param[in] slotXML   Config::Section to which write infos. 
+ * \param[in] slotXML   Config::Section to which write infos.
  * \param[in] debug     true, activate verbose debug mode. Default option false.
  */
 void
@@ -184,7 +185,7 @@ IOConnections_MIMMO::flushConnections(bitpit::Config & slotXML, bool debug ){
                 conn.set("receiverPort", receiverPort);
 
                 ++counter;
-            }//loop on possible links on the same port	
+            }//loop on possible links on the same port
             counterGlob += counter;
         }//loop on all the port of the single object
     }//loop on all instantiated object.

@@ -24,8 +24,6 @@
 
 #include "SwitchFields.hpp"
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 /*!Default constructor of SwitchField.

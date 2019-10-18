@@ -25,37 +25,32 @@
 #ifndef __MIMMOBASICSHAPES_HH
 #define __MIMMOBASICSHAPES_HH
 
-#include "mimmoTypeDef.hpp"
 #include "MimmoObject.hpp"
-#include "surface_skd_tree.hpp"
-#include "volume_skd_tree.hpp"
 #include <unordered_set>
 
 namespace mimmo{
 
 /*!
- * \enum ShapeType
  * \ingroup core
  * \brief Identifies the type of elemental shape supported by BasicShape class
  */
 enum class ShapeType{
-    CUBE        /**< Cubic or generic voxel-shaped objects.*/,
-    CYLINDER    /**< Cylindrical objects.                  */,
-    SPHERE     /**< Spherical objects.                     */,
-    WEDGE      /**< Base triangular prism objects          */
+    CUBE    =0, /**< Cubic or generic voxel-shaped objects.*/
+    CYLINDER=1, /**< Cylindrical objects.                  */
+    SPHERE  =3, /**< Spherical objects.                    */
+    WEDGE   =4  /**< Base triangular prism objects         */
 };
 
 /*!
- * \enum CoordType
  * \ingroup core
- * \brief Specify type of conditions to distribute NURBS node in a given coordinate of the shape
+ * \brief Specify type of conditions to distribute NURBS nodes in a given coordinate of the shape
  */
 enum class CoordType{
 
-    UNCLAMPED   /**<free clamping conditions*/,
-    CLAMPED     /**<force nurbs to pass on the extremal point of the interval (clamping)*/,
-    PERIODIC    /**<provide periodic condition on the interval extrema*/,
-    SYMMETRIC   /**<provide simmetry condition on the interval extrema*/
+    UNCLAMPED =0,  /**<free clamping conditions*/
+    CLAMPED   =1,  /**<force nurbs to pass on the extremal point of the interval (clamping)*/
+    PERIODIC  =2,  /**<provide periodic condition on the interval extrema*/
+    SYMMETRIC =3  /**<provide simmetry condition on the interval extrema*/
 };
 
 
@@ -64,9 +59,11 @@ enum class CoordType{
  *\ingroup core
  *\brief Abstract Interface class for Elementary Shape Representation
  *
- * Interface class for Volumetric Core Element, suitable for interaction with Data Structure stored in a MimmoObject class.
- * Object orientation in 3D space can be externally manipulated with dedicated transformation blocks. Class
- * internally implement transformation to/from local sdr to/from world sdr, that can be used in derived objects from it.
+ * Interface class for Volumetric Core Element, suitable for interaction with
+   Data Structure stored in a MimmoObject class.
+ * Object orientation in 3D space can be externally manipulated with dedicated
+   transformation blocks. Class internally implements transformation to/from
+   local sdr to/from world sdr, that can be used in derived objects from it.
  *
  * Class works with three reference systems:
  * + Global Absolute SDR: is the external World reference system

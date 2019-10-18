@@ -23,7 +23,6 @@
 \*---------------------------------------------------------------------------*/
 #include "GenericOutput.hpp"
 
-using namespace std;
 namespace mimmo{
 
 /*!

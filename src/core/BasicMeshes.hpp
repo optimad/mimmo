@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------*\
- * 
+ *
  *  mimmo
  *
  *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -25,22 +25,20 @@
 #ifndef __BASICMESHES_HH
 #define __BASICMESHES_HH
 
-#include <memory>
-#include <array>
 #include "BasicShapes.hpp"
-#include "mimmoTypeDef.hpp"
+#include <memory>
 
 namespace mimmo{
 
 /*!
- * \class UStructMesh 
+ * \class UStructMesh
  * \ingroup core
- * \brief Class for 3D uniform structured mesh --> based on cartesian structured mesh of bitpit 
+ * \brief Class for 3D uniform structured mesh
  *
  * Interface class for uniform structured grids, suitable for derivation of meshes on pure cartesian, cylindrical or spherical
  * coordinates system. The class retains internal members of Class BasicShape who determine the shape of your current grid.
- * The mesh works and its nodal structures are defined in the its local reference frame, that is, the local reference frame 
- * retained by its core BasicShape object. 
+ * The mesh works and its nodal structures are defined in the its local reference frame, that is, the local reference frame
+ * retained by its core BasicShape object.
  */
 
 class UStructMesh{
@@ -65,26 +63,26 @@ protected:
 	bool					m_setInfLimits;		/**< True if inferior limits has been set and a shape is not available yet */
 	bool					m_setRefSys;		/**< True if reference system has been set and a shape is not available yet */
 	bool					m_isBuild;			/**< check if mesh is build according to the currently set parameters, or not */
-private:	
-	//list of temp members 
+private:
+	//list of temp members
     darray3E				m_origin_temp;  /**< temporary origin member */
     darray3E				m_span_temp;    /**< temporary span member */
     darray3E				m_inflimits_temp; /**< temporary inf_limits origin member */
     dmatrix33E				m_refsystem_temp; /**< temporary reference axes matrix member */
     ShapeType	            m_shapetype_temp; /**< temporary shape type member */
 
-public:	     
-	//Building stuffs	    
+public:
+	//Building stuffs
 	UStructMesh();
 	virtual ~UStructMesh();
-	
+
 	// Copy constructor & assignment operators
 	UStructMesh(const UStructMesh & other);
 	UStructMesh & operator=(UStructMesh other);
 
     void swap(UStructMesh & x) noexcept;
-    
-	//get-set methods  
+
+	//get-set methods
 	const BasicShape*		getShape() const;
 	BasicShape*				getShape();
 	darray3E				getOrigin();
@@ -100,7 +98,7 @@ public:
 	CoordType	getCoordTypez();
 
 	std::array<CoordType,3>	getCoordType();
-	
+
 	darray3E 				getSpacing();
 	iarray3E				getDimension();
 
@@ -112,7 +110,7 @@ public:
 	darray3E 				getGlobalCCell(int, int, int);
 	darray3E 				getGlobalPoint(int);
 	darray3E 				getGlobalPoint(int, int, int);
-	
+
 	ivector1D 				getCellNeighs(int);
 	ivector1D 				getCellNeighs(int, int, int);
 
@@ -142,9 +140,9 @@ public:
 	void 	setCoordTypex(CoordType);
 	void 	setCoordTypey(CoordType);
 	void 	setCoordTypez(CoordType);
-	
+
 	void	setCoordType(std::array<CoordType,3>);
-	
+
 	void 	setMesh(darray3E & origin, darray3E & span, ShapeType, iarray3E & dimensions);
 	void 	setMesh(darray3E & origin, darray3E & span, ShapeType, dvector1D & spacing);
 	void 	setMesh(BasicShape *, iarray3E & dimensions);
@@ -152,7 +150,7 @@ public:
 
 	//generic manteinance of the mesh
 	void	clearMesh();
-	
+
 	//functionalities
 	void 	locateCellByPoint(darray3E & point, int &i, int &j, int &k);
 	void 	locateCellByPoint(dvector1D & point, int &i, int &j, int &k);
@@ -160,33 +158,32 @@ public:
 	void 	accessCellIndex(int N_, int &i, int &j, int &k);
 	int  	accessPointIndex(int i, int j, int k);
 	void 	accessPointIndex(int N_, int &i, int &j, int &k);
-	
+
 	darray3E	transfToGlobal( darray3E & point);
 	dvector1D	transfToGlobal( dvector1D & point);
-	dvecarr3E	transfToGlobal( dvecarr3E & list_points);    
+	dvecarr3E	transfToGlobal( dvecarr3E & list_points);
 	darray3E 	transfToLocal( darray3E & point);
 	dvector1D 	transfToLocal( dvector1D & point);
-	dvecarr3E 	transfToLocal( dvecarr3E & list_points);    
-	
-	// interpolators  
+	dvecarr3E 	transfToLocal( dvecarr3E & list_points);
+
+	// interpolators
 	double 		interpolateCellData(darray3E & point, dvector1D & celldata);
 	int 		interpolateCellData(darray3E & point, ivector1D & celldata);
 	darray3E	interpolateCellData(darray3E & point, dvecarr3E & celldata);
-	
+
 	double		interpolatePointData(darray3E & point, dvector1D & pointdata);
 	int 		interpolatePointData(darray3E & point, ivector1D & pointdata);
 	darray3E	interpolatePointData(darray3E & point, dvecarr3E & pointdata);
 
 	//plotting
-	void 		plotCloud( std::string & , std::string, int , bool,  dvecarr3E * extPoints=NULL);
-	void 		plotCloud( std::string & , std::string, int , bool,  ivector1D & vertexList, dvecarr3E * extPoints=NULL);
-	void 		plotGrid(std::string &, std::string , int, bool, dvecarr3E * extPoints=NULL);
-	void 		plotGrid(std::string &, std::string , int, bool, ivector1D & cellList, dvecarr3E * extPoints=NULL);
+	void 		plotCloud( std::string & , std::string, int , bool, const ivector1D & labels, dvecarr3E * extPoints=NULL);
+    void 		plotCloudScalar(std::string, std::string , int, bool, dvector1D & data);
+	void 		plotGrid(std::string &, std::string , int, bool, const ivector1D & labels, dvecarr3E * extPoints=NULL);
 	void 		plotGridScalar(std::string, std::string , int, bool, dvector1D & data);
 
 	void 		execute();
 	bool		isBuilt();
-	
+
 	virtual bool 		build();
 
 protected:
@@ -194,11 +191,11 @@ protected:
 	void 		resizeMesh();
 	void 		destroyNodalStructure();
 	void 		reshapeNodalStructure();
-	
+
 };
 
 
-/*! 
+/*!
  *\return global index of the point given its cartesian indices. Follows the ordering sequences z-y-x
  *\param[in] i x cartesian index
  *\param[in] j y cartesian index

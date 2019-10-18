@@ -23,8 +23,9 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "MeshSelection.hpp"
-#include "levelSet.hpp"
-#include <cstddef>
+#include "MimmoGeometry.hpp"
+#include "SkdTreeUtils.hpp"
+
 namespace mimmo{
 
 /*!
@@ -206,9 +207,8 @@ void SelectionByMapping::swap(SelectionByMapping & x) noexcept
 void
 SelectionByMapping::buildPorts(){
 
-    bool built = true;
-
     GenericSelection::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<MimmoObject *, SelectionByMapping>(this, &SelectionByMapping::addMappingGeometry,M_GEOM2));
 

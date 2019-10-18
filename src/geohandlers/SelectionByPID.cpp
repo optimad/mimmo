@@ -23,8 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "MeshSelection.hpp"
-#include "levelSet.hpp"
-#include <cstddef>
+
 namespace mimmo{
 
 /*!
@@ -102,9 +101,9 @@ void SelectionByPID::swap(SelectionByPID & x) noexcept
 void
 SelectionByPID::buildPorts(){
 
-    bool built = true;
 
     GenericSelection::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<long, SelectionByPID>(this, &SelectionByPID::setPID, M_VALUELI));
     built = (built && createPortIn<std::vector<long>, SelectionByPID>(this, &SelectionByPID::setPID, M_VECTORLI2));

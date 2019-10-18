@@ -24,13 +24,13 @@
 #ifndef __BASEMANIPULATION_HPP__
 #define __BASEMANIPULATION_HPP__
 
-#include "bitpit_common.hpp"
 #include "factory.hpp"
 #include "portManager.hpp"
 #include "MimmoNamespace.hpp"
 #include "MimmoObject.hpp"
-#include "MimmoPiercedVector.hpp"
 #include "InOut.hpp"
+
+#include <bitpit_common.hpp>
 
 #include <string>
 #include <functional>
@@ -38,12 +38,10 @@
 #include <typeinfo>
 
 #if MIMMO_ENABLE_MPI
-#include <mpi.h>
+    #include <mpi.h>
 #endif
 
 namespace mimmo{
-
-using namespace pin;
 
 /*!
  * \class BaseManipulation
@@ -85,6 +83,7 @@ using namespace pin;
  *
  * BaseManipulation controls a initial set of xml attributes which can be read from a xml file interface or written to it,
  * through absorbSectionXML/flushSectionXML methods. Such parameters are:
+
  * - <B>ClassName</B>: specific name identifying the class as "mimmo.XXXXX"
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>Apply</B>: boolean 0/1 activate apply result directly in execution;
@@ -122,32 +121,33 @@ class BaseManipulation{
 
 public:
     //type definitions
+    /*! \ingroup typedefs{ */
     typedef std::unordered_map<BaseManipulation*, int>    bmumap;            /**<Unordered map type used for parent/child storing.*/
     typedef pin::ConnectionType                           ConnectionType;    /**<Connection type specification for Manipulation object.*/
-    typedef   std::string                                 PortID;            /**<Port ID (identifier of the port).*/
-
+    typedef std::string                                   PortID;            /**<Port ID (identifier of the port).*/
+    /*! } */
 protected:
     uint                        m_priority;         /**<Flag marking priority of execution of the object (0 - highest priority) >*/
-    std::string                 m_name;                /**<Name of the manipulation object.*/
-    int                         m_counter;            /**<Counter ID associated to the object */
-    MimmoObject*                m_geometry;            /**<Pointer to manipulated geometry. */
-    bmumap                      m_parent;            /**<Pointers list to manipulation objects FATHER of the current class. List retains for each
+    std::string                 m_name;             /**<Name of the manipulation object.*/
+    int                         m_counter;          /**<Counter ID associated to the object */
+    MimmoObject*                m_geometry;         /**<Pointer to manipulated geometry. */
+    bmumap                      m_parent;           /**<Pointers list to manipulation objects FATHER of the current class. List retains for each
                                                         pointer a counter. When this counter is 0, pointer is released*/
     bmumap                      m_child;            /**<Pointers list to manipulation objects CHILD of the current class.List retains for each
                                                         pointer a counter. When this counter is 0, pointer is released*/
 
     ConnectionType              m_portsType;        /**<Type of ports of the object: BOTH (bidirectional),
                                                         BACKWARD (only input) or FORWARD (only output).*/
-    std::unordered_map<PortID, PortIn*>   m_portIn;            /**<Input ports map. */
-    std::unordered_map<PortID, PortOut*>  m_portOut;            /**<Output ports map. */
-    bool                                  m_arePortsBuilt;    /**<True or false is the ports are already set or not.*/
+    std::unordered_map<PortID, PortIn*>   m_portIn;         /**<Input ports map. */
+    std::unordered_map<PortID, PortOut*>  m_portOut;        /**<Output ports map. */
+    bool                                  m_arePortsBuilt;  /**<True or false is the ports are already set or not.*/
 
-    bool                        m_active;            /**<True/false to activate/disable the object during the execution.*/
-    bool                        m_execPlot;         /**<Activate plotting of optional result directly in execution.*/
-    bool                        m_apply;           /**<Activate apply result directly in execution.*/
-    std::string                 m_outputPlot;        /**<Define path for plotting optional results in execution.*/
+    bool                        m_active;        /**<True/false to activate/disable the object during the execution.*/
+    bool                        m_execPlot;      /**<Activate plotting of optional result directly in execution.*/
+    bool                        m_apply;         /**<Activate apply result directly in execution.*/
+    std::string                 m_outputPlot;    /**<Define path for plotting optional results in execution.*/
 
-    bitpit::Logger*             m_log;             /**<Pointer to logger.*/
+    bitpit::Logger*             m_log;           /**<Pointer to logger.*/
 
     //static members
     static  int                 sm_baseManipulationCounter;     /**<Current global number of BaseManipulation object in the instance. */
@@ -168,7 +168,7 @@ public:
 
     bitpit::Logger& getLog();
 
-    bool                arePortsBuilt();
+    bool                 arePortsBuilt();
 
     uint                 getPriority();
     std::string          getName();
@@ -196,7 +196,6 @@ public:
     bool    isPlotInExecution();
     bool    isActive();
     bool    isApply();
-    BITPIT_DEPRECATED(int     getClassCounter());
     int     getId();
 
     void	setLog(bitpit::Logger& log);
@@ -205,18 +204,17 @@ public:
     void    setGeometry(MimmoObject* geometry);
     void    setPlotInExecution(bool);
     void    setOutputPlot(std::string path);
-    BITPIT_DEPRECATED(void    setClassCounter(int ));
     void    setId(int );
     void    setApply(bool flag = true);
 
     void    activate();
     void    disable();
 
-    void     unsetGeometry();
-    void     removePins();
-    void     removePinsIn();
-    void     removePinsOut();
-    void     clear();
+    void    unsetGeometry();
+    void    removePins();
+    void    removePinsIn();
+    void    removePinsOut();
+    void    clear();
 
     void    exec();
 
@@ -224,8 +222,8 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
     virtual std::vector<BaseManipulation*> getSubBlocksEmbedded();
-protected:
 
+protected:
 
     void swap(BaseManipulation & x) noexcept;
     void initializeLogger(bool logexists);
@@ -276,7 +274,7 @@ protected:
     virtual void     execute() = 0;
     virtual void     plotOptionalResults();
     virtual void     apply();
-    void     _apply(MimmoPiercedVector<darray3E> & displacements);
+    void             _apply(MimmoPiercedVector<darray3E> & displacements);
 
 };
 

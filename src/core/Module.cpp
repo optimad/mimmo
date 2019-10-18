@@ -24,8 +24,6 @@
 
 #include "Module.hpp"
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 /*!Default constructor of Module.
@@ -56,9 +54,7 @@ Module::Module(const bitpit::Config::Section & rootXML){
 /*!
  * Default destructor of Module.
  */
-Module::~Module(){
-    clear();
-};
+Module::~Module(){};
 
 /*!
  * Copy Constructor.
@@ -84,10 +80,8 @@ void Module::swap(Module & x ) noexcept
  * Assignement operator of Module.
  * \param[in] other class of type Module
  */
-Module & Module::operator=(const Module & other){
-	BaseManipulation::operator=(other);
-	m_field = other.m_field;
-	m_result = other.m_result;
+Module & Module::operator=(Module other){
+    this->swap(other);
 	return *this;
 };
 
@@ -182,9 +176,9 @@ Module::plotOptionalResults(){
     if(m_result.getGeometry()->getType() != 3){
         m_result.getGeometry()->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
         m_result.getGeometry()->getPatch()->getVTK().setName(m_name+std::to_string(getId()));
-        m_result.getGeometry()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
+        m_result.getGeometry()->getPatch()->getVTK().addData("magnitude", bitpit::VTKFieldType::SCALAR, loc, field);
         m_result.getGeometry()->getPatch()->write();
-        m_result.getGeometry()->getPatch()->getVTK().removeData("field");
+        m_result.getGeometry()->getPatch()->getVTK().removeData("magnitude");
     }else{
         if(loc == bitpit::VTKLocation::CELL){
             (*m_log)<<"Warning: Attempt writing Cell data field on cloud of points in plotOptionalResults of "<<m_name<<std::endl;

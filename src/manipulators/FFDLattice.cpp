@@ -23,11 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "FFDLattice.hpp"
-#include "Operators.hpp"
-#include "customOperators.hpp"
 
-
-using namespace std;
 namespace mimmo{
 
 /*! Basic Constructor.*/
@@ -109,10 +105,8 @@ void FFDLattice::swap(FFDLattice & x) noexcept
    std::swap(m_mapdeg, x.m_mapdeg);
    std::swap(m_globalDispl, x.m_globalDispl);
    std::swap(m_bfilter, x.m_bfilter);
-   //std::swap(m_filter, x.m_filter);
    m_filter.swap(x.m_filter);
    std::swap(m_collect_wg, x.m_collect_wg);
-   //std::swap(m_gdispl, x.m_gdispl);
    m_gdispl.swap(x.m_gdispl);
    Lattice::swap(x);
 }
@@ -160,8 +154,10 @@ FFDLattice::clearFilter(){
 };
 
 
-/*! Return a vector of six elements reporting the real number of knots effectively stored in the current class (first 3 elements)
- * and the theoretical number of knots (last 3 elements) for Nurbs representation (see Nurbs Books of Peigl)
+/*! Return a vector of six elements reporting the real number of knots
+    effectively stored in the current class (first 3 elements) and the
+    theoretical number of knots (last 3 elements) for Nurbs representation
+    (see Nurbs Books of Peigl)
  * \return six elements vector
  */
 ivector1D
@@ -180,7 +176,8 @@ FFDLattice::getKnotsDimension(){
     return(res);
 };
 
-/*! Return weight actually set for each control node
+/*!
+    Return weight actually set for each control node
  * \return list of weights
  */
 dvector1D
@@ -188,8 +185,9 @@ FFDLattice::getWeights(){
     return(recoverFullNodeWeights());
 };
 
-/*! Return knots structure and theoretical map of knots distributions for the current Lattice
- * \param[out] knots knots list
+/*! Return knots structure and theoretical map of knots distributions
+    for the current Lattice
+ * \param[out] knots list
  * \param[out] mapTheo  map of knots theoretical distribution
  */
 void
@@ -202,9 +200,10 @@ FFDLattice::returnKnotsStructure(dvector2D & knots, ivector2D &mapTheo){
     returnKnotsStructure(2, knots[2], mapTheo[2]);
 };
 
-/*! Return knots structure and knot multiplicity vector for a specified Nurbs curve "dir"
+/*! Return knots structure and knot multiplicity vector for a specified
+    Nurbs curve "dir"
  * \param[in] dir integer (0,1,2) identifies nurbs curve in x,y,and z direction respectively
- * \param[out] knots knots list
+ * \param[out] knots list
  * \param[out] mapT theoretical knot map distribution
  */
 void
@@ -257,7 +256,8 @@ FFDLattice::getDeformation(){
 };
 
 
-/*! Check if displacements are meant as global-true or local-false
+/*! Check if displacements are meant as global-true or local-false.
+   See setDisplGlobal method
  * \return global displacements flag
  */
 bool
@@ -276,9 +276,9 @@ FFDLattice::setDegrees(iarray3E degrees){
 };
 
 
-/*! set current DOF displacements of your lattice. If Input list does not fit current DOF size
- * of lattice, return doing nothing.
- * \param[in]  displacements displacements of control nodes
+/*! Set current DOF displacements of your lattice. If Input list does
+   not fit current DOF size of lattice, return doing nothing.
+ * \param[in]  displacements of control nodes
  */
 void
 FFDLattice::setDisplacements(dvecarr3E displacements){
@@ -286,6 +286,11 @@ FFDLattice::setDisplacements(dvecarr3E displacements){
 };
 
 /*! Set if displacements are meant as global-true or local-false.
+    Global means that displacements are defined in world xyz coordinate.
+    Local means that displacements are defined in local reference frame of the lattice,
+    accounting of:
+    - lattice rigid roto-translation due to changing in Origin/RefSystem.
+    - lattice system coordinates transformation.
  * \param[in]  flag global displacements flag
  *
  */
@@ -294,10 +299,12 @@ FFDLattice::setDisplGlobal(bool flag){m_globalDispl = flag;}
 
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier
- *  trivariate parameterization is recovered.The lattice can be build also with inherited method
- *    setMesh. In this case, curve degrees are set to 1 by default. Use FFDLattice::setDegrees to
- *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications.
+ *  If curve degrees matches current cell Dimensions (n_nodes -1) in each
+    coordinate, a Bezier trivariate parameterization is recovered.
+    The lattice can be build also with inherited method setMesh. In this case,
+    curve degrees are set to 1 by default. Use FFDLattice::setDegrees to
+    customize later your curve degrees, and FFDLattice::build() method
+    to apply your modifications.
  *
  * \param[in] origin point origin in global reference system
  * \param[in] span span for each shape coordinate in space (local r.s.)
@@ -319,10 +326,11 @@ FFDLattice::setLattice(darray3E &origin,darray3E & span, ShapeType type, iarray3
 };
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier
- *  trivariate parameterization is recovered.The lattice can be build also with inherited method
- *    setMesh. In this case, curve degrees are set to 1 by default. Use FFDLattice::setDegrees to
- *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications.
+ *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate,
+    a Bezier trivariate parameterization is recovered.The lattice can be build
+    also with inherited method setMesh. In this case, curve degrees are set to 1
+    by default. Use FFDLattice::setDegrees to customize later your curve degrees,
+    and FFDLattice::build() method to apply your modifications.
  *
  * \param[in] origin point origin in global reference system
  * \param[in] span span for each shape coordinate in space (local r.s.)
@@ -369,10 +377,11 @@ FFDLattice::setLattice(darray3E &origin,darray3E & span, ShapeType type, dvector
 };
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier
- *  trivariate parameterization is recovered.The lattice can be build also with inherited method
- *    setMesh. In this case, curve degrees are set to 1 by default. Use FFDLattice::setDegrees to
- *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications.
+ *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate,
+    a Bezier trivariate parameterization is recovered. The lattice can be build
+    also with inherited method setMesh. In this case, curve degrees are set to 1
+    by default. Use FFDLattice::setDegrees to customize later your curve degrees,
+    and FFDLattice::build() method to apply your modifications.
  *
  * \param[in] shape pointer to an external BasicShape object
  * \param[in] dimensions number of control nodes for each direction
@@ -389,10 +398,11 @@ FFDLattice::setLattice(BasicShape * shape, iarray3E & dimensions, iarray3E & deg
 };
 
 /*! Set lattice mesh, dimensions and curve degree for Nurbs trivariate parameterization.
- *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate, a Bezier
- *  trivariate parameterization is recovered.The lattice can be build also with inherited method
- *    setMesh. In this case, curve degrees are set to 1 by default. Use FFDLattice::setDegrees to
- *  customize later your curve degrees, and FFDLattice::build() method to apply your modifications.
+ *  If curve degrees matches current cell Dimensions (n_nodes -1) in each coordinate,
+    a Bezier trivariate parameterization is recovered. The lattice can be build
+    also with inherited method setMesh. In this case, curve degrees are set to 1
+    by default. Use FFDLattice::setDegrees to customize later your curve degrees,
+    and FFDLattice::build() method to apply your modifications.
  *
  * \param[in] shape pointer to an external BasicShape object
  * \param[in] spacing define spacing step for each lattice dimension
@@ -483,7 +493,9 @@ FFDLattice::setFilter(dmpvector1D *filter){
     m_filter = *filter;
 };
 
-/*! Plot your current lattice as a structured grid to *vtu file. Wrapped method of plotGrid of father class UCubicMesh.
+/*! Plot your current lattice as a structured grid to *vtu file.
+   Wrapped method of plotGrid of mother class UStrucMesh.
+
  * \param[in] directory output directory
  * \param[in] filename  output filename w/out tag
  * \param[in] counter   integer identifier of the file
@@ -493,30 +505,37 @@ FFDLattice::setFilter(dmpvector1D *filter){
 void
 FFDLattice::plotGrid(std::string directory, std::string filename,int counter, bool binary, bool deformed){
 
+    iarray3E n = getDimension();
+    int size = n[0]*n[1]*n[2];
+    ivector1D labels(size);
+    for(int i=0; i<size; ++i){
+        labels[i] = accessDOFFromGrid(i);
+    }
+
     if(deformed){
-        iarray3E n = getDimension();
         dvecarr3E dispXYZ;
         if(isDisplGlobal()){
             dispXYZ = recoverFullGridDispl();
         }else{
             dispXYZ = convertDisplToXYZ();
         }
-        int size = n[0]*n[1]*n[2];
         dvecarr3E data(size);
         for(int i=0; i<size; ++i){
             data[i] = getGlobalPoint(i) + dispXYZ[i];
         }
-        UStructMesh::plotGrid(directory, filename, counter, binary, &data);
+        UStructMesh::plotGrid(directory, filename, counter, binary, labels, &data);
     }else{
         dvecarr3E* pnull = NULL;
-        UStructMesh::plotGrid(directory, filename, counter, binary,  pnull);
+        UStructMesh::plotGrid(directory, filename, counter, binary, labels, pnull);
 
     }
 
 
 };
 
-/*! Plot your current lattice as a point cloud to *vtu file.Wrapped method of plotCloud of father class UCubicMesh.
+/*! Plot your current lattice as a point cloud to *vtu file.
+   Wrapped method of plotCloud of father class UStructMesh.
+
  * \param[in] directory output directory
  * \param[in] filename  output filename w/out tag
  * \param[in] counter   integer identifier of the file
@@ -526,25 +545,28 @@ FFDLattice::plotGrid(std::string directory, std::string filename,int counter, bo
 void
 FFDLattice::plotCloud(std::string directory, std::string filename, int counter, bool binary, bool deformed){
 
-    if(deformed){
-        iarray3E n = getDimension();
+    iarray3E n = getDimension();
+    int size = n[0]*n[1]*n[2];
+    ivector1D labels(size);
+    for(int i=0; i<size; ++i){
+        labels[i] = accessDOFFromGrid(i);
+    }
 
+    if(deformed){
         dvecarr3E dispXYZ;
         if(isDisplGlobal()){
             dispXYZ = recoverFullGridDispl();
         }else{
             dispXYZ = convertDisplToXYZ();
         }
-
-        int size = n[0]*n[1]*n[2];
         dvecarr3E data(size);
         for(int i=0; i<size; ++i){
             data[i] = getGlobalPoint(i) + dispXYZ[i];
         }
-        UStructMesh::plotCloud(directory, filename, counter, binary, &data);
+        UStructMesh::plotCloud(directory, filename, counter, binary, labels, &data);
     }else{
         dvecarr3E* pnull = NULL;
-        UStructMesh::plotCloud(directory, filename, counter, binary, pnull);
+        UStructMesh::plotCloud(directory, filename, counter, binary, labels, pnull);
 
     }
 
@@ -600,8 +622,10 @@ FFDLattice::execute(){
 
 };
 
-/*! Apply current deformation setup to a single 3D point. If point is not included in lattice return zero.
+/*! Apply current deformation setup to a single 3D point.
+    If point is not included in lattice return zero.
  *  The method does not apply filter field modulation if any.
+
  * \param[in] point coordinate of the points
  * \return point displacement
  */
@@ -613,9 +637,11 @@ FFDLattice::apply(darray3E & point){
     return(nurbsEvaluator(point));
 };
 
-/*! Apply current deformation setup to geometry linked as a MimmoObject container, member of the class
- * (see method getGeometry).If MimmoObject member m_geometry is NULL,return void results.
- * The method applies filter field modulation if any
+/*! Apply current deformation setup to geometry linked as a MimmoObject container,
+    member of the class (see method getGeometry).If MimmoObject member
+    m_geometry is NULL,return void results.The method applies filter field
+    modulation if any.
+
  * \param[out] list list of non-zero displacement of m_geometry vertices
  * \return list of ids of non-zero displaced vertex belonging to geometry
  */
@@ -646,9 +672,11 @@ FFDLattice::apply(livector1D & list){
     return(result);
 };
 
-/*! Apply current deformation setup to a custom list of 3D points. Only points contained into the lattice will be deformed,
- *  displacement of the others will be set to zero. If point list is NULL,return void results.
- *  The method does not apply filter field modulation if any
+/*! Apply current deformation setup to a custom list of 3D points.
+    Only points contained into the lattice will be deformed,displacement of the
+    others will be set to zero. If point list is NULL,return void results.
+ *  The method does not apply filter field modulation if any.
+
  * \param[in] point pointer to a list of 3D points.
  * \return displacements of points
  */
@@ -1182,7 +1210,7 @@ FFDLattice::setKnotsStructure(int dir,CoordType type){
     //clamped curve structure
     case CoordType::CLAMPED :
 
-        m_deg[dir] = min(m_deg[dir], nn-1);
+        m_deg[dir] = std::min(m_deg[dir], nn-1);
         kEff = nn - m_deg[dir] + 1;
         kTheo = nn + m_deg[dir] + 1;
         m_knots[dir].resize(kEff);
@@ -1210,7 +1238,7 @@ FFDLattice::setKnotsStructure(int dir,CoordType type){
 
     case CoordType::PERIODIC :
 
-        m_deg[dir] = min(m_deg[dir], nn-1);
+        m_deg[dir] = std::min(m_deg[dir], nn-1);
         nEff = nn + m_deg[dir] - 1;
         kEff = nEff -m_deg[dir] + 1;
         kTheo = nEff +m_deg[dir] + 1;
@@ -1246,7 +1274,7 @@ FFDLattice::setKnotsStructure(int dir,CoordType type){
 
     case CoordType::SYMMETRIC :
 
-        m_deg[dir] = min(m_deg[dir], nn-1);
+        m_deg[dir] = std::min(m_deg[dir], nn-1);
         nEff = nn + m_deg[dir]-1;
         kEff = nEff -m_deg[dir] + 1;
         kTheo = nEff +m_deg[dir] + 1;
@@ -1259,7 +1287,7 @@ FFDLattice::setKnotsStructure(int dir,CoordType type){
         for(int j=0; j<=m_deg[dir]-1; ++j){
             m_knots[dir][m_deg[dir]] += equinode[j]/((double) m_deg[dir]);
         }
-        if(abs(m_knots[dir][m_deg[dir]])<1.e-12) m_knots[dir][m_deg[dir]] = 0.0;
+        if(std::abs(m_knots[dir][m_deg[dir]])<1.e-12) m_knots[dir][m_deg[dir]] = 0.0;
 
         for(int i=1; i<kEff; ++i){
             m_knots[dir][i+m_deg[dir]] = 0.0;
@@ -1283,7 +1311,7 @@ FFDLattice::setKnotsStructure(int dir,CoordType type){
 
     case CoordType::UNCLAMPED :
 
-        m_deg[dir] = min(m_deg[dir], nn-1);
+        m_deg[dir] = std::min(m_deg[dir], nn-1);
         kEff = nn - m_deg[dir] + 1;
         kTheo = nn + m_deg[dir] + 1;
         m_knots[dir].resize(kTheo);
@@ -1510,13 +1538,13 @@ FFDLattice::setMapNodes( int ind){
 void
 FFDLattice::orderDimension(){
 
-    map<pair<int,int>, int > mapsort;
-    mapsort[make_pair(m_nx,0)] = 0;
-    mapsort[make_pair(m_ny,1)] = 1;
-    mapsort[make_pair(m_nz,2)] = 2;
+    std::map<std::pair<int,int>, int > mapsort;
+    mapsort[std::make_pair(m_nx,0)] = 0;
+    mapsort[std::make_pair(m_ny,1)] = 1;
+    mapsort[std::make_pair(m_nz,2)] = 2;
 
     int i=0;
-    for (map<pair<int,int>, int >::iterator it = mapsort.begin(); it != mapsort.end(); ++it){
+    for (std::map<std::pair<int,int>, int >::iterator it = mapsort.begin(); it != mapsort.end(); ++it){
         m_mapdeg[i] = it->second;
         i++;
     }

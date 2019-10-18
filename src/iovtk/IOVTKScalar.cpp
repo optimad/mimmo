@@ -31,7 +31,6 @@
 #include <vtkPointData.h>
 #include <vtkPolyDataWriter.h>
 
-using namespace std;
 namespace mimmo{
 
 /*!Default constructor of IOVTKScalar.
@@ -132,7 +131,6 @@ void IOVTKScalar::swap(IOVTKScalar & x) noexcept
    std::swap(m_wdir, x.m_wdir);
    std::swap(m_polydata, x.m_polydata);
    std::swap(m_polydataInternal, x.m_polydataInternal);
-   //std::swap(m_field, x.m_field);
    m_field.swap(x.m_field);
    std::swap(m_normalize, x.m_normalize);
    std::swap(m_scaling, x.m_scaling);
@@ -239,7 +237,7 @@ IOVTKScalar::setRead(bool read){
  * \param[in] dir Name of directory.
  */
 void
-IOVTKScalar::setReadDir(string dir){
+IOVTKScalar::setReadDir(std::string dir){
     m_rdir = dir;
 }
 
@@ -248,7 +246,7 @@ IOVTKScalar::setReadDir(string dir){
  * \param[in] filename Name of input file.
  */
 void
-IOVTKScalar::setReadFilename(string filename){
+IOVTKScalar::setReadFilename(std::string filename){
     m_rfilename = filename;
 }
 
@@ -266,7 +264,7 @@ IOVTKScalar::setWrite(bool write){
  * \param[in] dir Name of directory.
  */
 void
-IOVTKScalar::setWriteDir(string dir){
+IOVTKScalar::setWriteDir(std::string dir){
     m_wdir = dir;
 }
 
@@ -275,7 +273,7 @@ IOVTKScalar::setWriteDir(string dir){
  * \param[in] filename Name of output file.
  */
 void
-IOVTKScalar::setWriteFilename(string filename){
+IOVTKScalar::setWriteFilename(std::string filename){
     m_wfilename = filename;
 }
 
@@ -299,7 +297,7 @@ IOVTKScalar::read(){
         setGeometry(mimmo0);
     }
 
-    string inputFilename = m_rdir+"/"+m_rfilename+".vtk";
+    std::string inputFilename = m_rdir+"/"+m_rfilename+".vtk";
     int    np = 0;
     int    nt = 0;
     darray3E point;
@@ -359,7 +357,7 @@ IOVTKScalar::read(){
             for (long int i=0; i<np; i++){
                 vtkIdType id = i;
                 m_field.insert(i, data->GetComponent(id,0));
-                maxf = max(maxf, abs(m_field[i]));
+                maxf = std::max(maxf, std::abs(m_field[i]));
             }
             if (m_normalize){
                 for (int i=0; i<np; i++){
@@ -401,7 +399,7 @@ IOVTKScalar::write(){
             double point_[3];
             darray3E point;
             int np = points->GetNumberOfPoints();
-            np = min(np, int(getGeometry()->getNVertices()));
+            np = std::min(np, int(getGeometry()->getNVertices()));
             for (vtkIdType id=0; id<np; id++ ){
                 point = getGeometry()->getVertexCoords(id);
                 for (int i=0; i<3; i++) point_[i] = point[i];
@@ -409,7 +407,7 @@ IOVTKScalar::write(){
             }
         }
 
-        string outputFilename = m_wdir+"/"+m_wfilename+".vtk";
+        std::string outputFilename = m_wdir+"/"+m_wfilename+".vtk";
         vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
         writer->SetFileName(outputFilename.c_str());
         writer->SetInputData(m_polydata);
@@ -479,7 +477,7 @@ IOVTKScalar::write(){
             data = NULL;
         }
 
-        string outputFilename = m_wdir+"/"+m_wfilename+".vtk";
+        std::string outputFilename = m_wdir+"/"+m_wfilename+".vtk";
         vtkSmartPointer<vtkPolyDataWriter> writer = vtkSmartPointer<vtkPolyDataWriter>::New();
         writer->SetFileName(outputFilename.c_str());
         writer->SetInputData(m_polydata);

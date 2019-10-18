@@ -25,15 +25,14 @@
 #ifndef __SURFACETRIANGULATOR_HPP__
 #define __SURFACETRIANGULATOR_HPP__
 
-#include <BaseManipulation.hpp>
-#include <mimmo_common.hpp>
+#include "BaseManipulation.hpp"
 
 namespace mimmo{
 
 /*!
  *
  *  \class SurfaceTriangulator
- *  \ingroup core
+ *  \ingroup geohandlers
  *  \brief Triangulate a target MimmoObject non-homogeneous and/or non-triangular surface mesh.
  *
  * Class force a given 3D surface tessellation to be a full homogeneous triangular one.

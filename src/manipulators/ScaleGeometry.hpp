@@ -68,9 +68,9 @@ namespace mimmo{
  * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
  *
  * Proper of the class:
- * - <B>Origin</B>: scaling center point;
- * - <B>MeanPoint</B>: use mean point as center of scaling;
- * - <B>Scaling</B>: scaling factor values for each cartesian axis.
+ * - <B>Origin</B>: scaling center point (coords space separated);
+ * - <B>MeanPoint</B>: 0/1 don't use/use mean point as center of scaling.If 1 it masks Origin input;
+ * - <B>Scaling</B>: scaling values for each cartesian axis (space separated).
  *
  * Geometry has to be mandatorily passed through port.
  *

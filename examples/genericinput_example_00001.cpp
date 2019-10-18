@@ -65,7 +65,7 @@ void test00001() {
 
     /* Setup pin connections.
      */
-    addPin(read, write, M_COORDS, M_COORDS);
+    pin::addPin(read, write, M_COORDS, M_COORDS);
 
     /* Setup execution chain.
      */

@@ -30,12 +30,9 @@
 namespace mimmo{
 
 /*!
- * \ingroup core
- */
-
-/*!
  * \struct InfoBoundaryPatch
  * \brief struct containing basic information on boundary patch defined in MimmoFvMesh class.
+ * \ingroup core
  */
 struct InfoBoundaryPatch{
 
@@ -54,12 +51,15 @@ struct InfoBoundaryPatch{
 * \class MimmoFvMesh
 * \brief MimmoFvMesh is an abstract executable class for handling
 * 3D and 2D mesh with their boundary information
-*
-* Basically it is a wrapping container of two MimmoObject, one holding the bulk volume/surface mesh information,
+* \ingroup core
+
+* Basically it is a wrapping container of two MimmoObject,
+  one holding the bulk volume/surface mesh information,
 * and the other holding esplicitly the mesh boundaries.
-* The link between bulk and boundaries is guaranteed with a one-to-one correspondance between ids of
-* bulk Interfaces at mesh border and boundary mesh Cells.
-* Multi-patch subdivision of the boundary mesh is achieved assigning PID on boundary mesh cells.
+* The link between bulk and boundaries is guaranteed with a one-to-one
+  correspondance between ids of bulk Interfaces at mesh border and boundary
+  mesh Cells. Multi-patch subdivision of the boundary mesh is achieved
+  assigning PID on boundary mesh cells.
 * External Additional info can be appended to each boundary patch.
 *
 * Ports available in MimmoFvMesh class:
@@ -83,7 +83,7 @@ struct InfoBoundaryPatch{
 * The xml available parameters, sections and subsections  are the following:
 *
 * Inherited from BaseManipulation:
-* - <B>ClassName</B>: name of the class as "mimmo.MimmoFvMesh"
+* - <B>ClassName</B>: name of the class as <tt>mimmo.MimmoFvMesh</tt>;
 * - <B>Priority</B>: uint marking priority in multi-chain execution;
 *
 * Geometries has to be mandatorily passed through port.
@@ -108,8 +108,6 @@ public:
 
     MimmoFvMesh(const MimmoFvMesh & other);
 
-    void buildPorts();
-
     void    setGeometry(MimmoObject * bulk);
     void    setBoundaryGeometry(MimmoObject * boundary);
     MimmoObject * getGeometry();
@@ -125,6 +123,8 @@ protected:
     void    swap(MimmoFvMesh & ) noexcept;
     void    createBoundaryMesh();
     bool    checkMeshCoherence();
+    void buildPorts();
+
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __MIMMOFVMESH_HPP__)

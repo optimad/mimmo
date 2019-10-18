@@ -93,8 +93,6 @@ void TwistGeometry::swap(TwistGeometry & x) noexcept
     std::swap(m_alpha, x.m_alpha);
     std::swap(m_distance, x.m_distance);
     std::swap(m_sym, x.m_sym);
-//     std::swap(m_filter, x.m_filter);
-//     std::swap(m_displ, x.m_displ);
     m_filter.swap(x.m_filter);
     m_displ.swap(x.m_displ);
     BaseManipulation::swap(x);

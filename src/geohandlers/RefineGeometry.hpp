@@ -24,34 +24,35 @@
 #ifndef __REFINEGEOMETRY_HPP__
 #define __REFINEGEOMETRY_HPP__
 
-#include "MimmoObject.hpp"
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
 
 /*!
- * \enum RefineType
  * \ingroup geohandlers
  * \brief Methods available for refining globally a (surface) geometry.
  */
 enum class RefineType{
-    TERNARY = 0, /**< One vertex for cell is added located on the barycenter of each cell.
-    				  Then each cell is replaced by n-triangles built by using the n-edge of the cell.
-     	 	 	 	  Note: all the elements must be convex. */
+    TERNARY = 0 /**< One vertex for cell is added located on the barycenter of each cell.
+    			    Then each cell is replaced by n-triangles built by using the n-edge of the cell.
+     	 	 	     Note: all the elements must be convex. */
 };
 
 /*!
- *    \class RefineGeometry
+ * \class RefineGeometry
  * \ingroup geohandlers
- *    \brief RefineGeometry is an executable block class capable of
+ * \brief RefineGeometry is an executable block class capable of
  *         refine a surface geometry
  *
- *    RefineGeometry is the object to refine a surface MimmoObject.
- *    After the execution of the block the geometry will be refined in function of the refinement method chosen.
+ * RefineGeometry is the object to refine a surface MimmoObject.
+ * After the execution of the block the geometry will be refined in function
+   of the refinement method chosen. Beware, the original geometry is permanently
+   modified after refinement.
  *
- * 	At the end of the refinement a laplacian smoothing regularization (positive and negative smoothing procedure) can be
- * 	performed by imposing a number of steps > 0 (default).
- * 
+ * At the end of the refinement a laplacian smoothing regularization
+   (positive and negative smoothing procedure) can be performed by
+   imposing a number of steps > 0 (default).
+ *
  * Ports available in RefineGeometry Class :
  *
  *    =========================================================
@@ -72,14 +73,16 @@ enum class RefineType{
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- * - <B>ClassName</B>: name of the class as "mimmo.RefineGeometry"
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.RefineGeometry</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>RefineType</B>: Refine method.
- 
+ * - <B>RefineType</B>: refine method-> 0-Ternary.
+   - <B>RefineSteps</B>: (uint)  number of refinements. 0 means no refinement.
+   - <B>SmoothingSteps</B>: (uint)  number of smoothing steps. 0 means no smoothing.
+
  * Geometries have to be mandatorily passed through port.
  *
  */
@@ -93,7 +96,7 @@ protected:
 public:
     RefineGeometry();
     RefineGeometry(const bitpit::Config::Section & rootXML);
-    ~RefineGeometry();
+    virtual ~RefineGeometry();
 
     RefineGeometry(const RefineGeometry & other);
     RefineGeometry & operator=(RefineGeometry other);
@@ -108,7 +111,7 @@ public:
     void	setSmoothingSteps(int steps);
     void	clear();
     void	execute();
-    
+
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 

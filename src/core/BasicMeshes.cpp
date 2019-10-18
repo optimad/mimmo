@@ -23,12 +23,10 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "BasicMeshes.hpp"
-#include "Operators.hpp"
 #include "customOperators.hpp"
+#include <Operators.hpp>
 
-using namespace std;
 namespace mimmo{
-
 
 /*!
  * Basic Constructor. Default Shape CUBE
@@ -52,10 +50,7 @@ UStructMesh::UStructMesh(){
 /*!
  * Basic destructor
  */
-UStructMesh::~UStructMesh(){
-	m_xnode.clear(); m_ynode.clear(); m_znode.clear();
-	m_xedge.clear(); m_yedge.clear(); m_zedge.clear();
-}
+UStructMesh::~UStructMesh(){}
 
 /*!
  * Copy Constructor.
@@ -312,11 +307,11 @@ CoordType UStructMesh::getCoordTypez(){
 }
 
 /*!
- * \return coordinates type of a BasicShape mesh core. See CoordType enum.
+ * Return coordinates type of a BasicShape mesh core. See CoordType enum.
  * \return Type of all the cooordinates.
  */
-array<CoordType, 3> UStructMesh::getCoordType(){
-	array<CoordType, 3> types;
+std::array<CoordType, 3> UStructMesh::getCoordType(){
+	std::array<CoordType, 3> types;
 	for (int i=0; i<3; i++){
 		types[i] = getShape()->getCoordinateType(i);
 	}
@@ -597,7 +592,7 @@ void UStructMesh::setInfLimits(double inflim, int dir){
 }
 
 /*!
- * Set coordinates' inferior limits of your shape, according to its local reference system.
+ * Set coordinates inferior limits of the shape, according to its local reference system.
  *  Info is just passed and stored in memory, but no modifications are applied to your current mesh.
  *  To apply current modifications use UStructMesh::execute()/build() method.
  * \param[in] inflim coordinates inferior limits
@@ -698,7 +693,7 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
  };
 
   /*!
-   * Set your shape, according to the following input parameters and the already saved/default parmaters.
+   * Set the shape, according to the following input parameters and the already saved/default parmaters.
    * Mesh is still not build. use UStructMesh::execute()/build() to build the mesh.
    * \param[in] itype shape of your mesh, casted to enum.(option available are: 0-CUBE(default), 1-CYLINDER, 2-SPHERE)
    */
@@ -708,7 +703,7 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
   }
 
   /*!
-   * Set your shape, according to the following input parameters and the already saved/default parmaters.
+   * Set the shape, according to the following input parameters and the already saved/default parmaters.
    * Mesh is still not build. use UStructMesh::execute()/build() to build the mesh.
    * \param[in] type shape of your mesh, based on ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE)
    */
@@ -867,7 +862,7 @@ void UStructMesh::setCoordType(std::array<CoordType, 3> types){
 }
 
 /*!
- * Set your mesh, according to the following input parameters
+ * Set the mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh
  * \param[in] span span for each coordinate defining your mesh
  * \param[in] type   shape of your mesh, based on ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE, WEDGE)
@@ -886,7 +881,7 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, iar
 
 
 /*!
- * Set your mesh, according to the following input parameters
+ * Set the mesh, according to the following input parameters
  * \param[in] origin 3D point baricenter of your mesh
  * \param[in] span span for each coordinate defining your mesh
  * \param[in] type   shape of your mesh, based on ShapeType enum.(option available are: CUBE(default), CYLINDER, SPHERE,WEDGE)
@@ -929,7 +924,7 @@ void UStructMesh::setMesh(darray3E & origin, darray3E &span, ShapeType type, dve
 };
 
 /*!
- * Set your mesh, according to the following input parameters
+ * Set the mesh, according to the following input parameters
  * \param[in] shape pointer to an external allocated BasicShape object
  * \param[in] dimensions number of mesh points for each coordinate.
  */
@@ -943,7 +938,7 @@ void UStructMesh::setMesh(BasicShape * shape, iarray3E & dimensions){
 };
 
 /*!
- * Set your mesh, according to the following input parameters
+ * Set the mesh, according to the following input parameters
  * \param[in] shape pointer to an external allocated BasicShape object
  * \param[in] spacing fixed spacing for each coordinate
  */
@@ -1022,9 +1017,9 @@ void UStructMesh::locateCellByPoint(darray3E & point, int &i, int &j, int &k){
 	darray3E P = transfToLocal(point);
 	darray3E locOr = getShape()->getLocalOrigin();
 
-	i = min(m_nx-1, max(0, (int) floor((P[0]-locOr[0])/m_dx)));
-	j = min(m_ny-1, max(0, (int) floor((P[1]-locOr[1])/m_dy)));
-	k = min(m_nz-1, max(0, (int) floor((P[2]-locOr[2])/m_dz)));
+	i = std::min(m_nx-1, std::max(0, (int) std::floor((P[0]-locOr[0])/m_dx)));
+	j = std::min(m_ny-1, std::max(0, (int) std::floor((P[1]-locOr[1])/m_dy)));
+	k = std::min(m_nz-1, std::max(0, (int) std::floor((P[2]-locOr[2])/m_dz)));
 };
 
 /*!
@@ -1041,7 +1036,7 @@ void UStructMesh::locateCellByPoint(dvector1D & point, int &i, int &j, int &k){
 };
 
 /*!
- * \return global index of the cell given its cartesian indices.
+ * Return global index of the cell given its cartesian indices.
  * Follows the ordering sequences z-y-x
  * \param[in] i x cartesian index
  *\param[in] j y cartesian index
@@ -1158,17 +1153,17 @@ double UStructMesh::interpolateCellData(darray3E & point, dvector1D & celldata){
 
 	locateCellByPoint(point, i0, j0, k0);
 	darray3E P = transfToLocal(point);
-	if (P[0] > m_xnode[i0]) 	{ ip = min(i0+1, m_nx-1);   }
-	else                  	{ ip = max(0, i0-1);      }
-	if (P[1] > m_ynode[j0]) 	{ jp = min(j0+1, m_ny-1);   }
-	else                  	{ jp = max(0, j0-1);      }
-	if (P[2] > m_znode[k0]) 	{ kp = min(k0+1, m_nz-1);   }
-	else                  	{ kp = max(0, k0-1);      }
+	if (P[0] > m_xnode[i0]) 	{ ip = std::min(i0+1, m_nx-1);   }
+	else                  	{ ip = std::max(0, i0-1);      }
+	if (P[1] > m_ynode[j0]) 	{ jp = std::min(j0+1, m_ny-1);   }
+	else                  	{ jp = std::max(0, j0-1);      }
+	if (P[2] > m_znode[k0]) 	{ kp = std::min(k0+1, m_nz-1);   }
+	else                  	{ kp = std::max(0, k0-1);      }
 
 	// Interpolation weights
-	wx1 = max(0.0, min(1.0, abs((P[0] - m_xnode[i0])/m_dx)));     wx0 = 1.0 - wx1;
-	wy1 = max(0.0, min(1.0, abs((P[1] - m_ynode[j0])/m_dy)));     wy0 = 1.0 - wy1;
-	wz1 = max(0.0, min(1.0, abs((P[2] - m_znode[k0])/m_dz)));     wz0 = 1.0 - wz1;
+	wx1 = std::max(0.0, std::min(1.0, std::abs((P[0] - m_xnode[i0])/m_dx)));     wx0 = 1.0 - wx1;
+	wy1 = std::max(0.0, std::min(1.0, std::abs((P[1] - m_ynode[j0])/m_dy)));     wy0 = 1.0 - wy1;
+	wz1 = std::max(0.0, std::min(1.0, std::abs((P[2] - m_znode[k0])/m_dz)));     wz0 = 1.0 - wz1;
 
 	// Interpolation
 	double result  = wz0 * wx0 * wy0 * celldata[accessCellIndex(i0,j0,k0)]
@@ -1196,17 +1191,17 @@ int UStructMesh::interpolateCellData(darray3E & point, ivector1D & celldata){
 
 	locateCellByPoint(point, i0, j0, k0);
 	darray3E P = transfToLocal(point);
-	if (P[0] > m_xnode[i0]) 	{ ip = min(i0+1, m_nx-1);   }
-	else                  	{ ip = max(0, i0-1);      }
-	if (P[1] > m_ynode[j0]) 	{ jp = min(j0+1, m_ny-1);   }
-	else                  	{ jp = max(0, j0-1);      }
-	if (P[2] > m_znode[k0]) 	{ kp = min(k0+1, m_nz-1);   }
-	else                  	{ kp = max(0, k0-1);      }
+	if (P[0] > m_xnode[i0]) 	{ ip = std::min(i0+1, m_nx-1);   }
+	else                  	{ ip = std::max(0, i0-1);      }
+	if (P[1] > m_ynode[j0]) 	{ jp = std::min(j0+1, m_ny-1);   }
+	else                  	{ jp = std::max(0, j0-1);      }
+	if (P[2] > m_znode[k0]) 	{ kp = std::min(k0+1, m_nz-1);   }
+	else                  	{ kp = std::max(0, k0-1);      }
 
 	// Interpolation weights
-	wx1 = max(0.0, min(1.0, abs((P[0] - m_xnode[i0])/m_dx)));     wx0 = 1.0 - wx1;
-	wy1 = max(0.0, min(1.0, abs((P[1] - m_ynode[j0])/m_dy)));     wy0 = 1.0 - wy1;
-	wz1 = max(0.0, min(1.0, abs((P[2] - m_znode[k0])/m_dz)));     wz0 = 1.0 - wz1;
+	wx1 = std::max(0.0, std::min(1.0, std::abs((P[0] - m_xnode[i0])/m_dx)));     wx0 = 1.0 - wx1;
+	wy1 = std::max(0.0, std::min(1.0, std::abs((P[1] - m_ynode[j0])/m_dy)));     wy0 = 1.0 - wy1;
+	wz1 = std::max(0.0, std::min(1.0, std::abs((P[2] - m_znode[k0])/m_dz)));     wz0 = 1.0 - wz1;
 
 	// Interpolation
 	double result  = 	wz0 * wx0 * wy0 * (double)celldata[accessCellIndex(i0,j0,k0)]
@@ -1235,17 +1230,17 @@ darray3E UStructMesh::interpolateCellData(darray3E & point, dvecarr3E & celldata
 	locateCellByPoint(point, i0, j0, k0);
 	darray3E P = transfToLocal(point);
 
-	if (P[0] > m_xnode[i0]) 	{ ip = min(i0+1, m_nx-1);   }
-	else                  	{ ip = max(0, i0-1);      }
-	if (P[1] > m_ynode[j0]) 	{ jp = min(j0+1, m_ny-1);   }
-	else                  	{ jp = max(0, j0-1);      }
-	if (P[2] > m_znode[k0]) 	{ kp = min(k0+1, m_nz-1);   }
-	else                  	{ kp = max(0, k0-1);      }
+	if (P[0] > m_xnode[i0]) 	{ ip = std::min(i0+1, m_nx-1);   }
+	else                  	{ ip = std::max(0, i0-1);      }
+	if (P[1] > m_ynode[j0]) 	{ jp = std::min(j0+1, m_ny-1);   }
+	else                  	{ jp = std::max(0, j0-1);      }
+	if (P[2] > m_znode[k0]) 	{ kp = std::min(k0+1, m_nz-1);   }
+	else                  	{ kp = std::max(0, k0-1);      }
 
 	// Interpolation weights
-	wx1 = max(0.0, min(1.0, abs((P[0] - m_xnode[i0])/m_dx)));     wx0 = 1.0 - wx1;
-	wy1 = max(0.0, min(1.0, abs((P[1] - m_ynode[j0])/m_dy)));     wy0 = 1.0 - wy1;
-	wz1 = max(0.0, min(1.0, abs((P[2] - m_znode[k0])/m_dz)));     wz0 = 1.0 - wz1;
+	wx1 = std::max(0.0, std::min(1.0, std::abs((P[0] - m_xnode[i0])/m_dx)));     wx0 = 1.0 - wx1;
+	wy1 = std::max(0.0, std::min(1.0, std::abs((P[1] - m_ynode[j0])/m_dy)));     wy0 = 1.0 - wy1;
+	wz1 = std::max(0.0, std::min(1.0, std::abs((P[2] - m_znode[k0])/m_dz)));     wz0 = 1.0 - wz1;
 
 	// Interpolation
 	darray3E result = wz0 * wx0 * wy0 * celldata[accessCellIndex(i0,j0,k0)]
@@ -1272,21 +1267,21 @@ double UStructMesh::interpolatePointData(darray3E & point, dvector1D & pointdata
 
 	darray3E P = transfToLocal(point);
 	darray3E locOr = getShape()->getLocalOrigin();
-	i0 = max(0, min(m_nx, (int) floor((P[0]-locOr[0])/m_dx)));
-	j0 = max(0, min(m_ny, (int) floor((P[1]-locOr[1])/m_dy)));
-	k0 = max(0, min(m_nz, (int) floor((P[2]-locOr[2])/m_dz)));
+	i0 = std::max(0, std::min(m_nx, (int) std::floor((P[0]-locOr[0])/m_dx)));
+	j0 = std::max(0, std::min(m_ny, (int) std::floor((P[1]-locOr[1])/m_dy)));
+	k0 = std::max(0, std::min(m_nz, (int) std::floor((P[2]-locOr[2])/m_dz)));
 
-	if (P[0] >= m_xedge[i0]) 	{ ip = min(i0+1, m_nx);   }
-	else                  	{ ip = max(0, i0-1);      }
-	if (P[1] >= m_yedge[j0]) 	{ jp = min(j0+1, m_ny);   }
-	else                  	{ jp = max(0, j0-1);      }
-	if (P[2] >= m_zedge[k0]) 	{ kp = min(k0+1, m_nz);   }
-	else                  	{ kp = max(0, k0-1);      }
+	if (P[0] >= m_xedge[i0]) 	{ ip = std::min(i0+1, m_nx);   }
+	else                  	{ ip = std::max(0, i0-1);      }
+	if (P[1] >= m_yedge[j0]) 	{ jp = std::min(j0+1, m_ny);   }
+	else                  	{ jp = std::max(0, j0-1);      }
+	if (P[2] >= m_zedge[k0]) 	{ kp = std::min(k0+1, m_nz);   }
+	else                  	{ kp = std::max(0, k0-1);      }
 
 	// Interpolation weights
-	wx1 = max(0.0, min(1.0, abs((P[0] - m_xedge[i0])/m_dx)));     wx0 = 1.0 - wx1;
-	wy1 = max(0.0, min(1.0, abs((P[1] - m_yedge[j0])/m_dy)));     wy0 = 1.0 - wy1;
-	wz1 = max(0.0, min(1.0, abs((P[2] - m_zedge[k0])/m_dz)));     wz0 = 1.0 - wz1;
+	wx1 = std::max(0.0, std::min(1.0, std::abs((P[0] - m_xedge[i0])/m_dx)));     wx0 = 1.0 - wx1;
+	wy1 = std::max(0.0, std::min(1.0, std::abs((P[1] - m_yedge[j0])/m_dy)));     wy0 = 1.0 - wy1;
+	wz1 = std::max(0.0, std::min(1.0, std::abs((P[2] - m_zedge[k0])/m_dz)));     wz0 = 1.0 - wz1;
 
 	// Interpolation
 	double result =  wz0 * wx0 * wy0 * pointdata[accessPointIndex(i0,j0,k0)]
@@ -1312,21 +1307,21 @@ int UStructMesh::interpolatePointData(darray3E & point, ivector1D & pointdata){
 
 	darray3E P = transfToLocal(point);
 	darray3E locOr = getShape()->getLocalOrigin();
-	i0 = max(0, min(m_nx, (int) floor((P[0]-locOr[0])/m_dx)));
-	j0 = max(0, min(m_ny, (int) floor((P[1]-locOr[1])/m_dy)));
-	k0 = max(0, min(m_nz, (int) floor((P[2]-locOr[2])/m_dz)));
+	i0 = std::max(0, std::min(m_nx, (int) std::floor((P[0]-locOr[0])/m_dx)));
+	j0 = std::max(0, std::min(m_ny, (int) std::floor((P[1]-locOr[1])/m_dy)));
+	k0 = std::max(0, std::min(m_nz, (int) std::floor((P[2]-locOr[2])/m_dz)));
 
-	if (P[0] >= m_xedge[i0]) 	{ ip = min(i0+1, m_nx);   }
-	else                  	{ ip = max(0, i0-1);      }
-	if (P[1] >= m_yedge[j0]) 	{ jp = min(j0+1, m_ny);   }
-	else                  	{ jp = max(0, j0-1);      }
-	if (P[2] >= m_zedge[k0]) 	{ kp = min(k0+1, m_nz);   }
-	else                  	{ kp = max(0, k0-1);      }
+	if (P[0] >= m_xedge[i0]) 	{ ip = std::min(i0+1, m_nx);   }
+	else                  	{ ip = std::max(0, i0-1);      }
+	if (P[1] >= m_yedge[j0]) 	{ jp = std::min(j0+1, m_ny);   }
+	else                  	{ jp = std::max(0, j0-1);      }
+	if (P[2] >= m_zedge[k0]) 	{ kp = std::min(k0+1, m_nz);   }
+	else                  	{ kp = std::max(0, k0-1);      }
 
 	// Interpolation weights
-	wx1 = max(0.0, min(1.0, abs((P[0] - m_xedge[i0])/m_dx)));     wx0 = 1.0 - wx1;
-	wy1 = max(0.0, min(1.0, abs((P[1] - m_yedge[j0])/m_dy)));     wy0 = 1.0 - wy1;
-	wz1 = max(0.0, min(1.0, abs((P[2] - m_zedge[k0])/m_dz)));     wz0 = 1.0 - wz1;
+	wx1 = std::max(0.0, std::min(1.0, std::abs((P[0] - m_xedge[i0])/m_dx)));     wx0 = 1.0 - wx1;
+	wy1 = std::max(0.0, std::min(1.0, std::abs((P[1] - m_yedge[j0])/m_dy)));     wy0 = 1.0 - wy1;
+	wz1 = std::max(0.0, std::min(1.0, std::abs((P[2] - m_zedge[k0])/m_dz)));     wz0 = 1.0 - wz1;
 
 	// Interpolation
 	double result = wz0 * wx0 * wy0 * (double)pointdata[accessPointIndex(i0,j0,k0)]
@@ -1354,22 +1349,22 @@ darray3E UStructMesh::interpolatePointData(darray3E & point, dvecarr3E & pointda
 
 	darray3E P = transfToLocal(point);
 	darray3E locOr = getShape()->getLocalOrigin();
-	i0 = max(0, min(m_nx, (int) floor((P[0]-locOr[0])/m_dx)));
-	j0 = max(0, min(m_ny, (int) floor((P[1]-locOr[1])/m_dy)));
-	k0 = max(0, min(m_nz, (int) floor((P[2]-locOr[2])/m_dz)));
+	i0 = std::max(0, std::min(m_nx, (int) std::floor((P[0]-locOr[0])/m_dx)));
+	j0 = std::max(0, std::min(m_ny, (int) std::floor((P[1]-locOr[1])/m_dy)));
+	k0 = std::max(0, std::min(m_nz, (int) std::floor((P[2]-locOr[2])/m_dz)));
 
 
-	if (P[0] >= m_xedge[i0]) 	{ ip = min(i0+1, m_nx);   }
-	else                  	{ ip = max(0, i0-1);      }
-	if (P[1] >= m_yedge[j0]) 	{ jp = min(j0+1, m_ny);   }
-	else                  	{ jp = max(0, j0-1);      }
-	if (P[2] >= m_zedge[k0]) 	{ kp = min(k0+1, m_nz);   }
-	else                  	{ kp = max(0, k0-1);      }
+	if (P[0] >= m_xedge[i0]) 	{ ip = std::min(i0+1, m_nx);   }
+	else                  	{ ip = std::max(0, i0-1);      }
+	if (P[1] >= m_yedge[j0]) 	{ jp = std::min(j0+1, m_ny);   }
+	else                  	{ jp = std::max(0, j0-1);      }
+	if (P[2] >= m_zedge[k0]) 	{ kp = std::min(k0+1, m_nz);   }
+	else                  	{ kp = std::max(0, k0-1);      }
 
 	// Interpolation weights
-	wx1 = max(0.0, min(1.0, abs((P[0] - m_xedge[i0])/m_dx)));     wx0 = 1.0 - wx1;
-	wy1 = max(0.0, min(1.0, abs((P[1] - m_yedge[j0])/m_dy)));     wy0 = 1.0 - wy1;
-	wz1 = max(0.0, min(1.0, abs((P[2] - m_zedge[k0])/m_dz)));     wz0 = 1.0 - wz1;
+	wx1 = std::max(0.0, std::min(1.0, std::abs((P[0] - m_xedge[i0])/m_dx)));     wx0 = 1.0 - wx1;
+	wy1 = std::max(0.0, std::min(1.0, std::abs((P[1] - m_yedge[j0])/m_dy)));     wy0 = 1.0 - wy1;
+	wz1 = std::max(0.0, std::min(1.0, std::abs((P[2] - m_zedge[k0])/m_dz)));     wz0 = 1.0 - wz1;
 
 	// Interpolation
 	darray3E result = wz0 * wx0 * wy0 * pointdata[accessPointIndex(i0,j0,k0)]
@@ -1386,15 +1381,19 @@ darray3E UStructMesh::interpolatePointData(darray3E & point, dvecarr3E & pointda
 
 
 /*!
- * Write your grid as a point cloud in a *.vtu file.
+ * Write the grid as a point cloud in a *.vtu file.
  * \param[in] folder output directory path
  * \param[in] outfile output namefile w/out tag
  * \param[in] counterFile integer to mark output with a counter number
  * \param[in] codexFlag boolean to distinguish between "ascii" false, and "appended" true
+   \param[in] labels list of labels associated to lattice points
  * \param[in] extPoints OPTIONAL. If defined, use the current vertexList and write them as point cloud, provided that coherent dimensions with the mesh are set.
  *			If Not, write the current mesh vertices.
  * */
-void UStructMesh::plotCloud( std::string & folder , std::string outfile, int counterFile, bool codexFlag, dvecarr3E * extPoints){
+void UStructMesh::plotCloud( std::string & folder , std::string outfile,
+                             int counterFile, bool codexFlag,
+                             const ivector1D & labels,
+                             dvecarr3E * extPoints){
 
 	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
 	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
@@ -1420,10 +1419,14 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 			++counter;
 		}
 	}
+    ivector1D datalab = labels;
+    datalab.resize(activeP.size(), -1);
+
 	bitpit::VTKUnstructuredGrid vtk(folder, outfile, bitpit::VTKElementType::VERTEX);
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
 	vtk.setDimensions(conn.size(), activeP.size());
+	vtk.addData("labels",bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, datalab) ;
 	vtk.setCodex(codex);
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
@@ -1432,34 +1435,24 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 };
 
 /*!
- * Write your grid as a point cloud in a *.vtu file.
+ * Write the grid as a point cloud in a *.vtu file with an attached scalar.
  * \param[in] folder output directory path
  * \param[in] outfile output namefile w/out tag
  * \param[in] counterFile integer to mark output with a counter number
  * \param[in] codexFlag boolean to distinguish between "ascii" false, and "appended" true
- * \param[in] vertexList list of global indices of selected vertices that the user wants to write on file.
- * \param[in] extPoints OPTIONAL. If defined, use the current vertexList and write them as point cloud, provided that coherent dimensions with the mesh are set.
- *			If Not, write the current mesh vertices.
+ * \param[in] data  scalar to be attached
  * */
-void UStructMesh::plotCloud( std::string & folder , std::string outfile, int counterFile, bool codexFlag, ivector1D & vertexList, dvecarr3E * extPoints){
+void UStructMesh::plotCloudScalar( std::string folder , std::string outfile, int counterFile, bool codexFlag, dvector1D & data){
 
 	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
 	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 
 	iarray3E dim = getDimension();
 	int sizeTot = dim[0]*dim[1]*dim[2];
-	int sizeMap = std::min((int)vertexList.size(), sizeTot);
 
-	dvecarr3E activeP(sizeMap);
-	if(extPoints != NULL && (int)extPoints->size() == sizeTot){
-		for(int i=0; i<sizeMap; i++){
-			activeP[i] = (*extPoints)[vertexList[i]];
-		}
-	}
-	else{
-		for(int i=0; i<sizeMap; i++){
-			activeP[i] = getGlobalPoint(vertexList[i]);
-		}
+	dvecarr3E activeP(sizeTot);
+	for(int i=0; i<sizeTot; i++){
+		activeP[i] = getGlobalPoint(i);
 	}
 
 	ivector1D conn(activeP.size());
@@ -1478,21 +1471,26 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile, int cou
 	vtk.setCodex(codex);
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
+    bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
+	vtk.addData("field",bitpit::VTKFieldType::SCALAR, loc, data) ;
 	vtk.write();
-
 };
 
 /*!
- * Write your grid as a hexahedrical one in a *.vtu file.
+ * Write the grid as a hexahedrical one in a *.vtu file.
  * \param[in] folder output directory path
  * \param[in] outfile output namefile w/out tag
  * \param[in] counterFile integer to mark output with a counter number
  * \param[in] codexFlag boolean to distinguish between "ascii" false, and "appended" true
+   \param[in] labels  list of labels associated to lattice nodes.
  * \param[in] extPoints OPTIONAL. If defined, use the current vertexList and write them as point cloud, provided that coherent dimensions with the mesh are set.
  *			If Not, write the current mesh vertices.
  * */
-void UStructMesh::plotGrid(std::string & folder, std::string outfile , int counterFile, bool codexFlag, dvecarr3E * extPoints){
-
+void UStructMesh::plotGrid(std::string & folder, std::string outfile ,
+                           int counterFile, bool codexFlag,
+                           const ivector1D & labels,
+                           dvecarr3E * extPoints)
+{
 	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
 	if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
 
@@ -1516,11 +1514,15 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
 		activeConn[i] = getCellNeighs(i);
 	}
 
+    ivector1D datalab = labels;
+    datalab.resize(activeP.size(),-1);
+
 	bitpit::VTKElementType elDM = bitpit::VTKElementType::HEXAHEDRON;
 	bitpit::VTKUnstructuredGrid vtk(folder, outfile, elDM);
     vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
 	vtk.setDimensions(sizeCl, sizePt);
+    vtk.addData("labels",bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, datalab) ;
 	vtk.setCodex(codex);
 	if(counterFile>=0){vtk.setCounter(counterFile);}
 
@@ -1529,81 +1531,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile , int count
 };
 
 /*!
- * Write your grid as a hexahedrical one in a *.vtu file.
- * \param[in] folder output directory path
- * \param[in] outfile output namefile w/out tag
- * \param[in] counterFile integer to mark output with a counter number
- * \param[in] codexFlag boolean to distinguish between "ascii" false, and "appended" true
- * \param[in] cellList list of global indices of selected cells that the user wants to write on file.
- * \param[in] extPoints OPTIONAL. If defined, use the current vertexList and write them as point cloud, provided that coherent dimensions with the mesh are set.
- *			If Not, write the current mesh vertices.
- * */
-void UStructMesh::plotGrid(std::string & folder, std::string outfile, int counterFile, bool codexFlag, ivector1D & cellList, dvecarr3E * extPoints){
-
-	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
-    if(codexFlag){codex=bitpit::VTKFormat::APPENDED;}
-
-	iarray3E dim = getDimension();
-	int sizePt = dim[0]*dim[1]*dim[2];
-	int sizeCl = cellList.size();
-
-	if(sizeCl > (dim[0]-1)*(dim[1]-1)*(dim[2]-1)){return;}
-
-	std::map<int,int> mapPoints;
-	ivector2D activeConn(sizeCl, ivector1D(8,0));
-
-	for(int i=0; i<sizeCl; ++i){
-		activeConn[i] = getCellNeighs(i);
-		for(int j=0; j<(int)activeConn[i].size(); ++j){
-			mapPoints[activeConn[i][j]] = activeConn[i][j];
-		}
-	}
-
-	dvecarr3E activeP(mapPoints.size());
-	ivector1D listP(mapPoints.size());
-	int counter = 0;
-	std::map<int,int>::iterator itF;
-	if(extPoints != NULL && (int)extPoints->size() == sizePt){
-		for(itF = mapPoints.begin(); itF != mapPoints.end(); ++itF){
-			int pos = itF->second;
-			activeP[counter] = (*extPoints)[pos];
-			listP[counter] = pos;
-			++counter;
-		}
-	}
-	else{
-		for(itF = mapPoints.begin(); itF != mapPoints.end(); ++itF){
-			int pos = itF->second;
-			activeP[counter] = getGlobalPoint(pos);
-			listP[counter]=  pos;
-			++counter;
-		}
-	}
-
-	//update connectivity w/ local indexing of vertex;
-
-	for(int i=0; i<sizeCl; ++i){
-		for(int j=0; j<(int)activeConn[i].size(); ++j){
-			int posV =posVectorFind(listP, activeConn[i][j]);
-			//update local connectivity
-			activeConn[i][j] = posV;
-		}
-	}
-
-	bitpit::VTKElementType elDM = bitpit::VTKElementType::HEXAHEDRON;
-	bitpit::VTKUnstructuredGrid vtk(folder, outfile, elDM);
-    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, activeP) ;
-    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, activeConn) ;
-	vtk.setDimensions(sizeCl, sizePt);
-	vtk.setCodex(codex);
-	if(counterFile>=0){vtk.setCounter(counterFile);}
-
-	vtk.write();
-
-};
-
-/*!
- * Write your grid as a hexahedrical one in a *.vtu file.
+ * Write the grid as a hexahedrical one in a *.vtu file.
  * \param[in] folder output directory path
  * \param[in] outfile output namefile w/out tag
  * \param[in] counterFile integer to mark output with a counter number

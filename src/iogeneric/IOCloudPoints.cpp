@@ -23,10 +23,7 @@
 \*---------------------------------------------------------------------------*/
 
 #include "IOCloudPoints.hpp"
-#include "Operators.hpp"
-#include <fstream>
 
-using namespace std;
 namespace mimmo {
 
 /*!
@@ -108,7 +105,7 @@ void IOCloudPoints::swap(IOCloudPoints & x) noexcept
     BaseManipulation::swap(x);
 }
 
-/*! 
+/*!
  * It builds the input/output ports of the object
  */
 void
@@ -138,10 +135,10 @@ IOCloudPoints::getPoints(){
 };
 
 /*!
- * Return the vector field stored in the class. Field size is always checked and automatically 
- * fit to point list during the class execution 
+ * Return the vector field stored in the class. Field size is always checked and automatically
+ * fit to point list during the class execution
  * \return vector field stored in the class
- * 
+ *
  */
 dvecarr3E
 IOCloudPoints::getVectorField(){
@@ -149,10 +146,10 @@ IOCloudPoints::getVectorField(){
 };
 
 /*!
- * Return the scalar field stored in the class. Field size is always checked and automatically 
- * fit to point list during the class execution 
+ * Return the scalar field stored in the class. Field size is always checked and automatically
+ * fit to point list during the class execution
  * \return scalar field stored in the class
- * 
+ *
  */
 dvector1D
 IOCloudPoints::getScalarField(){
@@ -162,7 +159,7 @@ IOCloudPoints::getScalarField(){
 
 /*!
  * Return the labels attached to displacements actually stored into the class.
- * Labels are always checked and automatically fit to point list during the class execution 
+ * Labels are always checked and automatically fit to point list during the class execution
  * \return labels of displacements
  */
 livector1D
@@ -201,7 +198,7 @@ IOCloudPoints::setReadFilename(std::string filename){
 
 /*!
  * It sets the name of the output directory. Active only in write mode.
- * \param[in] dir directory path 
+ * \param[in] dir directory path
  */
 void
 IOCloudPoints::setWriteDir(std::string dir){
@@ -220,7 +217,7 @@ IOCloudPoints::setWriteFilename(std::string filename){
 };
 
 /*!
- * Set the point list into the class 
+ * Set the point list into the class
  * The method is not active in Read mode.
  * \param[in] points list of 3D point
  */
@@ -233,7 +230,7 @@ IOCloudPoints::setPoints(dvecarr3E points){
 /*!
  * It sets the labels attached to each point.
  * The method is not active in Read mode.
- * \param[in] labels list of label ids 
+ * \param[in] labels list of label ids
  */
 void
 IOCloudPoints::setLabels(livector1D labels){
@@ -244,7 +241,7 @@ IOCloudPoints::setLabels(livector1D labels){
 /*!
  * It sets the vector field associated to point.
  * The method is not active in Read mode.
- * \param[in] vectorfield vector field 
+ * \param[in] vectorfield vector field
  */
 void
 IOCloudPoints::setVectorField(dvecarr3E vectorfield){
@@ -255,7 +252,7 @@ IOCloudPoints::setVectorField(dvecarr3E vectorfield){
 /*!
  * It sets the scalar field associated to point.
  * The method is not active in Read mode.
- * \param[in] scalarfield scalar field 
+ * \param[in] scalarfield scalar field
  */
 void
 IOCloudPoints::setScalarField(dvector1D scalarfield){
@@ -328,25 +325,25 @@ IOCloudPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
     };
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(m_read){
         if(slotXML.hasOption("ReadDir")){
             std::string input = slotXML.get("ReadDir");
             input = bitpit::utils::string::trim(input);
             setReadDir(input);
-        }; 
+        };
 
         if(slotXML.hasOption("ReadFilename")){
             std::string input = slotXML.get("ReadFilename");
             input = bitpit::utils::string::trim(input);
             setReadFilename(input);
-        }; 
-    }else{    
+        };
+    }else{
         if(slotXML.hasOption("WriteDir")){
             std::string input = slotXML.get("WriteDir");
             input = bitpit::utils::string::trim(input);
             setWriteDir(input);
-        }; 
+        };
 
         if(slotXML.hasOption("WriteFilename")){
             std::string input = slotXML.get("WriteFilename");
@@ -380,9 +377,9 @@ IOCloudPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
     BITPIT_UNUSED(name);
 
     BaseManipulation::flushSectionXML(slotXML, name);
-   
+
     slotXML.set("IOmode", std::to_string(int(m_read)));
-    
+
     if(m_read){
         slotXML.set("ReadDir", m_dir);
         slotXML.set("ReadFilename", m_filename);
@@ -477,7 +474,7 @@ IOCloudPoints::read(){
         m_vectorfield.resize(m_points.size(),{{0.0,0.0,0.0}});
 
         reading.clear();
-        reading.seekg(0, ios::beg);
+        reading.seekg(0, std::ios::beg);
 
         do{
             line.clear();
@@ -591,4 +588,3 @@ IOCloudPoints::write(){
 
 
 }
-

@@ -24,20 +24,19 @@
 #ifndef __STITCHGEOMETRY_HPP__
 #define __STITCHGEOMETRY_HPP__
 
-#include "MimmoObject.hpp"
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
 
 /*!
- *    \class StitchGeometry
+ * \class StitchGeometry
  * \ingroup geohandlers
- *    \brief StitchGeometry is an executable block class capable of
- *         stitch multiple MimmoObject geometries of the same topology 
+ * \brief StitchGeometry is an executable block class capable of
+ *         stitch multiple MimmoObject geometries of the same topology
  *
  *    StitchGeometry is the object to append two or multiple MimmoObject of the same topology
- *  in a unique MimmoObject container. 
- * 
+ *  in a unique MimmoObject container.
+ *
  * Ports available in StitchGeometry Class :
  *
  *    =========================================================
@@ -58,22 +57,22 @@ namespace mimmo{
  * The xml available parameters, sections and subsections are the following :
  *
  * Inherited from BaseManipulation:
- * - <B>ClassName</B>: name of the class as "mimmo.StitchGeometry"
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.StitchGeometry</tt>
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>Topology</B>: info on admissible topology format 1-surface, 2-volume, 3-pointcloud
- * - <B>RePID   </B>: 0/false 1/true force repidding of stitched parts. Default is 0.
- 
+ * - <B>Topology</B>: info on admissible topology format 1-surface, 2-volume, 3-pointcloud, 4-3DCurve
+ * - <B>RePID   </B>: 0-false 1-true force repidding of stitched parts. Default is 0.
+
  * Geometries have to be mandatorily passed through port.
  *
  */
 class StitchGeometry: public BaseManipulation{
 
 private:
-    int                                     m_topo;        /**<Mark topology of your stitcher 1-surface, 2-volume, 3-pointcloud*/
+    int                                     m_topo;        /**<Mark topology of your stitcher 1-surface, 2-volume, 3-pointcloud, 4-3DCurve*/
     std::unordered_map<MimmoObject*,int>    m_extgeo;    /**< pointers to external geometries*/
 
     std::unique_ptr<MimmoObject> m_patch;    /**< resulting patch geometry */
@@ -83,7 +82,7 @@ private:
 
     int m_geocount;                            /**<Internal geometry counter */
     bool m_repid;                              /**< force repidding of geometry */
-    
+
 public:
     StitchGeometry(int topo);
     StitchGeometry(const bitpit::Config::Section & rootXML);
@@ -100,11 +99,11 @@ public:
     void        addGeometry(MimmoObject * geo);
 
     bool         isEmpty();
-    
+
     void         clear();
     void         execute();
     void         forceRePID(bool flag);
-    
+
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 

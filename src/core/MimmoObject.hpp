@@ -24,14 +24,12 @@
 #ifndef __MIMMOOBJECT_HPP__
 #define __MIMMOOBJECT_HPP__
 
-#include "bitpit_patchkernel.hpp"
-#include "bitpit_volunstructured.hpp"
-#include "bitpit_surfunstructured.hpp"
-#include "bitpit_SA.hpp"
-#include "surface_skd_tree.hpp"
-#include "volume_skd_tree.hpp"
 #include "mimmoTypeDef.hpp"
-#include "MimmoNamespace.hpp"
+#include <bitpit_volunstructured.hpp>
+#include <bitpit_surfunstructured.hpp>
+#include <bitpit_SA.hpp>
+#include <surface_skd_tree.hpp>
+#include <volume_skd_tree.hpp>
 #if MIMMO_ENABLE_MPI==1
 #	include <mpi.h>
 #endif
@@ -39,11 +37,8 @@
 namespace mimmo{
 
 /*!
- * \ingroup core
- */
-
-/*!
  * \class MimmoSurfUnstructured
+   \ingroup core
  * \brief Custom derivation of bitpit::SurfUnstructured class
  */
 class MimmoSurfUnstructured: public bitpit::SurfUnstructured{
@@ -64,6 +59,7 @@ protected:
 
 /*!
  * \class MimmoVolUnstructured
+   \ingroup core
  * \brief Custom derivation of bitpit::VolUnstructured class
  */
 class MimmoVolUnstructured: public bitpit::VolUnstructured{
@@ -82,7 +78,8 @@ protected:
 
 /*!
  * \class MimmoPointCloud
- * \brief Custom derivation of bitpit::SurfUnstructured class, for Point Cloud handling only
+ * \ingroup core
+   \brief Custom derivation of bitpit::SurfUnstructured class, for Point Cloud handling only
  */
 class MimmoPointCloud: public bitpit::SurfUnstructured{
 public:
@@ -102,14 +99,16 @@ protected:
 
 /*!
 * \class MimmoObject
+  \ingroup core
 * \brief MimmoObject is the basic geometry container for mimmo library
 *
-* MimmoObject is the basic container for 3D geometry unustructured mesh data structure,
-* based on bitpit::PatchKernel containers.
-* MimmoObject can handle unustructured surface meshes, unustructured volume meshes, 3D point clouds and 3D tessellated curves.
-* It supports interface methods to explore and handle the geometrical structure. It supports PID convention to mark subparts
-* of geometry as well as building the search-trees KdTree (3D point spatial ordering) and skdTree(Cell-AABB spatial ordering)
-* to quickly retrieve vertices and cells in the data structure.
+* MimmoObject is the basic container for 3D unustructured mesh data structure,
+  based on bitpit::PatchKernel containers. MimmoObject can handle unustructured surface meshes,
+  unustructured volume meshes, 3D point clouds and 3D tessellated curves.
+  It supports interface methods to explore and handle the geometrical structure.
+  It supports PID convention to mark subparts of geometry as well as building the search-trees
+  KdTree (3D point spatial ordering) and skdTree(Cell-AABB spatial ordering) to quickly retrieve
+  vertices and cells in the data structure.
 */
 class MimmoObject{
 
@@ -120,42 +119,42 @@ private:
 
 protected:
 //members
-    int                                                     m_type;            /**<Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-point cloud mesh, 4-3DCurve). */
-    std::unordered_set<long>                                m_pidsType;        /**<pid type available for your geometry */
-    std::unordered_map<long, std::string>                   m_pidsTypeWNames;   /**<pid type available for your geometry, with name attached */
+    int                                                     m_type;            /**< Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-point cloud mesh, 4-3DCurve). */
+    std::unordered_set<long>                                m_pidsType;        /**< pid type available for your geometry */
+    std::unordered_map<long, std::string>                   m_pidsTypeWNames;  /**< pid type available for your geometry, with name attached */
     std::unique_ptr<bitpit::PatchSkdTree>                   m_skdTree;         /**< ordered tree of geometry simplicies for fast searching purposes */
     std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> > m_kdTree;          /**< ordered tree of geometry vertices for fast searching purposes */
-    bool                                                    m_skdTreeSync;      /**< track correct building of bvtree. Set false if any geometry modifications occur */
-    bool                                                    m_kdTreeSync;     /**< track correct building of kdtree. Set false if any geometry modifications occur*/
-    bool                                                    m_skdTreeSupported; /**< Flag for geometries not supporting bvTree building*/
+    bool                                                    m_skdTreeSync;     /**< track correct building of bvtree. Set false if any geometry modifications occur */
+    bool                                                    m_kdTreeSync;      /**< track correct building of kdtree. Set false if any geometry modifications occur*/
+    bool                                                    m_skdTreeSupported;/**< Flag for geometries not supporting skdTree building*/
 
     bool                                                    m_AdjBuilt;     /**< track correct building of adjacencies along with geometry modifications */
     bool                                                    m_IntBuilt;     /**< track correct building of interfaces  along with geometry modifications */
-    bitpit::Logger*                                         m_log;          /**<Pointer to logger.*/
+    bitpit::Logger*                                         m_log;          /**< Pointer to logger.*/
 
-    int							m_nprocs;									/**<Total number of processors.*/
-    int							m_rank;										/**<Current rank number.*/
+    int							m_nprocs;									/**< Total number of processors.*/
+    int							m_rank;										/**< Current rank number.*/
 
 #if MIMMO_ENABLE_MPI
-	MPI_Comm 					m_communicator; 							/**<MPI communicator.*/
-	long						m_ninteriorvertices = 0;					/**<Number of interior vertices.*/
-	long						m_nglobalvertices = 0;						/**<Global number of vertices.*/
-	std::vector<long>			m_rankinteriorvertices;						/**<Number of interior vertices for each rank.*/
+	MPI_Comm 					m_communicator; 							/**< MPI communicator.*/
+	long						m_ninteriorvertices = 0;					/**< Number of interior vertices.*/
+	long						m_nglobalvertices = 0;						/**< Global number of vertices.*/
+	std::vector<long>			m_rankinteriorvertices;						/**< Number of interior vertices for each rank.*/
 	long						m_globaloffset;								/**< Points offset for local partition.*/
-	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeTargets;	/**<List of Ids of the local ghost points that are local points for each other processor.*/
-	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeSources;	/**<List of Ids of the local points that are ghost points for each other processor.*/
-	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeShared;	/**<List of Ids of the local points that are shared with each other processor.*/
-	std::unordered_map<long, bool> m_isPointInterior;						/**<True or False if the current rank is considered the real owner (the lower rank for shared points) or not of the id-th (key) point. */
-	std::unordered_map<long, long> m_pointConsecutiveId;					/**<Map id->consecutive id for vertices. */
-	bool						m_pointGhostExchangeInfoSync;				/**<Track correct building of point ghost exchange info along with geometry modifications */
+	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeTargets;	/**< List of Ids of the local ghost points that are local points for each other processor.*/
+	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeSources;	/**< List of Ids of the local points that are ghost points for each other processor.*/
+	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeShared;	/**< List of Ids of the local points that are shared with each other processor.*/
+	std::unordered_map<long, bool> m_isPointInterior;						/**< True or False if the current rank is considered the real owner (the lower rank for shared points) or not of the id-th (key) point. */
+	std::unordered_map<long, long> m_pointConsecutiveId;					/**< Map id->consecutive id for vertices. */
+	bool						m_pointGhostExchangeInfoSync;				/**< Track correct building of point ghost exchange info along with geometry modifications */
 
 #endif
 
- 	bitpit::PatchNumberingInfo	m_patchInfo;			/**<Patch Numbering Info structure.*/
-    bool                        m_infoSync;				/**<Track correct building of patch info along with geometry modifications */
+ 	bitpit::PatchNumberingInfo	m_patchInfo;			/**< Patch Numbering Info structure for cells.*/
+    bool                        m_infoSync;				/**< Track correct building of patch info along with geometry modifications */
 
-    std::unordered_map<long, std::unordered_set<long> >	m_pointConnectivity;		/**<Point-Points connectivity. 1-Ring neighbours of each vertex.*/
-    bool                        						m_pointConnectivitySync;	/**<Track correct building of points connectivity along with geometry modifications */
+    std::unordered_map<long, std::unordered_set<long> >	m_pointConnectivity;		/**< Point-Point connectivity. 1-Ring neighbours of each vertex.*/
+    bool                        						m_pointConnectivitySync;	/**< Track correct building of points connectivity along with geometry modifications */
 
 public:
     MimmoObject(int type = 1);
@@ -338,19 +337,31 @@ private:
     bool    checkCellConnCoherence(const bitpit::ElementType & type, const livector1D & conn_);
 
 	/*!
-		Functional for comparing the position of two vertices.
-
+        \struct VertexPositionLess
+        Functional for comparing the position of two vertices.
 		The comparison is made with respect to the vertex coordinates.
 	*/
 	struct VertexPositionLess
 	{
-    	VertexPositionLess(const MimmoObject &object)
+        /*! Base constructor
+            \param[in] object MimmoObject class required
+        */
+        VertexPositionLess(const MimmoObject &object)
 			: m_object(object)
 		{
 		}
-
+        /*! Base destructor */
 		virtual ~VertexPositionLess() = default;
 
+        /*!
+            Compare the position coordinates of 2 MimmoObject Vertex and return true
+            if the first non-coincident coordinate (x,y,z in this order) of the first vertex is
+            lesser than the second vertex one.
+            If all coordinates are coincident and no comparison is performed throw a runtime_error.
+            \param[in] id_1 global id of first vertex
+            \param[in] id_2 global id of second vertex
+            \return boolean
+        */
 		bool operator()(const long &id_1, const long &id_2) const
 		{
 			std::array<double, 3> vertex_1 = m_object.getVertexCoords(id_1);

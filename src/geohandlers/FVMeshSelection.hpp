@@ -26,27 +26,26 @@
 #define __FVMESHSELECTION_HPP__
 
 #include "BaseManipulation.hpp"
-#include "MimmoObject.hpp"
-#include "mimmo_common.hpp"
+#include <memory>
 
 namespace mimmo{
 
 /*!
- * \enum FVSelectionType
  * \ingroup geohandlers
- * \brief Enum class for choiche of method to select sub-patch of a volume mesh
+ * \brief Enum class listing selection method for MimmoFvMesh type mesh
+    sub-patch extraction
  */
 enum class FVSelectionType{
-    UNDEFINED    = 0,
-    BOX          = 1,
-    CYLINDER     = 2,
-    SPHERE       = 3
+    UNDEFINED    = 0, /**< undefined shape */
+    BOX          = 1, /**< box shape */
+    CYLINDER     = 2, /**< cylindrical shape */
+    SPHERE       = 3  /**< spherical shape */
 };
 
 /*!
  * \class FVGenericSelection
  * \ingroup geohandlers
- * \brief Abstract Interface for selection classes related to Volume Unstructured Mesh
+ * \brief Abstract Interface for selection classes working with MimmoFvMesh mesh types (bulk + boundary)
  *
  * Class/BaseManipulation Object managing selection of sub-patches of MimmoFvMesh data structures.
  *
@@ -120,10 +119,10 @@ protected:
 /*!
  * \class FVSelectionByBox
  * \ingroup geohandlers
- * \brief Selection through volume box primitive.
+ * \brief FVGenericSelection class specialized for selections with volume box primitive shapes.
  *
- * Selection Object managing selection of sub-patches of a MimmoFvMesh Data structure.
- * Select all elements contained in a box.
+ * Select all elements contained in the box and return two objects carrying the bulk volume and
+   the related boundary (if any) extracted.
  *
  * Ports available in FVSelectionByBox Class :
  *
@@ -171,14 +170,14 @@ protected:
  * Proper of the class:
  * - <B>Topology</B> : 1 for volume mesh+surface boundary, 2 for surface mesh + 3Dcurve boundary. No other value allowed.
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
- * - <B>Origin</B>: array of 3 doubles identifying origin;
- * - <B>Span</B>: span of the box (width, height, depth);
- * - <B>RefSystem</B>: reference system of the box: \n
- *                <tt>\<RefSystem\> \n
- *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
- *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
- *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
- *                  \</RefSystem\> </tt> \n
+ * - <B>Origin</B>: array of 3 doubles identifying origin (space separated);
+ * - <B>Span</B>: span of the box (width  height  depth);
+ * - <B>RefSystem</B>: reference system of the box: \n\n
+ *                <tt><B>\<RefSystem\></B> \n
+ *                &nbsp;&nbsp;&nbsp;<B>\<axis0\></B> 1.0 0.0 0.0 <B>\</axis0\></B> \n
+ *                &nbsp;&nbsp;&nbsp;<B>\<axis1\></B> 0.0 1.0 0.0 <B>\</axis1\></B> \n
+ *                &nbsp;&nbsp;&nbsp;<B>\<axis2\></B> 0.0 0.0 1.0 <B>\</axis2\></B> \n
+ *                <B>\</RefSystem\></B> </tt> \n\n
  *
  * Geometry has to be mandatorily passed through port.
  *
@@ -208,10 +207,10 @@ protected:
 /*!
  * \class FVSelectionByCylinder
  * \ingroup geohandlers
- * \brief Selection through cylinder primitive.
+ * \brief FVGenericSelection class specialized for selections with volume cylindrical primitive shapes.
  *
- * Selection Object managing selection of sub-patches oof a MimmoFvMesh Data structure.
- * Select all elements contained in a cylinder.
+ * Select all elements contained in the cylinder and return two objects carrying the bulk volume and
+   the related boundary (if any) extracted.
  *
  * Ports available in FVSelectionByCylinder Class :
  *
@@ -259,14 +258,15 @@ protected:
  * Proper of the class:
  * - <B>Topology</B> : 1 for volume mesh+surface boundary, 2 for surface mesh + 3Dcurve boundary. No other value allowed.
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
- * - <B>Origin</B>: array of 3 doubles identifying origin of cylinder;
- * - <B>Span</B>: span of the cylinder (base radius, angular azimuthal width, height);
- * - <B>RefSystem</B>: reference system of the cylinder(axis2 along the cylinder's height): \n
- *                <tt>\<RefSystem\> \n
- *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
- *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
- *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
- *                  \</RefSystem\> </tt> \n
+ * - <B>Origin</B>: array of 3 doubles identifying origin of cylinder (space separated);
+ * - <B>Span</B>: span of the cylinder (base_radius angular_azimuthal_width  height);
+ * - <B>RefSystem</B>: reference system of the cylinder \n\n
+ *                <tt><B>\<RefSystem\></B> \n
+ *                &nbsp;&nbsp;&nbsp;<B>\<axis0\></B> 1.0 0.0 0.0 <B>\</axis0\></B> \n
+ *                &nbsp;&nbsp;&nbsp;<B>\<axis1\></B> 0.0 1.0 0.0 <B>\</axis1\></B> \n
+ *                &nbsp;&nbsp;&nbsp;<B>\<axis2\></B> 0.0 0.0 1.0 <B>\</axis2\></B> \n
+ *                <B>\</RefSystem\></B> </tt> \n\n
+
  * - <B>InfLimits</B>: set starting point for each cylindrical coordinate. Useful to assign different starting angular coordinate to azimuthal width.
  *
  *
@@ -298,11 +298,11 @@ protected:
 /*!
  * \class FVSelectionBySphere
  * \ingroup geohandlers
- * \brief Selection through sphere primitive.
+ * \brief FVGenericSelection class specialized for selections with volume spherical primitive shapes.
  *
- * Selection Object managing selection of sub-patches of a MimmoFvMesh Data structure.
- * Select all elements contained in a sphere.
- *
+ * Select all elements contained in the sphere and return two objects carrying the bulk volume and
+   the related boundary (if any) extracted.
+*
  * Ports available in FVSelectionBySphere Class :
  *
  *    =========================================================
@@ -351,14 +351,15 @@ protected:
  * Proper of the class:
  * - <B>Topology</B> : 1 for volume mesh+surface boundary, 2 for surface mesh + 3Dcurve boundary. No other value allowed.
  * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
- * - <B>Origin</B>: array of 3 doubles identifying origin of sphere;
- * - <B>Span</B>: span of the sphere (radius, angular azimuthal width, angular polar width);
- * - <B>RefSystem</B>: reference system of the sphere: \n
- *                <tt>\<RefSystem\> \n
- *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
- *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
- *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
- *                  \</RefSystem\> </tt> \n
+ * - <B>Origin</B>: array of 3 doubles identifying origin of sphere (space separated);
+ * - <B>Span</B>: span of the sphere (radius  angular_azimuthal_width  angular_polar_width);
+ * - <B>RefSystem</B>: reference system of the box: \n\n
+ *                <tt><B>\<RefSystem\></B> \n
+ *                &nbsp;&nbsp;&nbsp;<B>\<axis0\></B> 1.0 0.0 0.0 <B>\</axis0\></B> \n
+ *                &nbsp;&nbsp;&nbsp;<B>\<axis1\></B> 0.0 1.0 0.0 <B>\</axis1\></B> \n
+ *                &nbsp;&nbsp;&nbsp;<B>\<axis2\></B> 0.0 0.0 1.0 <B>\</axis2\></B> \n
+ *                <B>\</RefSystem\></B> </tt> \n\n
+
  * - <B>InfLimits</B>: set starting point for each spherical coordinate. Useful to assign different starting angular coordinate to azimuthal width/ polar width.
  *
  *

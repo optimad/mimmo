@@ -23,9 +23,9 @@
 \*---------------------------------------------------------------------------*/
 
 #include "RefineGeometry.hpp"
+#include <unordered_map>
+#include <unordered_set>
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 /*!
@@ -63,9 +63,7 @@ RefineGeometry::RefineGeometry(const bitpit::Config::Section & rootXML){
 /*!
  * Default destructor of RefineGeometry.
  */
-RefineGeometry::~RefineGeometry(){
-	clear();
-};
+RefineGeometry::~RefineGeometry(){};
 
 /*!
  * Copy constructor of RefineGeometry.
@@ -104,9 +102,7 @@ void RefineGeometry::swap(RefineGeometry & x ) noexcept
 void
 RefineGeometry::buildPorts(){
 	bool built = true;
-
 	built = (built && createPortIn<MimmoObject*, RefineGeometry>(this, &BaseManipulation::setGeometry, M_GEOM, true));
-
 	built = (built && createPortOut<MimmoObject*, RefineGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
 	m_arePortsBuilt = built;
 }
@@ -221,6 +217,17 @@ void RefineGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 		setRefineType(value);
 	}
 
+    if(slotXML.hasOption("RefineSteps")){
+		std::string input = slotXML.get("RefineSteps");
+		input = bitpit::utils::string::trim(input);
+		int value = 0;
+		if(!input.empty()){
+			std::stringstream ss(input);
+			ss >> value;
+		}
+		setRefineSteps(value);
+	}
+
 	if(slotXML.hasOption("SmoothingSteps")){
 		std::string input = slotXML.get("SmoothingSteps");
 		input = bitpit::utils::string::trim(input);
@@ -255,9 +262,9 @@ void RefineGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 void RefineGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 	BaseManipulation::flushSectionXML(slotXML, name);
-	slotXML.set("RefineType", int(m_type));
-	slotXML.set("RefineSteps", m_refinements);
-	slotXML.set("SmoothingSteps", m_steps);
+	slotXML.set("RefineType", std::to_string(int(m_type)));
+    slotXML.set("RefineSteps", std::to_string(m_refinements));
+    slotXML.set("SmoothingSteps", std::to_string(m_steps));
 
 };
 
@@ -267,8 +274,10 @@ void RefineGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 void
 RefineGeometry::plotOptionalResults(){
 	if(getGeometry() == nullptr) return;
-	std::string name = m_outputPlot +"/"+ m_name + "_" + std::to_string(getId()) +  "_Patch";
-	getGeometry()->getPatch()->write(name);
+    bitpit::VTKUnstructuredGrid & vtk = getGeometry()->getPatch()->getVTK();
+    vtk.setDirectory(m_outputPlot +"/");
+    vtk.setName(m_name + "_" + std::to_string(getId()) +  "_Patch");
+    getGeometry()->getPatch()->write();
 }
 
 /*!

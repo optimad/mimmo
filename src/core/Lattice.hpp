@@ -33,18 +33,18 @@ namespace mimmo{
  * \class Lattice
  * \ingroup core
  * \brief Structured 3D Cartesian Mesh.
- * 
  *
- * Basically, it builds an elemental 3D shape (box, sphere, cylinder or part of them) around the
+ *
+ * Basically, it builds an elemental 3D shape (box, sphere, cylinder, wedge or part of them) around the
  * geometry and set a structured cartesian mesh of control points on it (lattice).
  * No displacements for control points and NO NURBS parameters for FFD are present
  * in this structure, only geometrical information are stored in the object.
  *
- * Ports available in Lattice class: 
+ * Ports available in Lattice class:
  *
  * =========================================================
- *  
- *  
+ *
+ *
  *  |Port Input  | | |
     |-|-|-|
     |<B>PortType</B>|<B>variable/function</B>|<B>DataType</B>|
@@ -55,7 +55,7 @@ namespace mimmo{
     | M_SPAN      | setSpan                               | (MC_ARRAY3, MD_FLOAT)       |
     | M_POINT     | setOrigin                             | (MC_ARRAY3, MD_FLOAT)       |
     | M_SHAPE     | setShape(mimmo::ShapeType)            | (MC_SCALAR, MD_SHAPET)      |
-    | M_COPYSHAPE | setShape(const BasicShape*  )         | (MC_SCALAR, MD_SHAPE_)      |
+    | M_COPYSHAPE | setShape(const BasicShape* )          | (MC_SCALAR, MD_SHAPE_)      |
     | M_SHAPEI    | setShape(int)                         | (MC_SCALAR, MD_INT)         |
 
 
@@ -73,28 +73,31 @@ namespace mimmo{
     | M_GEOM      | getGeometry       | (MC_SCALAR, MD_MIMMO_)    |
 
 * =========================================================
-* 
+*
 * The xml available parameters, sections and subsections  are the following:
-* 
-* Inherited from BaseManipulation:
-* - <B>ClassName</B>: name of the class as "mimmo.Lattice"
+*
+*Inherited from BaseManipulation:
+* - <B>ClassName</B>: name of the class as <tt>mimmo.Lattice</tt>;
 * - <B>Priority</B>: uint marking priority in multi-chain execution;
 * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
-* - <B>OutputPlot</B>: target directory for optional results writing. 
+* - <B>OutputPlot</B>: target directory for optional results writing.
 *
-*  Proper of the class:
-* - <B>Shape</B>: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE 
+*Proper of the class:
+* - <B>Shape</B>: type of basic shape for your lattice. Available choice are CUBE, CYLINDER,SPHERE,WEDGE
 * - <B>Origin</B>: 3D point marking the shape barycenter
-* - <B>Span</B>: span dimensions of your shape (width-height-depth for CUBE, baseRadius-azimuthalspan-height for CYLINDER, radius-azimuthalspan-polarspan for SPHERE)
-* - <B>RefSystem</B>: axes of current shape reference system. written in XML as:
-*                  <tt> \n \<RefSystem\> \n
-*                       \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
-*                       \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
-*                       \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
-*                   \</RefSystem\> </tt>
+* - <B>Span</B>: span dimensions of your shape (width-height-depth for CUBE,
+                baseRadius-azimuthalspan-height for CYLINDER,
+                radius-azimuthalspan-polarspan for SPHERE,
+                triangle width-triangle height-depth for WEDGE)
+* - <B>RefSystem</B>: axes of current shape reference system. written in XML as:\n\n
+            <tt> <B>\<RefSystem\> </B> \n
+            &nbsp;&nbsp;&nbsp;<B>\<axis0\></B> 1.0 0.0 0.0 <B>\</axis0\></B> \n
+            &nbsp;&nbsp;&nbsp;<B>\<axis1\></B> 0.0 1.0 0.0 <B>\</axis1\></B> \n
+            &nbsp;&nbsp;&nbsp;<B>\<axis2\></B> 0.0 0.0 1.0 <B>\</axis2\></B> \n
+            <B>\</RefSystem\></B> </tt>\n\n
 * - <B>InfLimits</B>: inferior limits for shape coordinates (meaningful only for CYLINDER AND SPHERE curvilinear coordinates)
-* - <B>Dimension</B>: number of nodes in each coordinate direction to get the structured lattice mesh 
-* 
+* - <B>Dimension</B>: number of nodes in each coordinate direction to get the structured lattice mesh
+*
 * Geometry has to be mandatorily passed through port.
 */
 class Lattice: public BaseManipulation, public UStructMesh {
@@ -102,7 +105,7 @@ class Lattice: public BaseManipulation, public UStructMesh {
 protected:
     int         m_np;           /**< Number of control nodes.*/
     ivector1D   m_intMapDOF;    /**< Map of grid nodes -> degrees of freedom of lattice */
-    
+
 public:
     Lattice();
     Lattice(const bitpit::Config::Section & rootXML);

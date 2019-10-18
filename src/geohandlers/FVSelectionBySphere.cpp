@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "FVMeshSelection.hpp"
+
 namespace mimmo{
 
 /*!
@@ -30,6 +31,7 @@ namespace mimmo{
  * Parameter topo get topology of the target MimmoFvMesh where performing extraction:
  * - 1 for volume bulk and surface boundary
  * - 2 for surface bulk and 3DCurve boundary
+ 
  * No other values are allowed
  * \param[in] topo topology of the target MimmoFvMesh.
  */

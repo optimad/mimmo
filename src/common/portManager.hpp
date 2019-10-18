@@ -26,21 +26,17 @@
 #define PORT_MANAGER_HPP
 
 #include "portDefinitions.hpp"
-#include "bitpit_common.hpp"
-#include "bitpit_IO.hpp"
+#include <bitpit_IO.hpp>
 #include <unordered_map>
-#include <vector>
 #include <cassert>
 
-/*!
- *   \ingroup common
- *   \{
- */
 
 namespace mimmo{
 
+
 /*!
  * \struct InfoPort
+   \ingroup common
  * \brief  collection of data functional to a port registration.
  *
  * Contains a unique id identifying the port and two strings indentifying the container and the type
@@ -65,6 +61,7 @@ struct InfoPort{
 
 /*!
  * \class PortManager
+   \ingroup common
  * \brief Basic singleton for managing Ports declaration in mimmo.
  *
  * PortManager is the reference singleton to declare and store ports of mimmo, together with their
@@ -198,9 +195,7 @@ private:
 
 };
 
-/*!
- * \}
- */
+
 
 /*!
  * \def REGISTER_PORT(Name, Container, Datatype, ManipBlock)

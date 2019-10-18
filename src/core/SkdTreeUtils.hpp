@@ -24,10 +24,7 @@
 # ifndef __SKDTREEUTILS_HPP__
 # define __SKDTREEUTILS_HPP__
 
-# include "bitpit_patchkernel.hpp"
-# include "bitpit_surfunstructured.hpp"
-# include "surface_skd_tree.hpp"
-# include "volume_skd_tree.hpp"
+# include <patch_skd_tree.hpp>
 
 namespace mimmo{
 

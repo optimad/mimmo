@@ -25,14 +25,15 @@
 #define __MRBF_HPP__
 
 #include "BaseManipulation.hpp"
-#include "rbf.hpp"
+#include <bitpit_RBF.hpp>
 
 namespace mimmo{
 
 /*!
- * @enum MRBFBasisFunction
  * @ingroup manipulators
- * @brief Enum class defining types of mimmo RBF kernel functions that could be used in bitpit::RBF class
+ * @brief Enum class defining types of mimmo RBF kernel
+   functions that could be used also in MRBF class, together with
+   those already available in bitpit::RBF mother class
  */
 enum class MRBFBasisFunction {
     HEAVISIDE10    = 101,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 10 */
@@ -41,11 +42,9 @@ enum class MRBFBasisFunction {
 	HEAVISIDE1000    = 104,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 1000 */
 };
 
-
 /*!
- * \enum MRBFSol
  * \ingroup manipulators
- * \brief Solver enum for your RBF data fields interpolation/ direct parameterization
+ * \brief Solver enum for MRBF data fields interpolation/ direct parameterization
  */
 enum class MRBFSol{
     NONE = 0,     /**< activate class as pure parameterizator. Set freely your RBF coefficients/weights */
@@ -60,10 +59,11 @@ enum class MRBFSol{
  *
  * This class is derived from BaseManipulation class of mimmo and from RBF class
  * of bitpit library.
- * It evaluates the result of RBF built over a set of control point given by the user
- * or stored in a MimmoObject (geometry container). Default solver in execution is
- * MRBFSol::NONE for direct parameterization. Use MRBFSol::GREEDY or MRBFSol::SOLVE to activate
- * interpolation features.
+ * It evaluates the result of RBF functions built over a set of control point
+   given externally or stored in a PointCloud MimmoObject container.
+   Displacements (DOFs) for RBF nodes are provided externally.
+   Default solver in execution is MRBFSol::NONE for direct parameterization.
+   Use MRBFSol::GREEDY or MRBFSol::WHOLE to activate interpolation features.
  * See bitpit::RBF docs for further information.
  *
  * \n
@@ -79,7 +79,7 @@ enum class MRBFSol{
      | M_FILTER  | setFilter             | (MC_SCALAR, MD_MPVECFLOAT_)       |
      | M_VALUED  | setSupportRadius      | (MC_SCALAR, MD_FLOAT)       |
      | M_VALUED2 | setSupportRadiusValue | (MC_SCALAR, MD_FLOAT)       |
-     | M_GEOM    | m_geometry            | (MC_SCALAR, MD_MIMMO_)      |
+     | M_GEOM    | setGeeometry            | (MC_SCALAR, MD_MIMMO_)      |
 
      |Port Output | | |
      |-|-|-|
@@ -98,12 +98,11 @@ enum class MRBFSol{
  * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
  *
  * Proper of the class:
- * - <B>Mode</B>: mode of usage of the class 0-parameterizator class, 1-regular interpolator class, 2- greedy interpolator class );
+ * - <B>Mode</B>: mode of usage of the class see MRBFSol enum;
  * - <B>SupportRadius</B>: local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box;
- * - <B>SupportRadiusReal</B>: local effective radius of RBF function for each nodes;
- * - <B>RBFShape</B>: shape of RBF function wendlandc2 (1), linear (2), gauss90 (3), gauss95 (4), gauss99 (5);
- * - <B>Tolerance</B>: greedy engine tolerance (meant for mode 2);
- *
+ * - <B>SupportRadiusReal</B>: local effective radius of RBF function common to each RBF node;
+ * - <B>RBFShape</B>: shape of RBF function see MRBFBasisFunction and bitpit::RBFBasisFunction enums;
+ * - <B>Tolerance</B>: greedy engine tolerance (meaningful for Mode 2 only);
  *
  * Geometry, filter field, RBF nodes and displacements have to be mandatorily passed through port.
  *

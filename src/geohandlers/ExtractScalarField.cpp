@@ -25,8 +25,6 @@
 #include "ExtractFields.hpp"
 #include "SkdTreeUtils.hpp"
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 /*!
@@ -100,11 +98,13 @@ void ExtractScalarField::swap(ExtractScalarField & x ) noexcept
  */
 void
 ExtractScalarField::buildPorts(){
-    bool built = true;
+
+    ExtractField::buildPorts();
+
+    bool built = m_arePortsBuilt;
     built = (built && createPortIn<dmpvector1D*, ExtractScalarField>(this, &mimmo::ExtractScalarField::setField, M_SCALARFIELD, true, 1));
     built = (built && createPortOut<dmpvector1D*, ExtractScalarField>(this, &mimmo::ExtractScalarField::getExtractedField, M_SCALARFIELD));
 
-    ExtractField::buildPorts();
     m_arePortsBuilt = built;
 }
 

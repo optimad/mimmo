@@ -22,9 +22,9 @@
 *
 \*---------------------------------------------------------------------------*/
 #include "InOut.hpp"
+#include "TrackingPointer.hpp"
+#include "MimmoNamespace.hpp"
 #include "BaseManipulation.hpp"
-
-using namespace std;
 
 
 /*!

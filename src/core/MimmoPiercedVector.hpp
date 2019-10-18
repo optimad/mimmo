@@ -24,35 +24,26 @@
 #ifndef __MIMMOPIERCEDVECTOR_HPP__
 #define __MIMMOPIERCEDVECTOR_HPP__
 
-#include "piercedVector.hpp"
-#include "mimmoTypeDef.hpp"
 #include "MimmoObject.hpp"
+#include <piercedVector.hpp>
 
 namespace mimmo{
 
 /*!
- * \ingroup core
- */
-
-
-/*!
- * \enum MPVLocation
- * define location of the MimmoPiercedVector data:
- *  - 0-UNDEFINED no location provided
- *  - 1-POINT on geometry vertex
- *  - 2-CELL on geometry cells
- *  - 3-INTERFACE on geometry interfaces
+   \ingroup core
+ * \brief Define data location for the MimmoPiercedVector field.
  */
 enum class MPVLocation: long {
-    UNDEFINED=0,
-    POINT=1,
-    CELL=2,
-    INTERFACE=3
+    UNDEFINED = 0, /**< unknown location data */
+    POINT = 1    , /**< data on geometry vertices */
+    CELL = 2     , /**< data on geometry cells */
+    INTERFACE = 3  /**< data on geometry interfaces */
 };
 
 /*!
- * \class MimmoPiercedVector
- * \brief MimmoPiercedVector is the basic data container for mimmo library
+ * @class MimmoPiercedVector
+   \ingroup core
+ * @brief MimmoPiercedVector is the basic data container for mimmo library
  *
  * MimmoPiercedVector is the basic container for data attached to a geometry
  * defined as a MimmoObject.
@@ -60,7 +51,7 @@ enum class MPVLocation: long {
  * It supports interface methods to recover the related geometric object.
  * It supports a string name attribute to mark the field as well as a location enum to
  * understand to which structures of geometry refers the data (UNDEFINED no-info, POINT-vertices,
- * CELL-simplicies, INTERFACE-interfaces).
+ * CELL-cells, INTERFACE-interfaces).
  */
 template<typename mpv_t>
 class MimmoPiercedVector: public bitpit::PiercedVector<mpv_t, long int> {

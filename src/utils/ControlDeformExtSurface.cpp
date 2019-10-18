@@ -23,6 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "ControlDeformExtSurface.hpp"
 #include "SkdTreeUtils.hpp"
+#include <volcartesian.hpp>
 #include <cmath>
 
 namespace mimmo{

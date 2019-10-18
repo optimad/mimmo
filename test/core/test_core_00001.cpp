@@ -109,8 +109,8 @@ int test1() {
 	objA->m_coords = points;
 	objA->m_field = field;
 
-	checkPin = checkPin && addPin(objA, objB, M_COORDS, M_COORDS);
-    checkPin = checkPin && addPin(objA, objB, "M_MYPERSONALFIELD", "M_MYSCALARFIELD");
+	checkPin = checkPin && pin::addPin(objA, objB, M_COORDS, M_COORDS);
+    checkPin = checkPin && pin::addPin(objA, objB, "M_MYPERSONALFIELD", "M_MYSCALARFIELD");
 
 	if(!checkPin){
 		std::cout<<"Failed getting connections"<<std::endl;
@@ -137,7 +137,13 @@ int test1() {
 	checkExec = checkExec && ((int)objB->m_field.size() == sF);
 	checkExec = checkExec && ((int)objB->m_coords.size() == sC);
 
-	if(!checkExec){
+    {
+        std::unique_ptr<Chain> chain2 = c0->clone();
+        checkExec = checkExec && (chain2->getNObjects() == c0->getNObjects());
+        checkExec = checkExec && (c0->getID() != chain2->getNObjects());
+    }
+
+    if(!checkExec){
 		std::cout<<"Failed execution"<<std::endl;
 		delete objA;
 		delete objB;

@@ -91,10 +91,7 @@ void SurfaceTriangulator::swap(SurfaceTriangulator &x) noexcept
 void SurfaceTriangulator::buildPorts(){
 
     bool built = true;
-
-    //input
     built = (built && createPortIn<MimmoObject *, SurfaceTriangulator>(this, &mimmo::SurfaceTriangulator::setGeometry,M_GEOM, true));
-    //output
     built = (built && createPortOut<MimmoObject*, SurfaceTriangulator>(this, &mimmo::SurfaceTriangulator::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };

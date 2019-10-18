@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- #                                                                           
+ #
  #  mimmo
  #
  #  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -31,6 +31,8 @@
 
 #ifndef __MIMMO_MODULE_IOOFOAM_HPP__
 #define __MIMMO_MODULE_IOOFOAM_HPP__
+
+#include "mimmo_core.hpp"
 
 #include "IOOFOAM.hpp"
 
