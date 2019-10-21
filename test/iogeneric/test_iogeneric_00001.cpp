@@ -23,12 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_iogeneric.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
-
 
 // =================================================================================== //
 /*!
@@ -36,7 +30,7 @@ using namespace mimmo;
  */
 int test1() {
 
-    MimmoGeometry * reader = new MimmoGeometry();
+	mimmo::MimmoGeometry * reader = new mimmo::MimmoGeometry();
     reader->setIOMode(IOMode::READ);
     reader->setReadDir("geodata");
     reader->setReadFilename("prism");
@@ -46,12 +40,11 @@ int test1() {
     bool check = reader->getGeometry()->getNCells() == 12288;
     check = check && reader->getGeometry()->getNVertices() == 6146;
 
-
-    MimmoGeometry * readerCopy = new MimmoGeometry();
+    mimmo::MimmoGeometry * readerCopy = new mimmo::MimmoGeometry();
     *readerCopy = *reader;
     check = check && (readerCopy->getGeometry() == reader->getGeometry());
 
-    std::unique_ptr<MimmoObject> objHC = reader->getGeometry()->clone();
+    std::unique_ptr<mimmo::MimmoObject> objHC = reader->getGeometry()->clone();
     check = check && objHC->getNCells() == 12288;
     check = check && objHC->getNVertices() == 6146;
 
@@ -67,7 +60,7 @@ int test1() {
  */
 int test2() {
 
-    MimmoGeometry * reader1 = new MimmoGeometry();
+	mimmo::MimmoGeometry * reader1 = new mimmo::MimmoGeometry();
     reader1->setIOMode(IOMode::READ);
     reader1->setReadDir("geodata");
     reader1->setReadFilename("mixedP2D");
@@ -79,7 +72,7 @@ int test2() {
 
     reader1->getGeometry()->getPatch()->write("surface");
 
-    MimmoGeometry * reader2 = new MimmoGeometry();
+    mimmo::MimmoGeometry * reader2 = new mimmo::MimmoGeometry();
     reader2->setIOMode(IOMode::READ);
     reader2->setReadDir("geodata");
     reader2->setReadFilename("mixedP3D");

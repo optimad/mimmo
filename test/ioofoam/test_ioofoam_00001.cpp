@@ -45,20 +45,6 @@ int test1() {
     c0.addObject(fieldreader);
     c0.exec(true);
 
-
-    // std::cout<<reader->getGeometry()->getPatch()->getVertexCount()<<std::endl;
-    // std::cout<<reader->getGeometry()->getPatch()->getCellCount()<<std::endl;
-    // std::cout<<reader->getBoundaryGeometry()->getPatch()->getVertexCount()<<std::endl;
-    // std::cout<<reader->getBoundaryGeometry()->getPatch()->getCellCount()<<std::endl;
-    //
-    // reader->getGeometry()->getPatch()->write("bulk");
-    // reader->getBoundaryGeometry()->getPatch()->write("boundary");
-    //
-    // std::cout<<reader->getGeometry()<<std::endl;
-    // std::cout<<fieldreader->getGeometry()<<std::endl;
-    // std::cout<<reader->getBoundaryGeometry()<<std::endl;
-    // std::cout<<fieldreader->getBoundaryGeometry()<<std::endl;
-
     bool check = true;
     check = check && (reader->getGeometry()->getPatch()->getVertexCount() == 120450);
     check = check && (fieldreader->getBoundaryGeometry()->getPatch()->getVertexCount() == 120450);

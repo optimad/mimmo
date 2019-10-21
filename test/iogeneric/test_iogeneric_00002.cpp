@@ -23,12 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_iogeneric.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
-
 
 // =================================================================================== //
 /*!
@@ -36,7 +30,7 @@ using namespace mimmo;
  */
 int test2_1() {
 
-    GenericInput * ginput = new GenericInput();
+	mimmo::GenericInput * ginput = new mimmo::GenericInput();
     ginput->setReadFromFile(true);
     ginput->setCSV(true);
     ginput->setReadDir("input");
@@ -68,14 +62,14 @@ int test2_2() {
     conn[0][1] = 1; conn[0][2]=2;
     conn[1][0] = 1; conn[1][1]=3; conn[1][2] = 2;
 
-    MimmoObject * geo = new MimmoObject(1);
+    mimmo::MimmoObject * geo = new mimmo::MimmoObject(1);
     for(int i=0; i<(int)points.size(); ++i) geo->addVertex(points[i], i);
     geo->addConnectedCell(conn[0], bitpit::ElementType::TRIANGLE, long(0), long(0));
     geo->addConnectedCell(conn[1], bitpit::ElementType::TRIANGLE, long(0), long(1));
 
     //create a MPV vector of doubles and darray3E;
-    MimmoPiercedVector<double> scalar(geo, mimmo::MPVLocation::CELL);
-    MimmoPiercedVector<darray3E> vector(geo, mimmo::MPVLocation::POINT);
+    mimmo::MimmoPiercedVector<double> scalar(geo, mimmo::MPVLocation::CELL);
+    mimmo::MimmoPiercedVector<darray3E> vector(geo, mimmo::MPVLocation::POINT);
     scalar.insert(0, 12.12345);
     scalar.insert(1, -3.456);
     vector.insert(1,{{-1.0, 0, 2.0}});
@@ -84,13 +78,13 @@ int test2_2() {
     vector.insert(3,{{0, 0, 12.0}});
 
     // write on file : scalar in csv and vector in raw ascii.
-    GenericOutputMPVData * write_scalar = new GenericOutputMPVData();
+    mimmo::GenericOutputMPVData * write_scalar = new mimmo::GenericOutputMPVData();
     write_scalar->setWriteDir(".");
     write_scalar->setFilename("scalarCSV.csv");
     write_scalar->setCSV(true);
     write_scalar->setInput(scalar);
 
-    GenericOutputMPVData * write_vector = new GenericOutputMPVData();
+    mimmo::GenericOutputMPVData * write_vector = new mimmo::GenericOutputMPVData();
     write_vector->setWriteDir(".");
     write_vector->setFilename("vectorRAW.dat");
     write_vector->setCSV(false);
@@ -100,15 +94,14 @@ int test2_2() {
     write_scalar->exec();
     write_vector->exec();
 
-
     //re read files and absorb structures.
-    GenericInputMPVData * read_scalar = new GenericInputMPVData();
+    mimmo::GenericInputMPVData * read_scalar = new mimmo::GenericInputMPVData();
     read_scalar->setReadDir(".");
     read_scalar->setFilename("scalarCSV.csv");
     read_scalar->setCSV(true);
     read_scalar->setGeometry(geo);
 
-    GenericInputMPVData * read_vector = new GenericInputMPVData();
+    mimmo::GenericInputMPVData * read_vector = new mimmo::GenericInputMPVData();
     read_vector->setReadDir(".");
     read_vector->setFilename("vectorRAW.dat");
     read_vector->setCSV(false);
@@ -117,7 +110,6 @@ int test2_2() {
 
     read_scalar->exec();
     read_vector->exec();
-
 
     //check re read structure are the same.
     auto rscalar = read_scalar->getResult<double>();
@@ -156,13 +148,13 @@ int test2_3() {
     conn[0][1] = 1; conn[0][2]=2;
     conn[1][0] = 1; conn[1][1]=3; conn[1][2] = 2;
 
-    MimmoObject * geo = new MimmoObject(1);
+    mimmo::MimmoObject * geo = new mimmo::MimmoObject(1);
     for(int i=0; i<(int)points.size(); ++i) geo->addVertex(points[i], i);
     geo->addConnectedCell(conn[0], bitpit::ElementType::TRIANGLE, long(0), long(0));
     geo->addConnectedCell(conn[1], bitpit::ElementType::TRIANGLE, long(0), long(1));
 
     //create a MPV vector of doubles and darray3E;
-    MimmoPiercedVector<darray3E> vector(geo, mimmo::MPVLocation::POINT);
+    mimmo::MimmoPiercedVector<darray3E> vector(geo, mimmo::MPVLocation::POINT);
     vector.insert(1,{{-1.0, 0, 2.0}});
     vector.insert(2,{{-0.976, -0.976, -0.976}});
     vector.insert(0,{{1.2, 1.3, 1.4}});
@@ -171,7 +163,7 @@ int test2_3() {
     vector.insert(22,{{0, 0, 0.0}});
     vector.insert(7,{{0, 0, 0.0}});
 
-    GenericOutputMPVData * write_vector = new GenericOutputMPVData();
+    mimmo::GenericOutputMPVData * write_vector = new mimmo::GenericOutputMPVData();
     write_vector->setWriteDir(".");
     write_vector->setFilename("vectorOff.csv");
     write_vector->setCSV(true);
@@ -179,7 +171,7 @@ int test2_3() {
     write_vector->setInput(vector);
     write_vector->exec();
 
-    GenericInputMPVData * read_vector = new GenericInputMPVData();
+    mimmo::GenericInputMPVData * read_vector = new mimmo::GenericInputMPVData();
     read_vector->setReadDir(".");
     read_vector->setFilename("vectorOff.csv");
     read_vector->setCSV(true);

@@ -23,29 +23,17 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_iocgns.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
-
 
 // =================================================================================== //
 
 int test1() {
 
-    IOCGNS * cgnsI = new IOCGNS();
-    cgnsI->setMode(IOCGNS::IOCGNS_Mode::READ);
+	mimmo::IOCGNS * cgnsI = new mimmo::IOCGNS();
+    cgnsI->setMode(mimmo::IOCGNS::IOCGNS_Mode::READ);
     cgnsI->setDir("geodata");
     cgnsI->setFilename("grid");
 
     cgnsI->execute();
-
-    // std::cout<<cgnsI->getGeometry()->getPatch()->getVertexCount()<<std::endl;
-    // std::cout<<cgnsI->getSurfaceBoundary()->getPatch()->getVertexCount()<<std::endl;
-    //
-    // std::cout<<cgnsI->getGeometry()->getPatch()->getCellCount()<<std::endl;
-    // std::cout<<cgnsI->getSurfaceBoundary()->getPatch()->getCellCount()<<std::endl;
 
     bool check = true;
     check = check && ( cgnsI->getGeometry()->getPatch()->getVertexCount()== 201306);

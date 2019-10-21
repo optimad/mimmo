@@ -23,10 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_core.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 /*
  * Test 00003
@@ -42,7 +38,7 @@ using namespace mimmo;
  * \param[in,out] mesh pointer to a MimmoObject mesh to fill.
  * \return true if successfully created mesh
  */
-bool createMimmoMesh(MimmoObject * mesh){
+bool createMimmoMesh(mimmo::MimmoObject * mesh){
 
 	double dx = 0.25, dy = 0.25;
 	int nV, nC;
@@ -86,7 +82,6 @@ bool createMimmoMesh(MimmoObject * mesh){
 		}
 	}
 
-
 	mesh->getVertices().reserve(35);
 	mesh->getCells().reserve(48);
 
@@ -104,7 +99,6 @@ bool createMimmoMesh(MimmoObject * mesh){
 		cC++;
 	}
 
-
 	bool check = (mesh->getNCells() == 48) && (mesh->getNVertices() == 35);
 
 	mesh->buildAdjacencies();
@@ -118,9 +112,9 @@ bool createMimmoMesh(MimmoObject * mesh){
  * \param[in] list of cells to extract for target mesh.
  * \return unique_ptr to new mimmoobject mesh
  */
-std::unique_ptr<MimmoObject> createSubMesh(MimmoObject * original, livector1D & list){
+std::unique_ptr<mimmo::MimmoObject> createSubMesh(mimmo::MimmoObject * original, livector1D & list){
 
-	std::unique_ptr<MimmoObject> result(new MimmoObject(original->getType()));
+	std::unique_ptr<mimmo::MimmoObject> result(new mimmo::MimmoObject(original->getType()));
 
 	//fill the mimmoObject;
 	long pid;
@@ -143,13 +137,11 @@ std::unique_ptr<MimmoObject> createSubMesh(MimmoObject * original, livector1D & 
 }
 
 
-
-
 // =================================================================================== //
 
 int test3() {
 
-	MimmoObject * mesh = new MimmoObject();
+	mimmo::MimmoObject * mesh = new mimmo::MimmoObject();
 	livector1D list;
 
 	//create the target mesh;
@@ -164,7 +156,7 @@ int test3() {
 		std::cout<<"Target Mesh written to file original_t3.vtu"<<std::endl;
 	}
 
-	Cylinder * shape = new Cylinder();
+	mimmo::Cylinder * shape = new mimmo::Cylinder();
 	shape->setOrigin({{-0.00001, 0.5,0.0}});
 	shape->setSpan({{0.51, M_PI, 1.2}});
 	shape->setInfLimits({{0.0,-0.5*M_PI, 0.0}});
@@ -186,7 +178,7 @@ int test3() {
 		}
 	}
 
-	std::unique_ptr<MimmoObject> subPatch;
+	std::unique_ptr<mimmo::MimmoObject> subPatch;
 	if(!check){
 		std::cout<<"ERROR.Not able to extract sub-patch included in the cylindrical shape w/ bvTree"<<std::endl;
         delete mesh;

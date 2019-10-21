@@ -23,12 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_utils.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
-
 
 // =================================================================================== //
 /*!
@@ -39,7 +33,7 @@ int test1() {
     dvecarr3E points(1,{{0,1,0}});
     dvecarr3E data(1, {{1,2,3}});
 
-    SpecularPoints * sp = new SpecularPoints();
+    mimmo::SpecularPoints * sp = new mimmo::SpecularPoints();
     sp->setCoords(points);
     sp->setVectorData(data);
     sp->setPlane({{0,0,0}},{{0,1,0}});
@@ -57,8 +51,6 @@ int test1() {
     check  = check && ( std::abs(datas[1][0] - datas[0][0])  < 1.E-18 );
     check  = check && ( std::abs(datas[1][2] - datas[0][2])  < 1.E-18 );
     check  = check && ( std::abs(datas[1][1] + datas[0][1])  < 1.E-18 );
-//     std::cout<<coords[0]<<'\t'<<datas[0]<<std::endl;
-//     std::cout<<coords[1]<<'\t'<<datas[1]<<std::endl;
     std::cout<<"test passed : "<<check<<std::endl;
 
     delete sp;

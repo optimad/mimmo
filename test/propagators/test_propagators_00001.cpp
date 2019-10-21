@@ -23,14 +23,10 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_propagators.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 // =================================================================================== //
 
-std::unique_ptr<MimmoObject> createTestVolumeMesh(std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
+std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
 
     std::array<double,3> center({{0.0,0.0,0.0}});
     double radiusin(2.0), radiusout(5.0);
@@ -57,7 +53,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(std::vector<long> &bcdir1_vert
     }
 
     //create the volume mesh mimmo.
-    std::unique_ptr<MimmoObject> mesh = std::unique_ptr<MimmoObject>(new MimmoObject(2));
+    std::unique_ptr<mimmo::MimmoObject> mesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
     mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
 
     //pump up the vertices
@@ -107,13 +103,13 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(std::vector<long> &bcdir1_vert
 int test1() {
 
     std::vector<long> bc1list, bc2list;
-    std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(bc1list, bc2list);
+    std::unique_ptr<mimmo::MimmoObject> mesh = createTestVolumeMesh(bc1list, bc2list);
 
     livector1D cellInterfaceList1 = mesh->getInterfaceFromVertexList(bc1list, true, true);
     livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list, true, true);
 
     //create the portion of boundary mesh carrying Dirichlet conditions
-    std::unique_ptr<MimmoObject> bdirMesh = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+    std::unique_ptr<mimmo::MimmoObject> bdirMesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
     bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
     bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
 
@@ -142,9 +138,9 @@ int test1() {
 
 //TESTING THE SCALAR PROPAGATOR //////
     // and the scalar field of Dirichlet values on its nodes.
-    MimmoPiercedVector<double> bc_surf_field;
+    mimmo::MimmoPiercedVector<double> bc_surf_field;
     bc_surf_field.setGeometry(bdirMesh.get());
-    bc_surf_field.setDataLocation(MPVLocation::POINT);
+    bc_surf_field.setDataLocation(mimmo::MPVLocation::POINT);
     bc_surf_field.reserve(bdirMesh->getNVertices());
     for(auto & val : bc1list){
         bc_surf_field.insert(val, 10.0);
@@ -153,9 +149,8 @@ int test1() {
         bc_surf_field.insert(val, 0.0);
     }
 
-
     // Now create a PropagateScalarField and solve the laplacian.
-    PropagateScalarField * prop = new PropagateScalarField();
+    mimmo::PropagateScalarField * prop = new mimmo::PropagateScalarField();
     prop->setName("test00001_PropagateScalarField");
     prop->setGeometry(mesh.get());
     prop->setDirichletBoundarySurface(bdirMesh.get());
@@ -169,12 +164,11 @@ int test1() {
 
     check = check || (std::abs(values->at(targetNode)-5.0) > 1.0E-6);
 
-
 //TESTING THE VECTOR PROPAGATOR //////
     // and the scalar field of Dirichlet values on its nodes.
-    MimmoPiercedVector<std::array<double,3>> bc_surf_3Dfield;
+    mimmo::MimmoPiercedVector<std::array<double,3>> bc_surf_3Dfield;
     bc_surf_3Dfield.setGeometry(bdirMesh.get());
-    bc_surf_3Dfield.setDataLocation(MPVLocation::POINT);
+    bc_surf_3Dfield.setDataLocation(mimmo::MPVLocation::POINT);
     bc_surf_3Dfield.reserve(bdirMesh->getNVertices());
     for(auto & val : bc1list){
         bc_surf_3Dfield.insert(val, {{10.0, 7.0, -4.0}});
@@ -184,7 +178,7 @@ int test1() {
     }
 
     // Now create a PropagateScalarField and solve the laplacian.
-    PropagateVectorField * prop3D = new PropagateVectorField();
+    mimmo::PropagateVectorField * prop3D = new mimmo::PropagateVectorField();
     prop3D->setName("test00001_PropagateVectorField");
     prop3D->setGeometry(mesh.get());
     prop3D->setDirichletBoundarySurface(bdirMesh.get());
@@ -201,7 +195,6 @@ int test1() {
 
     auto values3D = prop3D->getPropagatedField();
     check = check || (norm2(values3D->at(targetNode)-std::array<double,3>({{5.0,3.5,-2.0}})) > 1.0E-6);
-
 
     delete prop3D;
     delete prop;

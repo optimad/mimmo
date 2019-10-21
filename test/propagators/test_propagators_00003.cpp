@@ -23,14 +23,10 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_propagators.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 // =================================================================================== //
 
-std::unique_ptr<MimmoObject> createTestVolumeMesh(std::unique_ptr<MimmoObject> & boundary){
+std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::unique_ptr<mimmo::MimmoObject> & boundary){
 
     std::array<double,3> center({{0.0,0.0,0.0}});
     double radiusin(2.0), radiusout(5.0);
@@ -57,7 +53,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(std::unique_ptr<MimmoObject> &
     }
 
     //create the volume mesh mimmo.
-    std::unique_ptr<MimmoObject> mesh = std::unique_ptr<MimmoObject>(new MimmoObject(2));
+    std::unique_ptr<mimmo::MimmoObject> mesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
     mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
 
     //pump up the vertices
@@ -115,7 +111,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(std::unique_ptr<MimmoObject> &
     }
 
     //put together
-    MimmoPiercedVector<long> pidfaces;
+    mimmo::MimmoPiercedVector<long> pidfaces;
     long pidder = 1;
     for(livector1D & vert : bverts ){
         livector1D boundaryfaces = mesh->getInterfaceFromVertexList(vert, true, true);
@@ -131,7 +127,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(std::unique_ptr<MimmoObject> &
     auto orinterfaces = mesh->getInterfaces();
     auto orcells = mesh->getCells();
 
-    boundary = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+    boundary = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
     boundary->getPatch()->reserveVertices(boundaryverts.size());
     boundary->getPatch()->reserveCells(pidfaces.size());
 
@@ -157,13 +153,13 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(std::unique_ptr<MimmoObject> &
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-std::unique_ptr<MimmoObject> pidExtractor(MimmoObject* boundary, const livector1D & pids){
+std::unique_ptr<mimmo::MimmoObject> pidExtractor(mimmo::MimmoObject* boundary, const livector1D & pids){
     if(!boundary) return nullptr;
 
     livector1D cellsID = boundary->extractPIDCells(pids);
     livector1D vertID = boundary->getVertexFromCellList(cellsID);
 
-    std::unique_ptr<MimmoObject> extracted(new MimmoObject(1));
+    std::unique_ptr<mimmo::MimmoObject> extracted(new mimmo::MimmoObject(1));
     extracted->getPatch()->reserveVertices(vertID.size());
     extracted->getPatch()->reserveCells(cellsID.size());
 
@@ -181,18 +177,17 @@ std::unique_ptr<MimmoObject> pidExtractor(MimmoObject* boundary, const livector1
 
 int test1() {
 
-    std::unique_ptr<MimmoObject> bDirMesh;
-    std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(bDirMesh);
+    std::unique_ptr<mimmo::MimmoObject> bDirMesh;
+    std::unique_ptr<mimmo::MimmoObject> mesh = createTestVolumeMesh(bDirMesh);
 
-
-    std::unique_ptr<MimmoObject> bDIR = pidExtractor(bDirMesh.get(), {{1,2}});
-    std::unique_ptr<MimmoObject> bSLIP = pidExtractor(bDirMesh.get(), {{5,6}});
+    std::unique_ptr<mimmo::MimmoObject> bDIR = pidExtractor(bDirMesh.get(), {{1,2}});
+    std::unique_ptr<mimmo::MimmoObject> bSLIP = pidExtractor(bDirMesh.get(), {{5,6}});
 
 //TESTING THE VECTOR PROPAGATOR //////
     // and the scalar field of Dirichlet values on pidded surface 0 and 1 nodes.
-    MimmoPiercedVector<std::array<double,3>> bc_surf_3Dfield;
+    mimmo::MimmoPiercedVector<std::array<double,3>> bc_surf_3Dfield;
     bc_surf_3Dfield.setGeometry(bDIR.get());
-    bc_surf_3Dfield.setDataLocation(MPVLocation::POINT);
+    bc_surf_3Dfield.setDataLocation(mimmo::MPVLocation::POINT);
     bc_surf_3Dfield.reserve(bDIR->getNVertices());
 
     std::vector<long> d1 = bDIR->getVertexFromCellList(bDIR->extractPIDCells(1));
@@ -215,7 +210,7 @@ int test1() {
     }
 
     // Now create a PropagateScalarField and solve the laplacian.
-    PropagateVectorField * prop3D = new PropagateVectorField();
+    mimmo::PropagateVectorField * prop3D = new mimmo::PropagateVectorField();
     prop3D->setName("test00003_PropagateVectorField");
     prop3D->setGeometry(mesh.get());
     prop3D->setDirichletBoundarySurface(bDIR.get());
@@ -223,7 +218,7 @@ int test1() {
     prop3D->setSlipBoundarySurface(bSLIP.get());
     prop3D->setSlipReferenceSurface(bSLIP.get());
 
-    prop3D->setMethod(PropagatorMethod::GRAPHLAPLACE);
+    prop3D->setMethod(mimmo::PropagatorMethod::GRAPHLAPLACE);
 
     prop3D->setDumping(true);
     prop3D->setDumpingType(0);
@@ -238,7 +233,7 @@ int test1() {
     prop3D->exec();
 
     //deform the mesh and write deformation
-    dmpvecarr3E * values3D = prop3D->getPropagatedField();
+    mimmo::dmpvecarr3E * values3D = prop3D->getPropagatedField();
     darray3E work;
     for(auto it=values3D->begin(); it!=values3D->end(); ++it){
         work = mesh->getVertexCoords(it.getId());
@@ -247,7 +242,6 @@ int test1() {
 
     mesh->getPatch()->write("test00003_deformedMesh");
 
-
     bool check = false;
     long targetNode =  (10 +1)*(6+1)*3 + (6+1)*5 + 3;
 
@@ -255,7 +249,6 @@ int test1() {
 
 //    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.206202, -0.0621586, 4.61279e-17}})) > 1.0E-5);
     check = false;
-
 
     delete prop3D;
     return check;

@@ -23,12 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_iogeneric.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
-
 
 // =================================================================================== //
 /*!
@@ -36,7 +30,7 @@ using namespace mimmo;
  */
 int test3() {
 
-    GenericDispls * ginput = new GenericDispls();
+	mimmo::GenericDispls * ginput = new mimmo::GenericDispls();
     ginput->setReadDir("input");
     ginput->setReadFilename("generic_displ_00001.txt");
     ginput->exec();

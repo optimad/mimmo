@@ -23,11 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_common.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
 
 class BaseClass {
 protected:
@@ -57,12 +52,12 @@ REGISTER(BaseClass, DerivedClass, "DerivedObject");
 int test1() {
 
 
-	auto & factory = Factory<BaseClass>::instance();
+	auto & factory = mimmo::Factory<BaseClass>::instance();
 	std::string name = "DerivedObject";
 
 	if(factory.containsCreator(name)){
 		std::cout<<"Found instantiable object "<<name<<std::endl;
-		std::unique_ptr<BaseClass> obj(factory.create(name, config::root));
+		std::unique_ptr<BaseClass> obj(factory.create(name, bitpit::config::root));
 		if(obj->whoAmI() == "DerivedClass"){
 			std::cout<<"Correctly instantiated object of type "<<obj->whoAmI()<<std::endl;
 			return 0;

@@ -23,12 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_iogeneric.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
-
 
 // =================================================================================== //
 /*!
@@ -36,7 +30,7 @@ using namespace mimmo;
  */
 int test1() {
 
-    MimmoGeometry * reader = new MimmoGeometry();
+	mimmo::MimmoGeometry * reader = new mimmo::MimmoGeometry();
     reader->setIOMode(IOMode::READ);
     reader->setReadDir("geodata");
     reader->setReadFilename("curve");
@@ -48,7 +42,7 @@ int test1() {
     check = check && reader->getGeometry()->getPatch()->getVertexCount() == 414;
     std::cout<<"test1 passed :"<<check<<std::endl;
 
-    MimmoGeometry * writer = new MimmoGeometry();
+    mimmo::MimmoGeometry * writer = new mimmo::MimmoGeometry();
     writer->setGeometry(reader->getGeometry());
     writer->setIOMode(IOMode::WRITE);
     writer->setWriteDir(".");

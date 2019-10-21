@@ -23,10 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_propagators.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 // =================================================================================== //
 /*!
@@ -34,7 +30,7 @@ using namespace mimmo;
  * \param[out]boundary layer surface grid pidded in 3, 0 front face prismatic, 1 back bulk bar faces, 2 other.
  * \return the volume grid
  */
-std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> &boundary)
+std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh( std::unique_ptr<mimmo::MimmoObject> &boundary)
 {
 
     std::array<double, 3> origin({{0.0,0.0,0.0}});
@@ -75,7 +71,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
     }
 
     //create the volume mesh mimmo.
-    std::unique_ptr<MimmoObject> mesh = std::unique_ptr<MimmoObject>(new MimmoObject(2));
+    std::unique_ptr<mimmo::MimmoObject> mesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
     mesh->getPatch()->reserveVertices(counter);
 
     //pump up the vertices
@@ -194,7 +190,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
     livector1D boundary2faces = mesh->getInterfaceFromVertexList(boundary2verts, true, true);
 
     //put together
-    MimmoPiercedVector<long> pidfaces;
+    mimmo::MimmoPiercedVector<long> pidfaces;
     pidfaces.reserve(boundary1faces.size()+boundary2faces.size());
     for(long id : boundary1faces){
         pidfaces.insert(id,0);
@@ -210,7 +206,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
     auto orinterfaces = mesh->getInterfaces();
     auto orcells = mesh->getCells();
 
-    boundary = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+    boundary = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
     boundary->getPatch()->reserveVertices(boundaryverts.size());
     boundary->getPatch()->reserveCells(pidfaces.size());
 
@@ -231,32 +227,6 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
     }
     boundary->buildAdjacencies();
 
-    //DEBUG
-    // std::unique_ptr<MimmoObject> pippo = std::unique_ptr<MimmoObject>(new MimmoObject(1));
-    // livector1D allinterf = mesh->getInterfaceFromVertexList(borderverts, true, true);
-    // pippo->getPatch()->reserveVertices(borderverts.size());
-    // pippo->getPatch()->reserveCells(allinterf.size());
-    //
-    // for(long id: borderverts){
-    //     pippo->addVertex(mesh->getVertexCoords(id), id);
-    // }
-    // dvecarr3E normals;
-    // normals.reserve(allinterf.size());
-    //
-    // for(long id: allinterf){
-    //     normals.push_back(mesh->evalInterfaceNormal(id));
-    //     bitpit::Interface & ii = orinterfaces.at(id);
-    //     long * conn = ii.getConnect();
-    //     std::size_t connsize = ii.getConnectSize();
-    //
-    //     bitpit::ElementType et = orcells.at(ii.getOwner()).getFaceType(ii.getOwnerFace());
-    //
-    //     pippo->addConnectedCell(std::vector<long>(&conn[0], &conn[connsize]), et);
-    // }
-    //
-    // pippo->getPatch()->getVTK().addData("normals", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::CELL, normals);
-    // pippo->getPatch()->write("interfacenormal");
-
     return mesh;
 }
 
@@ -265,18 +235,17 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh( std::unique_ptr<MimmoObject> 
 
 int test1() {
 
-    std::unique_ptr<MimmoObject> boundary;
-    std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(boundary);
-
+    std::unique_ptr<mimmo::MimmoObject> boundary;
+    std::unique_ptr<mimmo::MimmoObject> mesh = createTestVolumeMesh(boundary);
 
     bool check = false;
     long targetNode =  (11*11)*25 + (11)*5 + 5;
 
 //TESTING THE SCALAR PROPAGATOR //////
     // and the scalar field of Dirichlet values on its nodes.
-    MimmoPiercedVector<double> bc_surf_field;
+    mimmo::MimmoPiercedVector<double> bc_surf_field;
     bc_surf_field.setGeometry(boundary.get());
-    bc_surf_field.setDataLocation(MPVLocation::POINT);
+    bc_surf_field.setDataLocation(mimmo::MPVLocation::POINT);
     bc_surf_field.reserve(boundary->getNVertices());
     for(long val : boundary->getVertices().getIds()){
         bc_surf_field.insert(val, 0.0);
@@ -287,20 +256,16 @@ int test1() {
     for(long id : listPP){
         bc_surf_field.at(id) = 10.0;
     }
-    // dvector1D data = bc_surf_field.getDataAsVector();
-    // boundary->getPatch()->getVTK().addData("dirichlet", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, data);
-    // boundary->getPatch()->write("boundary");
-    // boundary->getPatch()->getVTK().removeData("dirichlet");
-    //
+
     // Now create a PropagateScalarField and solve the laplacian.
-    PropagateScalarField * prop = new PropagateScalarField();
+    mimmo::PropagateScalarField * prop = new mimmo::PropagateScalarField();
     prop->setName("test00002_PropagateScalarField");
     prop->setGeometry(mesh.get());
     prop->setDirichletBoundarySurface(boundary.get());
     prop->setDirichletConditions(&bc_surf_field);
     prop->setDumping(false);
     prop->setPlotInExecution(true);
-    prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
+    prop->setMethod(mimmo::PropagatorMethod::GRAPHLAPLACE);
     prop->setSolverMultiStep(4);
     prop->exec();
 

@@ -23,12 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_manipulators.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
-
 
 // =================================================================================== //
 /*!
@@ -38,7 +32,7 @@ using namespace mimmo;
 int test2() {
 
     //create a mimmoobject containing a single triangle.
-    MimmoObject * mesh = new MimmoObject(1);
+	mimmo::MimmoObject * mesh = new mimmo::MimmoObject(1);
     dvecarr3E p(3, {{0.0,0.0,0.0}});
     livector1D conn(3,0);
 
@@ -55,8 +49,7 @@ int test2() {
     mesh->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
 //     mesh->getPatch()->write("undeformed");
 
-    double area     = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);
-
+    double area     = (static_cast<bitpit::SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);
 
     dvecarr3E rbfpoints, rbfdispls;
     rbfpoints.push_back(p[1]);
@@ -64,24 +57,22 @@ int test2() {
     rbfdispls.push_back({{1.0,0.0,0.0}});
     rbfdispls.push_back({{0.0,1.0,0.0}});
 
-    MRBF * mrbf = new MRBF();
+    mimmo::MRBF * mrbf = new mimmo::MRBF();
     mrbf->setGeometry(mesh);
     mrbf->setNode(rbfpoints);
     mrbf->setDisplacements(rbfdispls);
     mrbf->setSupportRadiusValue(0.3);
     mrbf->exec();
 
-
-    Apply * applier = new Apply();
+    mimmo::Apply * applier = new mimmo::Apply();
     applier->setGeometry(mesh);
     applier->setInput(mrbf->getDisplacements());
 
     applier->exec();
 
     //recover normal of the triangle rotated, and area of the scaled;
-    double area2     = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);
+    double area2     = (static_cast<bitpit::SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);
 
-//     mesh->getPatch()->write("deformed");
     //check phase
     bool check = ( (std::abs(area/area2) - 0.25) <= 1.e-18);
 

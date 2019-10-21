@@ -23,10 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_core.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 /*
  * Test 00002
@@ -42,7 +38,7 @@ using namespace mimmo;
  * \param[in,out] list of cells pidded w 1 to create M.
  * \return true if successfully created mesh
  */
-bool createMimmoMesh(MimmoObject * mesh, livector1D & list){
+bool createMimmoMesh(mimmo::MimmoObject * mesh, livector1D & list){
 
 	double dx = 0.25, dy = 0.25;
 	int nV, nC;
@@ -133,9 +129,9 @@ bool createMimmoMesh(MimmoObject * mesh, livector1D & list){
  * \param[in] list of cells to extract for target mesh.
  * \return unique_ptr to new mimmoobject mesh
  */
-std::unique_ptr<MimmoObject> createSubMesh(MimmoObject * original, livector1D & list){
+std::unique_ptr<mimmo::MimmoObject> createSubMesh(mimmo::MimmoObject * original, livector1D & list){
 
-	std::unique_ptr<MimmoObject> result(new MimmoObject(original->getType()));
+	std::unique_ptr<mimmo::MimmoObject> result(new mimmo::MimmoObject(original->getType()));
 
 	//fill the mimmoObject;
 	long pid;
@@ -164,7 +160,7 @@ std::unique_ptr<MimmoObject> createSubMesh(MimmoObject * original, livector1D & 
 
 int test2() {
 
-	MimmoObject * mesh = new MimmoObject();
+	mimmo::MimmoObject * mesh = new mimmo::MimmoObject();
 	livector1D list;
 
 	//create the target mesh;
@@ -195,7 +191,7 @@ int test2() {
 		}
 	}
 
-	std::unique_ptr<MimmoObject> subPatch;
+	std::unique_ptr<mimmo::MimmoObject> subPatch;
 	if(!check){
 		std::cout<<"ERROR.Not able to extract sub-patch of MimmoObject mesh"<<std::endl;
         delete mesh;
@@ -239,7 +235,7 @@ int test2() {
 	}
 
 
-	std::unique_ptr<MimmoObject> mesh_2 =mesh->clone();
+	std::unique_ptr<mimmo::MimmoObject> mesh_2 =mesh->clone();
 
     if(mesh_2->getNCells() != mesh->getNCells() && mesh_2->getPatch()==mesh->getPatch()){
         delete mesh;
@@ -249,14 +245,14 @@ int test2() {
     mesh_2->getPatch()->write("clone");
 
     //testing dump and restore
-    string Fname = ("./dump.geomimmo");
+    std::string Fname = ("./dump.geomimmo");
     std::filebuf buffer;
     std::ostream out(&buffer);
     buffer.open(Fname, std::ios::out | std::ios::binary);
     mesh->dump(out);
     buffer.close();
 
-    MimmoObject * mesh_4 = new MimmoObject();
+    mimmo::MimmoObject * mesh_4 = new mimmo::MimmoObject();
     std::filebuf buffer2;
     std::istream in(&buffer2);
     buffer2.open(Fname, std::ios::in | std::ios::binary);
@@ -282,7 +278,6 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-
 
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);

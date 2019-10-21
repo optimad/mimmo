@@ -23,12 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_geohandlers.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
-
 
 // =================================================================================== //
 /*!
@@ -37,9 +31,9 @@ using namespace mimmo;
 int test1() {
 
     //define 3 single triangle mesh
-    MimmoObject * m1 = new MimmoObject(1);
-    MimmoObject * m2 = new MimmoObject(1);
-    MimmoObject * m3 = new MimmoObject(1);
+	mimmo::MimmoObject * m1 = new mimmo::MimmoObject(1);
+	mimmo::MimmoObject * m2 = new mimmo::MimmoObject(1);
+	mimmo::MimmoObject * m3 = new mimmo::MimmoObject(1);
 
     dvecarr3E points(5, {{0.0,0.0,0.0}});
     points[1] = {{1.0,0.0,0.0}};
@@ -70,9 +64,9 @@ int test1() {
 
 
     //stitch geometries
-    StitchGeometry * stitch1 = new StitchGeometry(1);
+    mimmo::StitchGeometry * stitch1 = new mimmo::StitchGeometry(1);
     stitch1->forceRePID(true);
-    StitchGeometry * stitch2 = new StitchGeometry(1);
+    mimmo::StitchGeometry * stitch2 = new mimmo::StitchGeometry(1);
 
     stitch1->addGeometry(m1);
     stitch1->addGeometry(m2);

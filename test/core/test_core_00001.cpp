@@ -23,19 +23,13 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_core.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 /*
  * Test 00001
  * Testing Executable blocks infrastructure: BaseManipulation - Pins - Chain execution
  */
 
-
-
-class ManipA: public BaseManipulation{
+class ManipA: public mimmo::BaseManipulation{
 public:
 	int m_member;
 	dvecarr3E m_coords;
@@ -48,8 +42,8 @@ public:
 	void buildPorts(){
 
         //Register ports
-        PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT,"test_core_00001.cpp");
-        PortManager::instance().addPort("M_MYPERSONALFIELD", MC_VECTOR, MD_FLOAT,"test_core_00001.cpp");
+		mimmo::PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT,"test_core_00001.cpp");
+		mimmo::PortManager::instance().addPort("M_MYPERSONALFIELD", MC_VECTOR, MD_FLOAT,"test_core_00001.cpp");
         bool built = true;
 		built = built && createPortOut<dvecarr3E, ManipA>(this, &ManipA::getCoords, M_COORDS);
 		built = built && createPortOut<dvector1D, ManipA>(this, &ManipA::getField, "M_MYPERSONALFIELD");
@@ -59,7 +53,7 @@ public:
 
 };
 
-class ManipB: public BaseManipulation{
+class ManipB: public mimmo::BaseManipulation{
 public:
 	int m_member;
 	dvecarr3E m_coords;
@@ -72,8 +66,8 @@ public:
 	void buildPorts(){
 
         //Register ports
-        PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT,"test_core_00001.cpp");
-        PortManager::instance().addPort("M_MYSCALARFIELD", MC_VECTOR, MD_FLOAT,"test_core_00001.cpp");
+		mimmo::PortManager::instance().addPort(M_COORDS, MC_VECARR3, MD_FLOAT,"test_core_00001.cpp");
+		mimmo::PortManager::instance().addPort("M_MYSCALARFIELD", MC_VECTOR, MD_FLOAT,"test_core_00001.cpp");
 
 		bool built = true;
 		built = built && createPortIn<dvecarr3E, ManipB>(this, &ManipB::setCoords, M_COORDS);
@@ -109,8 +103,8 @@ int test1() {
 	objA->m_coords = points;
 	objA->m_field = field;
 
-	checkPin = checkPin && pin::addPin(objA, objB, M_COORDS, M_COORDS);
-    checkPin = checkPin && pin::addPin(objA, objB, "M_MYPERSONALFIELD", "M_MYSCALARFIELD");
+	checkPin = checkPin && mimmo::pin::addPin(objA, objB, M_COORDS, M_COORDS);
+    checkPin = checkPin && mimmo::pin::addPin(objA, objB, "M_MYPERSONALFIELD", "M_MYSCALARFIELD");
 
 	if(!checkPin){
 		std::cout<<"Failed getting connections"<<std::endl;
@@ -123,7 +117,7 @@ int test1() {
 
 	//testing chain & execution
 
-	Chain * c0 = new Chain();
+	mimmo::Chain * c0 = new mimmo::Chain();
 	c0->addObject(objB);
 	c0->addObject(objA);
 
@@ -138,7 +132,7 @@ int test1() {
 	checkExec = checkExec && ((int)objB->m_coords.size() == sC);
 
     {
-        std::unique_ptr<Chain> chain2 = c0->clone();
+        std::unique_ptr<mimmo::Chain> chain2 = c0->clone();
         checkExec = checkExec && (chain2->getNObjects() == c0->getNObjects());
         checkExec = checkExec && (c0->getID() != chain2->getNObjects());
     }
@@ -166,7 +160,6 @@ int main( int argc, char *argv[] ) {
 
 	BITPIT_UNUSED(argc);
 	BITPIT_UNUSED(argv);
-
 
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);

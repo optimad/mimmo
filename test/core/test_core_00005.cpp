@@ -23,10 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_core.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 /*
  * Test 00005
@@ -37,14 +33,14 @@ using namespace mimmo;
 
 int test5() {
 
-	MimmoPiercedVector<double> mpv1;
-	MimmoObject * obj = new MimmoObject();
+	mimmo::MimmoPiercedVector<double> mpv1;
+	mimmo::MimmoObject * obj = new mimmo::MimmoObject();
 
 	mpv1.insert(13, 1.234);
 	mpv1.insert(18, -2.0);
     mpv1.setGeometry(obj);
-	MimmoPiercedVector<double> mpv2(mpv1);
-	MimmoPiercedVector<double> mpv3 = mpv1;
+    mimmo::MimmoPiercedVector<double> mpv2(mpv1);
+    mimmo::MimmoPiercedVector<double> mpv3 = mpv1;
 
 	bool check = mpv2.exists(13) && mpv2.exists(18);
 	check = check && (mpv3.exists(13) && mpv3.exists(18));
@@ -69,7 +65,7 @@ int test5() {
 	}
 
     //check the squeezeOutExcept method with order inside it.
-    MimmoPiercedVector<long> mpv4;
+	mimmo::MimmoPiercedVector<long> mpv4;
     mpv4.setGeometry(obj);
 
     mpv4.insert(0, 13);

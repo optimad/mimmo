@@ -23,10 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_core.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 /*
  * Test 00004
@@ -37,8 +33,8 @@ using namespace mimmo;
 
 int test4() {
 
-	Lattice * mesh = new Lattice();
-	mesh->setShape(ShapeType::CUBE);
+	mimmo::Lattice * mesh = new mimmo::Lattice();
+	mesh->setShape(mimmo::ShapeType::CUBE);
 	mesh->setOrigin({{0.5,0.5,0.5}});
 	mesh->setSpan(1.0,1.0,1.0);
 	iarray3E dim = {{3,2,3}};
@@ -78,8 +74,8 @@ int test4() {
 
 	delete mesh;
 
-    Lattice * mesh2 = new Lattice();
-    mesh2->setShape(ShapeType::CYLINDER);
+	mimmo::Lattice * mesh2 = new mimmo::Lattice();
+    mesh2->setShape(mimmo::ShapeType::CYLINDER);
     mesh2->setOrigin({{-1920.0, 0.0, 0.0}});
     mesh2->setSpan({{560.0, 6.28, 310.0}});
     mesh2->setInfLimits({{220.0, 0.0, 0.0}});
@@ -97,8 +93,8 @@ int test4() {
 
 int test5() {
 
-    Lattice * mesh = new Lattice();
-    mesh->setShape(ShapeType::WEDGE);
+	mimmo::Lattice * mesh = new mimmo::Lattice();
+    mesh->setShape(mimmo::ShapeType::WEDGE);
     mesh->setOrigin({{0.0,0.0,1.5}});
     mesh->setSpan(1.2,0.5,3.0);
     iarray3E dim = {{2,2,2}};

@@ -23,12 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_manipulators.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
-
 
 // =================================================================================== //
 /*!
@@ -38,7 +32,7 @@ using namespace mimmo;
 int test3() {
 
     //create a mimmoobject containing a single triangle.
-    MimmoObject * mesh = new MimmoObject(1);
+	mimmo::MimmoObject * mesh = new mimmo::MimmoObject(1);
     dvecarr3E p(3, {{0.0,0.0,0.0}});
     livector1D conn(3,0);
 
@@ -53,10 +47,9 @@ int test3() {
         ++counter;
     }
     mesh->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, 0, 0);
-//     mesh->getPatch()->write("undeformed");
 
     //recover normal of the triangle, and area;
-    darray3E normal = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
+    darray3E normal = (static_cast<bitpit::SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
     darray3E bbmin, bbmax;
     mesh->getBoundingBox(bbmin, bbmax);
 
@@ -79,25 +72,22 @@ int test3() {
     displ[6][2] = zdispl;
     displ[7][2] = zdispl;
 
-
-    FFDLattice * latt = new FFDLattice();
+    mimmo::FFDLattice * latt = new mimmo::FFDLattice();
     latt->setGeometry(mesh);
     latt->setShape(mimmo::ShapeType::CUBE);
     latt->setOrigin(origin);
     latt->setSpan(span);
     latt->setDimension(ivector1D(3,2));
     latt->setDisplacements(displ);
-//     latt->setPlotInExecution(true);
     latt->exec();
 
-    Apply * applier = new Apply();
+    mimmo::Apply * applier = new mimmo::Apply();
     applier->setGeometry(mesh);
     applier->setInput(latt->getDeformation());
     applier->exec();
 
-//     mesh->getPatch()->write("deformed");
     //recover normal of the triangle rotated, and area of the scaled;
-    darray3E normal2 = (static_cast<SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
+    darray3E normal2 = (static_cast<bitpit::SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
 
     //check phase
     bool check =( (std::abs(std::acos(dotProduct(normal2,normal))) - M_PI/3.0) <= 1.E-18);
