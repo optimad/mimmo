@@ -23,12 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_iogeneric.hpp"
-#include "bitpit.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-
 
 /*!
  * \example genericinput_example_00001.cpp
@@ -44,13 +38,12 @@ using namespace mimmo;
 
 // =================================================================================== //
 
-
 void test00001() {
 
     /* Creation of Generic output block to read a set of
      * coordinates of cloud points as generic input in csv format.
      */
-    GenericInput * read = new GenericInput(true, true);
+	mimmo::GenericInput * read = new mimmo::GenericInput(true, true);
     read->setReadFromFile(true);
     read->setReadDir("input");
     read->setFilename("generic_input_00001.csv");
@@ -59,17 +52,17 @@ void test00001() {
     /* Creation of Generic output block to write a set of
      * coordinates of cloud points as generic output in csv format.
      */
-    GenericOutput * write = new GenericOutput();
+    mimmo::GenericOutput * write = new mimmo::GenericOutput();
     write->setFilename("generic_output_00001.csv");
     write->setCSV(true);
 
     /* Setup pin connections.
      */
-    pin::addPin(read, write, M_COORDS, M_COORDS);
+    mimmo::pin::addPin(read, write, M_COORDS, M_COORDS);
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(read);
     ch0.addObject(write);
 

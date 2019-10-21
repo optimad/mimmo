@@ -22,11 +22,8 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
 #include "mimmo_geohandlers.hpp"
-#include <exception>
 
-using namespace mimmo;
 // =================================================================================== //
 /*!
 	\example geohandlers_example_00004.cpp
@@ -49,9 +46,9 @@ using namespace mimmo;
  *
  * \return unique ptr to the polygonal surface mesh
  */
-std::unique_ptr<MimmoObject> createMIOMesh(){
+std::unique_ptr<mimmo::MimmoObject> createMIOMesh(){
 
-    std::unique_ptr<MimmoObject> mesh(new MimmoObject(1));
+    std::unique_ptr<mimmo::MimmoObject> mesh(new mimmo::MimmoObject(1));
     //create the vertices set.
     mesh->addVertex({{0.0,0.0,0.0}}, 0);
     mesh->addVertex({{0.0,1.0,0.0}}, 1);
@@ -112,13 +109,14 @@ std::unique_ptr<MimmoObject> createMIOMesh(){
 void test00001() {
 
     //create a surface polygonal mesh with texture MIO pidded as PID=1
-    std::unique_ptr<MimmoObject> geo = createMIOMesh();
+    std::unique_ptr<mimmo::MimmoObject> geo = createMIOMesh();
 
-    setExpertMode(true);
+    mimmo::setExpertMode(true);
+
     /*
      * extract texture MIO with SelectionByPID
      */
-    std::unique_ptr<SelectionByPID> sel(new SelectionByPID());
+    std::unique_ptr<mimmo::SelectionByPID> sel(new mimmo::SelectionByPID());
     sel->setName("PIDExtraction");
     sel->setGeometry(geo.get());
     sel->setPID(1);
@@ -128,7 +126,7 @@ void test00001() {
     /*
      * isolate M from MIO using a plane clipping
      */
-    std::unique_ptr<ClipGeometry> clip(new ClipGeometry());
+    std::unique_ptr<mimmo::ClipGeometry> clip(new mimmo::ClipGeometry());
     clip->setName("PlaneClipping");
     clip->setOrigin({{1.1,0.0,0.0}});
     clip->setNormal({{1.0,0.0,0.0}});
@@ -138,19 +136,19 @@ void test00001() {
     /*
      * triangulate the M polygonal tessellation
      */
-    std::unique_ptr<SurfaceTriangulator> triang(new SurfaceTriangulator());
+    std::unique_ptr<mimmo::SurfaceTriangulator> triang(new mimmo::SurfaceTriangulator());
     triang->setName("TriangulateSurface");
     triang->setPlotInExecution(true);
 
 
     /* Setup pin connections.
      */
-    pin::addPin(sel.get(), clip.get(), M_GEOM, M_GEOM);
-    pin::addPin(clip.get(), triang.get(), M_GEOM, M_GEOM);
+    mimmo::pin::addPin(sel.get(), clip.get(), M_GEOM, M_GEOM);
+    mimmo::pin::addPin(clip.get(), triang.get(), M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(sel.get());
     ch0.addObject(clip.get());
     ch0.addObject(triang.get());
@@ -159,7 +157,6 @@ void test00001() {
      * Use debug flag true to to print out the execution steps.
      */
     ch0.exec(true);
-
 
 	return;
 }

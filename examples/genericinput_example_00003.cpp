@@ -24,9 +24,6 @@
 
 #include "mimmo_iogeneric.hpp"
 #include "FFDLattice.hpp"
-#include <exception>
-using namespace mimmo;
-
 
 /*!
  * \example genericinput_example_00003.cpp
@@ -47,7 +44,7 @@ void test00003() {
 
     /* Reading plane
      */
-    MimmoGeometry * read = new MimmoGeometry();
+	mimmo::MimmoGeometry * read = new mimmo::MimmoGeometry();
     read->setIOMode(IOMode::CONVERT);
     read->setReadDir("geodata");
     read->setReadFilename("plane4");
@@ -59,9 +56,9 @@ void test00003() {
     /*!Creating Bezier FFD Lattice 3x2x2 around a box centered in 0,0,-0.5
      with span 2,2,1
     */
-    FFDLattice * latt = new FFDLattice();
+    mimmo::FFDLattice * latt = new mimmo::FFDLattice();
     latt->setName("genericinput_example_00003_Lattice");
-    latt->setShape(ShapeType::CUBE);
+    latt->setShape(mimmo::ShapeType::CUBE);
     latt->setOrigin({{0.0,0.0,-0.5}});
     latt->setSpan({{2.0,2.0,1.0}});
     latt->setDimension(iarray3E({{3,2,2}}));
@@ -73,18 +70,18 @@ void test00003() {
     /* Creation of GenericDispls block to read
        displacement from file
      */
-    GenericDispls * iodispls = new GenericDispls(true);
+    mimmo::GenericDispls * iodispls = new mimmo::GenericDispls(true);
     iodispls->setReadDir("input");
     iodispls->setReadFilename("generic_displ_00002.txt");
 
     /* Setup pin connections.
      */
-    pin::addPin(read, latt, M_GEOM, M_GEOM);
-    pin::addPin(iodispls, latt, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(read, latt, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(iodispls, latt, M_DISPLS, M_DISPLS);
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(read);
     ch0.addObject(latt);
     ch0.addObject(iodispls);

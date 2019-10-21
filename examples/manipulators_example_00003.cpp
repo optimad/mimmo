@@ -22,15 +22,8 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
-#include "bitpit.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -51,7 +44,7 @@ void test00003() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-    MimmoGeometry * mimmo0 = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
     mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
@@ -60,7 +53,7 @@ void test00003() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("manipulators_output_00003.0000");
 
-    MimmoGeometry * mimmo1 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
     mimmo1->setIOMode(IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
@@ -70,7 +63,7 @@ void test00003() {
      * Setup of span and origin of cylinder.
      * Plot Optional results during execution active for FFD block.
      */
-    FFDLattice* lattice = new FFDLattice();
+    mimmo::FFDLattice* lattice = new mimmo::FFDLattice();
     darray3E origin = {-1537.5, -500.0, 3352.5};
     darray3E span;
     span[0]= 100.0;
@@ -88,7 +81,7 @@ void test00003() {
     deg[1] = 2;
     deg[2] = 10;
 
-    lattice->setLattice(origin,span,ShapeType::CYLINDER,dim, deg);
+    lattice->setLattice(origin,span,mimmo::ShapeType::CYLINDER,dim, deg);
 
     /* Change reference system to work in local cylindrical coordinates.
      */
@@ -132,34 +125,34 @@ void test00003() {
     /* Set Generic input block with the
      * displacements defined above.
      */
-    GenericInput* input = new GenericInput();
+    mimmo::GenericInput* input = new mimmo::GenericInput();
     input->setReadFromFile(false);
     input->setInput(displ);
 
     /* Set Generic output block to write the
      * displacements defined above.
      */
-    GenericOutput * output = new GenericOutput();
+    mimmo::GenericOutput * output = new mimmo::GenericOutput();
     output->setFilename("manipulators_output_00003.csv");
     output->setCSV(true);
 
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
      */
-    Apply* applier = new Apply();
+    mimmo::Apply* applier = new mimmo::Apply();
 
     /* Setup pin connections.
      */
-    pin::addPin(mimmo0, lattice, M_GEOM, M_GEOM);
-    pin::addPin(input, lattice, M_DISPLS, M_DISPLS);
-    pin::addPin(input, output, M_DISPLS, M_DISPLS);
-    pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
-    pin::addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
-    pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, lattice, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(input, lattice, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(input, output, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
+    mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(mimmo0);
     ch0.addObject(input);
     ch0.addObject(output);
@@ -170,11 +163,11 @@ void test00003() {
     /* Execution of chain.
      * Use debug flag false (default) to avoid to to print out the execution steps.
      */
-    cout << " " << endl;
-    cout << " --- execution start --- " << endl;
+    std::cout << " " << std::endl;
+    std::cout << " --- execution start --- " << std::endl;
     ch0.exec();
-    cout << " --- execution done --- " << endl;
-    cout << " " << endl;
+    std::cout << " --- execution done --- " << std::endl;
+    std::cout << " " << std::endl;
 
     /* Clean up & exit;
      */

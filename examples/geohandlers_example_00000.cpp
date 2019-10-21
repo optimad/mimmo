@@ -22,15 +22,7 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
-#include "bitpit.hpp"
 #include "mimmo_geohandlers.hpp"
-#include <exception>
-
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -54,7 +46,7 @@ void test00001() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-    MimmoGeometry * mimmo0 = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
     mimmo0->setName("mimmo0");
     mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("./geodata");
@@ -64,13 +56,13 @@ void test00001() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00000.0000");
 
-    MimmoGeometry * mimmo1 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
     mimmo1->setIOMode(IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("geohandlers_output_00000.0001");
 
-    SelectionByCylinder * sel3 = new SelectionByCylinder();
+    mimmo::SelectionByCylinder * sel3 = new mimmo::SelectionByCylinder();
     sel3->setOrigin({{0.5, 0.0, 0.0}});
     sel3->setSpan({{0.75, 2.0*M_PI, 0.4}});
     sel3->setInfLimits({{0.25, 0.0, 0.0}});
@@ -79,12 +71,12 @@ void test00001() {
 
     /* Setup pin connections.
      */
-    pin::addPin(mimmo0, sel3, M_GEOM, M_GEOM);
-    pin::addPin(sel3, mimmo1, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, sel3, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(sel3, mimmo1, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(mimmo0);
     ch0.addObject(sel3);
     ch0.addObject(mimmo1);

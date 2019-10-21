@@ -26,9 +26,6 @@
 #if MIMMO_ENABLE_MPI
     #include <mimmo_parallel.hpp>
 #endif
-#include <exception>
-
-using namespace mimmo;
 
 /*!
  * \example iocgns_example_00002.cpp
@@ -49,8 +46,8 @@ using namespace mimmo;
 void example00002() {
 
     /* Create IO_CGNS object to import input file. */
-    IOCGNS * cgnsI = new IOCGNS();
-    cgnsI->setMode(IOCGNS::IOCGNS_Mode::READ);
+	mimmo::IOCGNS * cgnsI = new mimmo::IOCGNS();
+    cgnsI->setMode(mimmo::IOCGNS::IOCGNS_Mode::READ);
     cgnsI->setDir("geodata");
     cgnsI->setFilename("grid");
 
@@ -58,12 +55,12 @@ void example00002() {
     /* Instantiation of a Partition object with default patition method space filling curve.
      * Plot Optional results during execution active for Partition block.
      */
-    Partition *partition = new Partition();
+    mimmo::Partition *partition = new mimmo::Partition();
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition->setPlotInExecution(true);
 #endif
 
-    MeshChecker* checkmesh = new MeshChecker();
+    mimmo::MeshChecker* checkmesh = new mimmo::MeshChecker();
     checkmesh->setPlotInExecution(true);
     checkmesh->setMinimumVolumeTolerance(1.0E-1);
     checkmesh->setMaximumVolumeTolerance(1.0E9);
@@ -72,18 +69,17 @@ void example00002() {
     checkmesh->setMinimumFaceValidityTolerance(0.2);
     checkmesh->setMinimumVolumeChangeTolerance(5.0E-2);
 
-
     /* Create PINs. */
 #if MIMMO_ENABLE_MPI
-    pin::addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
-    pin::addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
-    pin::addPin(partition, checkmesh, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
+    mimmo::pin::addPin(partition, checkmesh, M_GEOM, M_GEOM);
 #else
-    pin::addPin(cgnsI, checkmesh, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsI, checkmesh, M_GEOM, M_GEOM)  ;
 #endif
 
     /* Create and execute chain. */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(cgnsI);
 #if MIMMO_ENABLE_MPI
     ch0.addObject(partition);

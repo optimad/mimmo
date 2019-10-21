@@ -22,16 +22,8 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
-#include "bitpit.hpp"
 #include "mimmo_geohandlers.hpp"
 #include "mimmo_manipulators.hpp"
-#include <exception>
-
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -55,7 +47,7 @@ void test00003() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-    MimmoGeometry * mimmo0 = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
     mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
@@ -64,7 +56,7 @@ void test00003() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00003.0000");
 
-    MimmoGeometry * mimmo1 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
     mimmo1->setIOMode(IOMode::CONVERT);
     mimmo1->setReadDir("geodata");
     mimmo1->setReadFileType(FileType::STL);
@@ -73,7 +65,7 @@ void test00003() {
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("geohandlers_output_00003p1.0000");
 
-    MimmoGeometry * mimmo2 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry();
     mimmo2->setIOMode(IOMode::CONVERT);
     mimmo2->setReadDir("geodata");
     mimmo2->setReadFileType(FileType::STL);
@@ -82,19 +74,19 @@ void test00003() {
     mimmo2->setWriteFileType(FileType::STL);
     mimmo2->setWriteFilename("geohandlers_output_00003p2.0000");
 
-    MimmoGeometry * mimmo3 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo3 = new mimmo::MimmoGeometry();
     mimmo3->setIOMode(IOMode::WRITE);
     mimmo3->setWriteDir(".");
     mimmo3->setWriteFileType(FileType::STL);
     mimmo3->setWriteFilename("geohandlers_output_00003.0001");
 
-    MimmoGeometry * mimmo4 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo4 = new mimmo::MimmoGeometry();
     mimmo4->setIOMode(IOMode::WRITE);
     mimmo4->setWriteDir(".");
     mimmo4->setWriteFileType(FileType::STL);
     mimmo4->setWriteFilename("geohandlers_output_00003.0002");
 
-    MimmoGeometry * mimmo5 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo5 = new mimmo::MimmoGeometry();
     mimmo5->setIOMode(IOMode::WRITE);
     mimmo5->setWriteDir(".");
     mimmo5->setWriteFileType(FileType::STL);
@@ -105,8 +97,8 @@ void test00003() {
      * The planes are used as selection objects with an offset
      * defined by the user.
      */
-    SelectionByMapping  * mapSel1 = new SelectionByMapping();
-    SelectionByMapping  * mapSel2 = new SelectionByMapping();
+    mimmo::SelectionByMapping  * mapSel1 = new mimmo::SelectionByMapping();
+    mimmo::SelectionByMapping  * mapSel2 = new mimmo::SelectionByMapping();
     mapSel1->setTolerance(1.0e-01);
     mapSel1->setPlotInExecution(true);
     mapSel2->setTolerance(1.0e-01);
@@ -126,15 +118,15 @@ void test00003() {
      * Set rbf points and displacements defined above.
      * Plot Optional results during execution active for MRBF block.
      */
-    MRBF* mrbf1 = new MRBF();
-    mrbf1->setMode(MRBFSol::NONE);
+    mimmo::MRBF* mrbf1 = new mimmo::MRBF();
+    mrbf1->setMode(mimmo::MRBFSol::NONE);
     mrbf1->setSupportRadius(0.4);
     mrbf1->setPlotInExecution(true);
     mrbf1->setNode(rbfNodes1);
     mrbf1->setDisplacements(displ1);
 
-    MRBF* mrbf2 = new MRBF();
-    mrbf2->setMode(MRBFSol::NONE);
+    mimmo::MRBF* mrbf2 = new mimmo::MRBF();
+    mrbf2->setMode(mimmo::MRBFSol::NONE);
     mrbf2->setSupportRadius(0.4);
     mrbf2->setPlotInExecution(true);
     mrbf2->setNode(rbfNodes2);
@@ -144,71 +136,70 @@ void test00003() {
      * input geometry the displacements fields
      * given by the two rbf blocks on two separate patches.
      */
-    ReconstructVector* recon = new ReconstructVector();
+    mimmo::ReconstructVector* recon = new mimmo::ReconstructVector();
 
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
      */
-    Apply* applier = new Apply();
+    mimmo::Apply* applier = new mimmo::Apply();
 
     /* Create extract vector field block and set to extract by ID over an
      * input geometry the displacements fields
      * given by the two reconstruction block on two unified patches.
      */
-    ExtractVectorField* extr = new ExtractVectorField();
-    extr->setMode(ExtractMode::ID);
+    mimmo::ExtractVectorField* extr = new mimmo::ExtractVectorField();
+    extr->setMode(mimmo::ExtractMode::ID);
 
     /* Create applier extraction block.
      * It applies the extracted deformation displacements
      * to the selected input geometry.
      */
-    Apply* applierextr = new Apply();
+    mimmo::Apply* applierextr = new mimmo::Apply();
 
     /* Create extract vector field block and set to extract by MAPPING over an
      * input geometry the displacements fields
      * given by the two reconstruction block on two unified patches.
      */
-    ExtractVectorField* extr2 = new ExtractVectorField();
-    extr2->setMode(ExtractMode::MAPPING);
+    mimmo::ExtractVectorField* extr2 = new mimmo::ExtractVectorField();
+    extr2->setMode(mimmo::ExtractMode::MAPPING);
     extr2->setTolerance(1.0e-01);
 
     /* Create applier extraction2 block.
      * It applies the extracted deformation displacements
      * to the selected input geometry.
      */
-    Apply* applierextr2 = new Apply();
+    mimmo::Apply* applierextr2 = new mimmo::Apply();
 
     /* Setup pin connections.
      */
-    addPin(mimmo0, mapSel1, M_GEOM, M_GEOM);
-    addPin(mimmo0, mapSel2, M_GEOM, M_GEOM);
-    addPin(mimmo0, applier, M_GEOM, M_GEOM);
-    addPin(mimmo1, mapSel1, M_GEOM, M_GEOM2);
-    addPin(mimmo2, mapSel2, M_GEOM, M_GEOM2);
-    addPin(mapSel1, mrbf1, M_GEOM, M_GEOM);
-    addPin(mapSel2, mrbf2, M_GEOM, M_GEOM);
-    addPin(mimmo0, recon, M_GEOM, M_GEOM);
-    addPin(mrbf1, recon, M_GDISPLS, M_VECTORFIELD);
-    addPin(mrbf2, recon, M_GDISPLS, M_VECTORFIELD);
-    addPin(recon, applier, M_VECTORFIELD, M_GDISPLS);
-    addPin(applier, mimmo3, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, mapSel1, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, mapSel2, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo1, mapSel1, M_GEOM, M_GEOM2);
+    mimmo::pin::addPin(mimmo2, mapSel2, M_GEOM, M_GEOM2);
+    mimmo::pin::addPin(mapSel1, mrbf1, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mapSel2, mrbf2, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, recon, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mrbf1, recon, M_GDISPLS, M_VECTORFIELD);
+    mimmo::pin::addPin(mrbf2, recon, M_GDISPLS, M_VECTORFIELD);
+    mimmo::pin::addPin(recon, applier, M_VECTORFIELD, M_GDISPLS);
+    mimmo::pin::addPin(applier, mimmo3, M_GEOM, M_GEOM);
 
-    addPin(mapSel1, extr, M_GEOM, M_GEOM);
-    addPin(recon, extr, M_VECTORFIELD, M_VECTORFIELD);
-    addPin(mapSel1, applierextr, M_GEOM, M_GEOM);
-    addPin(extr, applierextr, M_VECTORFIELD, M_GDISPLS);
-    addPin(applierextr, mimmo4, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mapSel1, extr, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(recon, extr, M_VECTORFIELD, M_VECTORFIELD);
+    mimmo::pin::addPin(mapSel1, applierextr, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(extr, applierextr, M_VECTORFIELD, M_GDISPLS);
+    mimmo::pin::addPin(applierextr, mimmo4, M_GEOM, M_GEOM);
 
-    addPin(mapSel2, extr2, M_GEOM, M_GEOM);
-    addPin(recon, extr2, M_VECTORFIELD, M_VECTORFIELD);
-    addPin(mapSel2, applierextr2, M_GEOM, M_GEOM);
-    addPin(extr2, applierextr2, M_VECTORFIELD, M_GDISPLS);
-    addPin(applierextr2, mimmo5, M_GEOM, M_GEOM);
-
+    mimmo::pin::addPin(mapSel2, extr2, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(recon, extr2, M_VECTORFIELD, M_VECTORFIELD);
+    mimmo::pin::addPin(mapSel2, applierextr2, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(extr2, applierextr2, M_VECTORFIELD, M_GDISPLS);
+    mimmo::pin::addPin(applierextr2, mimmo5, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(mimmo0);
     ch0.addObject(mimmo1);
     ch0.addObject(mimmo2);

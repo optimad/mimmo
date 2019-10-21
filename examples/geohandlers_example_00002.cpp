@@ -22,15 +22,7 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
-#include "bitpit.hpp"
 #include "mimmo_geohandlers.hpp"
-#include <exception>
-
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -53,7 +45,7 @@ void test00002() {
     /* Creation of mimmo containers.
      * Inputs and output MimmoGeometry are instantiated.
      */
-	MimmoGeometry * mimmo0 = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
     mimmo0->setIOMode(IOMode::CONVERT);
 	mimmo0->setReadDir("geodata");
 	mimmo0->setReadFilename("sphere2");
@@ -62,7 +54,7 @@ void test00002() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00002.0000");
 
-    MimmoGeometry * mimmo1 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
     mimmo1->setIOMode(IOMode::CONVERT);
     mimmo1->setReadDir("geodata");
     mimmo1->setReadFilename("stanfordBunny2");
@@ -71,7 +63,7 @@ void test00002() {
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("geohandlers_output_00002.0001");
 
-    MimmoGeometry * mimmo2 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry();
     mimmo2->setIOMode(IOMode::WRITE);
     mimmo2->setWriteDir("./");
     mimmo2->setWriteFileType(FileType::STL);
@@ -80,19 +72,19 @@ void test00002() {
     /* Instantiation of a Stitcher Geometry block.
      * Plot Optional results during execution active for Stitcher block.
      */
-	StitchGeometry * stitcher = new StitchGeometry(1);
+    mimmo::StitchGeometry * stitcher = new mimmo::StitchGeometry(1);
 	stitcher->setPlotInExecution(true);
 	stitcher->setOutputPlot(".");
 
     /* Setup pin connections.
      */
-	addPin(mimmo0, stitcher, M_GEOM, M_GEOM);
-	addPin(mimmo1, stitcher, M_GEOM, M_GEOM);
-	addPin(stitcher, mimmo2, M_GEOM, M_GEOM);
+	mimmo::pin::addPin(mimmo0, stitcher, M_GEOM, M_GEOM);
+	mimmo::pin::addPin(mimmo1, stitcher, M_GEOM, M_GEOM);
+	mimmo::pin::addPin(stitcher, mimmo2, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */
-	Chain ch0;
+	mimmo::Chain ch0;
 	ch0.addObject(mimmo0);
 	ch0.addObject(mimmo1);
 	ch0.addObject(stitcher);

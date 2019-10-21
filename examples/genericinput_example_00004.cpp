@@ -24,9 +24,6 @@
 
 #include "mimmo_iogeneric.hpp"
 #include "MRBF.hpp"
-#include <exception>
-using namespace mimmo;
-
 
 /*!
  * \example genericinput_example_00004.cpp
@@ -49,7 +46,7 @@ void test00004() {
      */
      /* Reading plane
       */
-     MimmoGeometry * read = new MimmoGeometry();
+	mimmo::MimmoGeometry * read = new mimmo::MimmoGeometry();
      read->setIOMode(IOMode::CONVERT);
      read->setReadDir("geodata");
      read->setReadFilename("plane4");
@@ -61,26 +58,28 @@ void test00004() {
 
     /* Reading rbf set of points and their diplacements from file
      */
-    IOCloudPoints * iocp = new IOCloudPoints(true);
+     mimmo::IOCloudPoints * iocp = new mimmo::IOCloudPoints(true);
     iocp->setName("genericinput_example_00004_RBFSet");
     iocp->setReadDir("input");
     iocp->setReadFilename("generic_iocloud.txt");
     iocp->setPlotInExecution(true);
+
     /*!Create RBF manipulator, specyfing only the RBF shape and support Radius
     */
-    MRBF * rbf = new MRBF();
+    mimmo::MRBF * rbf = new mimmo::MRBF();
     rbf->setFunction(bitpit::RBFBasisFunction::C1C1);
     rbf->setSupportRadiusValue(0.6);
     rbf->setApply(true);
+
     /* Setup pin connections.
      */
-    pin::addPin(read, rbf, M_GEOM, M_GEOM);
-    pin::addPin(iocp, rbf, M_COORDS, M_COORDS);
-    pin::addPin(iocp, rbf, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(read, rbf, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(iocp, rbf, M_COORDS, M_COORDS);
+    mimmo::pin::addPin(iocp, rbf, M_DISPLS, M_DISPLS);
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(read);
     ch0.addObject(iocp);
     ch0.addObject(rbf);

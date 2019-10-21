@@ -23,9 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_iogeneric.hpp"
-#include <exception>
 
-using namespace mimmo;
 /*!
  * \example genericinput_example_00002.cpp
  *
@@ -46,7 +44,7 @@ void test00002() {
     /* Creation of Generic output block to read a set of
      * coordinates of cloud points as generic input in csv format.
      */
-    GenericInputMPVData * read = new GenericInputMPVData(true);
+	mimmo::GenericInputMPVData * read = new mimmo::GenericInputMPVData(true);
     read->setReadDir("input");
     read->setFilename("generic_inputMPVData_00002.csv");
     read->setBinary(false);
@@ -54,7 +52,7 @@ void test00002() {
     /* Creation of Generic output block to write a set of
      * coordinates of cloud points as generic output in csv format.
      */
-    GenericOutputMPVData * write = new GenericOutputMPVData();
+    mimmo::GenericOutputMPVData * write = new mimmo::GenericOutputMPVData();
     write->setWriteDir("./");
     write->setFilename("generic_outputMPVData_00002.csv");
     write->setCSV(true);
@@ -62,11 +60,11 @@ void test00002() {
 
     /* Setup pin connections.
      */
-    pin::addPin(read, write, M_VECTORFIELD, M_VECTORFIELD);
+    mimmo::pin::addPin(read, write, M_VECTORFIELD, M_VECTORFIELD);
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(read);
     ch0.addObject(write);
 

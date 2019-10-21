@@ -22,15 +22,8 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
 #include "mimmo_utils.hpp"
 #include "mimmo_iogeneric.hpp"
-#include "bitpit.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -50,7 +43,7 @@ void test00001() {
 
     /* Creation of mimmo containers.
      */
-    MimmoGeometry * mimmo0 = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
 
     mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
@@ -64,8 +57,7 @@ void test00001() {
     /*Creation of the seeder. Use Level set engine to place 9 points on
      * surface, starting from a seed point in the absolute origin.
      */
-    CreateSeedsOnSurface * cseed = new CreateSeedsOnSurface();
-
+    mimmo::CreateSeedsOnSurface * cseed = new mimmo::CreateSeedsOnSurface();
     cseed->setSeed({{0.0,0.0,0.0}});
     cseed->setNPoints(9);
     cseed->setEngine(1);
@@ -73,11 +65,11 @@ void test00001() {
 
     /* Setup pin connections.
      */
-    addPin(mimmo0, cseed, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, cseed, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(mimmo0);
     ch0.addObject(cseed);
 

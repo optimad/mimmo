@@ -22,16 +22,9 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
-#include "bitpit.hpp"
-#include <exception>
 #include <random>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -52,7 +45,7 @@ void test00004() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-    MimmoGeometry * mimmo0 = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
     mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
@@ -61,7 +54,7 @@ void test00004() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("manipulators_output_00004.0000");
 
-    MimmoGeometry * mimmo1 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
     mimmo1->setIOMode(IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
@@ -71,7 +64,7 @@ void test00004() {
      * Setup of origin and span (radius and span angles) of sphere.
      * Plot Optional results during execution active for FFD block.
      */
-    FFDLattice* lattice = new FFDLattice();
+    mimmo::FFDLattice* lattice = new mimmo::FFDLattice();
     darray3E origin = {0.0, 0.0,0.0};
     darray3E span;
     span[0]= 3.01;
@@ -88,13 +81,13 @@ void test00004() {
     deg[1] = 2;
     deg[2] = 2;
 
-    lattice->setLattice(origin,span,ShapeType::SPHERE,dim, deg);
+    lattice->setLattice(origin,span,mimmo::ShapeType::SPHERE,dim, deg);
 
     /* Change reference system to work in local spherical coordinates.
      * Set coordinates as CLAMPED (continuity in origins of angles).
      */
     lattice->setRefSystem(2, darray3E{0,1,0});
-    lattice->setCoordType(CoordType::CLAMPED, 2);
+    lattice->setCoordType(mimmo::CoordType::CLAMPED, 2);
     lattice->setPlotInExecution(true);
 
     /* Build mesh of lattice outside the execution chain
@@ -130,36 +123,36 @@ void test00004() {
     /* Set Generic input block with the
      * displacements defined above.
      */
-    GenericInput* input = new GenericInput();
+    mimmo::GenericInput* input = new mimmo::GenericInput();
     input->setInput(displ);
 
     /* Set Generic output block to write the
      * displacements defined above.
      */
-    GenericOutput * output = new GenericOutput();
+    mimmo::GenericOutput * output = new mimmo::GenericOutput();
     output->setFilename("manipulators_output_00004.csv");
     output->setCSV(true);
 
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
      */
-    Apply* applier = new Apply();
+    mimmo::Apply* applier = new mimmo::Apply();
 
     /* Setup pin connections.
      */
-    addPin(mimmo0, lattice, M_GEOM, M_GEOM);
-    addPin(mimmo0, applier, M_GEOM, M_GEOM);
-    addPin(input, lattice, M_DISPLS, M_DISPLS);
-    addPin(input, output, M_DISPLS, M_DISPLS);
-    addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
-    addPin(applier, mimmo1, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, lattice, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(input, lattice, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(input, output, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
+    mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      * The object can be insert in the chain in random order.
      * The chain object recover the correct order of execution from
      * the pin connections.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(input);
     ch0.addObject(output);
     ch0.addObject(applier);

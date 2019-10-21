@@ -22,10 +22,8 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
 #include "mimmo_utils.hpp"
 #include "mimmo_iogeneric.hpp"
-#include <exception>
 
 // =================================================================================== //
 /*!
@@ -69,6 +67,7 @@ void test00002() {
     cdes->setBackgroundDetails();
     cdes->setPlotInExecution(true);
     cdes->exec();
+
     /* Clean up & exit;
      */
     delete bunny;

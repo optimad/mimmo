@@ -22,15 +22,8 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
-#include "bitpit.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -51,19 +44,17 @@ void test00005() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-    MimmoGeometry * mimmo0 = new MimmoGeometry();
-
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
     mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::PCVTU);
     mimmo0->setReadFilename("spherepc");
     mimmo0->setBuildSkdTree(true);
-
     mimmo0->setWriteDir("./");
     mimmo0->setWriteFileType(FileType::PCVTU);
     mimmo0->setWriteFilename("manipulators_output_00005.0000");
 
-    MimmoGeometry * mimmo1 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
     mimmo1->setIOMode(IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::PCVTU);
@@ -73,7 +64,7 @@ void test00005() {
      * Setup of span and origin of cube.
      * Plot Optional results during execution active for FFD block.
      */
-    FFDLattice* lattice = new FFDLattice();
+    mimmo::FFDLattice* lattice = new mimmo::FFDLattice();
     darray3E origin = {0.0, 0.0, 0.0};
     darray3E span;
     span[0]= 1.2;
@@ -90,12 +81,12 @@ void test00005() {
     deg[1] = 2;
     deg[2] = 2;
 
-    lattice->setLattice(origin, span, ShapeType::CUBE, dim, deg);
+    lattice->setLattice(origin, span, mimmo::ShapeType::CUBE, dim, deg);
 
     /* Creation of Generic input block to read the
      * displacements of the control nodes of the lattice.
      */
-    GenericInput* input = new GenericInput();
+    mimmo::GenericInput* input = new mimmo::GenericInput();
     input->setReadFromFile(true);
     input->setReadDir("input");
     input->setFilename("manipulators_input_00005.txt");
@@ -103,25 +94,25 @@ void test00005() {
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
      */
-    Apply* applier = new Apply();
+    mimmo::Apply* applier = new mimmo::Apply();
 
     /* Setup pin connections.
      */
-    cout << " --- create pin ---" << endl;
-    cout << " " << endl;
+    std::cout << " --- create pin ---" << std::endl;
+    std::cout << " " << std::endl;
     /* Add pin with port TAG ONLY
      */
 
-    cout << " add pin info : " << boolalpha << addPin(mimmo0, lattice, M_GEOM, M_GEOM) << endl;
-    cout << " add pin info : " << boolalpha << addPin(input, lattice, M_DISPLS, M_DISPLS) << endl;
-    cout << " add pin info : " << boolalpha << addPin(lattice, applier, M_GDISPLS, M_GDISPLS) << endl;
-    cout << " add pin info : " << boolalpha << addPin(mimmo0, applier, M_GEOM, M_GEOM) << endl;
-    cout << " add pin info : " << boolalpha << addPin(applier, mimmo1, M_GEOM, M_GEOM) << endl;
-    cout << " " << endl;
+    std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(mimmo0, lattice, M_GEOM, M_GEOM) << std::endl;
+    std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(input, lattice, M_DISPLS, M_DISPLS) << std::endl;
+    std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(lattice, applier, M_GDISPLS, M_GDISPLS) << std::endl;
+    std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM) << std::endl;
+    std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM) << std::endl;
+    std::cout << " " << std::endl;
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(mimmo0);
     ch0.addObject(input);
     ch0.addObject(lattice);
@@ -136,11 +127,11 @@ void test00005() {
     /* Execution of chain.
      * Use debug flag true to full print out the execution steps.
      */
-    cout << " " << endl;
-    cout << " --- execution start ---" << endl;
+    std::cout << " " << std::endl;
+    std::cout << " --- execution start ---" << std::endl;
     ch0.exec(true);
-    cout << " --- execution done --- " << endl;
-    cout << " " << endl;
+    std::cout << " --- execution done --- " << std::endl;
+    std::cout << " " << std::endl;
 
     /* Clean up & exit;
      */

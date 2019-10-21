@@ -22,15 +22,7 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
-#include "bitpit.hpp"
 #include "mimmo_geohandlers.hpp"
-#include <exception>
-
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -54,7 +46,7 @@ void test00001() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-    MimmoGeometry * mimmo0 = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
     mimmo0->setName("mimmo0");
     mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("./geodata");
@@ -64,13 +56,13 @@ void test00001() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00001.0000");
 
-    MimmoGeometry * mimmo1 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
     mimmo1->setIOMode(IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("geohandlers_output_00001.0001");
 
-    MimmoGeometry * mimmo2 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry();
     mimmo2->setIOMode(IOMode::WRITE);
     mimmo2->setWriteDir(".");
     mimmo2->setWriteFileType(FileType::STL);
@@ -79,36 +71,36 @@ void test00001() {
     /* Instantiation of a Selection By Box block.
      * Setup of span and origin of cube.
      */
-    SelectionByBox      * boxSel = new SelectionByBox();
+    mimmo::SelectionByBox * boxSel = new mimmo::SelectionByBox();
 	boxSel->setOrigin({{-0.5,-0.5,0.2}});
 	boxSel->setSpan(0.6,0.6,0.6);
 
     /* Instantiation of a Selection By Sphere block.
      * Setup of span and origin of sphere.
      */
-    SelectionBySphere   * sphSel = new SelectionBySphere();
+	mimmo::SelectionBySphere * sphSel = new mimmo::SelectionBySphere();
 	sphSel->setOrigin({{-0.5, 0.5,0.2}});
 	sphSel->setSpan(0.34, 2*M_PI, M_PI);
 
     /* Instantiation of a Refine Geometry block.
      * Setup refining.
      */
-    RefineGeometry   * refine = new RefineGeometry();
-    refine->setRefineType(RefineType::TERNARY);
+	mimmo::RefineGeometry * refine = new mimmo::RefineGeometry();
+    refine->setRefineType(mimmo::RefineType::TERNARY);
     refine->setRefineSteps(1);
     refine->setSmoothingSteps(2);
 
     /* Setup pin connections.
      */
-    pin::addPin(mimmo0, refine, M_GEOM, M_GEOM);
-    pin::addPin(mimmo0, boxSel, M_GEOM, M_GEOM);
-    pin::addPin(mimmo0, sphSel, M_GEOM, M_GEOM);
-    pin::addPin(boxSel, mimmo1, M_GEOM, M_GEOM);
-    pin::addPin(sphSel, mimmo2, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, refine, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, boxSel, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, sphSel, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(boxSel, mimmo1, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(sphSel, mimmo2, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(mimmo0);
     ch0.addObject(refine);
     ch0.addObject(boxSel);

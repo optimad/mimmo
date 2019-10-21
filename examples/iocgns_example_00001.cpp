@@ -28,9 +28,6 @@
 #if MIMMO_ENABLE_MPI
 #include "mimmo_parallel.hpp"
 #endif
-#include <exception>
-
-using namespace mimmo;
 
 /*!
  * \example iocgns_example_00001.cpp
@@ -57,27 +54,29 @@ using namespace mimmo;
 void example00001() {
 
     /* Create IO_CGNS object to import input file. */
-    IOCGNS * cgnsI = new IOCGNS();
-    cgnsI->setMode(IOCGNS::IOCGNS_Mode::READ);
+	mimmo::IOCGNS * cgnsI = new mimmo::IOCGNS();
+    cgnsI->setMode(mimmo::IOCGNS::IOCGNS_Mode::READ);
     cgnsI->setDir("geodata");
     cgnsI->setFilename("grid");
 
     /* Create IO_CGNS object to export output file. */
-    IOCGNS * cgnsO = new IOCGNS();
-    cgnsO->setMode(IOCGNS::IOCGNS_Mode::WRITE);;
+    mimmo::IOCGNS * cgnsO = new mimmo::IOCGNS();
+    cgnsO->setMode(mimmo::IOCGNS::IOCGNS_Mode::WRITE);;
     cgnsO->setDir(".");
     cgnsO->setFilename("iocgns_output_00001");
 
 #if MIMMO_ENABLE_MPI
+
     /* Instantiation of a Partition object with default patition method space filling curve.
      * Plot Optional results during execution active for Partition block.
      */
-    Partition *partition = new Partition();
+    mimmo::Partition *partition = new mimmo::Partition();
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition->setPlotInExecution(true);
+
     /* Instantiation of a Partition object to serialize mesh right before the writing cgns.
      */
-    Partition *serialize = new Partition();
+    mimmo::Partition *serialize = new mimmo::Partition();
     serialize->setPartitionMethod(mimmo::PartitionMethod::SERIALIZE);
     serialize->setPlotInExecution(true);
 #endif
@@ -86,7 +85,7 @@ void example00001() {
      * Extraction of PID = 1,2 (Wing wall and outer part boundaries
      * where imposing Dirichlet conditions).
      */
-    SelectionByPID * cgnsDirichlet = new SelectionByPID();
+    mimmo::SelectionByPID * cgnsDirichlet = new mimmo::SelectionByPID();
     cgnsDirichlet->setPID({1, 2});
     cgnsDirichlet->setPlotInExecution(true);
 
@@ -94,34 +93,34 @@ void example00001() {
      * Extraction of PID = 3 (Simmetry plane
      * where imposing Slip/impermeability conditions).
      */
-    SelectionByPID * cgnsSlip = new SelectionByPID();
+    mimmo::SelectionByPID * cgnsSlip = new mimmo::SelectionByPID();
     cgnsSlip->setPID({3});
     cgnsSlip->setPlotInExecution(true);
 
     /* Instantiation of a Selection By Box block.
      * Setup of span and origin of cube.
      */
-    SelectionByBox      * boxSel = new SelectionByBox();
+    mimmo::SelectionByBox * boxSel = new mimmo::SelectionByBox();
     boxSel->setOrigin({{700., 800., 0.}});
     boxSel->setSpan(1500.,1600.,100.);
     boxSel->setPlotInExecution(true);
 
     /* Creation of rotation block.
      */
-    RotationGeometry* rotation = new RotationGeometry();
+    mimmo::RotationGeometry* rotation = new mimmo::RotationGeometry();
     rotation->setDirection(darray3E{0.1,1.,0.});
     rotation->setRotation((BITPIT_PI/18.0));
 
     /* Create reconstruct vector block and set to reconstruct rotation
      * displacement field over the whole Dirichlet surface geometry
      */
-    ReconstructVector* recon = new ReconstructVector();
+    mimmo::ReconstructVector* recon = new mimmo::ReconstructVector();
     recon->setPlotInExecution(true);
 
     /* Create propagate vector block and set to propagate over the whole
      * input volume geometry the displacements field.
      */
-    PropagateVectorField* prop = new PropagateVectorField();
+    mimmo::PropagateVectorField* prop = new mimmo::PropagateVectorField();
     prop->setPlotInExecution(true);
     prop->setTolerance(1.0e-9);
     prop->setUpdateThreshold(1.0e-12);
@@ -132,79 +131,81 @@ void example00001() {
     prop->setDecayFactor(3.0);
     prop->forcePlanarSlip(true);
     prop->setSolverMultiStep(1);
+
     /* Create propagate vector block and set to propagate over the whole
      * input volume geometry the displacements field.
      */
-    ExtractVectorField* extrF = new ExtractVectorField();
+    mimmo::ExtractVectorField* extrF = new mimmo::ExtractVectorField();
     extrF->setMode(1);
     extrF->setPlotInExecution(true);
+
     /* Create applier block.
      * It applies the deformation displacements
      * to the selected input volume geometry.
      */
-    Apply* applier = new Apply();
+    mimmo::Apply* applier = new mimmo::Apply();
 
     /* Create applier block.
      * It applies the deformation displacements
      * to the selected input surface geometry.
      */
-    Apply* applierS = new Apply();
+    mimmo::Apply* applierS = new mimmo::Apply();
 
     /* Create PINs. */
 #if MIMMO_ENABLE_MPI
-    pin::addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
-    pin::addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
-    pin::addPin(partition, cgnsDirichlet, M_GEOM2, M_GEOM)  ;
-    pin::addPin(partition, cgnsSlip, M_GEOM2, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
+    mimmo::pin::addPin(partition, cgnsDirichlet, M_GEOM2, M_GEOM)  ;
+    mimmo::pin::addPin(partition, cgnsSlip, M_GEOM2, M_GEOM)  ;
 #else
-    pin::addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM)  ;
-    pin::addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsI, cgnsDirichlet, M_GEOM2, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsI, cgnsSlip, M_GEOM2, M_GEOM)  ;
 #endif
 
-    pin::addPin(cgnsDirichlet, boxSel, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsDirichlet, boxSel, M_GEOM, M_GEOM)  ;
 
-    pin::addPin(boxSel, rotation, M_GEOM, M_GEOM)  ;
-    pin::addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD)  ;
-    pin::addPin(cgnsDirichlet, recon, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(boxSel, rotation, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(rotation, recon, M_GDISPLS, M_VECTORFIELD)  ;
+    mimmo::pin::addPin(cgnsDirichlet, recon, M_GEOM, M_GEOM)  ;
 
 #if MIMMO_ENABLE_MPI
-    pin::addPin(partition, prop, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(partition, prop, M_GEOM, M_GEOM)  ;
 #else
-    pin::addPin(cgnsI, prop, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsI, prop, M_GEOM, M_GEOM)  ;
 #endif
-    pin::addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2)  ;
-    pin::addPin(cgnsSlip, prop, M_GEOM, M_GEOM4)  ;
-    pin::addPin(boxSel, prop, M_GEOM, M_GEOM3)  ;
+    mimmo::pin::addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2)  ;
+    mimmo::pin::addPin(cgnsSlip, prop, M_GEOM, M_GEOM4)  ;
+    mimmo::pin::addPin(boxSel, prop, M_GEOM, M_GEOM3)  ;
 
-    pin::addPin(recon, prop, M_VECTORFIELD, M_GDISPLS)  ;
-    pin::addPin(prop, applier, M_GDISPLS, M_GDISPLS)  ;
+    mimmo::pin::addPin(recon, prop, M_VECTORFIELD, M_GDISPLS)  ;
+    mimmo::pin::addPin(prop, applier, M_GDISPLS, M_GDISPLS)  ;
 #if MIMMO_ENABLE_MPI
-    pin::addPin(partition, applier, M_GEOM, M_GEOM)  ;
-    pin::addPin(partition, extrF, M_GEOM2, M_GEOM)  ;
-    pin::addPin(partition, applierS, M_GEOM2, M_GEOM)  ;
+    mimmo::pin::addPin(partition, applier, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(partition, extrF, M_GEOM2, M_GEOM)  ;
+    mimmo::pin::addPin(partition, applierS, M_GEOM2, M_GEOM)  ;
 #else
-    pin::addPin(cgnsI, applier, M_GEOM, M_GEOM)  ;
-    pin::addPin(cgnsI, extrF, M_GEOM2, M_GEOM)  ;
-    pin::addPin(cgnsI, applierS, M_GEOM2, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsI, applier, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsI, extrF, M_GEOM2, M_GEOM)  ;
+    mimmo::pin::addPin(cgnsI, applierS, M_GEOM2, M_GEOM)  ;
 #endif
 
-    pin::addPin(prop, extrF, M_GDISPLS, M_VECTORFIELD)  ;
-    pin::addPin(extrF, applierS, M_VECTORFIELD, M_GDISPLS)  ;
+    mimmo::pin::addPin(prop, extrF, M_GDISPLS, M_VECTORFIELD)  ;
+    mimmo::pin::addPin(extrF, applierS, M_VECTORFIELD, M_GDISPLS)  ;
 
 #if MIMMO_ENABLE_MPI
-    pin::addPin(applier, serialize, M_GEOM, M_GEOM)  ;
-    pin::addPin(applierS, serialize, M_GEOM, M_GEOM2)  ;
-    pin::addPin(serialize, cgnsO, M_GEOM, M_GEOM)  ;
-    pin::addPin(serialize, cgnsO, M_GEOM2, M_GEOM2)  ;
+    mimmo::pin::addPin(applier, serialize, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(applierS, serialize, M_GEOM, M_GEOM2)  ;
+    mimmo::pin::addPin(serialize, cgnsO, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(serialize, cgnsO, M_GEOM2, M_GEOM2)  ;
 #else
-    pin::addPin(applier, cgnsO, M_GEOM, M_GEOM)  ;
-    pin::addPin(applierS, cgnsO, M_GEOM, M_GEOM2)  ;
+    mimmo::pin::addPin(applier, cgnsO, M_GEOM, M_GEOM)  ;
+    mimmo::pin::addPin(applierS, cgnsO, M_GEOM, M_GEOM2)  ;
 #endif
 
-    pin::addPin(cgnsI, cgnsO, M_BCCGNS, M_BCCGNS)  ;
+    mimmo::pin::addPin(cgnsI, cgnsO, M_BCCGNS, M_BCCGNS)  ;
 
     /* Create and execute chain. */
-    Chain ch0, ch1;
+    mimmo::Chain ch0, ch1;
     ch0.addObject(cgnsI);
 #if MIMMO_ENABLE_MPI
     ch0.addObject(partition);

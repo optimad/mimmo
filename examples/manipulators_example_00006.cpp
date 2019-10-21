@@ -22,17 +22,10 @@
  *
  \ *---------------------------------------------------------------------------*/
 
-
 #include "mimmo_manipulators.hpp"
-#include "mimmo_utils.hpp"
 #include "mimmo_iogeneric.hpp"
-#include "bitpit.hpp"
-#include <exception>
+#include "mimmo_utils.hpp"
 #include <random>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -54,7 +47,7 @@ void test00006() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-    MimmoGeometry * mimmo0 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
     mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
@@ -63,7 +56,7 @@ void test00006() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("manipulators_output_00006.0000");
 
-    MimmoGeometry * mimmo1 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
     mimmo1->setIOMode(IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
@@ -84,7 +77,7 @@ void test00006() {
     /* Set Generic input block with the
      * nodes defined above.
      */
-    GenericInput* inputn = new GenericInput();
+    mimmo::GenericInput* inputn = new mimmo::GenericInput();
     inputn->setInput(rbfNodes);
 
     /* Creation of a projection block aimed to project
@@ -93,15 +86,15 @@ void test00006() {
      * geometry as output of this block.
      *
      */
-    ProjectCloud* proj = new ProjectCloud();
+    mimmo::ProjectCloud* proj = new mimmo::ProjectCloud();
 
     /* Instantiation of a MRBF object with a distribution of 10 random control nodes projected
      * ont he input surface.
      * Plot Optional results during execution active for MRBF block.
      */
-    MRBF* mrbf = new MRBF();
-    mrbf->setMode(MRBFSol::NONE);
-    mrbf->setFunction(MRBFBasisFunction::HEAVISIDE1000);
+    mimmo::MRBF* mrbf = new mimmo::MRBF();
+    mrbf->setMode(mimmo::MRBFSol::NONE);
+    mrbf->setFunction(mimmo::MRBFBasisFunction::HEAVISIDE1000);
     mrbf->setSupportRadius(0.025);
     mrbf->setPlotInExecution(true);
 
@@ -120,47 +113,47 @@ void test00006() {
     /* Set Generic input block with the
      * displacements defined above.
      */
-    GenericInput* input = new GenericInput();
+    mimmo::GenericInput* input = new mimmo::GenericInput();
     input->setInput(displ);
 
     /* Set Generic output block to write the
      * nodes defined above.
      */
-    GenericOutput * outputn = new GenericOutput();
+    mimmo::GenericOutput * outputn = new mimmo::GenericOutput();
     outputn->setFilename("manipulators_output_00006n.csv");
     outputn->setCSV(true);
 
     /* Set Generic output block to write the
      * displacements defined above.
      */
-    GenericOutput * outputd = new GenericOutput();
+    mimmo::GenericOutput * outputd = new mimmo::GenericOutput();
     outputd->setFilename("manipulators_output_00006d.csv");
     outputd->setCSV(true);
 
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
      */
-    Apply* applier = new Apply();
+    mimmo::Apply* applier = new mimmo::Apply();
 
     /* Setup pin connections.
      */
-    addPin(mimmo0, mrbf, M_GEOM, M_GEOM);
-    addPin(mimmo0, proj, M_GEOM, M_GEOM);
-    addPin(mimmo0, applier, M_GEOM, M_GEOM);
-    addPin(inputn, proj, M_COORDS, M_COORDS);
-    addPin(proj, mrbf, M_COORDS, M_COORDS);
-    addPin(proj, outputn, M_COORDS, M_COORDS);
-    addPin(input, mrbf, M_DISPLS, M_DISPLS);
-    addPin(input, outputd, M_DISPLS, M_DISPLS);
-    addPin(mrbf, applier, M_GDISPLS, M_GDISPLS);
-    addPin(applier, mimmo1, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, mrbf, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, proj, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(inputn, proj, M_COORDS, M_COORDS);
+    mimmo::pin::addPin(proj, mrbf, M_COORDS, M_COORDS);
+    mimmo::pin::addPin(proj, outputn, M_COORDS, M_COORDS);
+    mimmo::pin::addPin(input, mrbf, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(input, outputd, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(mrbf, applier, M_GDISPLS, M_GDISPLS);
+    mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      * The object can be insert in the chain in random order.
      * The chain object recover the correct order of execution from
      * the pin connections.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(input);
     ch0.addObject(inputn);
     ch0.addObject(outputn);

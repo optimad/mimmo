@@ -25,12 +25,6 @@
 
 #include "mimmo_core.hpp"
 #include "mimmo_iogeneric.hpp"
-#include "bitpit.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -50,7 +44,7 @@ void test00001() {
 
 	/* Creation of mimmo containers.
 	 */
-	MimmoGeometry * mimmo0 = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
 
 	mimmo0->setIOMode(IOMode::READ);
 	mimmo0->setReadDir("geodata");
@@ -62,8 +56,8 @@ void test00001() {
 	/*
 	 * Creation of a synthetic point field.
 	 */
-	MimmoPiercedVector<double> pointField;
-	pointField.initialize(mimmo0->getGeometry(), MPVLocation::POINT, 1.);
+	mimmo::MimmoPiercedVector<double> pointField;
+	pointField.initialize(mimmo0->getGeometry(), mimmo::MPVLocation::POINT, 1.);
 	std::array<double,3> center({{0.5,0.,0.}});
 	for (bitpit::Vertex & vertex : mimmo0->getGeometry()->getPatch()->getVertices()){
 		std::array<double,3> coords = vertex.getCoords();
@@ -87,7 +81,7 @@ void test00001() {
 	 * Interpolation of synthetic point field on cells.
 	 */
 	double p = 5.;
-	MimmoPiercedVector<double> cellField = pointField.pointDataToCellData(p);
+	mimmo::MimmoPiercedVector<double> cellField = pointField.pointDataToCellData(p);
 	{
 		std::vector<double> field(mimmo0->getGeometry()->getNCells());
 		int count = 0;
@@ -104,7 +98,7 @@ void test00001() {
 	 * Back Interpolation of synthetic field on points.
 	 */
 	p = 5.;
-	MimmoPiercedVector<double> pointField2 = cellField.cellDataToPointData(p);
+	mimmo::MimmoPiercedVector<double> pointField2 = cellField.cellDataToPointData(p);
 	{
 		std::vector<double> field(mimmo0->getGeometry()->getNVertices());
 		int count = 0;
@@ -122,14 +116,14 @@ void test00001() {
 	 */
 	mimmo0->getGeometry()->buildInterfaces();
 	p = 5.;
-	MimmoPiercedVector<double> interfaceField = pointField.pointDataToBoundaryInterfaceData(p);
+	mimmo::MimmoPiercedVector<double> interfaceField = pointField.pointDataToBoundaryInterfaceData(p);
 	{
 		std::vector<double> field(mimmo0->getGeometry()->getPatch()->getInterfaceCount());
 		int count = 0;
 		for (bitpit::Interface & interface : mimmo0->getGeometry()->getPatch()->getInterfaces()){
 			if (interface.isBorder()){
 				field[count] = interfaceField[interface.getId()];
-				log::cout() << "field on boundary interface " << count << " : " << field[count] << std::endl;
+				bitpit::log::cout() << "field on boundary interface " << count << " : " << field[count] << std::endl;
 				count++;
 			}
 		}

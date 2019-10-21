@@ -23,9 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_iovtk.hpp"
-#include <exception>
-
-using namespace mimmo;
 
 /*!
  * \example iovtk_example_00001.cpp
@@ -45,7 +42,7 @@ void test00001() {
 
 
     /* Import vtk. */
-    IOVTKScalar* iovtk = new IOVTKScalar();
+	mimmo::IOVTKScalar* iovtk = new mimmo::IOVTKScalar();
     iovtk->setRead(true);
     iovtk->setReadDir("geodata");
     iovtk->setReadFilename("iovtk");
@@ -53,26 +50,26 @@ void test00001() {
     iovtk->setNormalize(false);
 
     /* Export vtk with polydata */
-    IOVTKScalar* iovtk2 = new IOVTKScalar();
+    mimmo::IOVTKScalar* iovtk2 = new mimmo::IOVTKScalar();
     iovtk2->setWrite(true);
     iovtk2->setWriteDir(".");
     iovtk2->setWriteFilename("iovtk_output_00001");
 
     /* Export vtk without polydata */
-    IOVTKScalar* iovtk3 = new IOVTKScalar();
+    mimmo::IOVTKScalar* iovtk3 = new mimmo::IOVTKScalar();
     iovtk3->setWrite(true);
     iovtk3->setWriteDir(".");
     iovtk3->setWriteFilename("iovtk_output_00002");
 
     /* Create PINs. */
-    pin::addPin(iovtk,iovtk2, M_GEOM, M_GEOM);
-    pin::addPin(iovtk,iovtk2, M_SCALARFIELD, M_SCALARFIELD);
-    pin::addPin(iovtk,iovtk2, M_POLYDATA_, M_POLYDATA_);
-    pin::addPin(iovtk,iovtk3, M_GEOM, M_GEOM);
-    pin::addPin(iovtk,iovtk3, M_SCALARFIELD, M_SCALARFIELD);
+    mimmo::pin::addPin(iovtk,iovtk2, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(iovtk,iovtk2, M_SCALARFIELD, M_SCALARFIELD);
+    mimmo::pin::addPin(iovtk,iovtk2, M_POLYDATA_, M_POLYDATA_);
+    mimmo::pin::addPin(iovtk,iovtk3, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(iovtk,iovtk3, M_SCALARFIELD, M_SCALARFIELD);
 
     /* Create and execute chain. */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(iovtk);
     ch0.addObject(iovtk2);
     ch0.addObject(iovtk3);
