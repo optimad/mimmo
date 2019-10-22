@@ -1595,8 +1595,8 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		//---
 		{
 			size_t exchangeDataSize = sizeof(consecutiveId);
-			std::unique_ptr<DataCommunicator> dataCommunicator;
-			dataCommunicator = std::unique_ptr<DataCommunicator>(new DataCommunicator(getCommunicator()));
+			std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+			dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
 			for (const auto entry : m_pointGhostExchangeTargets) {
 				const int rank = entry.first;
 				const auto &list = entry.second;
@@ -1609,7 +1609,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 				const int rank = entry.first;
 				auto &list = entry.second;
 				dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
-				SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+				bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
 				for (long id : list) {
 					if (m_pointConsecutiveId.count(id)){
 						buffer << m_pointConsecutiveId.at(id);
@@ -1626,7 +1626,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 				int rank = dataCommunicator->waitAnyRecv();
 				const auto &list = m_pointGhostExchangeTargets[rank];
 
-				RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+				bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
 				for (long id : list) {
 					buffer >> consecutiveId;
 					if (consecutiveId > -1){
@@ -1644,8 +1644,8 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		//---
 		{
 			size_t exchangeDataSize = sizeof(consecutiveId);
-			std::unique_ptr<DataCommunicator> dataCommunicator;
-			dataCommunicator = std::unique_ptr<DataCommunicator>(new DataCommunicator(getCommunicator()));
+			std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+			dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
 			for (const auto entry : m_pointGhostExchangeShared) {
 				const int rank = entry.first;
 				const auto &list = entry.second;
@@ -1661,7 +1661,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 				auto &list = entry.second;
 				if (rank>m_rank){
 					dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
-					SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+					bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
 					for (long id : list) {
 						if (m_pointConsecutiveId.count(id)){
 							buffer << m_pointConsecutiveId.at(id);
@@ -1680,7 +1680,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 				int rank = dataCommunicator->waitAnyRecv();
 				const auto &list = m_pointGhostExchangeShared[rank];
 
-				RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+				bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
 				for (long id : list) {
 					buffer >> consecutiveId;
 					if (consecutiveId > -1){
