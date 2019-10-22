@@ -24,12 +24,6 @@
 #include "mimmo_parallel.hpp"
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
-#include "bitpit.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!
@@ -50,19 +44,19 @@ void test00002() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-    MimmoGeometry * mimmo0 = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
     mimmo0->setIOMode(IOMode::READ);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
     mimmo0->setReadFilename("sphere2");
 
-    MimmoGeometry * mimmo1 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
     mimmo1->setIOMode(IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::SURFVTU);
     mimmo1->setWriteFilename("parallel_output_00002.0001");
 
-    MimmoGeometry * mimmo2 = new MimmoGeometry();
+    mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry();
     mimmo2->setIOMode(IOMode::WRITE);
     mimmo2->setWriteDir(".");
     mimmo2->setWriteFileType(FileType::SURFVTU);
@@ -71,14 +65,14 @@ void test00002() {
     /* Instantiation of a Partition object with default patition method space filling curve.
      * Plot Optional results during execution active for Partition block.
      */
-    Partition* partition = new Partition();
+    mimmo::Partition* partition = new mimmo::Partition();
     partition->setPlotInExecution(true);
 
     /* Instantiation of a FFDobject with spherical shape.
      * Setup of origin and span (radius and span angles) of sphere.
      * Plot Optional results during execution active for FFD block.
      */
-    FFDLattice* lattice = new FFDLattice();
+    mimmo::FFDLattice* lattice = new mimmo::FFDLattice();
     darray3E origin = {0.0, 0.0,0.0};
     darray3E span;
     span[0]= 3.01;
@@ -95,13 +89,13 @@ void test00002() {
     deg[1] = 2;
     deg[2] = 2;
 
-    lattice->setLattice(origin,span,ShapeType::SPHERE,dim, deg);
+    lattice->setLattice(origin,span,mimmo::ShapeType::SPHERE,dim, deg);
 
     /* Change reference system to work in local spherical coordinates.
      * Set coordinates as CLAMPED (continuity in origins of angles).
      */
     lattice->setRefSystem(2, darray3E{0,1,0});
-    lattice->setCoordType(CoordType::CLAMPED, 2);
+    lattice->setCoordType(mimmo::CoordType::CLAMPED, 2);
     lattice->setPlotInExecution(false);
 
     /* Build mesh of lattice outside the execution chain
@@ -136,30 +130,30 @@ void test00002() {
     /* Set Generic input block with the
      * displacements defined above.
      */
-    GenericInput* input = new GenericInput();
+    mimmo::GenericInput* input = new mimmo::GenericInput();
     input->setInput(displ);
 
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
      */
-    Apply* applier = new Apply();
+    mimmo::Apply* applier = new mimmo::Apply();
 
     /* Setup pin connections.
      */
-    addPin(mimmo0, partition, M_GEOM, M_GEOM);
-    addPin(partition, mimmo1, M_GEOM, M_GEOM);
-    addPin(mimmo1, lattice, M_GEOM, M_GEOM);
-    addPin(mimmo1, applier, M_GEOM, M_GEOM);
-    addPin(input, lattice, M_DISPLS, M_DISPLS);
-    addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
-    addPin(applier, mimmo2, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, partition, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partition, mimmo1, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo1, lattice, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo1, applier, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(input, lattice, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
+    mimmo::pin::addPin(applier, mimmo2, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      * The object can be insert in the chain in random order.
      * The chain object recover the correct order of execution from
      * the pin connections.
      */
-    Chain ch0;
+    mimmo::Chain ch0;
     ch0.addObject(input);
     ch0.addObject(partition);
     ch0.addObject(applier);

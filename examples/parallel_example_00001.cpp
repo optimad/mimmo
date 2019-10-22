@@ -24,13 +24,7 @@
 #include "mimmo_parallel.hpp"
 #include "mimmo_iogeneric.hpp"
 #include "mimmo_iocgns.hpp"
-#include "bitpit.hpp"
-#include <exception>
 #include <mpi.h>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
-using namespace mimmo::pin;
 
 // =================================================================================== //
 /*!

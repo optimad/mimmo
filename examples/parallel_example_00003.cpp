@@ -23,10 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 #include "mimmo_parallel.hpp"
 #include "mimmo_propagators.hpp"
-#include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 #include <iostream>
 #include <chrono>
@@ -34,7 +30,7 @@ typedef std::chrono::high_resolution_clock Clock;
 
 // =================================================================================== //
 
-std::unique_ptr<MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
+std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
 
 	std::array<double,3> center({{0.0,0.0,0.0}});
 	double radiusin(2.0), radiusout(5.0);
@@ -61,7 +57,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::
 	}
 
 	//create the volume mesh mimmo.
-	std::unique_ptr<MimmoObject> mesh = std::unique_ptr<MimmoObject>(new MimmoObject(2));
+	std::unique_ptr<mimmo::MimmoObject> mesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
 
 	if (rank == 0){
 
@@ -127,7 +123,7 @@ int test00003() {
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 	std::vector<bitpit::Vertex> bc1list, bc2list;
-	std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
+	std::unique_ptr<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
 
 	std::vector<long> bc1list_, bc2list_;
 	for (auto v : bc1list)
@@ -139,7 +135,7 @@ int test00003() {
 	livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list_, true, true);
 
 	//create the portion of boundary mesh carrying Dirichlet conditions
-	std::unique_ptr<MimmoObject> bdirMesh = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+	std::unique_ptr<mimmo::MimmoObject> bdirMesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
 	if (rank == 0){
 		bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
 		bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
@@ -170,7 +166,7 @@ int test00003() {
 	/* Instantiation of a Partition object with default patition method space filling curve.
 	 * Plot Optional results during execution active for Partition block.
 	 */
-	Partition* partition = new Partition();
+	mimmo::Partition* partition = new mimmo::Partition();
 	partition->setPlotInExecution(true);
 	partition->setGeometry(mesh.get());
 	partition->setBoundaryGeometry(bdirMesh.get());
@@ -186,10 +182,10 @@ int test00003() {
 				<< " seconds" << std::endl;
 	}
 	// and the field of Dirichlet values on its nodes.
-	MimmoPiercedVector<std::array<double,3>> bc_surf_field;
+	mimmo::MimmoPiercedVector<std::array<double,3>> bc_surf_field;
 	//MimmoPiercedVector<double> bc_surf_field;
 	bc_surf_field.setGeometry(partition->getBoundaryGeometry());
-	bc_surf_field.setDataLocation(MPVLocation::POINT);
+	bc_surf_field.setDataLocation(mimmo::MPVLocation::POINT);
 	bc_surf_field.reserve(partition->getBoundaryGeometry()->getNVertices());
 
 	for(auto & cell : partition->getBoundaryGeometry()->getCells()){
@@ -213,26 +209,15 @@ int test00003() {
 	partition->getBoundaryGeometry()->buildInterfaces();
 
 	// Now create a PropagateScalarField and solve the laplacian.
-	PropagateVectorField * prop = new PropagateVectorField();
+	mimmo::PropagateVectorField * prop = new mimmo::PropagateVectorField();
 	prop->setGeometry(partition->getGeometry());
 	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
 	prop->setDirichletConditions(&bc_surf_field);
 	prop->setDumping(false);
-//	prop->setMethod(PropagatorMethod::FINITEVOLUMES);
-	prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
+	prop->setMethod(mimmo::PropagatorMethod::GRAPHLAPLACE);
 	prop->setSolverMultiStep(4);
 	prop->setPlotInExecution(true);
 	prop->setApply(true);
-
-//	PropagateScalarField * prop = new PropagateScalarField();
-//	prop->setGeometry(partition->getGeometry());
-//	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
-//	prop->setDirichletConditions(&bc_surf_field);
-//	prop->setDumping(false);
-//	//prop->setMethod(PropagatorMethod::GRAPHLAPLACE);
-//	prop->setMethod(PropagatorMethod::FINITEVOLUMES);
-//	prop->setSolverMultiStep(1);
-//	prop->setPlotInExecution(true);
 
 	t1 = Clock::now();
 	if (rank ==0)

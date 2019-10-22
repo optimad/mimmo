@@ -24,14 +24,9 @@
 #include "mimmo_parallel.hpp"
 #include "mimmo_propagators.hpp"
 #include "mimmo_iogeneric.hpp"
-#include <exception>
 #include <iostream>
 #include <chrono>
 #include <fstream>
-
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 typedef std::chrono::high_resolution_clock Clock;
 
@@ -39,7 +34,7 @@ typedef std::chrono::high_resolution_clock Clock;
 
 // =================================================================================== //
 
-std::unique_ptr<MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
+std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
 
 	std::array<double,3> center({{0.0,0.0,0.0}});
 	double radiusin(2.0), radiusout(5.0);
@@ -66,7 +61,7 @@ std::unique_ptr<MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::
 	}
 
 	//create the volume mesh mimmo.
-	std::unique_ptr<MimmoObject> mesh = std::unique_ptr<MimmoObject>(new MimmoObject(2));
+	std::unique_ptr<mimmo::MimmoObject> mesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
 
 	if (rank == 0){
 
@@ -132,7 +127,7 @@ int test00004() {
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 	std::vector<bitpit::Vertex> bc1list, bc2list;
-	std::unique_ptr<MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
+	std::unique_ptr<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
 
 	std::vector<long> bc1list_, bc2list_;
 	for (auto v : bc1list)
@@ -144,7 +139,7 @@ int test00004() {
 	livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list_, true, true);
 
 	//create the portion of boundary mesh carrying Dirichlet conditions
-	std::unique_ptr<MimmoObject> bdirMesh = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+	std::unique_ptr<mimmo::MimmoObject> bdirMesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
 	if (rank == 0){
 		bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
 		bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
@@ -176,7 +171,7 @@ int test00004() {
 	/* Instantiation of a Partition object with default patition method space filling curve.
 	 * Plot Optional results during execution active for Partition block.
 	 */
-	Partition* partition = new Partition();
+	mimmo::Partition* partition = new mimmo::Partition();
 	partition->setPlotInExecution(true);
 	partition->setGeometry(mesh.get());
 	partition->setBoundaryGeometry(bdirMesh.get());
@@ -193,7 +188,7 @@ int test00004() {
 
 	/* Creation of mimmo containers. MimmoGeometry used to dump partitioned mesh
 	 */
-	MimmoGeometry * mimmoVolumeOut = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmoVolumeOut = new mimmo::MimmoGeometry();
 	mimmoVolumeOut->setIOMode(IOMode::WRITE);
 	mimmoVolumeOut->setWriteDir("./");
 	mimmoVolumeOut->setWriteFileType(FileType::MIMMO);
@@ -203,7 +198,7 @@ int test00004() {
 
 	/* Creation of mimmo containers. MimmoGeometry used to restore partitioned mesh
 	 */
-	MimmoGeometry * mimmoVolumeIn = new MimmoGeometry();
+	mimmo::MimmoGeometry * mimmoVolumeIn = new mimmo::MimmoGeometry();
 	mimmoVolumeIn->setIOMode(IOMode::CONVERT);
 	mimmoVolumeIn->setReadDir("./");
 	mimmoVolumeIn->setReadFileType(FileType::MIMMO);
@@ -216,12 +211,12 @@ int test00004() {
 	/* Instantiation of a Partition object with serialize partition method.
 	 * Plot Optional results during execution active for Partition block.
 	 */
-	Partition* serialize = new Partition();
+	mimmo::Partition* serialize = new mimmo::Partition();
 	serialize->setName("mimmo.Serialization");
 	serialize->setPlotInExecution(true);
 	serialize->setGeometry(mimmoVolumeIn->getGeometry());
 	serialize->setBoundaryGeometry(bdirMesh.get());
-	serialize->setPartitionMethod(PartitionMethod::SERIALIZE);
+	serialize->setPartitionMethod(mimmo::PartitionMethod::SERIALIZE);
 
 	t1 = Clock::now();
 	if (rank == 0)
@@ -249,16 +244,12 @@ int main( int argc, char *argv[] ) {
 
 #if MIMMO_ENABLE_MPI
 	MPI_Init(&argc, &argv);
-
-
 #endif
 	/**<Calling mimmo Test routines*/
 
 	int val = test00004() ;
 
 #if MIMMO_ENABLE_MPI
-
-
 	MPI_Finalize();
 #endif
 
