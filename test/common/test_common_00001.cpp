@@ -23,6 +23,9 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_common.hpp"
+#if MIMMO_ENABLE_MPI
+#include <mpi.h>
+#endif
 
 class BaseClass {
 protected:
