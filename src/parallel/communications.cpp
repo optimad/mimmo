@@ -25,8 +25,6 @@
 
 #include "communications.hpp"
 
-using namespace bitpit;
-
 namespace mimmo{
 
 /*!
@@ -246,7 +244,7 @@ ListCommunicator::ExchangeList ListCommunicator::scatterExchangeList(const Excha
 
     // Send the list of ids
     for (int rank : getSendRanks()) {
-        SendBuffer buffer = getSendBuffer(rank);
+    	bitpit::SendBuffer buffer = getSendBuffer(rank);
         for (const long id : inputList.at(rank)) {
             buffer << id;
         }
@@ -265,7 +263,7 @@ ListCommunicator::ExchangeList ListCommunicator::scatterExchangeList(const Excha
     outputList.reserve(nPendingRecvs);
     while (nPendingRecvs != 0) {
         int rank = waitAnyRecv();
-        RecvBuffer buffer = getRecvBuffer(rank);
+        bitpit::RecvBuffer buffer = getRecvBuffer(rank);
         long rankListSize = buffer.getSize() / sizeof(long);
 
         RankExchangeList &rankList = outputList[rank];
@@ -407,7 +405,7 @@ void ListCommunicator::startAllExchanges()
     // Fill the buffer with the given field and start sending the data
     for (int rank : getSendRanks()) {
         // Get send buffer
-        SendBuffer &buffer = getSendBuffer(rank);
+        bitpit::SendBuffer &buffer = getSendBuffer(rank);
 
         // Write the buffer
         for (ExchangeBufferStreamer *streamer : m_writers) {
@@ -464,7 +462,7 @@ int ListCommunicator::completeAnyRecv(const std::vector<int> &blacklist)
     int rank = waitAnyRecv(blacklist);
 
     // Get receive buffer
-    RecvBuffer &buffer = getRecvBuffer(rank);
+    bitpit::RecvBuffer &buffer = getRecvBuffer(rank);
 
     // Read the buffer
     for (ExchangeBufferStreamer *streamer : m_readers) {
@@ -624,7 +622,7 @@ const ListCommunicator::RankExchangeList & ListCommunicator::getStreamableRecvLi
     \param patch is the patch
 
 */
-GhostCommunicator::GhostCommunicator(const PatchKernel *patch)
+GhostCommunicator::GhostCommunicator(const bitpit::PatchKernel *patch)
     : ListCommunicator(patch->getCommunicator()),
       m_patch(patch)
 {
@@ -938,7 +936,7 @@ PointListCommunicator::ExchangeList PointListCommunicator::scatterExchangeList(c
 
     // Send the list of ids
     for (int rank : getSendRanks()) {
-        SendBuffer buffer = getSendBuffer(rank);
+    	bitpit::SendBuffer buffer = getSendBuffer(rank);
         for (const long id : inputList.at(rank)) {
             buffer << id;
         }
@@ -957,7 +955,7 @@ PointListCommunicator::ExchangeList PointListCommunicator::scatterExchangeList(c
     outputList.reserve(nPendingRecvs);
     while (nPendingRecvs != 0) {
         int rank = waitAnyRecv();
-        RecvBuffer buffer = getRecvBuffer(rank);
+        bitpit::RecvBuffer buffer = getRecvBuffer(rank);
         long rankListSize = buffer.getSize() / sizeof(long);
 
         RankExchangeList &rankList = outputList[rank];
@@ -1099,7 +1097,7 @@ void PointListCommunicator::startAllExchanges()
     // Fill the buffer with the given field and start sending the data
     for (int rank : getSendRanks()) {
         // Get send buffer
-        SendBuffer &buffer = getSendBuffer(rank);
+    	bitpit::SendBuffer &buffer = getSendBuffer(rank);
 
         // Write the buffer
         for (ExchangeBufferStreamer *streamer : m_writers) {
@@ -1155,7 +1153,7 @@ int PointListCommunicator::completeAnyRecv(const std::vector<int> &blacklist)
     int rank = waitAnyRecv(blacklist);
 
     // Get receive buffer
-    RecvBuffer &buffer = getRecvBuffer(rank);
+    bitpit::RecvBuffer &buffer = getRecvBuffer(rank);
 
     // Read the buffer
     for (ExchangeBufferStreamer *streamer : m_readers) {
