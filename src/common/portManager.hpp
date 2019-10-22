@@ -26,7 +26,6 @@
 #define PORT_MANAGER_HPP
 
 #include "portDefinitions.hpp"
-#include <bitpit_IO.hpp>
 #include <unordered_map>
 #include <cassert>
 
