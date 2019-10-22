@@ -22,12 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 
-#include "bitpit.hpp"
 #include "mimmo.hpp"
-
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 /*!
  * Global logger of the process
@@ -241,7 +236,7 @@ InfoMimmoPP readArguments(std::vector<std::string> & sanitized_args ){
  * \param[out] mapConn map of all blocks that need to be linked/connected
  * \param[in] rootFactory reference to internal register of mimmo API
  */
-void read_Dictionary(std::map<std::string, std::unique_ptr<BaseManipulation > >  & mapInst, std::unordered_map<std::string, BaseManipulation * >  & mapConn, Factory<BaseManipulation> & rootFactory) {
+void read_Dictionary(std::map<std::string, std::unique_ptr<mimmo::BaseManipulation > >  & mapInst, std::unordered_map<std::string, mimmo::BaseManipulation * >  & mapConn, mimmo::Factory<mimmo::BaseManipulation> & rootFactory) {
 
     mimmo_log->setPriority(bitpit::log::NORMAL);
     (*mimmo_log)<< "Currently reading XML dictionary"<<std::endl;
@@ -259,7 +254,7 @@ void read_Dictionary(std::map<std::string, std::unique_ptr<BaseManipulation > > 
 
 
             if(rootFactory.containsCreator(className)){
-                std::unique_ptr<BaseManipulation >temp (rootFactory.create(className, *(sect.second.get())));
+                std::unique_ptr<mimmo::BaseManipulation >temp (rootFactory.create(className, *(sect.second.get())));
                 //class is instantiated. I can push my custom name now.
                 temp->setName(sect.first);
                 mapInst[idstring] = std::move(temp);
@@ -287,7 +282,7 @@ void read_Dictionary(std::map<std::string, std::unique_ptr<BaseManipulation > > 
     }
 
 	//absorb connections from file if any
-	std::unique_ptr<IOConnections_MIMMO> conns (new IOConnections_MIMMO (mapConn));
+	std::unique_ptr<mimmo::IOConnections_MIMMO> conns (new mimmo::IOConnections_MIMMO (mapConn));
 
 	if(mimmo_parser->hasSection("Connections")){
 		bitpit::Config::Section & connXML = mimmo_parser->getSection("Connections");
@@ -369,11 +364,11 @@ void mimmocore(const InfoMimmoPP & info) {
       	mimmo_parser = std::unique_ptr<bitpit::ConfigParser>(new bitpit::ConfigParser("mimmoXML", 1, true));
       	mimmo_parser->read(info.dictName);
 
-		std::map<std::string, std::unique_ptr<BaseManipulation > > mapInst;
-		std::unordered_map<std::string, BaseManipulation * > mapConn;
-		std::unordered_map<std::string, BaseManipulation * > mapInstPtr;
+		std::map<std::string, std::unique_ptr<mimmo::BaseManipulation > > mapInst;
+		std::unordered_map<std::string, mimmo::BaseManipulation * > mapConn;
+		std::unordered_map<std::string, mimmo::BaseManipulation * > mapInstPtr;
 
-		auto &factory = Factory<BaseManipulation>::instance();
+		auto &factory = mimmo::Factory<mimmo::BaseManipulation>::instance();
 		read_Dictionary(mapInst, mapConn, factory);
 
         mimmo_log->setPriority(bitpit::log::NORMAL);
