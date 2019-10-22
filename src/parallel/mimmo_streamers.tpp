@@ -23,8 +23,6 @@
 \*---------------------------------------------------------------------------*/
 #if MIMMO_ENABLE_MPI
 
-using namespace bitpit;
-
 namespace mimmo{
 
 /*!
