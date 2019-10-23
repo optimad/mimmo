@@ -1,4 +1,6 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classmimmo_1_1PortOut.html" title="PortOut is the abstract PIN base class dedicated to exchange data from a target class to other ones (..." alt="" coords="6,5,125,32"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1PortOutT.html" title="PortOutT is the PIN class to exchange output data from an object to others.PortOutT is the template d..." alt="" coords="173,5,349,32"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1VTUAbsorbStreamer.html" title="Abstract class for custom reader/absorber of *.vtu mesh external filesReader/absorber is focused to m..." alt="" coords="197,31,392,57"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1VTUFlushStreamerASCII.html" title="Abstract class for custom ASCII writer/flusher of *.vtu mesh external filesWriter/flusher is focused ..." alt="" coords="184,81,405,108"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1VTUGridStreamer.html" title="Custom mesh/data absorber for unstructured grids given by external files *.vtuRead unstructured mesh ..." alt="" coords="473,5,651,32"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1VTUPointCloudStreamer.html" title="Custom mesh/data absorber for point clouds defined as an unstructured grid and given by external file..." alt="" coords="453,56,671,83"/>
 </map>

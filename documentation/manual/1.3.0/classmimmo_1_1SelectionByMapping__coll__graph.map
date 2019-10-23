@@ -1,5 +1,5 @@
 <map id="mimmo::SelectionByMapping" name="mimmo::SelectionByMapping">
-<area shape="rect" id="node2" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes. " alt="" coords="15,173,187,200"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="13,96,189,123"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes. " alt="" coords="15,171,187,197"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="13,95,189,121"/>
 <area shape="rect" id="node4" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="24,5,179,32"/>
 </map>

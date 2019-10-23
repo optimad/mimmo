@@ -1,5 +1,5 @@
 <map id="mimmo::PropagateVectorField" name="mimmo::PropagateVectorField">
-<area shape="rect" id="node2" href="$classmimmo_1_1PropagateField.html" title="mimmo::PropagateField\&lt; 3 \&gt;" alt="" coords="9,189,199,216"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="32,5,208,32"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1PropagateField.html" title="Executable block that provides the computation of a field over a 3D volume mesh. The field is calcula..." alt="" coords="120,83,280,125"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1PropagateField.html" title="mimmo::PropagateField\&lt; 3 \&gt;" alt="" coords="9,185,200,212"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="11,5,187,32"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1PropagateField.html" title="Executable block that provides the computation of a field over a 3D volume mesh. The field is calcula..." alt="" coords="121,81,281,123"/>
 </map>

@@ -1,0 +1,7 @@
+<map id="mimmo::Module" name="mimmo::Module">
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="534,9,710,36"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="217,5,371,32"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; darray3E \&gt;" alt="" coords="523,137,721,178"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1MimmoPiercedVector.html" title="MimmoPiercedVector is the basic data container for mimmo library. " alt="" coords="195,122,393,163"/>
+<area shape="rect" id="node8" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; double \&gt;" alt="" coords="523,65,721,106"/>
+</map>

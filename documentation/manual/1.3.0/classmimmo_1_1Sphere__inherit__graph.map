@@ -1,5 +1,5 @@
 <map id="mimmo::Sphere" name="mimmo::Sphere">
-<area shape="rect" id="node3" href="$classmimmo_1_1FVSelectionBySphere.html" title="Selection through sphere primitive. " alt="" coords="5,155,205,181"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1FVSelectionBySphere.html" title="FVGenericSelection class specialized for selections with volume spherical primitive shapes..." alt="" coords="5,155,207,181"/>
 <area shape="rect" id="node4" href="$classmimmo_1_1SelectionBySphere.html" title="Selection through sphere primitive. " alt="" coords="231,155,415,181"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="142,5,284,32"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="143,5,285,32"/>
 </map>

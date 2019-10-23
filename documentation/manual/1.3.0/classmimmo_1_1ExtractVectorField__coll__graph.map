@@ -1,5 +1,5 @@
 <map id="mimmo::ExtractVectorField" name="mimmo::ExtractVectorField">
-<area shape="rect" id="node2" href="$classmimmo_1_1ExtractField.html" title="ExtractField is an abstract executable block class capable of extracting a portion of an input field ..." alt="" coords="25,173,167,200"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="8,96,184,123"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1ExtractField.html" title="ExtractField is an abstract executable block class for extracting/restricting an input field defined ..." alt="" coords="25,171,167,197"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="8,95,184,121"/>
 <area shape="rect" id="node4" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="19,5,173,32"/>
 </map>

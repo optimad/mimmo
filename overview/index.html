@@ -37,57 +37,95 @@ The main features of <b>mimmo</b> are:
 
 <ul>
     <li>
-        Input/Output of various surface mesh formats:
+        <b>Input/Output</b> of various surface mesh formats:
         <ul>
             <li>
-                <b>STL, VTU, NAS</b>
+                <b>STL, VTU</b>
             </li>
         </ul>
     </li>
 
     <li>
-        Input/Output of volume point cloud:
+        <b>Input/Output</b> of three-dimensional curves and point cloud:
         <ul>
             <li>
-                <b>OpenFOAM</b> points format, <b>VTU</b> points cloud
+                <b>VTU, OpenFOAM</b> points format
             </li>
         </ul>
     </li>
 
     <li>
-        Geometry parametrization and deformation:
+        <b>Input/Output</b> of third party surface and volume mesh formats:
         <ul>
             <li>
-                <b>Free form deformation (FFD)</b> based on <b>lattice</b> parametrization of volume with different base shapes (cube, sphere, cylinder)
+                <b>CGNS, OpenFOAM</b> volume meshes
             </li>
             <li>
-                Space parametrization and geometry deformation based on <b>Radial Basis Function (RBF)</b>
+                <b>NAS</b> nastran models as surface meshes
+            </li>
+            <li>
+                <b>VTK</b> scalar fields defined on surface meshes [DEPRECATED]
+            </li>
+
+        </ul>
+    </li>
+
+    <li>
+        Geometry <b>parametrization</b> and <b>deformation</b>:
+        <ul>
+            <li>
+                <b>Free Form Deformation (FFD)</b> based on <b>lattice</b> parametrization of volume with different base shapes (cube, sphere, cylinder)
+            </li>
+            <li>
+                space parametrization and geometry deformation based on <b>Radial Basis Function (RBF)</b>
             </li>
         </ul>
     </li>
 
     <li>
-        Basic deformations:
+        Basic <b>deformations</b>:
         <ul>
             <li>
-                Rigid rotation, rigid translation, scaling, twisting, polynomial based bending, symmetric deformation
+                rigid rotation, rigid translation, scaling, twisting, polynomial based bending
             </li>
         </ul>
     </li>
 
     <li>
-        Basic tools for mesh <b>managing, deformation check and repair</b> :
+        Basic tools for mesh <b>selection</b> and field <b>extraction</b> and <b>merging</b> :
         <ul>
             <li>
-                multiple bodies manager, stitching, clipping, penetration control, bounded deformation
+                selection of sub-meshes by elementary shapes, by proximity, by PID and scalar and vector field extraction and overlapping
             </li>
         </ul>
     </li>
+
+    <li>
+        Basic tools for mesh <b>managing</b>, <b>deformation</b>, <b>check</b> and <b>repair</b> :
+        <ul>
+            <li>
+                volume mesh check, multiple bodies manager, stitching, clipping, triangulating, refinement, smoothing, penetration control, bounded deformation
+            </li>
+        </ul>
+    </li>
+
+    <li>
+        <b>Propagation</b> of boundary fields in volume meshes (<i>e.g.</i> propagation of the displacements of the boundaries for a <b>mesh morphing</b> procedure):
+        <ul>
+            <li>
+                laplacian based propagation
+            </li>
+        </ul>
+    </li>
+
 </ul>
 
+<br />    
+
 <p class="centered">
-<img class="background" src="{{ site.baseurl }}/images/spoiler_01.png" alt="Spoiler morphing - initial" height="350" />
-<img class="background" src="{{ site.baseurl }}/images/spoiler_02.png" alt="Spoiler morphing - final" height="350" />
+<!--<img class="background" src="{{ site.baseurl }}/images/spoiler_01.png" alt="Spoiler morphing - initial" height="350" />
+<img class="background" src="{{ site.baseurl }}/images/spoiler_02.png" alt="Spoiler morphing - final" height="350" /> -->
+<img class="background" src="{{ site.baseurl }}/images/velocity.gif" alt="Airfoil optimization" height="300" width="800" />
 </p>
 
 

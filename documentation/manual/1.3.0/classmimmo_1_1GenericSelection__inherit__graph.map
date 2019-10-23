@@ -1,9 +1,9 @@
 <map id="mimmo::GenericSelection" name="mimmo::GenericSelection">
-<area shape="rect" id="node3" href="$classmimmo_1_1SelectionByBox.html" title="Selection through volume box primitive. " alt="" coords="463,13,630,40"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1SelectionByCylinder.html" title="Selection through cylinder primitive. " alt="" coords="451,64,642,91"/>
-<area shape="rect" id="node6" href="$classmimmo_1_1SelectionByMapping.html" title="Selection mapping external surfaces/volume/3D curves on a target mesh of the same topology..." alt="" coords="451,115,643,141"/>
-<area shape="rect" id="node7" href="$classmimmo_1_1SelectionByPID.html" title="Selection using target mesh Part Identifiers. " alt="" coords="463,165,630,192"/>
-<area shape="rect" id="node8" href="$classmimmo_1_1SelectionBySphere.html" title="Selection through sphere primitive. " alt="" coords="455,216,639,243"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="5,115,181,141"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1SelectionByBoxWithScalar.html" title="Selection through volume box primitive. " alt="" coords="691,6,885,47"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1SelectionByBox.html" title="Selection through volume box primitive. " alt="" coords="462,13,629,39"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1SelectionByCylinder.html" title="Selection through cylinder primitive. " alt="" coords="450,63,641,90"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1SelectionByMapping.html" title="Selection mapping external surfaces/volume/3D curves on a target mesh of the same topology..." alt="" coords="449,114,641,141"/>
+<area shape="rect" id="node7" href="$classmimmo_1_1SelectionByPID.html" title="Selection using target mesh Part Identifiers. " alt="" coords="462,165,629,191"/>
+<area shape="rect" id="node8" href="$classmimmo_1_1SelectionBySphere.html" title="Selection through sphere primitive. " alt="" coords="453,215,637,242"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="5,114,181,141"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1SelectionByBoxWithScalar.html" title="Selection through volume box primitive. " alt="" coords="689,5,883,47"/>
 </map>

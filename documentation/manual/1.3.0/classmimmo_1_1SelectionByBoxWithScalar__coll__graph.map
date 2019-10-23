@@ -1,10 +1,10 @@
 <map id="mimmo::SelectionByBoxWithScalar" name="mimmo::SelectionByBoxWithScalar">
-<area shape="rect" id="node2" href="$classmimmo_1_1SelectionByBox.html" title="Selection through volume box primitive. " alt="" coords="843,57,1010,84"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes. " alt="" coords="526,7,698,33"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1SelectionByBox.html" title="Selection through volume box primitive. " alt="" coords="840,57,1007,84"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes. " alt="" coords="524,7,696,33"/>
 <area shape="rect" id="node4" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="285,7,461,33"/>
 <area shape="rect" id="node5" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="5,7,160,33"/>
-<area shape="rect" id="node6" href="$classmimmo_1_1Cube.html" title="Elementary Shape Representation of a Cube. " alt="" coords="560,57,664,84"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1Cube.html" title="Elementary Shape Representation of a Cube. " alt="" coords="558,57,662,84"/>
 <area shape="rect" id="node7" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="302,57,445,84"/>
-<area shape="rect" id="node8" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; double \&gt;" alt="" coords="827,109,1026,150"/>
-<area shape="rect" id="node10" href="$classmimmo_1_1MimmoPiercedVector.html" title="MimmoPiercedVector is the basic data container for mimmo library. " alt="" coords="513,174,711,215"/>
+<area shape="rect" id="node8" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; double \&gt;" alt="" coords="824,109,1023,150"/>
+<area shape="rect" id="node10" href="$classmimmo_1_1MimmoPiercedVector.html" title="MimmoPiercedVector is the basic data container for mimmo library. " alt="" coords="511,174,709,215"/>
 </map>

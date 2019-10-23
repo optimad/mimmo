@@ -15,37 +15,40 @@ These are expected to be present on the machine on which mimmo is being built.
 <h2>Dependencies</h2>
 
 <p>
-In order to build mimmo and bitpit library you need at least the following softwares:
+In order to build mimmo and bitpit library you need at least the following softwares (inside brackets the tested version):
 </p>
 <ul>
 <li>
-    a standard compliant C++ compiler, tested are g++ (>= 4.7.3) and Clang (>= 3.4).
-    Recent versions of ICC (>= 15) should work, older versions (like 14.0.3)
+    a standard compliant C++ compiler, tested are g++ (4.8.5) and Clang (3.4).
+    Recent versions of ICC (15) should work, older versions (like 14.0.3)
     are discouraged
 </li>
 <li>
-    CMake (>= 2.8.6, preferably>= 2.8.12)
+    CMake (3.13.2)
 </li>
 <li>
-    bitpit (>= 1.4.1)
+    bitpit (1.6.1)
+</li>
+<!-- <li>
+    lapacke/lapack (3.8.0)
 </li>
 <li>
-    lapacke/lapack (>= 3.5.0)
+    xml2 (2.9.1)
+</li> --> <!-- bitpit dependencies --> 
+<!-- <li>
+    OpenMPI (4.0.0) [optional]
+</li> -->
+<li>
+    cgns (3.3.1) [optional]
 </li>
 <li>
-    xml2 (>= 2.9.1)
+    hdf5 (1.10.4) [optional]
 </li>
 <li>
-    OpenMPI (>= 1.6.5) [optional]
+    OpenFOAM (16.06) [optional]
 </li>
 <li>
-    vtk (>= 6.3) [optional]
-</li>
-<li>
-    cgns (3.2.1) [optional]
-</li>
-<li>
-    hdf5 (1.8.15) [optional]
+    vtk (8.1.2) [optional]
 </li>
 </ul>
 
@@ -147,6 +150,13 @@ be used to complete.
 
     <br />    
 
+    <dt><strong>BUILD_DOCUMENTATION</strong></dt>
+   <dd>
+   It defines if the Doxygen documentation has to be built or not. The compiled documentation can be navigated via html browser. 
+   <br>The compiled documentation is available at $HOME/projects/mimmo-build/doc/html.</dd>
+
+   <br />    
+
     <dt><strong>BUILD_EXAMPLES</strong></dt>
    <dd>
    Controls the examples will be build (examples can be build built if all
@@ -156,25 +166,27 @@ be used to complete.
 
    <br />    
 
-   <dt><strong>ENABLE_MPI</strong></dt>
+    <dt><strong>BUILD_XMLTUI</strong></dt>
+    <dd>
+    The BUILD_XMLTUI variable defines if the executable binary has to be compiled. 
+    The compiled executable <b>mimmo++</b> is available at $HOME/projects/mimmo-build/binaries/.
+    </dd>
+
+   <br />    
+
+<!--   <dt><strong>ENABLE_MPI</strong></dt>
     <dd>
     Controls if mimmo will be compiled with parallel support and allow the dependency on MPI libraries.
     </dd>
 
-    <br />    
+    <br />    -->
     
    <dt><strong>MIMMO_MODULES</strong></dt>
     <dd>
     The module variables (available in the advanced mode) can be used to compile each module singularly by setting the related varible ON/OFF.
-    <br>MIMMO_MODULE_CORE is always compiled, while for MIMMO_MODULE_GEOHANDLERS, MIMMO_MODULE_IOCGNS, MIMMO_MODULE_IOOFOAM, MIMMO_MODULE_IOVTK
+    <br>MIMMO_MODULE_CORE is always compiled, while for MIMMO_MODULE_GEOHANDLERS, MIMMO_MODULE_IOCGNS, MIMMO_MODULE_IOOFOAM, MIMMO_MODULE_IOVTK, MIMMO_MODULE_PROPAGATORS
     and MIMMO_MODULE_UTILS the compilation can be toggled. <br>Possible dependencies between mimmo modules are automatically resolved.
-    Dependencies on external libraries when possible are automatically resolved  through find package command.
-    </dd>
-
-       <dt><strong>BUILD_XMLTUI</strong></dt>
-    <dd>
-    The BUILD_XMLTUI variable defines if the executable binary has to be compiled. 
-    The compiled executable <b>mimmo++<b> is available at $HOME/projects/mimmo-build/binaries/.
+    Dependencies on external libraries when possible are automatically resolved through find package command. Otherwise the setup for the new variables is required.
     </dd>
 
 </dl>
@@ -213,4 +225,13 @@ and the libraries are installed in ${CMAKE_INSTALL_PREFIX}/lib/mimmo-${major}.${
 <p>
 Remember that if you choose the default installation path or another path without write permission 
 you will need administration privileges to install mimmo in.
+</p>
+
+<h2>Use mimmo</h2>
+
+<p>mimmo can be used as a library in a custom cmake project. mimmo library can be included as a dependency together with its dependencies (bitpit and optionals).
+You can download a template C++ project that includes mimmo library at the following link. 
+<li>
+  <a href="{{ site.baseurl }}/downloads/mimmo-project.tar.gz">mimmo-project.tar.gz</a>
+</li>
 </p>

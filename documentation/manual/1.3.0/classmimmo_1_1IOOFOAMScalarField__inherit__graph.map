@@ -1,0 +1,5 @@
+<map id="mimmo::IOOFOAMScalarField" name="mimmo::IOOFOAMScalarField">
+<area shape="rect" id="node2" href="$classmimmo_1_1IOOFOAM__Kernel.html" title="Abstract class to import/export an OpenFOAM volume mesh alongside its boundary information or field a..." alt="" coords="16,155,195,181"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoFvMesh.html" title="MimmoFvMesh is an abstract executable class for handling 3D and 2D mesh with their boundary informati..." alt="" coords="24,80,187,107"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="17,5,193,32"/>
+</map>

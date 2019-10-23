@@ -1,6 +1,6 @@
 <map id="mimmo::FVSelectionByCylinder" name="mimmo::FVSelectionByCylinder">
-<area shape="rect" id="node2" href="$classmimmo_1_1FVGenericSelection.html" title="Abstract Interface for selection classes related to Volume Unstructured Mesh. " alt="" coords="5,80,195,107"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1FVGenericSelection.html" title="Abstract Interface for selection classes working with MimmoFvMesh mesh types (bulk + boundary) ..." alt="" coords="5,80,195,107"/>
 <area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="11,5,187,32"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1Cylinder.html" title="Elementary Shape Representation of a Cylinder or portion of it. " alt="" coords="221,80,341,107"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="211,5,353,32"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1Cylinder.html" title="Elementary Shape Representation of a Cylinder or portion of it. " alt="" coords="221,80,342,107"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="211,5,354,32"/>
 </map>

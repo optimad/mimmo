@@ -1,6 +1,6 @@
 <map id="mimmo::FVGenericSelection" name="mimmo::FVGenericSelection">
-<area shape="rect" id="node3" href="$classmimmo_1_1FVSelectionByBox.html" title="Selection through volume box primitive. " alt="" coords="5,155,187,181"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1FVSelectionByCylinder.html" title="Selection through cylinder primitive. " alt="" coords="212,155,420,181"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1FVSelectionBySphere.html" title="Selection through sphere primitive. " alt="" coords="445,155,645,181"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="228,5,404,32"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1FVSelectionByBox.html" title="FVGenericSelection class specialized for selections with volume box primitive shapes. " alt="" coords="5,155,188,181"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1FVSelectionByCylinder.html" title="FVGenericSelection class specialized for selections with volume cylindrical primitive shapes..." alt="" coords="213,155,421,181"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1FVSelectionBySphere.html" title="FVGenericSelection class specialized for selections with volume spherical primitive shapes..." alt="" coords="445,155,647,181"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="229,5,405,32"/>
 </map>
