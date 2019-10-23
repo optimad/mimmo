@@ -29,6 +29,18 @@
 typedef std::chrono::high_resolution_clock Clock;
 
 // =================================================================================== //
+/*!
+	example parallel_example_00003.cpp
+
+	brief Example of usage of PropagateVectorField in parallel.
+
+	<b>To run</b>: mpirun -np X parallel_example_00003 \n
+
+	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
+ */
+
+
+// =================================================================================== //
 
 std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
 

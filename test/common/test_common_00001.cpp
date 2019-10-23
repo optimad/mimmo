@@ -27,6 +27,7 @@
 #include <mpi.h>
 #endif
 
+
 class BaseClass {
 protected:
 	std::string m_member;

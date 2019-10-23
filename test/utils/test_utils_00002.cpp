@@ -29,7 +29,7 @@ using namespace bitpit;
 using namespace mimmo;
 
 
-/*!
+/*
  * Creating surface triangular mesh and return it in a MimmoObject.
  * \param[in,out] mesh pointer to a MimmoObject mesh to fill.
  * \return true if successfully created mesh
@@ -102,7 +102,7 @@ bool createMimmoMesh(MimmoObject * mesh){
     return check;
 }
 // =================================================================================== //
-/*!
+/*
  * Test: testing CreateSeedsOnSurface utility
  */
 int test2() {
@@ -163,6 +163,6 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
 	MPI_Finalize();
 #endif
-	
+
 	return val;
 }

@@ -26,7 +26,7 @@
 
 // =================================================================================== //
 /*!
- * Testing Global Manipulators-> Rotation and Scaling
+ * Testing Lattice manipulator
  */
 
 int test3() {

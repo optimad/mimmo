@@ -24,6 +24,22 @@
 
 #include "mimmo_propagators.hpp"
 
+
+// =================================================================================== //
+/*!
+	\example test_propagators_00001.cpp
+
+	\brief Example of scalar and vector field propagation on homogeneous hexa volume mesh.
+
+	Using: PropagateScalarField, PropagateVectorField
+
+	<b>To run</b>: ./test_propagators_00001 \n
+
+	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
+
+ */
+
+
 // =================================================================================== //
 
 std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
@@ -100,6 +116,9 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::vector<long> &bcdi
 
 // =================================================================================== //
 
+/*
+    Testing scalar and vector field propagation.
+*/
 int test1() {
 
     std::vector<long> bc1list, bc2list;

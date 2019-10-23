@@ -26,6 +26,23 @@
 
 // =================================================================================== //
 /*!
+	\example test_propagators_00002.cpp
+
+	\brief Example of multi-stepped scalar field propagation on non-homogeneous tetra-wedge volume mesh.
+
+	Using: PropagateScalarField
+
+	<b>To run</b>: ./test_propagators_00002 \n
+
+	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
+
+ */
+
+
+// =================================================================================== //
+
+// =================================================================================== //
+/*
  * Create bar grid with prismatic layer + tetrahedral bulk and an intermediate ref level between them
  * \param[out]boundary layer surface grid pidded in 3, 0 front face prismatic, 1 back bulk bar faces, 2 other.
  * \return the volume grid
@@ -232,6 +249,9 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh( std::unique_ptr<mimmo:
 
 
 // =================================================================================== //
+/*
+    Testing scalar field propagation ond mixed element and messy mesh.
+*/
 
 int test1() {
 

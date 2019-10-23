@@ -27,13 +27,13 @@
 
 // =================================================================================== //
 /*!
-	\example parallel_example_00002.cpp
+	example parallel_example_00002.cpp
 
-	\brief Example of usage of free form deformation block to manipulate an input geometry.
+	brief Example of usage of free form deformation block to manipulate an input partitioned geometry.
 
-	Geometry deformation block used: FFD (shape sphere).
+	Block used: FFD (shape sphere), Partition.
 
-	<b>To run</b>: ./parallel_example_00002 \n
+	<b>To run</b>: mpirun -np X parallel_example_00002 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */

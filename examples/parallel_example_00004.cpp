@@ -31,6 +31,18 @@
 typedef std::chrono::high_resolution_clock Clock;
 
 // =================================================================================== //
+/*
+	example parallel_example_00004.cpp
+
+	brief Example of usage of Serialization of a partioned geometry.
+
+	Block used: Partition and Serialization.
+
+	<b>To run</b>: mpirun -np X parallel_example_00004 \n
+
+	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
+ */
+
 
 // =================================================================================== //
 

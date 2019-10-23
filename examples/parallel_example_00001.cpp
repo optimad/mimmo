@@ -28,13 +28,13 @@
 
 // =================================================================================== //
 /*!
-	\example parallel_example_00001.cpp
+	example parallel_example_00001.cpp
 
-	\brief Example of usage of parallel partition block to partitioning an input geometry.
+	brief Example of usage of parallel partition block to partitioning an input geometry.
 
 	Parallel manipulation block used: Partition.
 
-	<b>To run</b>: ./parallel_example_00001 \n
+	<b>To run</b>: mpirun -np X parallel_example_00001 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */

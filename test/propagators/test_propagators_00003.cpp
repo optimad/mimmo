@@ -25,6 +25,24 @@
 #include "mimmo_propagators.hpp"
 
 // =================================================================================== //
+/*!
+	\example test_propagators_00003.cpp
+
+	\brief Example of multi-stepped vector field propagation on homogeneous hexa
+                   volume mesh with slip boundaries.
+
+	Using: PropagateVectorField
+
+	<b>To run</b>: ./test_propagators_00003 \n
+
+	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
+
+ */
+
+
+// =================================================================================== //
+
+// =================================================================================== //
 
 std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::unique_ptr<mimmo::MimmoObject> & boundary){
 

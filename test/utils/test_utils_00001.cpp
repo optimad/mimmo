@@ -25,7 +25,7 @@
 #include "mimmo_utils.hpp"
 
 // =================================================================================== //
-/*!
+/*
  * Test: mirroring a point with data attached w.r.t a plane
  */
 int test1() {
