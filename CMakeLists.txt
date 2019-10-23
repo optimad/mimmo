@@ -563,41 +563,42 @@ endif ()
 if (MODULE_ENABLED_IOCGNS)
 
     # ---- CGNS forced ---
-    set(CGNS_DIR " " CACHE PATH "path to CGNS installation")
-    set(HDF5_DIR " " CACHE PATH "path to HDF5 installation")
-    set(HDF5_BUILD_TYPE "parallel" CACHE STRING
-        "Choose the type of HDF5 build, options are: parallel serial.")
-    # Set the possible values of HDF5 build type for the GUI
-    set_property(CACHE HDF5_BUILD_TYPE PROPERTY STRINGS "parallel" "serial")
+    set(CGNS_LIB " " CACHE PATH "path to CGNS libraries installation (libcgns.so) ")
+    set(CGNS_INCLUDE " " CACHE PATH "path to CGNS include installation")
+    #set(HDF5_LIB " " CACHE PATH "path to HDF5 libraries installation")
+    # set(HDF5_BUILD_TYPE "parallel" CACHE STRING
+    #     "Choose the type of HDF5 build, options are: parallel serial.")
+    # # Set the possible values of HDF5 build type for the GUI
+    # set_property(CACHE HDF5_BUILD_TYPE PROPERTY STRINGS "parallel" "serial")
 
     ## you can bind libs to this current mimmo installation
-    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${CGNS_DIR}/include")
+    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${CGNS_INCLUDE}/include")
 
-    addImportedLibrary("cgns" "${CGNS_DIR}/lib" ON)
-    #list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "cgns") //HEY CGNS DOES NOT SUPPORT its CMake Config!!!
+    addImportedLibrary("cgns" "${CGNS_LIB}" ON)
     list(APPEND OTHER_EXTERNAL_LIBRARIES "cgns")
 
-    addImportedLibrary("hdf5" "${HDF5_DIR}/lib" ON)
-    list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5")
+    # addImportedLibrary("hdf5" "${HDF5_LIB}" ON)
+    # list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5")
 
-    if("${HDF5_BUILD_TYPE}" STREQUAL "serial")
-        addImportedLibrary("hdf5_cpp"       "${HDF5_DIR}/lib" ON)
-        addImportedLibrary("hdf5_fortran"   "${HDF5_DIR}/lib" ON)
-        addImportedLibrary("hdf5_hl"        "${HDF5_DIR}/lib" ON)
-        addImportedLibrary("hdf5_hl_cpp"    "${HDF5_DIR}/lib" ON)
-        addImportedLibrary("hdf5_hl_fortran" "${HDF5_DIR}/lib" ON)
-
-        list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_cpp")
-        list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_fortran")
-        list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl")
-        list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl_cpp")
-        list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl_fortran")
-    endif()
+    # if("${HDF5_BUILD_TYPE}" STREQUAL "serial")
+    #     addImportedLibrary("hdf5_cpp"       "${HDF5_DIR}/lib" ON)
+    #     addImportedLibrary("hdf5_fortran"   "${HDF5_DIR}/lib" ON)
+    #     addImportedLibrary("hdf5_hl"        "${HDF5_DIR}/lib" ON)
+    #     addImportedLibrary("hdf5_hl_cpp"    "${HDF5_DIR}/lib" ON)
+    #     addImportedLibrary("hdf5_hl_fortran" "${HDF5_DIR}/lib" ON)
+    #
+    #     list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_cpp")
+    #     list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_fortran")
+    #     list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl")
+    #     list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl_cpp")
+    #     list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl_fortran")
+    # endif()
     #      ----
 else()
-    unset(CGNS_DIR CACHE)
-    unset(HDF5_DIR CACHE)
-    unset(HDF5_BUILD_TYPE CACHE)
+    unset(CGNS_LIB CACHE)
+    unset(CGNS_INCLUDE CACHE)
+#    unset(HDF5_LIB CACHE)
+    # unset(HDF5_BUILD_TYPE CACHE)
 endif ()
 
 # parallel module dependencies
