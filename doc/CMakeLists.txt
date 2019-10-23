@@ -58,14 +58,14 @@ IF(BUILD_DOCUMENTATION)
   SET(DOXY_HTML_INDEX_FILE ${CMAKE_CURRENT_BINARY_DIR}/html/index.html)
   SET(DOXY_OUTPUT_ROOT     ${CMAKE_CURRENT_BINARY_DIR})
   SET(DOXY_PREDEFINED      "\"MIMMO_ENABLE_MPI=${DOXY_ENABLE_MPI}\" \"BITPIT_DEPRECATED(x)=x\"")
-  
+
   SET(DOXY_HTML_HEADER           "" CACHE INTERNAL "Header file for Doxygen documentation")
   SET(DOXY_HTML_FOOTER           "" CACHE INTERNAL "Footer file for Doxygen documentation")
   SET(DOXY_HTML_EXTRA_STYLESHEET "${CMAKE_SOURCE_DIR}/doc/mimmoStyleSheet.css" CACHE INTERNAL "Stylesheet file for Doxygen documentation")
   SET(DOXY_DISABLE_INDEX         "YES" CACHE INTERNAL "Controls if the index should be disabled")
   SET(DOXY_GENERATE_TREEVIEW     "YES" CACHE INTERNAL "Controls if a tree-like index structure should be generated")
 
-  SET(DOXY_INPUT_DIRECTORIES "${CMAKE_SOURCE_DIR}/src/common \\\n      ${CMAKE_SOURCE_DIR}/examples \\\n      ${CMAKE_SOURCE_DIR}/doc/extra")
+  SET(DOXY_INPUT_DIRECTORIES "${CMAKE_SOURCE_DIR}/src/common \\\n      ${CMAKE_SOURCE_DIR}/examples \\\n    ${CMAKE_SOURCE_DIR}/test/propagators \\\n  ${CMAKE_SOURCE_DIR}/doc/extra")
   SET(DOXY_INPUT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/extra/mimmo.hpp;${CMAKE_CURRENT_SOURCE_DIR}/extra/mimmoStyleGuide.hpp;${EXAMPLES_SOURCES}")
   foreach (MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
     isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
@@ -76,7 +76,7 @@ IF(BUILD_DOCUMENTATION)
        list(APPEND DOXY_INPUT_FILES ${${UPPERCASE_MODULE_NAME}_SOURCES} ${${UPPERCASE_MODULE_NAME}_HEADERS})
     endif ()
   endforeach ()
-  
+
   # Create Doxygen input file
   if (NOT "${DOC_EXTRACT_PRIVATE_INTERNAL}" STREQUAL "${DOC_EXTRACT_PRIVATE}")
     if (EXISTS ${DOXY_HTML_INDEX_FILE})

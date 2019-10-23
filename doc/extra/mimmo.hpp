@@ -12,27 +12,32 @@ sub-portion of target geometries, etc... \n
 Blocks are connectable between each other, so that they can describe a morphing workflow, easily
 controllable by the User. \n
 
-# Modules
+# Quick contents description
 
-## core 
+## core
 <B>core</B> provides the basic structures and low level tools to manage them.
 Main executable blocks are:
 
 - <B>mimmo::BaseManipulation</B> is the base class and interface for each executable block
-- <B>mimmo::MimmoObject</B> is the geometry container used to store and perform operation on a target geometry
 - <B>mimmo::Chain</B> provides tools to manage and execute a set of manipulation blocks in an automatic work-flow
+- <B>mimmo::MimmoObject</B> is the geometry container used to store and perform operation on a target geometry
+- <B>mimmo::MimmoPiercedVector</B> is the container for data attached to a MimmoObject geometry
+- <B>mimmo::Lattice</B> is the executable block to create structured mesh of points
+- <B> miscellanous </B> utilities integrating CG,SkdTree and I/O VTU packages of bitpit
+
 
 ## iogeneric
 <B>iogeneric</B> provides all executable blocks to read/write geometry from/on external files, as well as raw data in generic formats.
 Main executable blocks are:
 
-- <B>mimmo::MimmoGeometry</B> is the input/output block for geometry files. Supported format are:
-  - <B>STL</B> Ascii/Binary triangulation
-  - <B>VTU</B> Surface/Volume/Point Cloud/Curve
-  - <B>NAS</B> Nastran triangulation
-  - Ascii <B>OpenFoam</B> point cloud
+- <B>mimmo::MimmoGeometry</B> is the I/O handling block for geometry files.
 - <B>mimmo::GenericInput</B> provides input interfaces to unformatted/CSV files
 - <B>mimmo::GenericOutput</B> provides output interfaces to unformatted/CSV files
+- <B>mimmo::GenericInputMPVData</B> provides input interfaces for MimmoPiercedVector data files
+- <B>mimmo::GenericOutputMPVData</B> provides output interfaces for MimmoPiercedVector data files
+- <B>mimmo::GenericDispls</B> interfaces for FFDLattice input dof displacements from file
+- <B>mimmo::IOCloudPoints</B> interfaces for MRBF input nodes and dof displacements from file
+
 
 ## iocgns
 <B>iocgns</B> collects all interfaces to volume mesh CGNS format input/output.
@@ -53,13 +58,14 @@ Main executable blocks are:
 <B>geohandlers</B> provides tools to handle, transform, select a target geometry mesh and attached data fields.
 Main executable blocks are:
 
-- <B>mimmo::GenericSelection</B> is the base block that provides interfaces to specific selection blocks:
-  - <B>mimmo::SelectionByBox</B>
-  - <B>mimmo::SelectionBySphere</B>
-  - <B>mimmo::SelectionByCylinder</B>
-  - <B>mimmo::SelectionByPID</B>
-  - <B>mimmo::SelectionByMapping</B>
-- <B>mimmo::ClipGeometry</B> and <B>mimmo::StitchGeometry</B> are executable blocks to cut a target geometry and stitch multiple geometries
+- <B>mimmo::...Selection...</B> different selection blocks from primitive-based(Box, Cylinder, etc..) inclusion selections
+                              to PID or proximity Mapping.
+- <B>mimmo::ClipGeometry</B> cutting-by-plane a target geometry
+- <B>mimmo::Extract...</B> extract field subportion from a target MimmoPiercedVector field.
+- <B>mimmo::Reconstruct...</B> reconstruct field on a target geometry from various MimmoPiercedVector fields defined on its subportions.
+- <B>mimmo::RefineGeometry</B> refine a surface geometry into a finer triangular mesh.
+- <B>mimmo::SurfaceTriangulator</B> triangulate a tessellated surface geometry
+- <B>mimmo::StitchGeometry</B> stitch multiple geometries together
 
 ## manipulators
 <B>manipulators</B> provides core engines to morph a target mesh directly or with <B>eFFD</B> and <B>RBF</B> techniques.
@@ -67,10 +73,15 @@ Main executable blocks are:
 
 - <B>mimmo::FFDLattice</B> provides extended Free Form Deformation based manipulation tools
 - <B>mimmo::MRBF</B> provides Radial Basis Functions based manipulation tools
-- <B>mimmo::RotationGeometry</B>, <B>mimmo::ScaleGeometry</B>, <B>mimmo::TranslationGeometry</B> and <B>mimmo::TwistGeometry</B> provide global direct transformation
+- <B>mimmo::...Geometry</B> provide global direct transformation such as rotation, scaling, translation, twisting and bending
+- <B>mimmo::Apply</B> applier of a deformation field to a target geometry
+
+## propagators
+<B>propagators</B> executable blocks for mesh morphing: provides laplacian
+                   propagation of boundary information into a volume mesh
+
 
 ## utils
-<B>utils</B> provides miscellaneous features for morphing workflow
+<B>utils</B> provides miscellaneous features useful to morphing workflow
 
 */
-
