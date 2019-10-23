@@ -33,10 +33,8 @@
 \*----------------------------------------------------------------------------*/
 
 #include "ProjSegmentOnSurface.hpp"
-#include "mimmo_core.hpp"
+#include <SkdTreeUtils.hpp>
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 /*!
@@ -71,7 +69,7 @@ ProjSegmentOnSurface::ProjSegmentOnSurface(const bitpit::Config::Section & rootX
 }
 
 /*!
- * Default destructor 
+ * Default destructor
  */
 ProjSegmentOnSurface::~ProjSegmentOnSurface(){
     clear();
@@ -150,7 +148,7 @@ void ProjSegmentOnSurface::absorbSectionXML(const bitpit::Config::Section & slot
 
     std::string input;
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("Segment")){
         input = slotXML.get("Segment");
         darray3E p1,p2;
@@ -192,7 +190,7 @@ void ProjSegmentOnSurface::absorbSectionXML(const bitpit::Config::Section & slot
         }
         setBuildSkdTree(value);
 };
-    
+
     if(slotXML.hasOption("KdTree")){
         input = slotXML.get("KdTree");
         bool value = false;
@@ -217,7 +215,7 @@ void ProjSegmentOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, st
     std::string output;
 
     {
-        stringstream ss;
+        std::stringstream ss;
         ss<<m_pointA[0]<<m_pointA[1]<<m_pointA[2]<<m_pointB[0]<<m_pointB[1]<<m_pointB[2];
         slotXML.set("Segment", ss.str());
     }

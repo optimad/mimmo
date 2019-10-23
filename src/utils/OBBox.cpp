@@ -25,11 +25,6 @@
 #include "OBBox.hpp"
 #include <lapacke.h>
 
-#include <chrono>
-
-using namespace std::chrono;
-
-using namespace std;
 namespace mimmo{
 
 /*! Basic Constructor. Doing nothing.*/

@@ -29,7 +29,7 @@ namespace mimmo{
  * Default constructor of TranslationPoint
  */
 TranslationPoint::TranslationPoint(darray3E direction){
-    m_direction = direction;
+    setDirection(direction);
     m_alpha = 0.0;
     m_name = "mimmo.TranslationPoint";
 };
@@ -75,6 +75,8 @@ void TranslationPoint::swap(TranslationPoint & x) noexcept
     std::swap(m_origin, x.m_origin);
     std::swap(m_alpha, x.m_alpha);
     std::swap(m_direction, x.m_direction);
+    std::swap(m_translated, x.m_translated);
+
     BaseManipulation::swap(x);
 }
 
@@ -83,12 +85,12 @@ void TranslationPoint::swap(TranslationPoint & x) noexcept
 void
 TranslationPoint::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<darray3E, TranslationPoint>(&m_origin, M_POINT));
-    built = (built && createPortIn<darray3E, TranslationPoint>(&m_direction, M_AXIS));
-    built = (built && createPortIn<double, TranslationPoint>(&m_alpha, M_VALUED));
-    built = (built && createPortOut<darray3E, TranslationPoint>(this, &mimmo::TranslationPoint::getOrigin, M_POINT));
-    built = (built && createPortOut<darray3E, TranslationPoint>(this, &mimmo::TranslationPoint::getDirection, M_AXIS));
-    built = (built && createPortOut<double, TranslationPoint>(this, &mimmo::TranslationPoint::getTranslation, M_VALUED));
+    built = (built && createPortIn<darray3E, TranslationPoint>(this, &mimmo::TranslationPoint::setOrigin, M_POINT));
+    built = (built && createPortIn<darray3E, TranslationPoint>(this, &mimmo::TranslationPoint::setDirection, M_AXIS));
+    built = (built && createPortIn<double, TranslationPoint>(this, &mimmo::TranslationPoint::setTranslation, M_VALUED));
+    built = (built && createPortOut<darray3E, TranslationPoint>(this, &mimmo::TranslationPoint::getTranslatedOrigin, M_POINT));
+    // built = (built && createPortOut<darray3E, TranslationPoint>(this, &mimmo::TranslationPoint::getDirection, M_AXIS));
+    // built = (built && createPortOut<double, TranslationPoint>(this, &mimmo::TranslationPoint::getTranslation, M_VALUED));
     m_arePortsBuilt = built;
 };
 
@@ -108,13 +110,20 @@ TranslationPoint::getTranslation(){
     return(m_alpha);
 }
 
-/*!It gets the original position of the point to be translated (before the execution)
- * or the position of the translated point (after the execution of the object).
+/*!It gets the original position of the point to be translated
  * \return Position of the point.
  */
 darray3E
 TranslationPoint::getOrigin(){
     return(m_origin);
+}
+
+/*!It gets the position of the translated point (after the execution of the object).
+ * \return Position of the translated point.
+ */
+darray3E
+TranslationPoint::getTranslatedOrigin(){
+    return(m_translated);
 }
 
 /*!It sets the direction of the translation.
@@ -123,6 +132,10 @@ TranslationPoint::getOrigin(){
 void
 TranslationPoint::setDirection(darray3E direction){
     m_direction = direction;
+    double norm = norm2(m_direction);
+    if(norm < std::numeric_limits<double>::min()){
+        m_direction /= norm;
+    }
 }
 
 /*!It sets the value of the translation.
@@ -149,9 +162,7 @@ TranslationPoint::setOrigin(darray3E origin){
  */
 void
 TranslationPoint::execute(){
-    for (int i=0; i<3; i++){
-        m_origin[i] += m_alpha * m_direction[i];
-    }
+    m_translated = m_origin + m_alpha*m_direction;
 };
 
 /*!
@@ -231,4 +242,3 @@ TranslationPoint::flushSectionXML(bitpit::Config::Section & slotXML, std::string
 
 
 }
-

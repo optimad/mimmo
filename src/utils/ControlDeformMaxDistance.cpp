@@ -165,7 +165,6 @@ ControlDeformMaxDistance::setLimitDistance(double dist){
 void
 ControlDeformMaxDistance::setGeometry(MimmoObject * geo){
     if (geo ==NULL) return;
-    if (geo->isEmpty()) return;
     if (geo->getType() != 1 ) return;
 
     BaseManipulation::setGeometry(geo);
@@ -178,13 +177,11 @@ ControlDeformMaxDistance::execute(){
 
     MimmoObject * geo = getGeometry();
     if(geo == NULL){
-//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        return;
+        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
     }
 
     if(geo->isEmpty()){
-//        throw std::runtime_error(m_name + " empty linked geometry found");
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
         return;
     }
@@ -238,10 +235,14 @@ ControlDeformMaxDistance::execute(){
     m_violationField.setDataLocation(MPVLocation::POINT);
 
     //write log
-    std::string logname = m_name+"_violation";
-    bitpit::Logger* log = &bitpit::log::cout(logname);
-    log->setPriority(bitpit::log::DEBUG);
-    (*log)<<" violation value : " << getViolation() << std::endl;
+    std::string logname = m_name+std::to_string(getId())+"_violation.log";
+    std::ofstream log;
+    log.open(logname);
+    log<<"mimmo "<<m_name<<" resume file"<<std::endl;
+    log<<std::endl;
+    log<<std::endl;
+    log<<" violation value : " << getViolation() << std::endl;
+    log.close();
 
 };
 
@@ -302,14 +303,18 @@ ControlDeformMaxDistance::plotOptionalResults(){
     dvector1D viol = m_violationField.getDataAsVector();
 
     //add deformation field as vector field
-    getGeometry()->getPatch()->getVTK().addData("Deformation Field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, deff);
+    bitpit::VTKUnstructuredGrid & vtk = getGeometry()->getPatch()->getVTK();
+    vtk.addData("Deformation Field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, deff);
     //add violation field as a custom data field of the original geometry
-    getGeometry()->getPatch()->getVTK().addData("Violation Distance Field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
-    getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
+    vtk.addData("Violation Distance Field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
+
+    vtk.setDirectory(m_outputPlot+"/");
+    vtk.setName(m_name+std::to_string(getId()));
+    getGeometry()->getPatch()->write();
 
     //reset geometry VTK to its original setup
-    getGeometry()->getPatch()->getVTK().removeData("Deformation Field");
-    getGeometry()->getPatch()->getVTK().removeData("Violation Distance Field");
+    vtk.removeData("Deformation Field");
+    vtk.removeData("Violation Distance Field");
 }
 
 

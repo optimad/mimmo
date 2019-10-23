@@ -32,16 +32,20 @@ namespace mimmo{
 /*!
  * \class ControlDeformExtSurface
  * \ingroup utils
- * \brief ControlDeformExtSurface is a class that check a deformation field associated to a MimmoObject geometry,
- *   for eventual penetrations,  w.r.t. one or more external constraint surface meshes.
+ * \brief ControlDeformExtSurface is a class that check a deformation field,
+          associated to a MimmoObject geometry, for eventual collisions/penetrations
+          w.r.t. one or more external constraint surface meshes.
  *
  * ControlDeformExtSurface is derived from BaseManipulation class.
- * Needs one or more external surface meshes, representing the constraint of your deformed object.
- * Returns a double value V, namely the maximum signed distance from constraint surfaces amongst all field points,
- * reporting how much the current deformation field violate the constraint itself.
- * if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs.
- * Need to link the deformation field in examination, as MimmoPiercedVector referred to target geometry and defined
- * to POINT as location.
+ * It needs one or more external surface meshes, representing the
+   constraint of your deformed object.
+ * It returns a double value V, namely the maximum signed distance from constraint
+   surfaces amongst all deformed geometry nodes, reporting how much the current
+   deformation violates the constraint itself.
+ * if V > 0 a violation occurs. If V=0, a contact occurs, otherwise if V<0
+   no violation occurs.
+ * Need to link the deformation field in exam, as MimmoPiercedVector referred to
+   target geometry and defined to POINT as location.
  * Class absorbs/flushes its parameters from/to xml dictionaries
  *
  * \n
@@ -74,61 +78,71 @@ namespace mimmo{
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>Files</B>: external constraint surfaces list of file: \n
- *           <tt> \<Files\> \n
- *              \<file0\> \n
- *                  \<fullpath\> full path to your file \</fullpath\> \n
- *                  \<tag\> tag extension of your file \</tag\> \n
- *                  \<tolerance\> double offset to control violation \</tolerance\> \n
- *              \</file0\> \n
- *              \<file1\> \n
- *                  \<fullpath\> full path to your file \</fullpath\> \n
- *                  \<tag\> tag extension of your file \</tag\> \n
- *                  \<tolerance\> double offset to control violation \</tolerance\> \n
- *              \</file1\> \n
- *              ... \n
- *              ... \n
- *           \</Files\> </tt> \n
- * - <B>BGDetails</B>: OPTIONAL define spacing of background grid, dividing diagonal of box containing geometries by this int factor;
+ * - <B>Files</B>: external constraint surfaces list of file: \n\n
+ *   <tt> <B>\<Files\></B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>\<file0\></B> \n
+ *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<fullpath\></B> full path to file <B>\</fullpath\></B> \n
+ *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<tag\></B> tag extension of your file (see MimmoGeometry general doxy) <B>\</tag\></B> \n
+ *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<tolerance\></B> offset to control violation (float value) <B>\</tolerance\></B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>\</file0\></B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>\<file1\></B> \n
+ *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<fullpath\></B> full path to file <B>\</fullpath\></B> \n
+ *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<tag\></B> tag extension of your file (see MimmoGeometry general doxy) <B>\</tag\></B> \n
+ *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<tolerance\></B> offset to control violation (float value) <B>\</tolerance\></B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>\</file1\></B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>...</B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>...</B> \n
+ *   <B>\</Files\></B> </tt> \n\n
+ * - <B>BGDetails</B>: OPTIONAL define spacing of background grid, dividing diagonal of AABBox containing geometries by this factor (int);
  *
  * Geometry and deformation field have to be mandatorily passed through port.
  *
  */
 class ControlDeformExtSurface: public BaseManipulation{
+public:
+    /*!
+    \ingroup typedefs
+    \{
+    */
+    typedef std::unordered_map<std::string, std::pair<double, int> > fileListWithType; /**< custom typedef for a structure hosting a list of filenames with a double and int values attached on it*/
+    /*
+    \}
+    */
+
 private:
-    std::unordered_map<std::string, std::pair<double, int> > m_geolist; /**< list of file for geometrical proximity check*/
-    dmpvector1D                    m_violationField;    /**<Violation Field as distance from constraint */
-    dmpvecarr3E                    m_defField;     /**<Deformation field*/
-    int                         m_cellBackground; /**< Number of cells N to determine background grid spacing */
-    std::unordered_set<int>        m_allowed; /**< list of currently file format supported by the class*/
+    fileListWithType        m_geolist;        /**< list of file for geometrical proximity check*/
+    dmpvector1D             m_violationField; /**<Violation Field as distance from constraint */
+    dmpvecarr3E             m_defField;       /**<Deformation field*/
+    int                     m_cellBackground; /**< Number of cells N to determine background grid spacing */
+    std::unordered_set<int> m_allowed;        /**< list of currently file format supported by the class*/
+
 public:
     ControlDeformExtSurface();
     ControlDeformExtSurface(const bitpit::Config::Section & rootXML);
-    ~ControlDeformExtSurface();
+    virtual ~ControlDeformExtSurface();
 
     ControlDeformExtSurface(const ControlDeformExtSurface & other);
     ControlDeformExtSurface & operator=(ControlDeformExtSurface other);
 
     void    buildPorts();
 
-    double                                     getViolation();
-    dmpvector1D *                               getViolationField();
-    double                                     getToleranceWithinViolation(std::string);
-    int                                     getBackgroundDetails();
+    double                        getViolation();
+    dmpvector1D *                 getViolationField();
+    double                        getToleranceWithinViolation(std::string);
+    int                           getBackgroundDetails();
+    const    fileListWithType &   getFiles() const;
 
-    void    setDefField(dmpvecarr3E *field);
+    void     setDefField(dmpvecarr3E *field);
     void     setGeometry(MimmoObject * geo);
     void     setBackgroundDetails(int nCell=50);
-    const     std::unordered_map<std::string, std::pair<double, int> > &     getFiles() const;
-    void    setFiles(std::unordered_map<std::string,std::pair<double, int> > list );
+    void     setFiles(fileListWithType list );
     void     addFile(std::string file, double tol, int format);
     void     addFile(std::string file, double tol, FileType format);
     void     removeFile(std::string);
     void     removeFiles();
 
-    void clear();
-
-    void     execute();
+    void    clear();
+    void    execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");

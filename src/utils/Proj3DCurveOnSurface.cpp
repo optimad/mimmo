@@ -33,12 +33,9 @@
 \*----------------------------------------------------------------------------*/
 
 #include "Proj3DCurveOnSurface.hpp"
-#include "mimmo_common.hpp"
-#include "mimmo_core.hpp"
+#include <SkdTreeUtils.hpp>
 #include <queue>
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 /*!
@@ -223,16 +220,6 @@ void Proj3DCurveOnSurface::absorbSectionXML(const bitpit::Config::Section & slot
     };
 
 
-    if(slotXML.hasOption("BvTree")){
-        input = slotXML.get("BvTree");
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss >> value;
-        }
-        setBuildSkdTree(value);
-    };
-
     if(slotXML.hasOption("SkdTree")){
         input = slotXML.get("SkdTree");
         bool value = false;
@@ -292,16 +279,15 @@ void Proj3DCurveOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, st
  */
 void
 Proj3DCurveOnSurface::buildPorts(){
-    bool built = true;
+
+    ProjPrimitivesOnSurfaces::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<dvecarr3E, Proj3DCurveOnSurface>(this, &mimmo::Proj3DCurveOnSurface::setPoints, M_COORDS, true,1));
     built = (built && createPortIn<darray3E, Proj3DCurveOnSurface>(this, &mimmo::Proj3DCurveOnSurface::addPoint, M_POINT,true, 1));
     built = (built && createPortIn<MimmoObject*, Proj3DCurveOnSurface>(this, &mimmo::Proj3DCurveOnSurface::setConnectedPoints, M_GEOM2, true, 1));
-    // built = (built && createPortIn<dvecarr3E, Proj3DCurveOnSurface>(this, &mimmo::Proj3DCurveOnSurface::setPoints, M_COORDS, false));
-    // built = (built && createPortIn<darray3E, Proj3DCurveOnSurface>(this, &mimmo::Proj3DCurveOnSurface::addPoint, M_POINT,false));
-    // built = (built && createPortIn<MimmoObject*, Proj3DCurveOnSurface>(this, &mimmo::Proj3DCurveOnSurface::setConnectedPoints, M_GEOM2, false));
     m_arePortsBuilt = built;
-    ProjPrimitivesOnSurfaces::buildPorts();
+
 }
 
 
@@ -314,7 +300,7 @@ Proj3DCurveOnSurface::projection(){
     std::unique_ptr<MimmoObject> dum(new MimmoObject(4));
 
     dvecarr3E points;
-    std::unordered_map<long, array<long,2> > connectivity;
+    std::unordered_map<long, std::array<long,2> > connectivity;
     int furtherCells = fillPreliminaryStructure(points, connectivity);
     refineObject(points, connectivity, furtherCells);
 

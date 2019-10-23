@@ -36,13 +36,12 @@
 
 #include "ProjPrimitivesOnSurfaces.hpp"
 
-
 namespace mimmo{
 
 /*!
  * \class ProjPatchOnSurface
- * \ingroup core
- * \brief It is an executable block class capable of projecting a 3D surface patch
+ * \ingroup utils
+ * \brief Executable block class capable of projecting a 3D surface patch
  *  on another 3D surface, both defined as MimmoObject.
  *
  * ProjPatchOnSurface project a 3D surface tessellation on a given 3D surface mesh and return it in a
@@ -52,26 +51,23 @@ namespace mimmo{
  *
  *    =========================================================
  *
-     |                   Port Input       ||                               |
+     |  Port Input       |||
      |----------------|----------------------|-------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_GEOM2  | setPatch                 | (MCSCALAR, MD_MIMMO_)      |
+     | M_GEOM2  | setPatch   | (MC_SCALAR, MD_MIMMO_)      |
 
-
-     |             Port Output     ||                                      |
+     | Port Output     |||
      |----------------|---------------------|--------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 
 
-     Inheriting ports from base class ProjPrimitivesOnSurfaces:
-
-     |                   Port Input       ||                               |
+ Inheriting ports from base class ProjPrimitivesOnSurfaces:
+     | Port Input|||
      |----------------|----------------------|-------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM   | setGeometry                        | (MC_SCALAR, MD_MIMMO_)      |
 
-
-     |             Port Output     ||                                      |
+     |Port Output  |||
      |----------------|---------------------|--------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM    | getProjectedElement                | (MC_SCALAR, MD_MIMMO_)      |

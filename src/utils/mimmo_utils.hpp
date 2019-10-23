@@ -37,16 +37,16 @@
 #include "ControlDeformExtSurface.hpp"
 #include "ControlDeformMaxDistance.hpp"
 #include "CreateSeedsOnSurface.hpp"
+#include "MeshChecker.hpp"
+#include "OBBox.hpp"
+#include "Proj3DCurveOnSurface.hpp"
 #include "ProjectCloud.hpp"
+#include "ProjPatchOnSurface.hpp"
+#include "ProjSegmentOnSurface.hpp"
 #include "RBFBox.hpp"
 #include "RotationAxes.hpp"
 #include "SpecularPoints.hpp"
 #include "TranslationPoint.hpp"
-#include "OBBox.hpp"
-#include "MeshChecker.hpp"
-#include "ProjSegmentOnSurface.hpp"
-#include "Proj3DCurveOnSurface.hpp"
-#include "ProjPatchOnSurface.hpp"
 
 
 #endif

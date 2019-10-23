@@ -23,13 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "RBFBox.hpp"
-#include <lapacke.h>
 
-#include <chrono>
-
-using namespace std::chrono;
-
-using namespace std;
 namespace mimmo{
 
 
@@ -38,13 +32,6 @@ RBFBox::RBFBox(){
     m_name = "mimmo.RBFBox";
     m_origin.fill(0.0);
     m_span.fill(1.0);
-    int counter = 0;
-    for(auto &val : m_axes)    {
-        val.fill(0.0);
-        val[counter] = 1.0;
-        ++counter;
-    }
-    m_nodes.clear();
     m_suppR = 0.0;
 };
 
@@ -57,13 +44,6 @@ RBFBox::RBFBox(const bitpit::Config::Section & rootXML){
     m_name = "mimmo.RBFBox";
     m_origin.fill(0.0);
     m_span.fill(1.0);
-    int counter = 0;
-    for(auto &val : m_axes)    {
-        val.fill(0.0);
-        val[counter] = 1.0;
-        ++counter;
-    }
-    m_nodes.clear();
     m_suppR = 0.0;
 
 
@@ -86,7 +66,6 @@ RBFBox::~RBFBox(){};
 RBFBox::RBFBox(const RBFBox & other):BaseManipulation(other){
     m_origin = other.m_origin;
     m_span   = other.m_span;
-    m_axes = other.m_axes;
     m_nodes = other.m_nodes;
     m_suppR = other.m_suppR;
 };
@@ -99,7 +78,6 @@ void RBFBox::swap(RBFBox & x) noexcept
 {
     std::swap(m_origin, x.m_origin);
     std::swap(m_span  , x.m_span);
-    std::swap(m_axes, x.m_axes);
     std::swap(m_nodes, x.m_nodes);
     std::swap(m_suppR, x.m_suppR);
     BaseManipulation::swap(x);
@@ -116,7 +94,6 @@ RBFBox::buildPorts(){
     built = (built && createPortIn<double, RBFBox>(this, &mimmo::RBFBox::setSupportRadius, M_VALUED));
 
     built = (built && createPortOut<darray3E, RBFBox>(this, &mimmo::RBFBox::getOrigin, M_POINT));
-    built = (built && createPortOut<dmatrix33E, RBFBox>(this, &mimmo::RBFBox::getAxes, M_AXES));
     built = (built && createPortOut<darray3E, RBFBox>(this, &mimmo::RBFBox::getSpan, M_SPAN));
 
     m_arePortsBuilt = built;
@@ -128,12 +105,6 @@ RBFBox::clearRBFBox(){
     clear(); //base manipulation stuff clear
     m_origin.fill(0.0);
     m_span.fill(1.0);
-    int counter = 0;
-    for(auto &val : m_axes)    {
-        val.fill(0.0);
-        val[counter] = 1.0;
-        ++counter;
-    }
     m_nodes.clear();
     m_suppR = 0.0;
 
@@ -156,16 +127,17 @@ darray3E
 RBFBox::getSpan(){
     return(m_span);
 }
-
-
 /*!
- * Return the oriented axes of the RBFBox.
- * \return axes of the box
+ * Return the min and max points of the RBFBox.
+ * \param[out] bMin min AABB point
+ * \param[out] bMax max AABB point
  */
-dmatrix33E
-RBFBox::getAxes(){
-    return(m_axes);
+void
+RBFBox::getAABB(darray3E & bMin,darray3E & bMax ){
+    bMin = m_origin - 0.5*m_span;
+    bMax = m_origin + 0.5*m_span;
 }
+
 
 /*!Set a list of RBF points as control nodes.
  * \param[in] nodes coordinates of control points.
@@ -184,7 +156,7 @@ RBFBox::setSupportRadius(double suppR_){
 }
 
 
-/*! Plot the OBB as a structured grid to *vtu file.
+/*! Plot the AABB as a structured grid to *vtu file.
  * \param[in] directory output directory
  * \param[in] filename  output filename w/out tag
  * \param[in] counter   integer identifier of the file
@@ -193,11 +165,9 @@ RBFBox::setSupportRadius(double suppR_){
 void
 RBFBox::plot(std::string directory, std::string filename,int counter, bool binary){
 
+    dvecarr3E activeP(8, darray3E({{0.0,0.0,0.0}}));
 
-    dvecarr3E activeP(8);
-
-    activeP[0] =  - 0.5 * m_span;
-    activeP[6] =    0.5 * m_span;
+    getAABB(activeP[0], activeP[6]);
 
     activeP[1] = activeP[0]; activeP[1][0] += m_span[0];
     activeP[3] = activeP[0]; activeP[3][1] += m_span[1];
@@ -206,17 +176,6 @@ RBFBox::plot(std::string directory, std::string filename,int counter, bool binar
     activeP[7] = activeP[6]; activeP[7][0] += -1.0*m_span[0];
     activeP[5] = activeP[6]; activeP[5][1] += -1.0*m_span[1];
     activeP[4] = activeP[0]; activeP[4][2] += m_span[2];
-
-    darray3E temp;
-    dmatrix33E    trasp = transpose(m_axes);
-    for(auto &val : activeP){
-
-
-        for(int i=0; i<3; ++i){
-            temp[i] = dotProduct(val, trasp[i]);
-        }
-        val = temp + m_origin;
-    }
 
     ivector2D activeConn(1);
     for(int i=0; i<8; ++i)    activeConn[0].push_back(i);
@@ -243,15 +202,21 @@ void
 RBFBox::execute(){
 
     int np = m_nodes.size();
+    if(np < 1){
+        m_origin.fill(0.0);
+        m_span.fill(0.0);
+        return;
+    }
 
-    darray3E min, max;
-    min.fill(1.0e+18);
-    max.fill(-1.0e+18);
+    darray3E min(m_nodes[0]), max(m_nodes[0]);
 
-    for(int i=0; i<np; i++){
+    for(darray3E & val : m_nodes){
         for(int j=0; j<3; j++){
-            if (m_nodes[i][j] - m_suppR*1.01 < min[j]) min[j] = m_nodes[i][j];
-            if (m_nodes[i][j] + m_suppR*1.01 > max[j]) max[j] = m_nodes[i][j];
+            double checkMin = val[j] - m_suppR*1.01;
+            double checkMax = val[j] + m_suppR*1.01;
+
+            if (checkMin < min[j]) min[j] = checkMin;
+            if (checkMax > max[j]) max[j] = checkMax;
         }
     }
 
@@ -308,21 +273,6 @@ RBFBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     slotXML.set("SupportRadius", std::to_string(m_suppR));
 };
 
-/*!
-    Transpose a 3x3 double matrix
-    \param[in] mat target matrix
-    \return new matrix transposed
-*/
-dmatrix33E RBFBox::transpose(const dmatrix33E & mat){
-    dmatrix33E out;
-
-    for(std::size_t i=0; i<3; ++i){
-        for(std::size_t j=0; j<3; ++j){
-            out[j][i] = mat[i][j];
-        }
-    }
-    return out;
-}
 
 
 }

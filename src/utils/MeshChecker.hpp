@@ -9,7 +9,7 @@ namespace mimmo{
 /*!
  * \class MeshChecker
  * \ingroup utils
- * \brief MeshChecker is the class to evaluate the quality of a mesh
+ * \brief MeshChecker is the class to evaluate the quality of a volume mesh
  *
  * The available quality indices computed are :
  * - minimum and maximum cell volume
@@ -55,7 +55,7 @@ namespace mimmo{
  * - <B>MaxBoundarySkewTOL</B>: tolerance for maximum skewness on boundary allowable.
  * - <B>MinFaceValidityTOL</B>: tolerance for maximum skewness on boundary allowable.
  * - <B>MinVolChangeTOL</B>: tolerance for maximum skewness on boundary allowable.
- * - <B>ResumeFile</B>: boolean 1-print Resume file, 0 do nothing.
+ * - <B>ResumeFile</B>: boolean 1-print Resume on file, 0-do nothing.
 
  * Geometry has to be mandatorily passed by port.
  *
@@ -65,7 +65,6 @@ class MeshChecker: public BaseManipulation {
 public:
 
     /*!
-     * \enum CMeshOutput
      * \ingroup utils
      * Check error flag given by MehsChecker class.
      */

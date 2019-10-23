@@ -33,8 +33,7 @@
 \*----------------------------------------------------------------------------*/
 
 #include "ProjPatchOnSurface.hpp"
-#include "mimmo_common.hpp"
-#include "mimmo_core.hpp"
+#include <SkdTreeUtils.hpp>
 
 namespace mimmo{
 

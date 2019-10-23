@@ -33,9 +33,8 @@
 namespace mimmo{
 
 /*!
- * \enum CSeedSurf
  * \ingroup utils
- * \brief Enum class for engine choiche to set up initial points on a 3D surface.
+ * \brief Enum class for engine choice to set up initial points on a 3D surface.
  */
 enum class CSeedSurf{
     RANDOM = 0 /**< Engine type, sows randomly points on surface */,
@@ -93,10 +92,12 @@ enum class CSeedSurf{
  * Proper of the class:
  * - <B>NPoints</B>: total points to distribute;
  * - <B>Engine</B>: type of distribution engine 0:Random,2:CartesianGrid,1:Levelset;
- * - <B>Seed</B>: initial seed point;
- * - <B>MassCenterAsSeed</B>: boolean, if true use geometry mass center sa seed;
- * - <B>RandomFixed</B>: if 1 fix distribution pattern when 0:RANDOM engine is selected, otherwise leave it changing as it likes;
- * - <B>RandomSignature</B>: specify unsigned integer seed when RandomFixes is active;
+ * - <B>Seed</B>: initial seed point coordinates (space separated);
+ * - <B>MassCenterAsSeed</B>: boolean (0/1), if true use geometry mass center sa seed;
+ * - <B>RandomFixed</B>: boolean(0/1), if active it fixes distribution pattern when 0:RANDOM engine is selected,
+                         otherwise leave it changing as it likes;
+ * - <B>RandomSignature</B>: specify unsigned integer seed when RandomFixed is active.
+                            This will reproduce the same random distribution each run;
  *
  *
  */

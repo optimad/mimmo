@@ -36,19 +36,18 @@
 
 #include "ProjPrimitivesOnSurfaces.hpp"
 
-
 namespace mimmo{
 
 /*!
  * \class Proj3DCurveOnSurface
- * \ingroup core
- * \brief It is an executable block class capable of projecting a 3D curve defined by multiple 
- *  elemental connected segments on a 3D surface mesh defined by a MimmoObject. 
+ * \ingroup utils
+ * \brief It is an executable block class capable of projecting a 3D curve defined by multiple
+ *  elemental connected segments on a 3D surface mesh defined by a MimmoObject.
  *
- * Proj3DCurveOnSurface project a 3D Curve tessellation on a given 3D surface mesh and return it in a 
- * in MimmoObject container. 3DCurve can be set as consecutive list of points, or given 
+ * Proj3DCurveOnSurface project a 3D Curve tessellation on a given 3D surface mesh and return it in a
+ * in MimmoObject container. 3DCurve can be set as consecutive list of points, or given
  * as a MimmoObject itself.
- * 
+ *
  * Ports available in Proj3DCurveOnSurface Class :
  *
  *    =========================================================
@@ -58,7 +57,7 @@ namespace mimmo{
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_COORDS | setPoints                          | (MC_VECARR3, MD_FLOAT)      |
      | M_POINT  | addPoint                           | (MC_ARRAY3, MD_FLOAT)       |
-     | M_GEOM2  | setConnectedPoints                 | (MCSCALAR, MD_MIMMO_)      |
+     | M_GEOM2  | setConnectedPoints                 | (MC_SCALAR, MD_MIMMO_)      |
 
 
      |             Port Output     ||                                      |
@@ -95,7 +94,7 @@ namespace mimmo{
  * - <B>nCells</B> : number of discrete cells of projected 3D curve;
  * - <B>SkdTree</B> : evaluate skdTree true 1/false 0;
  * - <B>KdTree</B> : evaluate kdTree true 1/false 0;
- * 
+ *
  *
  * Geometry has to be mandatorily passed through port.
  *
@@ -133,7 +132,7 @@ public:
 protected:
     void projection();
     void swap(Proj3DCurveOnSurface & x) noexcept;
-    
+
 private:
     int fillPreliminaryStructure(dvecarr3E & points, std::unordered_map<long, std::array<long,2> > &connectivity);
     void refineObject(dvecarr3E & points, std::unordered_map<long, std::array<long,2> > &connectivity, int fCells);

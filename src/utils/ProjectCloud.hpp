@@ -26,8 +26,6 @@
 
 #include "BaseManipulation.hpp"
 
-
-
 namespace mimmo{
 
 /*!
@@ -42,14 +40,18 @@ namespace mimmo{
 
    |Port Input | | |
    |-|-|-|
-   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> | 
+   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
    | M_COORDS | setCoords         | (MC_VECARR3, MD_FLOAT)    |
    | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)    |
+   | M_GEOM2  | setCoords         | (MC_SCALAR, MD_MIMMO_)    |
+
 
    |Port Output  | | |
    |-|-|-|
    | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>   |
-   | M_COORDS | getCloudResult    | (MC_VECARR3, MD_FLOAT)    |
+   | M_COORDS | getProjectedCoords         | (MC_VECARR3, MD_FLOAT)    |
+   | M_GEOM   | getProjectedCloud          | (MC_SCALAR, MD_MIMMO_)    |
+
 
  *    =========================================================
  * \n
@@ -66,9 +68,13 @@ namespace mimmo{
  */
 
 class ProjectCloud: public BaseManipulation{
+
 protected:
     dvecarr3E            m_points;    /**<Coordinates of 3D points in the cloud.*/
     dvecarr3E            m_proj;     /**<Projected points coordinates.*/
+    livector1D           m_labels;   /**<labels associated to 3D points in the cloud.*/
+
+    std::unique_ptr<MimmoObject> m_internalPC; /**< internal PointCloud MimmoObject for I/O purposes*/
 
 public:
     ProjectCloud();
@@ -77,13 +83,17 @@ public:
 
     ProjectCloud(const ProjectCloud & other);
     ProjectCloud& operator=(ProjectCloud other);
-    
-    void    buildPorts();
 
-    dvecarr3E    getCoords();
-    dvecarr3E    getCloudResult();
+    void         buildPorts();
 
-    void    setCoords(dvecarr3E coords);
+    dvecarr3E    getOriginalCoords(livector1D * labels = nullptr);
+    dvecarr3E    getProjectedCoords();
+    dvecarr3E    getProjectedCoords(livector1D * labels);
+    MimmoObject* getProjectedCloud();
+
+    void     setCoords(dvecarr3E coords);
+    void     setCoords(MimmoObject * coordsPC);
+    void     setGeometry(MimmoObject * refSurface);
     void     execute();
 
     void clear();
@@ -97,11 +107,11 @@ protected:
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__PROJECTCLOUD_HPP__)
+REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_,__PROJECTCLOUD_HPP__)
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__PROJECTCLOUD_HPP__)
-
 
 REGISTER(BaseManipulation, ProjectCloud,"mimmo.ProjectCloud")
 
 };
 
-#endif /* __PROJECTCLOUD_HPP__ */
+#endif // __PROJECTCLOUD_HPP__ 

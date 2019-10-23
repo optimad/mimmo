@@ -34,8 +34,6 @@
 
 #include "ProjPrimitivesOnSurfaces.hpp"
 
-using namespace std;
-using namespace bitpit;
 namespace mimmo{
 
 /*!
@@ -148,15 +146,6 @@ ProjPrimitivesOnSurfaces::setGeometry(MimmoObject* geo){
     m_geometry = geo;
 };
 
-/*!
- * It sets if the SkdTree of the projected primitive element data structure has to be built during execution.
- * \param[in] build If true the SkdTree is built in execution and stored in
- * the related MimmoObject member.
- */
-void
-ProjPrimitivesOnSurfaces::setBuildBvTree(bool build){
-    m_buildSkdTree = build;
-}
 
 /*!It sets if the SkdTree of the projected primitive element data structure has to be built during execution.
  * \param[in] build If true the skdTree is built in execution and stored in
@@ -222,7 +211,7 @@ ProjPrimitivesOnSurfaces::execute(){
         if(m_buildSkdTree)    m_patch->buildSkdTree();
         if(m_buildKdTree)    m_patch->buildKdTree();
     }else{
-        throw std::runtime_error (m_name + " : found empty projected 3D curve object");
+        (*m_log)<<m_name << " : found empty projected 3D curve object"<<std::endl;
     }
 };
 
@@ -231,10 +220,12 @@ ProjPrimitivesOnSurfaces::execute(){
  */
 void
 ProjPrimitivesOnSurfaces::plotOptionalResults(){
-    std::string name = m_outputPlot+"/"+m_name + "_Patch";
-    m_patch->getPatch()->getVTK().setCounter(getId());
-    m_patch->getPatch()->write(name);
-    m_patch->getPatch()->getVTK().unsetCounter();
+    bitpit::VTKUnstructuredGrid & vtk = m_patch->getPatch()->getVTK();
+    vtk.setDirectory(m_outputPlot+"/");
+    vtk.setName(m_name + std::to_string(getId())+"_Patch");
+    vtk.setCounter(getId());
+    m_patch->getPatch()->write();
+    vtk.unsetCounter();
 
 };
 

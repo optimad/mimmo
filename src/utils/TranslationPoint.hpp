@@ -38,7 +38,7 @@ namespace mimmo{
  * an external input.
  * Result of the translation are saved in result of base class and
  * in the modified member m_origin.
- * 
+ *
  * \n
  * Ports available in GenericInput Class :
  *
@@ -47,16 +47,14 @@ namespace mimmo{
      |Port Input | | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_POINT  | m_origin          | (MC_ARRAY3, MD_FLOAT)        |
-     | M_AXIS   | m_direction       | (MC_ARRAY3, MD_FLOAT)        |
-     | M_VALUED | m_alpha           | (MC_SCALAR, MD_FLOAT)        |
+     | M_POINT  | setOrigin          | (MC_ARRAY3, MD_FLOAT)        |
+     | M_AXIS   | setDirection       | (MC_ARRAY3, MD_FLOAT)        |
+     | M_VALUED | setTranslation     | (MC_SCALAR, MD_FLOAT)        |
 
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
      | M_POINT   | getOrigin         | (MC_ARRAY3, MD_FLOAT)       |
-     | M_AXIS    | getDirection      | (MC_ARRAY3, MD_FLOAT)       |
-     | M_VALUED  | getTranslation    | (MC_SCALAR, MD_FLOAT)       |
 
  *    =========================================================
  * \n
@@ -67,17 +65,18 @@ namespace mimmo{
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  *
  * Proper of the class:
- * - <B>Origin</B>: point tha need to be translated;
+ * - <B>Origin</B>: point that need to be translated;
  * - <B>Direction</B>: translation direction;
  * - <B>Translation</B>: entity of translation.
  *
  */
 class TranslationPoint: public BaseManipulation{
-private:
+protected:
     //members
     darray3E    m_direction;    /**<Components of the translation axis.*/
     darray3E    m_origin;       /**<Origin of box to be deformed.*/
     double      m_alpha;        /**<Value of translation.*/
+    darray3E    m_translated;   /**< Value translated */
 
 public:
     TranslationPoint(darray3E direction = { {0, 0, 0} });
@@ -88,9 +87,12 @@ public:
 
     void        buildPorts();
 
+    darray3E     getTranslatedOrigin();
+
     darray3E     getDirection();
     darray3E     getOrigin();
-    double         getTranslation();
+    double       getTranslation();
+
     void         setDirection(darray3E direction);
     void         setOrigin(darray3E origin);
     void         setTranslation(double alpha);

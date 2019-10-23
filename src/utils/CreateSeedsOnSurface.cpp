@@ -28,12 +28,7 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include <unordered_set>
-#include <unordered_map>
 #include <set>
-#include <iostream>
-#include <fstream>
-#include <cmath>
 #include <random>
 
 namespace mimmo{
@@ -765,8 +760,10 @@ CreateSeedsOnSurface::plotCloud(std::string dir, std::string file, int counter, 
     }
 
     dvector1D sens(m_nPoints, 1.0);
+    ivector1D labels(m_nPoints);
     for(int i=0; i<m_nPoints; ++i){
         sens[i] = interpolateSensitivity(m_points[i]);
+        labels[i] = i;
     }
 
     bitpit::VTKUnstructuredGrid vtk(dir, file, bitpit::VTKElementType::VERTEX);
@@ -774,6 +771,7 @@ CreateSeedsOnSurface::plotCloud(std::string dir, std::string file, int counter, 
     vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
     vtk.setDimensions( m_nPoints, m_nPoints);
     vtk.addData("sensitivity", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT,sens);
+    vtk.addData("labels", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT,labels);
     vtk.setCodex(codex);
     if(counter>=0){vtk.setCounter(counter);}
 

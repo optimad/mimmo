@@ -79,7 +79,7 @@ enum class MRBFSol{
      | M_FILTER  | setFilter             | (MC_SCALAR, MD_MPVECFLOAT_)       |
      | M_VALUED  | setSupportRadius      | (MC_SCALAR, MD_FLOAT)       |
      | M_VALUED2 | setSupportRadiusValue | (MC_SCALAR, MD_FLOAT)       |
-     | M_GEOM    | setGeeometry            | (MC_SCALAR, MD_MIMMO_)      |
+     | M_GEOM    | setGeometry            | (MC_SCALAR, MD_MIMMO_)      |
 
      |Port Output | | |
      |-|-|-|

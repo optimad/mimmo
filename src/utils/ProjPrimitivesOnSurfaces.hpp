@@ -35,20 +35,19 @@
 #ifndef __PROJPRIMITIVESONSURFACES_HPP__
 #define __PROJPRIMITIVESONSURFACES_HPP__
 
-#include "MimmoObject.hpp"
 #include "BaseManipulation.hpp"
 
 namespace mimmo{
 
 /*!
  * \class ProjPrimitivesOnSurfaces
- * \ingroup core
- * \brief Class for projecting 1D/2D primitives on a target 3D surface mesh 
- * 
- * Pure virtual class used as interface for objects of projecting elemental 1D or 2D primitives 
- * such as segments, circumferences or circles, triangles etc... on a 3D surface mesh defined 
- * by a MimmoObject. ProjPrimitivesOnSurfaces is a pure virtual class 
- * 
+ * \ingroup utils
+ * \brief Class for projecting 1D/2D primitives on a target 3D surface mesh
+ *
+ * Abstract class used as interface for objects of projecting elemental 1D or 2D primitives
+ * such as segments, circumferences or circles, triangles etc... on a 3D surface mesh defined
+ * by a MimmoObject.
+ *
  * Ports available in ProjPrimitivesOnSurfaces Class :
  *
  *    =========================================================
@@ -90,15 +89,14 @@ protected:
 
 public:
     int                             getTopology();
-    virtual int                        getProjElementTargetNCells();
-    MimmoObject *                     getProjectedElement();
+    virtual int                     getProjElementTargetNCells();
+    MimmoObject *                   getProjectedElement();
 
     void        setGeometry(MimmoObject * geo);
 
-    BITPIT_DEPRECATED(void        setBuildBvTree(bool build));
     void        setBuildSkdTree(bool build);
     void        setBuildKdTree(bool build);
-    void         setProjElementTargetNCells(int nC);
+    void        setProjElementTargetNCells(int nC);
 
     bool         isEmpty();
 

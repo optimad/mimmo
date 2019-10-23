@@ -41,13 +41,13 @@ namespace mimmo{
 
 /*!
  *  \class ProjSegmentOnSurface
- * \ingroup core
- *  \brief It is an executable block class capable of  
- *         projecting an elemental segment on a 3D surface mesh defined by a MimmoObject. 
+ * \ingroup utils
+ *  \brief Executable block class capable of projecting an elemental segment on
+           a 3D surface mesh defined by a MimmoObject.
  *
- *  ProjSegmentOnSurface project a given segment on a given 3D surface mesh and return a discrete 3D curve mesh 
- *  in MimmoObject container
- * 
+ *  ProjSegmentOnSurface project a given segment on a given 3D surface mesh and
+    return a discrete 3D curve mesh in MimmoObject container
+ *
  * Ports available in ProjSegmentOnSurface Class :
  *
  *    =========================================================
@@ -87,14 +87,14 @@ namespace mimmo{
  *  - <B>OutputPlot</B> : target directory for optional results writing.
  *
  * Proper of the class
- *  - <B>Segment</B> : pass extremal points of the segmentSegmentPoints;
+ *  - <B>Segment</B> : pass extremal points of the segmentSegmentPoints (6 coordinates, space separated);
  *  - <B>nCells</B> : number of discrete cells of projected 3D curve;
  *  - <B>SkdTree</B> : evaluate skdTree true 1/false 0;
  *  - <B>KdTree</B> : evaluate kdTree true 1/false 0;
 
  *
  * Geometry has to be mandatorily passed through port.
- * 
+ *
  */
 class ProjSegmentOnSurface: public ProjPrimitivesOnSurfaces{
 

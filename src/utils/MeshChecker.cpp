@@ -125,7 +125,6 @@ MeshChecker::execute()
 		throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
 	}
 	if (getGeometry()->isEmpty()){
-		//throw std::runtime_error (m_name + " : empty linked geometry");
         (*m_log)<<"WARNING: "<<m_name<< " : empty geometry found in execution"<<std::endl;
 	}
 

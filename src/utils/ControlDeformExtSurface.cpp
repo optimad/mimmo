@@ -24,7 +24,6 @@
 #include "ControlDeformExtSurface.hpp"
 #include "SkdTreeUtils.hpp"
 #include <volcartesian.hpp>
-#include <cmath>
 
 namespace mimmo{
 
@@ -93,8 +92,6 @@ void ControlDeformExtSurface::swap(ControlDeformExtSurface & x) noexcept
     std::swap(m_allowed, x.m_allowed);
     std::swap(m_geolist, x.m_geolist);
     std::swap(m_cellBackground, x.m_cellBackground);
-//     std::swap(m_violationField, x.m_violationField);
-//     std::swap(m_defField, x.m_defField);
     m_violationField.swap(x.m_violationField);
     m_defField.swap(x.m_defField);
     BaseManipulation::swap(x);
@@ -159,7 +156,7 @@ ControlDeformExtSurface::getToleranceWithinViolation(std::string file){
 /*!
  * Get number of cells used for determining background grid spacing.
  * See ControlDeformExtSurface::setBackgroundDetails() method documentation;
- * \return     number of cells (default 20)
+ * \return     number of cells (default 50)
  */
 int
 ControlDeformExtSurface::getBackgroundDetails(){
@@ -217,8 +214,8 @@ ControlDeformExtSurface::setBackgroundDetails(int nCell){
  * type of the file (as FileType enum) as second argument of the map.
  * \return list of external geometries files with their tolerance and type
  */
-const std::unordered_map<std::string, std::pair<double, int> >
-& ControlDeformExtSurface::getFiles() const{
+const ControlDeformExtSurface::fileListWithType &
+ControlDeformExtSurface::getFiles() const{
     return    m_geolist;
 }
 
@@ -229,8 +226,8 @@ const std::unordered_map<std::string, std::pair<double, int> >
  * \param[in] files list external geometries to be read
  */
 void
-ControlDeformExtSurface::setFiles(std::unordered_map<std::string, std::pair<double, int> >  files){
-    for(auto && val : files){
+ControlDeformExtSurface::setFiles(ControlDeformExtSurface::fileListWithType files){
+    for(auto & val : files){
         addFile(val.first, val.second.first, val.second.second);
     }
 };
@@ -294,13 +291,11 @@ ControlDeformExtSurface::execute(){
 
     MimmoObject * geo = getGeometry();
     if(geo == NULL){
-//        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
         (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        return;
-    }
+        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
 
+    }
     if(geo->isEmpty()){
-//        throw std::runtime_error(m_name + " empty linked geometry found");
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
         return;
     }
@@ -779,14 +774,19 @@ ControlDeformExtSurface::plotOptionalResults(){
     dvector1D viol = m_violationField.getDataAsVector();
 
     //add deformation field as vector field
-    getGeometry()->getPatch()->getVTK().addData("Deformation Field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, deff);
+    bitpit::VTKUnstructuredGrid & vtk = getGeometry()->getPatch()->getVTK();
+
+    vtk.addData("Deformation Field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, deff);
     //add violation field as a custom data field of the original geometry
-    getGeometry()->getPatch()->getVTK().addData("Violation Distance Field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
-    getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
+    vtk.addData("Violation Distance Field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
+
+    vtk.setDirectory(m_outputPlot+"/");
+    vtk.setName(m_name+std::to_string(getId()));
+    getGeometry()->getPatch()->write();
 
     //reset geometry VTK to its original setup
-    getGeometry()->getPatch()->getVTK().removeData("Deformation Field");
-    getGeometry()->getPatch()->getVTK().removeData("Violation Distance Field");
+    vtk.removeData("Deformation Field");
+    vtk.removeData("Violation Distance Field");
 }
 
 /*!
@@ -795,19 +795,20 @@ ControlDeformExtSurface::plotOptionalResults(){
 void
 ControlDeformExtSurface::writeLog(){
 
-    std::string logname = m_name+"_violation";
-    bitpit::Logger* log = &bitpit::log::cout(logname);
-    log->setPriority(bitpit::log::DEBUG);
-
-    (*log)<<" violation value : " << getViolation() << std::endl;
-
-    (*log)<<" constraint geometries files : " ;
+    std::string logname = m_name+std::to_string(getId())+"_violation.log";
+    std::ofstream log;
+    log.open(logname);
+    log<<"mimmo "<<m_name<<" resume file"<<std::endl;
+    log<<std::endl;
+    log<<std::endl;
+    log<<" violation value : " << getViolation() << std::endl;
+    log<<std::endl;
+    log<<" constraint geometries files : " ;
     for (auto ig : m_geolist){
-        (*log)<< ig.first << "  " ;
+        log<< ig.first << "  "<<std::endl;
     }
-    (*log)<<std::endl;
 
-
+    log.close();
 };
 
 

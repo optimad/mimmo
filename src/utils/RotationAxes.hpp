@@ -33,10 +33,9 @@ namespace mimmo{
  *	\ingroup utils
  *	\brief RotationAxes is the class that applies a rotation to a given reference system.
  *
- *	The used parameters are the rotation value and the direction and the origin
- *	of the rotation axis.
+ *	The used parameters are the rotation value (in randians), the rotation axis
+    direction and origin.
  *
- * \n
  * Ports available in GenericInput Class :
  *
  *	=========================================================
@@ -45,11 +44,11 @@ namespace mimmo{
     |Port Input | | |
     |-|-|-|
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-    | M_POINT           | m_origin                  | (MC_ARRAY3, MD_FLOAT)       |
- 	| M_AXIS            | m_direction               | (MC_ARRAY3, MD_FLOAT)       |
- 	| M_VALUED          | m_alpha                   | (MC_SCALAR, MD_FLOAT)       |
- 	| M_POINT2          | m_axes_origin             | (MC_ARRAY3, MD_FLOAT)       |
- 	| M_AXES            | m_axes                    | (MC_ARR3ARR3, MD_FLOAT)     |
+    | M_POINT           | setOrigin                 | (MC_ARRAY3, MD_FLOAT)       |
+ 	| M_AXIS            | setDirection              | (MC_ARRAY3, MD_FLOAT)       |
+ 	| M_VALUED          | setRotation               | (MC_SCALAR, MD_FLOAT)       |
+ 	| M_POINT2          | setAxesOrigin             | (MC_ARRAY3, MD_FLOAT)       |
+ 	| M_AXES            | setAxes                   | (MC_ARR3ARR3, MD_FLOAT)     |
 
 
     |Port Output | | |
@@ -67,20 +66,22 @@ namespace mimmo{
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  *
  * Proper of the class:
- * - <B>Origin</B>: rotation axis origin;
- * - <B>Direction</B>: axis direction coordinates;
+ * - <B>Origin</B>: rotation axis origin coordinates (space separated);
+ * - <B>Direction</B>: axis direction coordinates (space separated);
  * - <B>Rotation</B>: rotation angle in radians. Positive on counterclockwise rotations around reference axis;
  * - <B>RefSystem</B>: axes of current shape reference system. written in XML as: \n
- *                 <tt> \<RefSystem\> \n
- *                      \<axis0\> 1.0 0.0 0.0 \</axis0\> \n
- *                      \<axis1\> 0.0 1.0 0.0 \</axis1\> \n
- *                      \<axis2\> 0.0 0.0 1.0 \</axis2\> \n
- *                  \</RefSystem\> </tT> \n
- * - <B>OriginRS</B>: origin of the target reference system to be rotated.
+ *   <tt><B>\<RefSystem\></B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>\<axis0\></B> 1.0 0.0 0.0 <B>\</axis0\></B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>\<axis1\></B> 0.0 1.0 0.0 <B>\</axis1\></B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>\<axis2\></B> 0.0 0.0 1.0 <B>\</axis2\></B> \n
+ *   <B>\</RefSystem\></B> </tt> \n\n
+
+ * - <B>OriginRS</B>: origin coordinates of the target reference system to be rotated (space separated);
  *
  */
 class RotationAxes: public BaseManipulation{
-private:
+
+protected:
 	//members
 	darray3E	m_origin;		/**<Origin of the rotation axis.*/
 	darray3E	m_direction;	/**<Components of the rotation axis.*/
@@ -111,7 +112,7 @@ public:
 	darray3E getRotatedOrigin();
 
 	void 	execute();
-	
+
 	virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
 	virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 

@@ -26,8 +26,6 @@
 
 #include "BaseManipulation.hpp"
 
-
-
 namespace mimmo{
 
 /*!
@@ -35,7 +33,8 @@ namespace mimmo{
  *    \ingroup utils
  *    \brief Radial Basis Functions Bounding Box calculator.
  *
- *    Builds the axes aligned bounding box of a set of RBF points.
+ *    Builds the Axes Aligned Bounding Box around a set of RBF points,
+      described as spheres of support radius R.
  *
  * \n
  * Ports available in RBFBox Class :
@@ -54,7 +53,6 @@ namespace mimmo{
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>        |
      | M_POINT     | getOrigin         | (MC_ARRAY3, MD_FLOAT)     |
-     | M_AXES      | getAxes           | (MC_ARR3ARR3, MD_FLOAT)   |
      | M_SPAN      | getSpan           | (MC_ARRAY3, MD_FLOAT)     |
 
  *    =========================================================
@@ -78,7 +76,6 @@ class RBFBox: public BaseManipulation {
 protected:
     darray3E    m_origin;        /**< Origin of the BB.*/
     darray3E    m_span;         /**< Span of the BB. */
-    dmatrix33E    m_axes;            /**<reference system of the bbox (axes aligned AABB) */
     dvecarr3E   m_nodes;        /**<Radial Basis Functions control points.*/
     double      m_suppR;        /**<Support radius value of RBFs.*/
 
@@ -99,7 +96,7 @@ public:
     //internal methods
     darray3E    getOrigin();
     darray3E    getSpan();
-    dmatrix33E    getAxes();
+    void        getAABB(darray3E & bMin, darray3E & bMax);
     void        setNode(dvecarr3E);
     void        setSupportRadius(double suppR_);
 
@@ -116,7 +113,6 @@ public:
 protected:
     virtual void plotOptionalResults();
     void swap(RBFBox & x) noexcept;
-    dmatrix33E transpose(const dmatrix33E & mat);
 };
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__RBFBox_HPP__)

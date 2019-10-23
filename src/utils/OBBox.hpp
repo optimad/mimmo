@@ -33,7 +33,8 @@ namespace mimmo{
  *    \ingroup utils
  *    \brief Oriented Bounding Box calculator.
  *
- *    Builds the oriented bounding box of a 3D object (Point Clouds or superficial tessellations), passed as MimmoObject.
+ *    Builds the oriented bounding box of a 3D object
+      (Point Clouds or superficial tessellations), passed as MimmoObject.
  *
  * \n
  * Ports available in OBBox Class :
@@ -65,8 +66,10 @@ namespace mimmo{
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>ForceAABB</B>: if true calculate the simple AABB of the union of target geometries linked
- * - <B>WriteInfo</B>: 1- write info of OBB on file, in plotOptionalResults directory, 0- do nothing.
+ * - <B>ForceAABB</B>: boolean(0/1) if true calculate the simple AABB of the union of target geometries linked
+ * - <B>WriteInfo</B>: boolean(0/1) if true write info of OBB on file, in plotOptionalResults directory, false do nothing.
+
+
  * Geometries have to be mandatorily added/passed through ports.
  *
  */

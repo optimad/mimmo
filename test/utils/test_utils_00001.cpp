@@ -39,7 +39,7 @@ int test1() {
     sp->setPlane({{0,0,0}},{{0,1,0}});
     sp->exec();
 
-    auto coords = sp->getCloudResult();
+    auto coords = sp->getMirroredCoords();
     auto datas = sp->getCloudVectorData();
 
     bool check = ((coords.size() ==2 ) && (datas.size() ==2) );

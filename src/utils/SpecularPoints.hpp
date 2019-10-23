@@ -26,55 +26,50 @@
 
 #include "ProjectCloud.hpp"
 
-
 namespace mimmo{
 
 /*!
- *    \class SpecularPoints
- *    \ingroup utils
- *    \brief SpecularPoints is a class that mirrors a point cloud w.r.t. a reference plane, on a target geometry if any
+ *  \class SpecularPoints
+ *  \ingroup utils
+ *  \brief SpecularPoints is a class that mirrors a point cloud w.r.t. a
+             reference plane, on a target surface geometry if any
  *
  *  SpecularPoints is derived from ProjectCloud class. Given a certain number of points and a reference plane,
- *  the class mirrors such points with respect to this plane. If a geometry is linked, project mirrored points on 
- *  this target geometry. \n
+ *  the class mirrors such points with respect to this plane. If a surface geometry is linked,
+    it projects mirrored points on it. \n
  *  Any data attached, as scalar/vector float data format, are mirrored as well.
  *
- * \n
- * Ports available in GenericInput Class :
+ * Ports available in SpecularPoints Class :
  *
  *    =========================================================
 
+ |Port Input | | |
+ |-|-|-|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_DISPLS      | setVectorData     | (MC_VECARR3, MD_FLOAT)          |
+ | M_DATAFIELD   | setScalarData     | (MC_VECTOR, MD_FLOAT)           |
+ | M_PLANE       | setPlane          | (MC_ARRAY4, MD_FLOAT)           |
+ | M_POINT       | setOrigin         | (MC_ARRAY3, MD_FLOAT)           |
+ | M_AXIS        | setNormal         | (MC_ARRAY3, MD_FLOAT)           |
 
-   |Port Input | | |
-   |-|-|-|
-   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | M_DISPLS      | setVectorData     | (MC_VECARR3, MD_FLOAT)          |
-   | M_DATAFIELD   | setScalarData     | (MC_VECTOR, MD_FLOAT)           |
-   | M_PLANE       | setPlane          | (MC_ARRAY4, MD_FLOAT)           |
-   | M_POINT       | setOrigin         | (MC_ARRAY3, MD_FLOAT)           |
-   | M_AXIS        | setNormal         | (MC_ARRAY3, MD_FLOAT)           |
-   | M_VALUEB      | setInsideOut      | (MC_SCALAR, MD_BOOL)            |
-   | M_VALUEB      | setForce          | (MC_SCALAR, MD_BOOL)            |
+ |Port Output | | |
+ |-|-|-|
+ | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+ | M_DISPLS      | getCloudVectorData| (MC_VECARR3, MD_FLOAT)       |
+ | M_DATAFIELD   | getCloudScalarData| (MC_VECTOR, MD_FLOAT)        |
 
-   |Port Output | | |
-   |-|-|-|
-   | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-   | M_DISPLS      | getCloudVectorData| (MC_VECARR3, MD_FLOAT)       |
-   | M_DATAFIELD   | getCloudScalarData| (MC_VECTOR, MD_FLOAT)        |
+ Inherited from ProjectCloud:
 
+  |Port Input | | |
+  |-|-|-|
+  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+  | M_COORDS | setCoords         | (MC_VECARR3, MD_FLOAT)    |
+  | M_GEOM        | setGeometry       | (MC_SCALAR, MD_MIMMO_)    |
 
-  Inherited from ProjectCloud
-
-   |Port Input | | |
-   |-|-|-|
-   | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-   | M_COORDS | setCoords         | (MC_VECARR3, MD_FLOAT)    |
-   | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)    |
-
-   |Port Output | | |
-   |-|-|-|
-   | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-   | M_COORDS | getCloudResult    | (MC_VECARR3, MD_FLOAT)    |
+  |Port Output | | |
+  |-|-|-|
+  | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
+  | M_COORDS | getProjectedCoords    | (MC_VECARR3, MD_FLOAT)    |
 
 
  *    =========================================================
@@ -86,21 +81,21 @@ namespace mimmo{
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
  * - <B>OutputPlot</B>: target directory for optional results writing.
- * 
+ *
  * Proper of the class:
- * - <B>Force</B>: boolean 0/1. If 1, force mirroring of points that lies on the plane;
- * - <B>InsideOut</B>: boolean 0/1 to get direction of clipping according to given plane;
- * - <B>Plane</B>: section defining the plane's normal and a point belonging to it : \n
- *              <tt> \<Plane\> \n
- *                  \<Point\> 0.0 0.0 0.0 \</Point\> \n
- *                  \<Normal\> 0.0 1.0 0.0 \</Normal\> \n
- *              \</Plane\> </tt> \n
-
+ * - <B>Force</B>: boolean 0/1. If true, force mirroring of points that lies on the plane;
+ * - <B>InsideOut</B>: boolean 0/1 to align/reverse direction of clipping according to given plane normal;
+ * - <B>Plane</B>: section defining the plane's normal and a point belonging to it : \n\n
+ *   <tt> <B>\<Plane\></B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>\<Point\></B> 0.0 0.0 0.0 <B>\</Point\></B> \n
+ *   &nbsp;&nbsp;&nbsp;<B>\<Normal\></B> 0.0 1.0 0.0 <B>\</Normal\></B> \n
+ *   <B>\</Plane\></B> </tt> \n\n
  *
  * Points list and data have to be mandatorily passed through port.
  *
  */
 class SpecularPoints: public ProjectCloud{
+
 private:
     bool        m_insideout;        /**< plane direction for mirroring */
     bool        m_force;            /**< if true force the mirroring of points that belong to the symmetry plane. */
@@ -112,6 +107,7 @@ private:
     darray3E    m_origin;           /**<Origin of plane. */
     darray3E    m_normal;           /**<Normal of plane. */
     bool        m_implicit;         /**<True if an implicit definition of plane is set. */
+    livector1D  m_labelsMirrored;   /**< labels of the points mirrored */
 
 public:
     SpecularPoints();
@@ -127,6 +123,8 @@ public:
 
     dvector1D getCloudScalarData();
     dvecarr3E getCloudVectorData();
+    dvecarr3E getMirroredCoords();
+    dvecarr3E getMirroredCoords(livector1D *labels);
 
     darray4E  getPlane();
     bool      isInsideOut();
@@ -134,6 +132,7 @@ public:
 
     void    setVectorData(dvecarr3E data);
     void    setScalarData(dvector1D data);
+    void    setCoords(dvecarr3E points);
     void    setPlane(darray4E plane);
     void    setPlane(darray3E origin, darray3E normal);
     void    setOrigin(darray3E origin);
@@ -151,6 +150,13 @@ public:
 protected:
     virtual void plotOptionalResults();
     void swap(SpecularPoints & x) noexcept;
+
+private:
+    void setCoords(MimmoObject *);
+    MimmoObject * getProjectedCloud();
+    dvecarr3E    getProjectedCoords();
+    dvecarr3E    getProjectedCoords(livector1D *);
+
 };
 
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__SPECULARPOINTS_HPP__)
@@ -158,9 +164,6 @@ REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT,__SPECULARPOINTS_HPP__)
 REGISTER_PORT(M_PLANE, MC_ARRAY4, MD_FLOAT,__SPECULARPOINTS_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__SPECULARPOINTS_HPP__)
 REGISTER_PORT(M_AXIS, MC_ARRAY3, MD_FLOAT,__SPECULARPOINTS_HPP__)
-REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL,__SPECULARPOINTS_HPP__)
-REGISTER_PORT(M_VALUEB2, MC_SCALAR, MD_BOOL,__SPECULARPOINTS_HPP__)
-
 
 REGISTER(BaseManipulation, SpecularPoints, "mimmo.SpecularPoints")
 };

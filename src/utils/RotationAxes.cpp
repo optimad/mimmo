@@ -30,20 +30,20 @@ namespace mimmo{
  * Default constructor of RotationAxes
  */
 RotationAxes::RotationAxes(darray3E origin, darray3E direction){
-    m_origin = origin;
-    m_direction = direction;
-    
+    setOrigin(origin);
+    setDirection(direction);
+
     for(auto & val: m_axes)val.fill(0.0);
-    m_axes[0][0] = 1.0; 
-    m_axes[1][1] = 1.0; 
-    m_axes[1][1] = 1.0; 
-    m_axes_origin = {{0,0,0}}; 
-    
+    m_axes[0][0] = 1.0;
+    m_axes[1][1] = 1.0;
+    m_axes[1][1] = 1.0;
+    m_axes_origin = {{0,0,0}};
+
     for(auto & val: m_rotax)val.fill(0.0);
-    m_rotax[0][0] = 1.0; 
-    m_rotax[1][1] = 1.0; 
-    m_rotax[1][1] = 1.0; 
-    m_rotax_origin = {{0,0,0}}; 
+    m_rotax[0][0] = 1.0;
+    m_rotax[1][1] = 1.0;
+    m_rotax[1][1] = 1.0;
+    m_rotax_origin = {{0,0,0}};
 
     m_alpha=0.0;
 
@@ -58,23 +58,23 @@ RotationAxes::RotationAxes(const bitpit::Config::Section & rootXML){
 
     m_origin.fill(0.0);
     m_direction.fill(0.0);
-    
-    for(auto & val: m_axes) 
+
+    for(auto & val: m_axes)
         val.fill(0.0);
-    m_axes[0][0] = 1.0; 
-    m_axes[1][1] = 1.0; 
-    m_axes[1][1] = 1.0; 
-    m_axes_origin = {{0,0,0}}; 
-    
-    for(auto & val: m_rotax)    
+    m_axes[0][0] = 1.0;
+    m_axes[1][1] = 1.0;
+    m_axes[1][1] = 1.0;
+    m_axes_origin = {{0,0,0}};
+
+    for(auto & val: m_rotax)
         val.fill(0.0);
-    m_rotax[0][0] = 1.0; 
-    m_rotax[1][1] = 1.0; 
-    m_rotax[1][1] = 1.0; 
-    m_rotax_origin = {{0,0,0}}; 
-    
+    m_rotax[0][0] = 1.0;
+    m_rotax[1][1] = 1.0;
+    m_rotax[1][1] = 1.0;
+    m_rotax_origin = {{0,0,0}};
+
     m_alpha=0.0;
-    
+
     m_name = "mimmo.RotationAxes";
 
     std::string fallback_name = "ClassNONE";
@@ -99,12 +99,12 @@ RotationAxes::RotationAxes(const RotationAxes & other):BaseManipulation(other){
     m_alpha=other.m_alpha;
     m_origin = other.m_origin;
     m_direction = other.m_direction;
-    for(auto & val: m_rotax)    
+    for(auto & val: m_rotax)
         val.fill(0.0);
-    m_rotax[0][0] = 1.0; 
-    m_rotax[1][1] = 1.0; 
-    m_rotax[1][1] = 1.0; 
-    m_rotax_origin = {{0,0,0}}; 
+    m_rotax[0][0] = 1.0;
+    m_rotax[1][1] = 1.0;
+    m_rotax[1][1] = 1.0;
+    m_rotax_origin = {{0,0,0}};
 };
 
 /*!Assignement operator of RotationAxes.
@@ -135,11 +135,11 @@ void RotationAxes::swap(RotationAxes & x) noexcept
 void
 RotationAxes::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<darray3E, RotationAxes>(&m_origin, M_POINT));
-    built = (built && createPortIn<darray3E, RotationAxes>(&m_direction, M_AXIS));
-    built = (built && createPortIn<double, RotationAxes>(&m_alpha, M_VALUED));
-    built = (built && createPortIn<darray3E, RotationAxes>(&m_axes_origin, M_POINT2));
-    built = (built && createPortIn<dmatrix33E, RotationAxes>(&m_axes, M_AXES));
+    built = (built && createPortIn<darray3E, RotationAxes>(this, &mimmo::RotationAxes::setOrigin, M_POINT));
+    built = (built && createPortIn<darray3E, RotationAxes>(this, &mimmo::RotationAxes::setDirection, M_AXIS));
+    built = (built && createPortIn<double, RotationAxes>(this, &mimmo::RotationAxes::setRotation, M_VALUED));
+    built = (built && createPortIn<darray3E, RotationAxes>(this, &mimmo::RotationAxes::setAxesOrigin, M_POINT2));
+    built = (built && createPortIn<dmatrix33E, RotationAxes>(this, &mimmo::RotationAxes::setAxes, M_AXES));
     built = (built && createPortOut<darray3E, RotationAxes>(this, &mimmo::RotationAxes::getRotatedOrigin, M_POINT));
     built = (built && createPortOut<dmatrix33E, RotationAxes>(this, &mimmo::RotationAxes::getRotatedAxes, M_AXES));
     m_arePortsBuilt = built;
@@ -151,8 +151,8 @@ RotationAxes::buildPorts(){
  */
 void
 RotationAxes::setAxis(darray3E origin, darray3E direction){
-    m_origin = origin;
-    m_direction = direction;
+    setOrigin(origin);
+    setDirection(direction);
 }
 
 /*!It sets the origin of the rotation axis.
@@ -169,9 +169,10 @@ RotationAxes::setOrigin(darray3E origin){
 void
 RotationAxes::setDirection(darray3E direction){
     m_direction = direction;
-    double L = norm2(m_direction);
-    for (int i=0; i<3; i++)
-        m_direction[i] /= L;
+    double norm = norm2(m_direction);
+    if(norm > std::numeric_limits<double>::min()){
+        m_direction /= norm;
+    }
 }
 
 /*!It sets the value of the rotation.
@@ -225,9 +226,9 @@ RotationAxes::execute(){
     m_rotax_origin = {{0,0,0}};
     m_axes_origin += (-1.0)*m_origin;
     //rodrigues formula
-    m_rotax_origin = m_axes_origin * cos(m_alpha) +
-            dotProduct(m_direction, m_axes_origin) * (1 - cos(m_alpha)) * m_direction +
-            crossProduct(m_direction, m_axes_origin) * sin(m_alpha);
+    m_rotax_origin = m_axes_origin * std::cos(m_alpha) +
+            dotProduct(m_direction, m_axes_origin) * (1.0 - std::cos(m_alpha)) * m_direction +
+            crossProduct(m_direction, m_axes_origin) * std::sin(m_alpha);
 
     m_rotax_origin += m_origin;
     m_axes_origin += m_origin;
@@ -236,9 +237,9 @@ RotationAxes::execute(){
     m_rotax.fill(darray3E{{0,0,0}});
     //rodrigues formula
     for (int i=0; i<3; i++){
-        m_rotax[i] = m_axes[i] * cos(m_alpha) +
-                dotProduct(m_direction, m_axes[i]) * (1 - cos(m_alpha)) * m_direction +
-                crossProduct(m_direction, m_axes[i]) * sin(m_alpha);
+        m_rotax[i] = m_axes[i] * std::cos(m_alpha) +
+                dotProduct(m_direction, m_axes[i]) * (1.0 - std::cos(m_alpha)) * m_direction +
+                crossProduct(m_direction, m_axes[i]) * std::sin(m_alpha);
     }
 
 };
@@ -254,7 +255,7 @@ RotationAxes::absorbSectionXML(const bitpit::Config::Section & slotXML, std::str
     BITPIT_UNUSED(name);
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-    
+
     if(slotXML.hasOption("Origin")){
         std::string input = slotXML.get("Origin");
         input = bitpit::utils::string::trim(input);
@@ -369,4 +370,3 @@ RotationAxes::flushSectionXML(bitpit::Config::Section & slotXML, std::string nam
 };
 
 }
-

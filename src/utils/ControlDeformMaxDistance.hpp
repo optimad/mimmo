@@ -25,22 +25,23 @@
 #define __CONTROLDEFORMMAXDISTANCE_HPP__
 
 #include "BaseManipulation.hpp"
-#include "MimmoObject.hpp"
 
 namespace mimmo{
 
 /*!
  * \class ControlDeformMaxDistance
  * \ingroup utils
- * \brief ControlDeformMaxDistance is a class that check a deformation field associated to a MimmoObject surface geometry,
- *  once a maximum limit distance of deformation is fixed, w.r.t. the undeformed state.
+ * \brief ControlDeformMaxDistance is a class that check a deformation field
+    associated to a MimmoObject surface geometry,once a maximum limit distance
+    of deformation is fixed, w.r.t. the undeformed state.
  *
  * ControlDeformMaxDistance is derived from BaseManipulation class.
- * It needs a maximum, isotropic limit distance d w.r.t. geometry undeformed state, which is used to evaluate the isolevel d
- * of the target geometry.
- * Returns a double value V, namely the maximum signed distance from constraint iso-level amongst all field points,
- * reporting how much the current deformation field violate the constraint itself.
- * if V >0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs.
+ * It needs a maximum, isotropic limit distance d w.r.t. the undeformed state of
+   the target geometry (isolevel at distance d).
+ * It returns a double value V, namely the maximum signed distance from
+   the constraint iso-level amongst all field points, reporting how much the
+   current deformation field violates the constraint itself.
+ * if V>0 a violation occurs. if V=0, a contact occurs, otherwise if V<0 no violation occurs.
  * Deformation field must be linked to target geometry and defined on points/nodes.
  * Class absorbs/flushes its parameters from/to xml dictionaries
  *
@@ -82,7 +83,7 @@ namespace mimmo{
  */
 class ControlDeformMaxDistance: public BaseManipulation{
 private:
-    double                        m_maxDist;        /**<Limit Distance*/
+    double                         m_maxDist;        /**<Limit Distance*/
     dmpvector1D                    m_violationField;    /**<Violation Distance Field */
     dmpvecarr3E                    m_defField;     /**<Deformation field*/
 

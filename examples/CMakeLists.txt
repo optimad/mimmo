@@ -94,6 +94,12 @@ if(BUILD_EXAMPLES)
         list(APPEND EXAMPLE_LIST "manipulators_example_00006")
         list(APPEND EXAMPLE_LIST "utils_example_00001")
         list(APPEND EXAMPLE_LIST "utils_example_00002")
+        list(APPEND EXAMPLE_LIST "utils_example_00004")
+        list(APPEND EXAMPLE_LIST "utils_example_00005")
+        if(MODULE_GEOHANDLERS_ENABLED)
+            list(APPEND EXAMPLE_LIST "utils_example_00003")
+        endif()    
+
     endif ()
 
     #1
@@ -191,6 +197,31 @@ if(BUILD_EXAMPLES)
             TARGET "utils_example_00002" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/openBox.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/openBox.stl"
+        )
+    endif()
+
+    list(FIND EXAMPLE_LIST "utils_example_00003" _index)
+    if ( ${_index} GREATER -1)
+        add_custom_command(
+            TARGET "utils_example_00003" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+        )
+    endif()
+
+    list(FIND EXAMPLE_LIST "utils_example_00004" _index)
+    if ( ${_index} GREATER -1)
+        add_custom_command(
+            TARGET "utils_example_00004" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
+        )
+    endif()
+
+    list(FIND EXAMPLE_LIST "utils_example_00005" _index)
+    if ( ${_index} GREATER -1)
+        add_custom_command(
+            TARGET "utils_example_00005" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/stanfordBunny3.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny3.stl"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/curve.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/curve.vtu"
         )
     endif()
 
