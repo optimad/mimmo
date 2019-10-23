@@ -471,10 +471,10 @@ template <std::size_t NCOMP>
 bool
 PropagateField<NCOMP>::checkBoundariesCoherence(){
 
-	if (m_method == PropagatorMethod::FINITEVOLUMES){
-		//Clean the old m_isbp and initialize it again.
-		initializeBoundaryInfo();
-	}
+	// if (m_method == PropagatorMethod::FINITEVOLUMES){
+	// 	//Clean the old m_isbp and initialize it again.
+	// 	initializeBoundaryInfo();
+	// }
 
 	//1st step verify coherence of the Dirichlet point field on boundary surface
 	// with the dirichlet boundary surface provided
@@ -482,20 +482,20 @@ PropagateField<NCOMP>::checkBoundariesCoherence(){
 		return false;
 	}
 
-	if (m_method == PropagatorMethod::FINITEVOLUMES){
-
-		//1st step check if points-ID of m_bsurface get a boundary-interface-patch on the bulk geometry;
-		livector1D interfaces = getGeometry()->getInterfaceFromVertexList(m_bsurface->getVertices().getIds(), true, true);
-		if(interfaces.empty()){
-			return false;
-		}
-
-		//update the m_isbp marking dirichlet interfaces
-		for(long id: interfaces){
-			m_isbp.at(id) = 1;
-		}
-
-	}
+	// if (m_method == PropagatorMethod::FINITEVOLUMES){
+    //
+	// 	//1st step check if points-ID of m_bsurface get a boundary-interface-patch on the bulk geometry;
+	// 	livector1D interfaces = getGeometry()->getInterfaceFromVertexList(m_bsurface->getVertices().getIds(), true, true);
+	// 	if(interfaces.empty()){
+	// 		return false;
+	// 	}
+    //
+	// 	//update the m_isbp marking dirichlet interfaces
+	// 	for(long id: interfaces){
+	// 		m_isbp.at(id) = 1;
+	// 	}
+    //
+	// }
 
 	return true;
 }
@@ -1308,10 +1308,11 @@ void
 PropagateField<NCOMP>::solveLaplace(const dvector1D &rhs, dvector1D &result){
 
 	//just to be sure, resize the vector result
-	if (m_method == PropagatorMethod::FINITEVOLUMES){
-		result.resize(getGeometry()->getPatch()->getInternalCount(), 0.);
-	}
-	else if (m_method == PropagatorMethod::GRAPHLAPLACE){
+	// if (m_method == PropagatorMethod::FINITEVOLUMES){
+	// 	result.resize(getGeometry()->getPatch()->getInternalCount(), 0.);
+	// }
+	// else
+    if (m_method == PropagatorMethod::GRAPHLAPLACE){
 		result.resize(getGeometry()->getNInternalVertices(), 0.);
 	}
 
@@ -1347,11 +1348,12 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 	// push result in a mpv linked to target mesh and on cell location.
 	MimmoObject * geo = getGeometry();
 	std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvres;
-	if (m_method == PropagatorMethod::FINITEVOLUMES){
-		mpvres = std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > >(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::CELL));
-		mpvres->reserve(geo->getNCells());
-	}
-	else if (m_method == PropagatorMethod::GRAPHLAPLACE){
+	// if (m_method == PropagatorMethod::FINITEVOLUMES){
+	// 	mpvres = std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > >(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::CELL));
+	// 	mpvres->reserve(geo->getNCells());
+	// }
+	// else
+    if (m_method == PropagatorMethod::GRAPHLAPLACE){
 		mpvres = std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > >(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::POINT));
 		mpvres->reserve(geo->getNVertices());
 	}
@@ -1361,10 +1363,11 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 	for(auto & pair : mapglobals){
 		id = pair.second;
 		bool isInterior = true;
-		if (m_method == PropagatorMethod::FINITEVOLUMES){
-			isInterior = geo->getPatch()->getCell(id).isInterior();
-		}
-		else if (m_method == PropagatorMethod::GRAPHLAPLACE){
+		// if (m_method == PropagatorMethod::FINITEVOLUMES){
+		// 	isInterior = geo->getPatch()->getCell(id).isInterior();
+		// }
+		//else
+        if (m_method == PropagatorMethod::GRAPHLAPLACE){
 			isInterior = geo->isPointInterior(id);
 		}
 		if (isInterior)
@@ -1411,10 +1414,11 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 
 	// interpolate result to POINT location.
 	m_field.clear();
-	if (m_method == PropagatorMethod::FINITEVOLUMES){
-		m_field = mpvres->cellDataToPointData(1.5);
-	}
-	else if (m_method == PropagatorMethod::GRAPHLAPLACE){
+	// if (m_method == PropagatorMethod::FINITEVOLUMES){
+	// 	m_field = mpvres->cellDataToPointData(1.5);
+	// }
+	// else
+    if (m_method == PropagatorMethod::GRAPHLAPLACE){
 		m_field = *(mpvres.get());
 	}
 #if MIMMO_ENABLE_MPI

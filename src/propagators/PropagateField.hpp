@@ -34,14 +34,12 @@
 namespace mimmo{
 
 /*!
- * \enum PropagatorMethod
- * Define scheme of propagator solver
- *  - 0-Graph Laplace scheme on points
- *  - 1-Finite Volume discretization on cell centers
+   \ingroup propagators
+ * \brief Define scheme of propagator solver
  */
 enum class PropagatorMethod: long {
-    GRAPHLAPLACE=0,
-    FINITEVOLUMES=1,
+    GRAPHLAPLACE=0 /**<0-Graph Laplace scheme on nodes*/
+//    FINITEVOLUMES=1 /**<Finite Volume discretization on cell centers*/
 };
 
 /*!
@@ -49,22 +47,26 @@ enum class PropagatorMethod: long {
  * \ingroup propagators
  * \brief Executable block that provides the computation of a field
  * over a 3D volume mesh. The field is calculated solving a Laplacian problem over
- * the mesh with given Dirichlet boundary conditions.
+ * the mesh with given boundary conditions.
  *
- * Class/BaseManipulation Object managing field defined on the boundaries of a 3D volume mesh.
- * It uses MimmoObject informations as input geometry.
+ * Class/BaseManipulation Object managing field defined on the boundaries of a
+   3D volume mesh. It uses MimmoObject informations as input geometry.
  * The key to handle with constraints is an explicit calculation of the solution of a
  * Laplacian problem.
- * The Laplacian solver employs a Finite Volume Cell based scheme.
- * Quality of the mesh during deformation is controlled by introducing an artificial diffusivity D (DUMPING)
- * in the laplacian calculation: div( D*grad(Phi)) = 0. Such diffusivity can be defined alternatively
+ * The Laplacian solver employs a node-based scheme (GRAPHLAPLACIAN).
+ * Quality of the mesh during deformation is controlled by introducing an
+   artificial diffusivity D (DUMPING) in the laplacian calculation:
+   \f$\nabla\cdot( D\nabla\Phi) = 0\f$. Such diffusivity can be defined alternatively
  * as variable with distance from a prescribed deforming surface (dumping surface),
  * or with cell volumes distribution, modulated with distance from the dumping surface.
  * In the first case, cells more distant from dumping surfaces cells are forced to move more than nearer ones,
  * in the second case, bigger volume cell far from dumping surface are forced to move more.
+
+   <B>WARNING</B>: dumping is an experimental feature, subject of still ongoing investigations.
+                   Sometimes it can lead to unpredicatable results. Use it carefully
+                   and at your own risk.
+
  * Result field is stored in m_field member and returned as data field through ports.
- * Boundary info passed on POINT are redistributed on CELL boundary Interfaces by means of
- * an interpolation method.
  *
  * The xml available parameters, sections and subsections are the following :
  *
@@ -80,10 +82,10 @@ enum class PropagatorMethod: long {
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
  * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active
- * - <B>Tolerance</B> : convergence tolerance for laplacian direct solver;
+ * - <B>Tolerance</B> : convergence tolerance for laplacian solver;
  * - <B>UpdateThres</B> : lower threshold to internally mark cells whose field norm is above its value, for update purposes
  * - <B>ForceDirichlet</B> : 1 -reforce Dirichlet on Boundaries, 0-do nothing. Meaningful in Method 1- Finite Volume
- * - <B>Method</B> : 0 - GraphLaplacian(on mesh nodes), 1- FiniteVolume (on mesh cells)
+ * - <B>Method</B> : 0 - GraphLaplacian(on mesh nodes)
  * - <B>Print</B> : print solver debug information, Active only in if MIMMO_ENABLE_MPI is enabled in compilation.
  *
  * Geometry, boundary surfaces, boundary condition values
@@ -210,8 +212,9 @@ protected:
  * over a 3D mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given Dirichlet boundary conditions.
  *
- * Dirichlet boundary conditions are explicitly provided by the User, identifying boundaries
- * through MimmoObject patches and associating to them the value of the field as Dirichlet condition.
+ * Dirichlet boundary conditions are explicitly provided by the User,
+   identifying boundaries through MimmoObject patches and associating to them
+   the value of the field as Dirichlet condition.
  * A natural zero gradient like condition is automatically provided on unbounded borders.
  *
  * The block can perform multistep evaluation to relax field propagation
@@ -252,9 +255,9 @@ protected:
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
  * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active
- * - <B>Tolerance</B> : convergence tolerance for laplacian direct solver;
+ * - <B>Tolerance</B> : convergence tolerance for laplacian solver;
  * - <B>ForceDirichlet</B> : 1 -reforce Dirichlet on Boundaries, 0-do nothing. Meaningful in Method 1- Finite Volume
- * - <B>Method</B> : 0 - GraphLaplacian(on mesh nodes), 1- FiniteVolume (on mesh cells)
+ * - <B>Method</B> : 0 - GraphLaplacian(on mesh nodes)
  * - <B>Print</B> : print solver debug information, Active only in if MIMMO_ENABLE_MPI is enabled in compilation.
  *
  * Proper fo the class:
@@ -312,19 +315,20 @@ private:
  * over a 3D mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given boundary conditions.
  *
- * Prescribed (Dirichlet) field boundary conditions are explicitly provided by the User,
- * identifying boundaries through MimmoObject patches and associating to them the value of each component
- * of the field as Dirichlet condition.
- * Optionally an inpermeability-like/slip condition (zero vector field normal to boundary surface)
- * can be imposed on chosen boundary patches. The nodes of the slip boundary patch are moved on a reference surface;
- * if not provided by the user the reference surface is fixed as the same slip boundary patch.
- * Moreover, the user can force the slip reference surface to be a plane by activating the related flag; in this
- * case the mean plane defined over the slip boundary patch (the slip reference surface is useless) is used.
+ * Prescribed (Dirichlet) field boundary conditions are explicitly provided by
+   the User,identifying boundaries through MimmoObject patches and associating
+   to them the value of each component of the field as Dirichlet condition.
+ * Optionally an inpermeability-like/slip condition (as a zero vector field normal to
+   boundary surface realized with a deformation reprojection onto a reference
+   surface) can be imposed on chosen boundary patches. The nodes of the slip
+   boundary patch are moved on a reference surface. If not provided by the User
+   the reference surface is fixed as the same slip boundary patch.
+
+ * Moreover, the User can force the slip reference surface to be a plane
+   by activating the related flag; in this case the mean plane defined over
+   the slip boundary patch (the slip reference surface is useless) is used.
  *
- * The block can perform multistep evaluation to relax field propagation
- *
- * Class/BaseManipulation Object specialization of class PropagateField
- * for the propagation in a volume mesh of a 3D array field.
+ * The block can perform multistep evaluation to relax field propagation.
  *
  * Ports available in PropagateVectorField Class :
  *
@@ -364,7 +368,7 @@ private:
  * - <B>DumpingInnerDistance</B> : inner limit of dumping function eta, if dumping is active;
  * - <B>DumpingOuterDistance</B> : outer limit of dumping function eta, if dumping is active;
  * - <B>DecayFactor</B>  : exponent to modulate dumping function (as power of), if dumping is active
- * - <B>Tolerance</B> : convergence tolerance for laplacian  direct solver;
+ * - <B>Tolerance</B> : convergence tolerance for laplacian solver;
  * - <B>UpdateThres</B> : lower threshold to internally mark cells whose field norm is above its value, for update purposes
  * - <B>ForceDirichlet</B> : 1 -reforce Dirichlet on Boundaries, 0-do nothing. Meaningful in Method 1- Finite Volume
  * - <B>Method</B> : 0 - GraphLaplacian(on mesh nodes), 1- FiniteVolume (on mesh cells)

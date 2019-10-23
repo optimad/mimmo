@@ -26,7 +26,7 @@
  /*!
  * \defgroup propagators propagators
 * Collection of all executable blocks that provides a
-* propagation of a boundary field into a target mesh and applies to it eventually.
+* propagation of a boundary field into a target volume mesh and applies to it eventually.
  * \{
  * \}
  */
@@ -34,7 +34,10 @@
 #ifndef __MIMMO_MODULE_PROPAGATORS_HPP__
 #define __MIMMO_MODULE_PROPAGATORS_HPP__
 
+#include "mimmo_core.hpp"
+
 #include "PropagateField.hpp"
-#include "StencilFunctions.hpp"
+//#include "StencilFunctions.hpp" //already included in PropagateField together with mimmo_parallel.
+
 
 #endif
