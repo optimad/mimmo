@@ -4,17 +4,18 @@ mimmo currently runs on Linux platforms. Compatibility on Windows and MacOSX is 
 
 ## Dependencies
 mimmo depends on
-* c++ compiler supporting `-std=c++11`. It has been tested with g++ >= 4.8.5
-* cmake >= 2.8
-* lapacke/lapack libraries. It has been tested with Lapack v3.5.0, v3.8.0
-* xml2 libraries. (should be provided by default on Linux system). Tested with LibXml2 >= 2.9.1
+* c++ compiler supporting `-std=c++11`. It has been tested with g++ = 4.8.5
+* cmake. Tested with cmake = 3.13.2
 * bitpit library. It has been tested with bitpit 1.6.0. Visit www.optimad.it/products/bitpit/ for further information.
-* (optionally) PETSc library. It has been tested with PETSc >= 3.10.3.
 * (optionally) vtk. It has been tested with vtk = 8.1.2
 * (optionally) cgns. It has been tested with cgns = 3.3.1.
 * (optionally) hdf5. It has been tested with hdf5 = 1.10.4.
 * (optionally) OpenFoam. It has been tested with OpenFoam Foundation 2.x,3.x,4.x,5.x versions and ESI v1606+ and v1806+ versions.
 
+
+<!--- * (optionally) PETSc library. It has been tested with PETSc 3.10.3. -->
+<!--- * lapacke/lapack libraries. It has been tested with Lapack v3.5.0, v3.8.0 -->
+<!--- * xml2 libraries. (should be provided by default on Linux system). Tested with LibXml2 >= 2.9.1 -->
 <!--- * (optionally) MPI implementation. It has been tested with OpenMPI >= 4.0.0. -->
 
 
@@ -64,7 +65,9 @@ to build and
 ```
 to install.
 
-If you have just built mimmo, its headers will be available at `mimmo/include/` folder and a static library `libmimmo.a` (or `libmimmo_MPI.a` in case of parallel compilation) will be available at `mimmo/build/lib/` folder.
+If you have just built mimmo, its headers will be available at `mimmo/include/` folder and a static library `libmimmo.a` will be available at `mimmo/build/lib/` folder.
+
+<!--- (or `libmimmo_MPI.a` in case of parallel compilation) -->
 
 If you have also installed mimmo, its headers will be available at `/my/installation/folder/mimmo/include/` folder and a static library `libmimmo.a` will be available at `/my/installation/folder/lib/` folder. The `mimmo++` executable will be installed in `/my/installation/folder/bin/`.
 
@@ -76,9 +79,10 @@ For a complete guide to installation of mimmo please visit
 <a href="http://www.optimad.github.io/mimmo/documentation/installation.html">mimmo installation webpage</a>.
 
 ## Building Documentation
-In order to build properly the documentation Doxygen (>=1.8.6) and Graphviz (>=2.20.2) are needed.
-Doxygen version currently employed to test documentation is v1.8.16
+In order to build properly the documentation Doxygen and Graphviz are needed.
+Doxygen and Graphviz versions currently employed to test documentation are 1.8.16 and 2.20.2 respectively.
 In the ccmake interface the variable `BUILD_DOCUMENTATION` can be set to `ON` in order to build the documentation during the library compilation.
+
 <!-- If turned on the new variable `DOC_EXTRACT_PRIVATE` can be used to include all the private class members in the documentation. -->
 
 After the `make` or `make install` the doxygen documentation will be built. You can chose to compile only the documentation with command
