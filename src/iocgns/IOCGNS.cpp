@@ -635,7 +635,8 @@ IOCGNS::read(const std::string & file){
             //Read section sec
             char elementname[33];
             CGNS_ENUMT(ElementType_t) type;
-            cgsize_t eBeg, eEnd, enBdry;
+            cgsize_t eBeg, eEnd;
+            int enBdry;
             int parent_flag;
             std::vector<cgsize_t>    connlocal;
             cgsize_t size;
@@ -1172,7 +1173,7 @@ if(m_multizone){
 
     livector1D cellIds, vertIds;
     std::unordered_map<long, int> globToLoc;
-    std::map<long, ivector1D> bndPools;
+    std::map<long, std::vector<cgsize_t>> bndPools;
 
     int zoneindex=1;
     //take out volume cell ids in the target zone.
@@ -1351,7 +1352,7 @@ if(m_multizone){
         }else{
             ptset_type = CGNS_ENUMV(ElementList);
             //remap the ids of elements into the pool.
-            for(int & idSC : pool.second){
+            for(cgsize_t & idSC : pool.second){
                 idSC = surfCellGlobToLoc[idSC] + int(startSurfElementsOffset);
             }
         }
