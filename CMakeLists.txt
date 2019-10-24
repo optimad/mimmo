@@ -572,7 +572,7 @@ if (MODULE_ENABLED_IOCGNS)
     # set_property(CACHE HDF5_BUILD_TYPE PROPERTY STRINGS "parallel" "serial")
 
     ## you can bind libs to this current mimmo installation
-    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${CGNS_INCLUDE}/include")
+    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${CGNS_INCLUDE}")
 
     addImportedLibrary("cgns" "${CGNS_LIB}" ON)
     list(APPEND OTHER_EXTERNAL_LIBRARIES "cgns")
