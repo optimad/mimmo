@@ -41,9 +41,9 @@ In order to build mimmo and bitpit library you need at least the following softw
 <li>
     cgns (3.3.1) [optional]
 </li>
-<li>
+<!--<li>
     hdf5 (1.10.4) [optional]
-</li>
+</li> -->
 <li>
     OpenFOAM (16.06) [optional]
 </li>
@@ -187,6 +187,51 @@ be used to complete.
     <br><b>MIMMO_MODULE_CORE</b> is always compiled, while for <b>MIMMO_MODULE_GEOHANDLERS</b>, <b>MIMMO_MODULE_IOCGNS</b>, <b>MIMMO_MODULE_IOOFOAM</b>, <b>MIMMO_MODULE_IOVTK</b>, 
     <b>MIMMO_MODULE_PROPAGATORS</b> and <b>MIMMO_MODULE_UTILS</b> the compilation can be toggled. <br>Possible dependencies between mimmo modules are automatically resolved.
     Dependencies on external libraries when possible are automatically resolved through find package command. Otherwise the setup for the new variables is required.
+    </dd>
+
+    <br />	
+    <p>
+    Some of the new variables that appear by activating all the modules are:
+    </p>
+    <br />	
+
+    <dt><strong>CGNS_INCLUDE</strong></dt>
+    <dd>
+    It defines the include directory of cgns library.
+    </dd>
+    <dt><strong>CGNS_LIB</strong></dt>
+    <dd>
+    Path to the libraries directory of cgns package.
+    </dd>
+
+    <dt><strong>OPENFOAM_ARCH</strong></dt>
+    <dd>
+    System architecture of OpenFOAM compilation, tipically it can be 64 or 32 (bit).
+    </dd>
+
+    <dt><strong>OPENFOAM_DIR</strong></dt>
+    <dd>
+    Path to OpenFOAM installation.
+    </dd>
+
+    <dt><strong>OPENFOAM_LABEL</strong></dt>
+    <dd>
+    Maximum size of OpenFOAM label, it can be 32 or 64 (bit).
+    </dd>
+
+    <dt><strong>OPENFOAM_OLDVER</strong></dt>
+    <dd>
+    ON/OFF if the installed OpenFOAM version is older then the Official Foundation 5.0.x release.
+    </dd>
+
+    <dt><strong>OPENFOAM_PREC</strong></dt>
+    <dd>
+    It sets the precision of the installed OpenFOAM, typical values are WM_SP for single precision or WM_DP for double precision.
+    </dd>
+
+    <dt><strong>VTK_DIR</strong></dt>
+    <dd>
+    Sets the installation directory of VTK library (<i>i.e.</i> the directory where the file of a CMake configuration of VTK resides).
     </dd>
 
 </dl>
