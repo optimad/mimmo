@@ -193,6 +193,8 @@ MimmoObject::MimmoObject(int type){
 	m_patchInfo.update();
 	m_infoSync = true;
 	m_pointConnectivitySync = false;
+
+	m_tolerance = 1.0e-06;
 }
 
 /*!
@@ -316,6 +318,9 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 	m_patchInfo.update();
 	m_infoSync = true;
 	m_pointConnectivitySync = false;
+
+	m_tolerance = 1.0e-06;
+
 };
 
 /*!
@@ -435,6 +440,9 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_patchInfo.update();
 	m_infoSync = true;
 	m_pointConnectivitySync = false;
+
+	m_tolerance = 1.0e-06;
+
 }
 
 /*!
@@ -557,6 +565,9 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	m_patchInfo.update();
 	m_infoSync = true;
 	m_pointConnectivitySync = false;
+
+	m_tolerance = 1.0e-06;
+
 }
 
 /*!
@@ -626,6 +637,9 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 #endif
 
 	m_pointConnectivitySync = false;
+
+	m_tolerance = other.m_tolerance;
+
 };
 
 /*!
@@ -669,9 +683,10 @@ void MimmoObject::swap(MimmoObject & x) noexcept
 	m_pointGhostExchangeInfoSync = false;
 #endif
 	m_pointConnectivitySync = false; //point connectivity is not copied
+
+	std::swap(m_tolerance, x.m_tolerance);
+
 }
-
-
 
 
 #if MIMMO_ENABLE_MPI
@@ -1339,6 +1354,15 @@ MimmoObject::isPointInterior(long id)
 }
 
 /*!
+ * Get the geometric tolerance used to perform geometric operations on the geometry.
+ * param[out] Geometric tolerance
+ */
+double
+MimmoObject::getTolerance(){
+	return m_tolerance;
+}
+
+/*!
 	Gets the MPI rank associated to the object.
     For serial version return always 0.
 	\return The MPI rank associated to the object.
@@ -1938,6 +1962,16 @@ void MimmoObject::deleteOrphanGhostCells(){
 
 #endif
 
+/*!
+ * Set geometric tolerance used to perform geometric operations on the patch.
+ * param[in] tol input geometric tolerance
+ */
+void
+MimmoObject::setTolerance(double tol)
+{
+	m_tolerance = std::max(1.0e-15, tol);
+}
+
 
 /*!
  *It adds one vertex to the mesh.
@@ -2333,6 +2367,7 @@ std::unique_ptr<MimmoObject> MimmoObject::clone() const {
 bool
 MimmoObject::cleanGeometry(){
 	auto patch = getPatch();
+	patch->setTol(m_tolerance);
 	patch->deleteCoincidentVertices();
 	if(m_skdTreeSupported)  patch->deleteOrphanVertices();
 
