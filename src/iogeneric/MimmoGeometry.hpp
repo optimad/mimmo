@@ -120,6 +120,8 @@ enum WFORMAT{
  * - <B>KdTree</B>: evaluate kdTree true 1/false 0.
  * - <B>AssignRefPID</B>: assign a reference PID on the whole geometry, after reading or just before writing. If the geometry is already pidded,
  *                     translate all existent PIDs w.r.t. the reference PID assigned. Default value is RefPID = 0.
+ * - <B>Tolerance</B>:value of the geometric tolerance to be used;
+ * - <B>Clean</B>: clean the geometry after read true 1/false 0;
  *
  * In case of writing mode Geometry has to be mandatorily passed through port.
  *
@@ -142,6 +144,9 @@ private:
     bool        m_buildKdTree;                /**<If true the vertex ordered KdTree of the geometry is built in execution*/
     long        m_refPID;                     /**<Reference PID, to be assigned on all cells of geometry in read/convert mode*/
     bool        m_multiSolidSTL;            /**< activate or not MultiSolid STL writing if STL writing Filetype is selected */
+
+    double		m_tolerance;				/**<Geometric tolerance of the related geometry. */
+    bool		m_clean;					/**<Set if the geometry has to cleaned after reading. */
 
 public:
     MimmoGeometry();
@@ -176,6 +181,8 @@ public:
     void        setCodex(bool binary = true);
     void        setMultiSolidSTL(bool multi = true);
 
+    void 		setTolerance(double tol);
+    void 		setClean(bool clean = true);
 
     void        setGeometry( MimmoObject * external);
     void        setGeometry(int type=1);

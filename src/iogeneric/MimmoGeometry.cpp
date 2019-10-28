@@ -75,6 +75,8 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(other
     m_buildKdTree = other.m_buildKdTree;
     m_refPID = other.m_refPID;
     m_multiSolidSTL = other.m_multiSolidSTL;
+    m_tolerance = other.m_tolerance;
+    m_clean = other.m_clean;
 
     if(other.m_isInternal){
         m_geometry = other.m_intgeo.get();
@@ -108,6 +110,8 @@ void MimmoGeometry::swap(MimmoGeometry & x) noexcept
     std::swap(m_buildKdTree, x.m_buildKdTree);
     std::swap(m_refPID, x.m_refPID);
     std::swap(m_multiSolidSTL, x.m_multiSolidSTL);
+    std::swap(m_tolerance, x.m_tolerance);
+    std::swap(m_clean, x.m_clean);
     std::swap(m_isInternal, x.m_isInternal);
     std::swap(m_intgeo, x.m_intgeo);
     BaseManipulation::swap(x);
@@ -171,6 +175,8 @@ MimmoGeometry::setDefaults(){
     m_buildKdTree    = false;
     m_refPID = 0;
     m_multiSolidSTL = false;
+    m_tolerance = 1.0e-06;
+    m_clean = true;
 }
 
 
@@ -379,6 +385,24 @@ void MimmoGeometry::setCodex(bool binary){
  */
 void MimmoGeometry::setMultiSolidSTL(bool multi){
     m_multiSolidSTL = multi;
+}
+
+/*!
+ * Set geometric tolerance used to perform geometric operations on the mimmo object.
+ * param[in] tol input geometric tolerance
+ */
+void
+MimmoGeometry::setTolerance(double tol){
+	m_tolerance = std::max(1.0e-15, tol);
+}
+
+/*!
+ * Set if the geometry has to cleaned after reading.
+ * param[in] clean cleaning flag
+ */
+void
+MimmoGeometry::setClean(bool clean){
+	m_clean = clean;
 }
 
 /*!
@@ -711,8 +735,6 @@ MimmoGeometry::read(){
         	std::unordered_map<int,std::string> mapPIDSolid;
         	dynamic_cast<bitpit::SurfUnstructured*>(getGeometry()->getPatch())->importSTL(name, binary, 0, false, &mapPIDSolid);
 
-        	getGeometry()->cleanGeometry();
-
         	//count PID if multi-solid
         	auto & mapset = getGeometry()->getPIDTypeList();
         	for(const auto & cell : getGeometry()->getCells() ){
@@ -914,6 +936,12 @@ MimmoGeometry::read(){
         break;
 
     }
+
+    // set Tolerance and clean geometry
+	getGeometry()->setTolerance(m_tolerance);
+	if (m_clean){
+		getGeometry()->cleanGeometry();
+	}
 
     //adjusting with reference pid;
     auto locpids = getGeometry()->getCompactPID();
@@ -1231,6 +1259,26 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         setMultiSolidSTL(value);
     };
 
+	if(slotXML.hasOption("Tolerance")){
+		input = slotXML.get("Tolerance");
+		double value = 1.0e-06;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::string::trim(input));
+			ss >> value;
+			setTolerance(value);
+		}
+	};
+
+    if(slotXML.hasOption("Clean")){
+        input = slotXML.get("Clean");
+        bool value = true;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::string::trim(input));
+            ss >> value;
+        }
+        setClean(value);
+    };
+
 };
 
 /*!
@@ -1287,6 +1335,14 @@ MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
     slotXML.set("KdTree", output);
     slotXML.set("AssignRefPID", std::to_string(m_refPID));
     slotXML.set("WriteMultiSolidSTL", std::to_string(m_multiSolidSTL));
+
+	std::stringstream ss;
+	ss<<std::scientific<<m_tolerance;
+	slotXML.set("Tolerance", ss.str());
+
+    output = std::to_string(m_clean);
+    slotXML.set("Clean", output);
+
 };
 
 
