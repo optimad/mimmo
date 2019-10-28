@@ -117,6 +117,8 @@ private:
     bitpit::PatchKernel *                   m_extpatch;        /**<Reference to EXTERNALLY linked patch handling geometry. */
     bool                                    m_internalPatch;   /**<True if the geometry is internally created. */
 
+    double									m_tolerance;	   /**<Geometric tolerance of the bitpit patch .*/
+
 protected:
 //members
     int                                                     m_type;            /**< Type of geometry (0 = undefined, 1 = surface mesh, 2 = volume mesh, 3-point cloud mesh, 4-3DCurve). */
@@ -206,6 +208,8 @@ public:
     bool                          isKdTreeSync();
     bool                          isInfoSync();
 
+    double getTolerance();
+
     int getRank() const;
 	int getProcessorCount() const;
 
@@ -227,6 +231,8 @@ public:
     void setPartitioned();
     void deleteOrphanGhostCells();
 #endif
+
+    void 		setTolerance(double tol);
 
     bool        addVertex(const darray3E & vertex, long idtag = bitpit::Vertex::NULL_ID);
     bool        addVertex(const bitpit::Vertex & vertex, long idtag = bitpit::Vertex::NULL_ID);
