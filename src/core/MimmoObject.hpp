@@ -275,7 +275,7 @@ public:
     liimap      getMapCellInv(bool withghosts=true);
 
     void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
-    void        buildSkdTree(int value = 1);
+    void        buildSkdTree(std::size_t value = 1);
     void        buildKdTree();
     void		buildPatchInfo();
 	void        buildAdjacencies();

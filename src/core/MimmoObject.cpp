@@ -2816,7 +2816,7 @@ void MimmoObject::getBoundingBox(std::array<double,3> & pmin, std::array<double,
  * Ghost cells are insert in the tree.
  *\param[in] value build the minimum leaf of the tree as a bounding box containing value elements at most.
  */
-void MimmoObject::buildSkdTree(int value){
+void MimmoObject::buildSkdTree(std::size_t value){
 	if(!m_skdTreeSupported || isEmpty())   return;
 
 	if (!m_skdTreeSync){
