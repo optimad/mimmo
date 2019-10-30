@@ -88,7 +88,7 @@ void MimmoPiercedVector<mpv_t>::swap(MimmoPiercedVector<mpv_t> & x) noexcept
 {
 	std::swap(this->m_geometry, x.m_geometry);
 	std::swap(this->m_loc, x.m_loc);
-	std::swap(this->m_name, x.m_name);
+	this->m_name.swap(x.m_name);
 	this->bitpit::PiercedVector<mpv_t, long int>::swap(x);
 }
 
