@@ -93,6 +93,7 @@ bool createMimmoMesh(mimmo::MimmoObject * mesh){
 	bool check = (mesh->getNCells() == 48) && (mesh->getNVertices() == 35);
 
 	mesh->buildAdjacencies();
+
 	return check;
 }
 // =================================================================================== //
@@ -118,7 +119,7 @@ int test2() {
 	clip2->setInsideOut(true);
 	clip2->setGeometry(m1);
 	clip2->setClipPlane({{0.75,0.5,0.0}}, {{1.0,0.0,0.0}});
-	clip2->setPlotInExecution(false);
+	clip2->setPlotInExecution(true);
 	clip2->exec();
 
 	mimmo::Lattice * latt1 = new mimmo::Lattice();
@@ -136,33 +137,39 @@ int test2() {
 	sel1->setSpan({{0.6,2.0*M_PI, M_PI}});
 	sel1->setDual(false);
 	sel1->setGeometry(clip->getClippedPatch());
-	sel1->setPlotInExecution(true);
+	sel1->setPlotInExecution(false);
 	sel1->exec();
 
-	mimmo::SelectionBySphere * sel2 = new mimmo::SelectionBySphere((*sel1));
+	mimmo::SelectionBySphere * sel2 = new mimmo::SelectionBySphere();
+	sel2->setOrigin({{1.5,0.5,0.0}});
+	sel2->setSpan({{0.6,2.0*M_PI, M_PI}});
+	sel2->setGeometry(clip->getClippedPatch());
 	sel2->setDual(true);
 	sel2->setPlotInExecution(false);
 	sel2->exec();
 
-	mimmo::dmpvector1D field1(clip2->getGeometry());
+	mimmo::dmpvector1D field1(clip2->getClippedPatch());
 	mimmo::dmpvector1D field2(sel1->getPatch());
 	mimmo::dmpvector1D field3(sel2->getPatch());
 
-	for (auto vertex : clip2->getGeometry()->getVertices()){
+	field1.setName("data1");
+	field2.setName("data2");
+	field3.setName("data3");
+
+	for (auto vertex : clip2->getClippedPatch()->getVertices()){
 		long int ID = vertex.getId();
 		field1.insert(ID, 1.0);
 	}
 
-	for (auto vertex : sel1->getGeometry()->getVertices()){
+	for (auto vertex : sel1->getPatch()->getVertices()){
 		long int ID = vertex.getId();
 		field2.insert(ID, 1.0);
 	}
 
-	for (auto vertex : sel2->getGeometry()->getVertices()){
+	for (auto vertex : sel2->getPatch()->getVertices()){
 		long int ID = vertex.getId();
 		field3.insert(ID, 1.0);
 	}
-
 
 	mimmo::ReconstructScalar * recon = new mimmo::ReconstructScalar();
 
@@ -180,7 +187,6 @@ int test2() {
 	for(double & val : finalfield){
 		check = check && (val == 1.0);
 	}
-
 
 	mimmo::SwitchScalarField * swtch = new mimmo::SwitchScalarField();
 
@@ -204,7 +210,7 @@ int test2() {
 	delete recon;
 	delete swtch;
 
-	std::cout<<"test passed :"<<check<<std::endl;
+    std::cout<<"test passed :"<<check<<std::endl;
 
 	return int(!check);
 }
