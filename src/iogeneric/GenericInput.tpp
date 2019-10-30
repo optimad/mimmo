@@ -453,7 +453,13 @@ GenericInputMPVData::_getResult(){
         file.open(m_dir+"/"+m_filename, std::fstream::in);
         if (file.is_open()){
             if (m_binary){
-                bitpit::genericIO::absorbBINARY(file, name);
+            	std::size_t length;
+                bitpit::genericIO::absorbBINARY(file, length);
+                std::vector<char> namevector(length);
+                for (std::size_t i=0; i<length; i++){
+                	bitpit::genericIO::absorbBINARY(file, namevector[i]);
+                }
+                name = std::string(name.begin(), name.end());
                 bitpit::genericIO::absorbBINARY(file, n_loc);
                 bitpit::genericIO::absorbBINARY(file, nSize);
                 data.reserve(nSize);
