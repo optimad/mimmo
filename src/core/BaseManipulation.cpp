@@ -963,4 +963,40 @@ BaseManipulation::_apply(MimmoPiercedVector<darray3E> & displacements)
 
 }
 
+/*!
+ * Write an input geometry given as MimmoObject pointer.
+ * It writes into the m_output directory with m_name+m_counter
+ * \param[in] geometry MimmoObject pointer to target geometry
+ */
+void
+BaseManipulation::write(MimmoObject* geometry)
+{
+	//Check geometry
+	if (geometry == nullptr){
+		(*m_log) << " Warning: geometry null during writing " << m_name << std::endl;
+		return;
+	}
+
+	bitpit::VTKUnstructuredGrid & VTK = geometry->getPatch()->getVTK();
+	VTK.setDirectory(m_outputPlot+"/");
+	VTK.setName(m_name+std::to_string(m_counter));
+
+	if(geometry->getType() != 3){
+		geometry->getPatch()->write();
+	}
+	else{
+		liimap mapDataInv;
+		dvecarr3E points = geometry->getVerticesCoords(&mapDataInv);
+		int size = points.size();
+		ivector2D connectivity(size, ivector1D(1));
+		for(int i=0; i<size; ++i)    connectivity[i][0]=i;
+//		VTK.setElementType(bitpit::VTKElementType::VERTEX);
+		VTK.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
+		VTK.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
+		VTK.setDimensions(connectivity.size(), points.size());
+		VTK.setCodex(bitpit::VTKFormat::APPENDED);
+		VTK.write();
+	}
+}
+
 };

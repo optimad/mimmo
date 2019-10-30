@@ -36,6 +36,7 @@
 #include <functional>
 #include <unordered_map>
 #include <typeinfo>
+#include <type_traits>
 
 #if MIMMO_ENABLE_MPI
     #include <mpi.h>
@@ -271,10 +272,19 @@ protected:
     /*!Execution method.
      * Pure virtual method, it has to be implemented in derived classes.
      */
-    virtual void     execute() = 0;
-    virtual void     plotOptionalResults();
-    virtual void     apply();
-    void             _apply(MimmoPiercedVector<darray3E> & displacements);
+    virtual void    execute() = 0;
+    virtual void    plotOptionalResults();
+    virtual void	apply();
+    void            _apply(MimmoPiercedVector<darray3E> & displacements);
+
+
+    void		    write(MimmoObject* geometry);
+
+    template<typename mpv_t, typename... Args>
+    void		    write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data, Args ... args);
+
+    template<typename mpv_t>
+    void		    write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data);
 
 };
 
