@@ -36,6 +36,7 @@ MimmoPiercedVector<mpv_t>::MimmoPiercedVector(MimmoObject* geo, MPVLocation loc)
 	m_geometry = geo;
 	m_loc = loc;
 	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+	m_name = "data";
 }
 
 /*!
@@ -52,6 +53,7 @@ template<typename mpv_t>
 MimmoPiercedVector<mpv_t>::MimmoPiercedVector(const MimmoPiercedVector<mpv_t> & other):bitpit::PiercedVector<mpv_t,long int>(other){
 	this->m_geometry = other.m_geometry;
 	this->m_loc = other.m_loc;
+	this->m_name = other.m_name;
 	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 };
 
@@ -86,6 +88,7 @@ void MimmoPiercedVector<mpv_t>::swap(MimmoPiercedVector<mpv_t> & x) noexcept
 {
 	std::swap(this->m_geometry, x.m_geometry);
 	std::swap(this->m_loc, x.m_loc);
+	std::swap(this->m_name, x.m_name);
 	this->bitpit::PiercedVector<mpv_t, long int>::swap(x);
 }
 
@@ -97,7 +100,7 @@ template<typename mpv_t>
 void
 MimmoPiercedVector<mpv_t>::clear(){
 	m_geometry = NULL;
-	//     m_name = "";
+	m_name = "data";
 	m_loc = MPVLocation::UNDEFINED;
 	bitpit::PiercedVector<mpv_t, long int>::clear();
 }
@@ -130,6 +133,16 @@ template<typename mpv_t>
 MPVLocation
 MimmoPiercedVector<mpv_t>::getDataLocation(){
 	return m_loc;
+}
+
+/*!
+ * Get name of the field.
+ * \return field name
+ */
+template<typename mpv_t>
+std::string
+MimmoPiercedVector<mpv_t>::getName() const{
+	return m_name;
 }
 
 /*!
@@ -284,6 +297,16 @@ MimmoPiercedVector<mpv_t>::setData(std::vector<mpv_t>& data){
 		this->insert( id, val);
 		id++;
 	}
+}
+
+/*!
+ * Set name of the field.
+ * \param[in] name field name
+ */
+template<typename mpv_t>
+void
+MimmoPiercedVector<mpv_t>::setName(std::string name){
+	m_name = name;
 }
 
 /*!

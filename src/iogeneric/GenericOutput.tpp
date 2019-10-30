@@ -132,6 +132,8 @@ namespace outputCSVStream {
         if (n == 0) {
             return(out);
         }
+        std::string name = x.getName();
+        out << name<< '\n';
         int loc = static_cast<int>(x.getConstDataLocation());
         out << loc<< '\n';
         out << long(x.size())<<'\n';
@@ -225,6 +227,7 @@ void
 GenericOutputMPVData::setInput(MimmoPiercedVector< T > * data){
     _setInput(*data);
     if(m_csv)   m_binary = false;
+    std::string name = data->getName();
     int loc = static_cast<int>(data->getDataLocation());
     MimmoPiercedVector<T> * workingptr_ = data;
 
@@ -240,6 +243,7 @@ GenericOutputMPVData::setInput(MimmoPiercedVector< T > * data){
         file.open(m_dir+"/"+m_filename, std::fstream::out);
         if (file.is_open()){
             if(m_binary){
+                bitpit::genericIO::flushBINARY(file, name);
                 bitpit::genericIO::flushBINARY(file, loc);
                 bitpit::genericIO::flushBINARY(file, long(workingptr_->size()));
                 for (auto datait = workingptr_->begin(); datait != workingptr_->end(); ++datait) {
@@ -249,6 +253,7 @@ GenericOutputMPVData::setInput(MimmoPiercedVector< T > * data){
             } else if (m_csv){
                 outputCSVStream::ofstreamcsv(file, *workingptr_);
             }else{
+                bitpit::genericIO::flushBINARY(file, name);
                 bitpit::genericIO::flushASCII(file,loc);
                 file<<'\n';
                 bitpit::genericIO::flushASCII(file,long(workingptr_->size()));
@@ -278,6 +283,7 @@ GenericOutputMPVData::collectDataFromAllProcs(MimmoPiercedVector<T> & locdata, M
     if(m_rank == 0){
         //prefill global data with 0 rank info.
         globdata->clear();
+        globdata->setName(locdata.getName());
         globdata->setDataLocation(locdata.getDataLocation());
         for(auto it=locdata.begin(); it!=locdata.end(); ++it){
             globdata->insert(it.getId(), *it);

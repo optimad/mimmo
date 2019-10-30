@@ -59,6 +59,7 @@ private:
     MimmoObject*                             m_geometry;            /**<Pointer to geometry. */
     MPVLocation                              m_loc;                 /**< MPVLocation enum */
     bitpit::Logger*                          m_log;          /**<Pointer to logger.*/
+    std::string								 m_name;		/**<Field name. */
 
 public:
     MimmoPiercedVector(MimmoObject* geo = NULL, MPVLocation loc = MPVLocation::UNDEFINED);
@@ -71,20 +72,22 @@ public:
     void  clear();
 
     // get/set methods of the class;
-    MimmoObject*            getGeometry() const;
-    MPVLocation             getConstDataLocation() const;
-    MPVLocation             getDataLocation();
-    std::vector<mpv_t>    getDataAsVector(bool ordered=false);
-    std::vector<mpv_t>    getInternalDataAsVector(bool ordered=false, bool squeeze = true);
-    std::vector<mpv_t>    getRawDataAsVector(bool ordered=false);
-    bool                    isEmpty();
+    MimmoObject*        getGeometry() const;
+    MPVLocation         getConstDataLocation() const;
+    MPVLocation         getDataLocation();
+    std::string			getName() const;
+    std::vector<mpv_t>	getDataAsVector(bool ordered=false);
+    std::vector<mpv_t>	getInternalDataAsVector(bool ordered=false, bool squeeze = true);
+    std::vector<mpv_t> 	getRawDataAsVector(bool ordered=false);
+    bool				isEmpty();
 
-    bool                   completeMissingData(const mpv_t & defValue);
-    void                   initialize(MimmoObject *, MPVLocation, const mpv_t &);
-    void                   setGeometry(MimmoObject* geo);
-    void                   setDataLocation(MPVLocation loc);
-    void                   setDataLocation(int loc);
-    void                   setData(std::vector<mpv_t> &rawdata);
+    bool	completeMissingData(const mpv_t & defValue);
+    void    initialize(MimmoObject *, MPVLocation, const mpv_t &);
+    void    setGeometry(MimmoObject* geo);
+    void    setDataLocation(MPVLocation loc);
+    void    setDataLocation(int loc);
+    void    setData(std::vector<mpv_t> &rawdata);
+    void	setName(std::string name);
 
     bool checkDataSizeCoherence();
     bool checkDataIdsCoherence();
