@@ -135,9 +135,13 @@ std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< T > &x){
 
     T       dummy;
     long    id;
+    std::string name;
     int     location;
     long    sizeData = 0, readSizeData;
 
+    if(ifstreamcsvend(in, name) && !in.bad()){
+        x.setName(name);
+    }
     if(ifstreamcsvend(in, location) && !in.bad()){
         if(x.intIsValidLocation(location)) x.setDataLocation(static_cast<MPVLocation>(location));
     }
@@ -164,9 +168,13 @@ std::fstream&  ifstreamcsv(std::fstream &in, MimmoPiercedVector< std::array< T,d
 
     std::array<T,d>  dummy;
     long    id;
+    std::string name;
     int     location;
     long    sizeData = 0, readSizeData;
 
+    if(ifstreamcsvend(in, name) && !in.bad()){
+        x.setName(name);
+    }
     if(ifstreamcsvend(in, location) && !in.bad()){
         if(x.intIsValidLocation(location)) x.setDataLocation(static_cast<MPVLocation>(location));
     }
@@ -433,6 +441,7 @@ GenericInputMPVData::_getResult(){
     if(m_rank == 0)
 #endif
     {
+    	std::string name;
         int n_loc;
         long nSize = 0, readNSize;
         long id;
@@ -444,6 +453,7 @@ GenericInputMPVData::_getResult(){
         file.open(m_dir+"/"+m_filename, std::fstream::in);
         if (file.is_open()){
             if (m_binary){
+                bitpit::genericIO::absorbBINARY(file, name);
                 bitpit::genericIO::absorbBINARY(file, n_loc);
                 bitpit::genericIO::absorbBINARY(file, nSize);
                 data.reserve(nSize);
@@ -453,10 +463,12 @@ GenericInputMPVData::_getResult(){
                     data.insert(id,data_T);
                 }
                 data.setDataLocation(n_loc);
+                data.setName(name);
             }
             else if (m_csv){
                 inputCSVStream::ifstreamcsv(file, data);
             }else{
+                bitpit::genericIO::absorbASCII(file, name);
                 bitpit::genericIO::absorbASCII(file, n_loc);
                 bitpit::genericIO::absorbASCII(file, readNSize);
                 if(file.good())  nSize = long(readNSize);
@@ -467,6 +479,7 @@ GenericInputMPVData::_getResult(){
                     data.insert(id,data_T);
                 }
                 data.setDataLocation(n_loc);
+                data.setName(name);
             }
             file.close();
         }else{

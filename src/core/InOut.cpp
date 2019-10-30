@@ -820,9 +820,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecto
     mimmo::MimmoObject* geo;
     buffer >> geo;
     element.setGeometry(geo);
-//     std::string name;
-//     buffer >> name;
-//     element.setName(name);
+    std::string name;
+    buffer >> name;
+    element.setName(name);
     int loc_;
     buffer >> loc_;
     element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
@@ -847,7 +847,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecto
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::dmpvector1D& element){
 
     buffer << element.getGeometry();
-//     buffer << element.getName();
+    buffer << element.getName();
     buffer << static_cast<int>(element.getConstDataLocation());
     buffer << (std::size_t)element.size();
     auto itE = element.cend();
@@ -866,7 +866,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::dm
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::dmpvecarr3E &element)
 {
     buffer << element.getGeometry();
-//     buffer << element.getName();
+    buffer << element.getName();
     buffer << static_cast<int>(element.getConstDataLocation());
     buffer << (std::size_t)element.size();
     auto itE = element.cend();
@@ -891,10 +891,9 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecar
     mimmo::MimmoObject* geo;
     buffer >> geo;
     element.setGeometry(geo);
-//     std::string name;
-//     buffer >> name;
-//     std::cout<<"mpv name"<<name<<std::endl;
-//     element.setName(name);
+    std::string name;
+    buffer >> name;
+    element.setName(name);
 
     int loc_;
     buffer >> loc_;
