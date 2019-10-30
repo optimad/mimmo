@@ -243,7 +243,12 @@ GenericOutputMPVData::setInput(MimmoPiercedVector< T > * data){
         file.open(m_dir+"/"+m_filename, std::fstream::out);
         if (file.is_open()){
             if(m_binary){
-                bitpit::genericIO::flushBINARY(file, name);
+            	std::size_t length = name.length();
+                bitpit::genericIO::flushBINARY(file, length);
+                for (std::size_t i=0; i<length; i++){
+                	char a = name.at(i);
+                	bitpit::genericIO::flushBINARY(file, a);
+                }
                 bitpit::genericIO::flushBINARY(file, loc);
                 bitpit::genericIO::flushBINARY(file, long(workingptr_->size()));
                 for (auto datait = workingptr_->begin(); datait != workingptr_->end(); ++datait) {
@@ -253,7 +258,7 @@ GenericOutputMPVData::setInput(MimmoPiercedVector< T > * data){
             } else if (m_csv){
                 outputCSVStream::ofstreamcsv(file, *workingptr_);
             }else{
-                bitpit::genericIO::flushBINARY(file, name);
+                bitpit::genericIO::flushASCII(file, name);
                 bitpit::genericIO::flushASCII(file,loc);
                 file<<'\n';
                 bitpit::genericIO::flushASCII(file,long(workingptr_->size()));
