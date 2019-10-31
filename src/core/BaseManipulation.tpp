@@ -215,11 +215,13 @@ BaseManipulation::write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data)
 //			write(geometry);
 //			return;
 //		}
-		geometry->getPatch()->getVTK().addData(data.getName(), bitpit::VTKFieldType::SCALAR, loc, field);
+//		geometry->getPatch()->getVTK().addData(data.getName(), bitpit::VTKFieldType::SCALAR, loc, field);
 
 //	}
 
 	write(geometry);
+
+	geometry->getPatch()->getVTK().removeData(data.getName());
 
 }
 
@@ -289,7 +291,7 @@ BaseManipulation::write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data,
 	//Check if geometry is a point cloud or not
 //	if(geometry->getType() != 3){
 
-		geometry->getPatch()->getVTK().addData(data.getName(), bitpit::VTKFieldType::SCALAR, loc, field);
+		geometry->getPatch()->getVTK().addData(data.getName(), fieldtype, loc, field);
 
 //	}else{
 //
@@ -298,7 +300,7 @@ BaseManipulation::write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data,
 //			write(geometry, args...);
 //			return;
 //		}
-		geometry->getPatch()->getVTK().addData(data.getName(), bitpit::VTKFieldType::SCALAR, loc, field);
+//		geometry->getPatch()->getVTK().addData(data.getName(), fieldtype, loc, field);
 
 //	}
 
