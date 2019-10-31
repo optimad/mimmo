@@ -204,20 +204,20 @@ BaseManipulation::write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data)
 	std::vector<mpv_t> field = data.getDataAsVector();
 
 	//Check if geometry is a point cloud or not
-	if(geometry->getType() != 3){
+//	if(geometry->getType() != 3){
 
 		geometry->getPatch()->getVTK().addData(data.getName(), fieldtype, loc, field);
 
-	}else{
-
-		if(loc == bitpit::VTKLocation::CELL){
-			(*m_log) << " Warning: attempt writing Cell data field on cloud of points in " << m_name << "; skip data" << std::endl;
-			write(geometry);
-			return;
-		}
+//	}else{
+//
+//		if(loc == bitpit::VTKLocation::CELL){
+//			(*m_log) << " Warning: attempt writing Cell data field on cloud of points in " << m_name << "; skip data" << std::endl;
+//			write(geometry);
+//			return;
+//		}
 		geometry->getPatch()->getVTK().addData(data.getName(), bitpit::VTKFieldType::SCALAR, loc, field);
 
-	}
+//	}
 
 	write(geometry);
 
@@ -287,20 +287,20 @@ BaseManipulation::write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data,
 	std::vector<mpv_t> field = data.getDataAsVector();
 
 	//Check if geometry is a point cloud or not
-	if(geometry->getType() != 3){
+//	if(geometry->getType() != 3){
 
 		geometry->getPatch()->getVTK().addData(data.getName(), bitpit::VTKFieldType::SCALAR, loc, field);
 
-	}else{
-
-		if(loc == bitpit::VTKLocation::CELL){
-			(*m_log) << " Warning: attempt writing Cell data field on cloud of points in " << m_name << "; skip data" << std::endl;
-			write(geometry, args...);
-			return;
-		}
+//	}else{
+//
+//		if(loc == bitpit::VTKLocation::CELL){
+//			(*m_log) << " Warning: attempt writing Cell data field on cloud of points in " << m_name << "; skip data" << std::endl;
+//			write(geometry, args...);
+//			return;
+//		}
 		geometry->getPatch()->getVTK().addData(data.getName(), bitpit::VTKFieldType::SCALAR, loc, field);
 
-	}
+//	}
 
 	write(geometry, args...);
 
