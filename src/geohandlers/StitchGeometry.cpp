@@ -376,12 +376,9 @@ void StitchGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::str
  */
 void
 StitchGeometry::plotOptionalResults(){
-    if(m_patch.get() == NULL) return;
-    if(isEmpty()) return;
-    bitpit::VTKUnstructuredGrid & vtk = m_patch->getPatch()->getVTK();
-    vtk.setDirectory(m_outputPlot +"/");
-    vtk.setName(m_name + "_" + std::to_string(getId()) +  "_Patch");
-    m_patch->getPatch()->write();
+
+	write(getGeometry());
+
 }
 
 }

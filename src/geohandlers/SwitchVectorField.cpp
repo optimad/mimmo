@@ -164,52 +164,8 @@ SwitchVectorField::clear(){
 void
 SwitchVectorField::plotOptionalResults(){
 
-    if (m_result.size() == 0 || getGeometry() == NULL) return;
-    if (getGeometry()->isEmpty()) return;
-
-    bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
-    switch(m_loc){
-        case MPVLocation::POINT :
-            loc = bitpit::VTKLocation::POINT;
-            break;
-        case MPVLocation::CELL :
-            loc = bitpit::VTKLocation::CELL;
-            break;
-        default:
-            (*m_log)<<"Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
-            (*m_log)<<"Interface locations are not supported in VTU writing." <<std::endl;
-            break;
-    }
-
-    if(loc == bitpit::VTKLocation::UNDEFINED)  return;
-
-    //check size of field and adjust missing values to zero for writing purposes only.
-    dmpvecarr3E field_supp = m_result;
-    if(!field_supp.completeMissingData({{0.0,0.0,0.0}})) return;
-    dvecarr3E field = field_supp.getDataAsVector();
-
-    if(getGeometry()->getType() != 3){
-        getGeometry()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::VECTOR, loc, field);
-        getGeometry()->getPatch()->write(m_outputPlot+"/"+m_name+std::to_string(getId()));
-        getGeometry()->getPatch()->getVTK().removeData("field");
-    }else{
-        if(loc == bitpit::VTKLocation::CELL){
-            (*m_log)<<"Warning: Attempt writing Cell data field on cloud point in plotOptionalResults of "<<m_name<<std::endl;
-            return;
-        }
-        liimap mapDataInv;
-        dvecarr3E points = getGeometry()->getVerticesCoords(&mapDataInv);
-        int size = points.size();
-        ivector2D connectivity(size, ivector1D(1));
-        for(int i=0; i<size; ++i)    connectivity[i][0]=i;
-        bitpit::VTKUnstructuredGrid output(m_outputPlot,m_name+std::to_string(getId()),   bitpit::VTKElementType::VERTEX);
-        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-        output.setDimensions(connectivity.size(), points.size());
-        output.addData("field", bitpit::VTKFieldType::VECTOR, loc, field);
-        output.setCodex(bitpit::VTKFormat::APPENDED);
-        output.write();
-    }
+	m_result.setName("field");
+	write(m_result.getGeometry(), m_result);
 
 }
 

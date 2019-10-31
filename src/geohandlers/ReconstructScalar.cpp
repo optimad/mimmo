@@ -239,102 +239,28 @@ ReconstructScalar::clear(){
 
 /*!
  * Plot data (resulting field data) on vtu unstructured grid file
- * \param[in]    dir        Output directory
- * \param[in]    name    Output filename
- * \param[in]    flag    Writing codex flag, false ascii, binary true
  */
 void
-ReconstructScalar::plotData(std::string dir, std::string name, bool flag){
+ReconstructScalar::plotData(){
 
-    if(getGeometry() == NULL) return;
-    if(!m_result.completeMissingData(0.0))   return;
+	m_result.setName("field");
+	write(m_result.getGeometry(), m_result);
 
-    bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
-    if(m_loc == MPVLocation::CELL){
-        loc = bitpit::VTKLocation::CELL;
-    }
-
-    dvector1D field = m_result.getDataAsVector();
-
-    if (getGeometry()->getType() != 3){
-        getGeometry()->getPatch()->getVTK().addData("scalarfield", bitpit::VTKFieldType::SCALAR, loc, field);
-        getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::APPENDED);
-        if(!flag) getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::ASCII);
-        getGeometry()->getPatch()->getVTK().setDirectory(dir+"/");
-        getGeometry()->getPatch()->getVTK().setName(name);
-        getGeometry()->getPatch()->write();
-        getGeometry()->getPatch()->getVTK().removeData("scalarfield");
-    }else{
-        liimap mapData;
-        dvecarr3E points = getGeometry()->getVerticesCoords(&mapData);
-        ivector2D connectivity;
-        int np = points.size();
-        connectivity.resize(np);
-        for (int i=0; i<np; i++){
-            connectivity[i].resize(1);
-            connectivity[i][0] = i;
-        }
-        bitpit::VTKUnstructuredGrid output(dir,name,bitpit::VTKElementType::VERTEX);
-        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-        output.setDimensions(connectivity.size(), points.size());
-        output.addData("scalarfield", bitpit::VTKFieldType::SCALAR, loc, field);
-        output.setDataCodex(bitpit::VTKFormat::APPENDED);
-        if(!flag) output.setDataCodex(bitpit::VTKFormat::ASCII);
-        output.write();
-    }
 };
 
 /*!
  * Plot sub data (resulting field data) on vtu unstructured grid file
- * \param[in]    dir        Output directory
- * \param[in]    name    Output filename (the function will add SubPatch-i to this name)
  * \param[in]    i       index of the sub-patch
- * \param[in]    flag    Writing codex flag, false ascii, binary true
  */
 void
-ReconstructScalar::plotSubData(std::string dir, std::string name, int i, bool flag){
-    if(m_subresults[i].getGeometry() == NULL) return;
+ReconstructScalar::plotSubData(int i){
 
-    std::string nameX = name+"SubPatch"+std::to_string(i);
+    std::string originalname = m_name;
+    m_name = originalname + "SubPatch"+std::to_string(i);
+    m_subresults[i].setName("field");
+	write(m_subresults[i].getGeometry(), m_subresults[i]);
+	m_name = originalname;
 
-    bitpit::VTKLocation loc = bitpit::VTKLocation::POINT;
-    if(m_loc == MPVLocation::CELL){
-        loc = bitpit::VTKLocation::CELL;
-    }
-
-    //check size of field and adjust missing values to zero for writing purposes only.
-    dmpvector1D field_supp = m_subresults[i];
-    if(!field_supp.completeMissingData(0.0))    return;
-    dvector1D field = field_supp.getDataAsVector();
-
-    if (m_subresults[i].getGeometry()->getType() != 3){
-        m_subresults[i].getGeometry()->getPatch()->getVTK().addData("scalarfield", bitpit::VTKFieldType::SCALAR,loc, field);
-        m_subresults[i].getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::APPENDED);
-        if(!flag) m_subresults[i].getGeometry()->getPatch()->getVTK().setDataCodex(bitpit::VTKFormat::ASCII);
-        m_subresults[i].getGeometry()->getPatch()->getVTK().setDirectory(dir+"/");
-        m_subresults[i].getGeometry()->getPatch()->getVTK().setName(nameX);
-        m_subresults[i].getGeometry()->getPatch()->write();
-        m_subresults[i].getGeometry()->getPatch()->getVTK().removeData("scalarfield");
-    }else{
-        liimap mapData;
-        dvecarr3E points = m_subresults[i].getGeometry()->getVerticesCoords(&mapData);
-        ivector2D connectivity;
-        int np = points.size();
-        connectivity.resize(np);
-        for (int i=0; i<np; i++){
-            connectivity[i].resize(1);
-            connectivity[i][0] = i;
-        }
-        bitpit::VTKUnstructuredGrid output(dir,nameX,bitpit::VTKElementType::VERTEX);
-        output.setGeomData(bitpit::VTKUnstructuredField::POINTS, points);
-        output.setGeomData(bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-        output.setDimensions(connectivity.size(), points.size());
-        output.addData("scalarfield", bitpit::VTKFieldType::SCALAR,loc, field);
-        output.setDataCodex(bitpit::VTKFormat::APPENDED);
-        if(!flag) output.setDataCodex(bitpit::VTKFormat::ASCII);
-        output.write();
-    }
 };
 
 /*!
@@ -420,11 +346,9 @@ ReconstructScalar::execute(){
  * Plot Optional results in execution, that is the reconstructed scalar field .
  */
 void     ReconstructScalar::plotOptionalResults(){
-    std::string dir = m_outputPlot;
-    std::string name = m_name + std::to_string(getId());
-    plotData(dir, name, true);
+    plotData();
     for (int i=0; i<getNData(); i++){
-        plotSubData(dir, name, i, true);
+        plotSubData(i);
     }
 }
 

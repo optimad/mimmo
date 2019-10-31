@@ -273,11 +273,7 @@ void RefineGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::str
  */
 void
 RefineGeometry::plotOptionalResults(){
-	if(getGeometry() == nullptr) return;
-    bitpit::VTKUnstructuredGrid & vtk = getGeometry()->getPatch()->getVTK();
-    vtk.setDirectory(m_outputPlot +"/");
-    vtk.setName(m_name + "_" + std::to_string(getId()) +  "_Patch");
-    getGeometry()->getPatch()->write();
+	write(getGeometry());
 }
 
 /*!

@@ -309,25 +309,18 @@ FVGenericSelection::execute(){
  */
 void
 FVGenericSelection::plotOptionalResults(){
-    std::string dir = m_outputPlot;
 
-    if(getVolumePatch()){
-        std::string namevol = m_name + "_Volume_Patch."+ std::to_string(getId());
-        bitpit::VTKUnstructuredGrid & vtk = getVolumePatch()->getPatch()->getVTK();
-        vtk.setDirectory(m_outputPlot+"/");
-        vtk.setName(namevol);
-        getVolumePatch()->getPatch()->write();
-    }
-
-
+	std::string originalname = m_name;
+	 if(getVolumePatch()){
+		 m_name = originalname + "_Volume_Patch";
+		 write(getVolumePatch());
+	 }
     if(getBoundaryPatch()){
-        std::string namebnd = m_name + "_Boundary_Patch."+ std::to_string(getId());
-        bitpit::VTKUnstructuredGrid & vtk = getBoundaryPatch()->getPatch()->getVTK();
-        vtk.setDirectory(m_outputPlot+"/");
-        vtk.setName(namebnd);
-        getBoundaryPatch()->getPatch()->write();
-
+    	m_name = originalname + "_Boundary_Patch";
+		 write(getBoundaryPatch());
     }
+	m_name = originalname;
+
 }
 
 /*!

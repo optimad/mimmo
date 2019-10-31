@@ -329,38 +329,8 @@ ClipGeometry::clipPlane(){
  */
 void
 ClipGeometry::plotOptionalResults(){
-    if(getClippedPatch() == NULL) return;
-    if(getClippedPatch()->isEmpty()) return;
 
-    std::string dir = m_outputPlot+"/";
-    std::string name = m_name + "_Patch."+ std::to_string(getId());
-
-    if (getClippedPatch()->getType() != 3){
-        bitpit::VTKUnstructuredGrid & vtk = getClippedPatch()->getPatch()->getVTK();
-        vtk.setDirectory(dir);
-        vtk.setName(name);
-        getClippedPatch()->getPatch()->write();
-    }
-    else{
-        liimap mapDataInv;
-        dvecarr3E points = getClippedPatch()->getVerticesCoords(&mapDataInv);
-        ivector2D connectivity;
-        bitpit::VTKElementType cellType = bitpit::VTKElementType::VERTEX;
-
-        int np = points.size();
-        connectivity.resize(np);
-        for (int i=0; i<np; i++){
-            connectivity[i].resize(1);
-            connectivity[i][0] = i;
-
-        }
-        bitpit::VTKUnstructuredGrid output(dir,name,cellType);
-        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-        output.setDimensions(connectivity.size(), points.size());
-        output.setCodex(bitpit::VTKFormat::APPENDED);
-        output.write();
-    }
+	write(getClippedPatch());
 
 }
 
