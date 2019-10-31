@@ -5,12 +5,19 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Fixed
+- fixed copy during compilation of binary samples additional files
 ### Added
+- restored name in MimmoPiercedVector objects
+- new methods to write geometries with several and different kind of fields (scalar/vector, defined on points/cells) added to BaseManipulation class
+- added geometric tolerance to mimmo objects
+- added use of geometric tolerance and cleaning flag during reading with MimmoGeometry objects
 ### Changed
+- modified plotOptionalResults methods in some classes to use the new write function of base class
+- Point Cloud geometries now build the cell too. The cells are defined as bitpit::VERTEX type elements.
 ### Removed
 
 
- ## [1.3.0] - 2019-10-??
+ ## [1.3.0] - 2019-10-25
 ### Fixed
 - fixed cmake retracking dependancies (as in case of bitpit v.1.6.0).
 - fixed BasicShape: XML interface.
