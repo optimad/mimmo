@@ -820,9 +820,17 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecto
     mimmo::MimmoObject* geo;
     buffer >> geo;
     element.setGeometry(geo);
+
     std::string name;
-    buffer >> name;
+    std::size_t length;
+    buffer >> length;
+    std::vector<char> vectorname(length);
+    for (char & a : vectorname){
+    	buffer >> a;
+    }
+    std::memcpy(&name, vectorname.data(), length);
     element.setName(name);
+
     int loc_;
     buffer >> loc_;
     element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
@@ -847,7 +855,15 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecto
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::dmpvector1D& element){
 
     buffer << element.getGeometry();
-    buffer << element.getName();
+
+    std::string name = element.getName();
+    std::size_t length = name.size();
+    buffer << length;
+    for (std::size_t i=0; i<length; i++){
+    	char a = name.at(i);
+    	buffer << a;
+    }
+
     buffer << static_cast<int>(element.getConstDataLocation());
     buffer << (std::size_t)element.size();
     auto itE = element.cend();
@@ -866,7 +882,15 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::dm
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::dmpvecarr3E &element)
 {
     buffer << element.getGeometry();
-    buffer << element.getName();
+
+    std::string name = element.getName();
+    std::size_t length = name.size();
+    buffer << length;
+    for (std::size_t i=0; i<length; i++){
+    	char a = name.at(i);
+    	buffer << a;
+    }
+
     buffer << static_cast<int>(element.getConstDataLocation());
     buffer << (std::size_t)element.size();
     auto itE = element.cend();
@@ -891,8 +915,15 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::dmpvecar
     mimmo::MimmoObject* geo;
     buffer >> geo;
     element.setGeometry(geo);
+
     std::string name;
-    buffer >> name;
+    std::size_t length;
+    buffer >> length;
+    std::vector<char> vectorname(length);
+    for (char & a : vectorname){
+    	buffer >> a;
+    }
+    std::memcpy(&name, vectorname.data(), length);
     element.setName(name);
 
     int loc_;
