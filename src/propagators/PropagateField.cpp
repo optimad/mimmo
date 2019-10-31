@@ -206,31 +206,19 @@ PropagateScalarField::clear(){
 void
 PropagateScalarField::plotOptionalResults(){
 
-	if(getGeometry() == NULL)    return;
-
-	bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
-#if MIMMO_ENABLE_MPI
-	getGeometry()->getPatch()->setVTKWriteTarget(bitpit::PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL);
-#endif
-
-	std::vector<std::array<double,1> > dataraw = m_field.getInternalDataAsVector();
-	dvector1D data;
-	data.reserve(dataraw.size());
-	for (auto val : dataraw){
-		data.push_back(val[0]);
+	if(getGeometry() == nullptr)    return;
+	//Define a scalar field
+	dmpvector1D field;
+	field.initialize(getGeometry(), MPVLocation::POINT, 0.);
+	for (bitpit::Vertex v : getGeometry()->getVertices()){
+		long id = v.getId();
+		field[id] = m_field[id][0];
 	}
-	vtk.addData("field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, data);
-
-	dvector1D datad = m_dumping.getInternalDataAsVector();
-	vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, datad);
-
-	vtk.setCounter(getId());
-    getGeometry()->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
-    getGeometry()->getPatch()->getVTK().setName(m_name+"_field");
-	getGeometry()->getPatch()->write();
-	vtk.removeData("field");
-	vtk.removeData("dumping");
-	vtk.unsetCounter();
+	//Set names
+	field.setName("field");
+	m_dumping.setName("dumping");
+	//Write
+	write(getGeometry(), field, m_dumping);
 
 };
 
@@ -1036,27 +1024,9 @@ void PropagateVectorField::distributeSlipBCOnBoundaryInterfaces(){
 void
 PropagateVectorField::plotOptionalResults(){
 
-	if(!getGeometry())    return;
-
-	bitpit::VTKUnstructuredGrid& vtk = getGeometry()->getPatch()->getVTK();
-#if MIMMO_ENABLE_MPI
-	getGeometry()->getPatch()->setVTKWriteTarget(bitpit::PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL);
-#endif
-
-	dvecarr3E data = m_field.getInternalDataAsVector();
-	vtk.addData("field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, data);
-
-	dvector1D datad = m_dumping.getInternalDataAsVector();
-	vtk.addData("dumping", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, datad);
-
-	vtk.setCounter(getId());
-    getGeometry()->getPatch()->getVTK().setDirectory(m_outputPlot+"/");
-    getGeometry()->getPatch()->getVTK().setName(m_name+"_field");
-    getGeometry()->getPatch()->write();
-
-	vtk.removeData("field");
-	vtk.removeData("dumping");
-	vtk.unsetCounter();
+	m_field.setName("field");
+	m_dumping.setName("dumping");
+	write(getGeometry(), m_field, m_dumping);
 
 };
 

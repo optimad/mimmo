@@ -220,12 +220,8 @@ ProjPrimitivesOnSurfaces::execute(){
  */
 void
 ProjPrimitivesOnSurfaces::plotOptionalResults(){
-    bitpit::VTKUnstructuredGrid & vtk = m_patch->getPatch()->getVTK();
-    vtk.setDirectory(m_outputPlot+"/");
-    vtk.setName(m_name + std::to_string(getId())+"_Patch");
-    vtk.setCounter(getId());
-    m_patch->getPatch()->write();
-    vtk.unsetCounter();
+
+	write(m_patch.get());
 
 };
 

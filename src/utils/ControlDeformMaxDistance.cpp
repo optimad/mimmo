@@ -293,28 +293,11 @@ ControlDeformMaxDistance::flushSectionXML(bitpit::Config::Section & slotXML, std
  */
 void
 ControlDeformMaxDistance::plotOptionalResults(){
-    if(getGeometry() == NULL) return;
-    if(getGeometry()->isEmpty())    return;
-    if(!m_defField.completeMissingData({{0,0,0}}) || !m_violationField.completeMissingData(0.0)) return;
 
-    //get deformation on points
-    dvecarr3E deff = m_defField.getDataAsVector();
-    //get violation field
-    dvector1D viol = m_violationField.getDataAsVector();
+    m_defField.setName("Deformation Field");
+    m_violationField.setName("Violation Distance Field");
+    write(getGeometry(), m_defField, m_violationField);
 
-    //add deformation field as vector field
-    bitpit::VTKUnstructuredGrid & vtk = getGeometry()->getPatch()->getVTK();
-    vtk.addData("Deformation Field", bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, deff);
-    //add violation field as a custom data field of the original geometry
-    vtk.addData("Violation Distance Field", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, viol);
-
-    vtk.setDirectory(m_outputPlot+"/");
-    vtk.setName(m_name+std::to_string(getId()));
-    getGeometry()->getPatch()->write();
-
-    //reset geometry VTK to its original setup
-    vtk.removeData("Deformation Field");
-    vtk.removeData("Violation Distance Field");
 }
 
 

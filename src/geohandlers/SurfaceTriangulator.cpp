@@ -158,10 +158,8 @@ void SurfaceTriangulator::execute(){
  */
 void     SurfaceTriangulator::plotOptionalResults(){
 
-    bitpit::VTKUnstructuredGrid & vtk = getGeometry()->getPatch()->getVTK();
-    vtk.setDirectory(m_outputPlot + "/");
-    vtk.setName(m_name +std::to_string(getId()));
-    getGeometry()->getPatch()->write();
+	write(getGeometry());
+
 }
 
 /*!

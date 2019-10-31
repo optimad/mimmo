@@ -292,41 +292,9 @@ GenericSelection::execute(){
  */
 void
 GenericSelection::plotOptionalResults(){
-    if(getPatch() == NULL) return;
 
-    std::string dir = m_outputPlot + "/";
-    std::string name = m_name + "_Patch_"+ std::to_string(getId());
+	 write(getPatch());
 
-    if (m_topo != 3){
-
-        getPatch()->getPatch()->getVTK().setDirectory(dir);
-        getPatch()->getPatch()->getVTK().setName(name);
-        getPatch()->getPatch()->write();
-
-    }else{
-
-        liimap mapDataInv;
-        dvecarr3E points = getPatch()->getVerticesCoords(&mapDataInv);
-        ivector2D connectivity;
-        bitpit::VTKElementType cellType = bitpit::VTKElementType::VERTEX;
-
-        int np = points.size();
-        connectivity.resize(np);
-        for (int i=0; i<np; i++){
-            connectivity[i].resize(1);
-            connectivity[i][0] = i;
-        }
-
-        bitpit::VTKUnstructuredGrid output(dir,name,cellType);
-        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-        output.setDimensions(connectivity.size(), points.size());
-        output.setCodex(bitpit::VTKFormat::APPENDED);
-        output.write();
-    }
 }
-
-
-
 
 }

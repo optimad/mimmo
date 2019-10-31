@@ -594,20 +594,13 @@ Partition::updateBoundaryVerticesID()
  */
 void
 Partition::plotOptionalResults(){
-    std::string dir = m_outputPlot +"/";
-    std::string name = m_name;
-    if(m_mode == PartitionMethod::SERIALIZE){
-        name = "mimmo.Serialization";
-    }
-    getGeometry()->getPatch()->getVTK().setDirectory(dir);
-    getGeometry()->getPatch()->getVTK().setName(name);
-    getGeometry()->getPatch()->write();
 
-	if (getBoundaryGeometry() != nullptr){
-        getBoundaryGeometry()->getPatch()->getVTK().setDirectory(dir);
-        getBoundaryGeometry()->getPatch()->getVTK().setName(name+"Boundary");
-		getBoundaryGeometry()->getPatch()->write();
-	}
+	write(getGeometry());
+	std::string originalname = m_name;
+	m_name = originalname + ".Boundary";
+	write(getBoundaryGeometry());
+	m_name = originalname;
+
 }
 
 /*!

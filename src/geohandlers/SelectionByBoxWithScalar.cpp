@@ -181,69 +181,10 @@ SelectionByBoxWithScalar::execute(){
  */
 void
 SelectionByBoxWithScalar::plotOptionalResults(){
-    if(getPatch() == NULL)      return;
-    if(getPatch()->isEmpty()) return;
-    if(m_field.getGeometry() != getPatch()) return;
 
-    bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
-    switch(m_field.getDataLocation()){
-        case MPVLocation::POINT :
-            loc = bitpit::VTKLocation::POINT;
-            break;
-        case MPVLocation::CELL :
-            loc = bitpit::VTKLocation::CELL;
-            break;
-        default:
-            (*m_log)<<"warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
-            (*m_log)<<"Interface or Undefined locations are not supported in VTU writing." <<std::endl;
-            break;
-    }
-    if(loc == bitpit::VTKLocation::UNDEFINED)  return;
+	m_field.setName("field");
+	write(m_field.getGeometry(), m_field);
 
-    if(getPatch()->getType()==3 && m_field.getDataLocation()!= MPVLocation::POINT){
-        (*m_log)<<"warning in "<<m_name<<" : Attempting to plot a non POINT located field on a Point Cloud target geometry. Do Nothing."<<std::endl;
-        return;
-    }
-
-    std::string dir  = m_outputPlot;
-    std::string name = m_name + "_Patch."+ std::to_string(getId());
-
-    //check size of field and adjust missing values to zero for writing purposes only.
-    dmpvector1D field_supp = m_field;
-    bool checkField = field_supp.completeMissingData(0.0);
-
-    if(getPatch()->getType() != 3){
-        if(checkField){
-            dvector1D field = field_supp.getDataAsVector();
-            getPatch()->getPatch()->getVTK().addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
-        }
-        std::string totpath = dir +"/"+name;
-        getPatch()->getPatch()->write(totpath);
-        if(checkField)  getPatch()->getPatch()->getVTK().removeData("field");
-    }else{
-        liimap mapDataInv;
-        dvecarr3E points = getPatch()->getVerticesCoords(&mapDataInv);
-        ivector2D connectivity;
-        bitpit::VTKElementType cellType = bitpit::VTKElementType::VERTEX;
-
-        int np = points.size();
-        connectivity.resize(np);
-        for (int i=0; i<np; i++){
-            connectivity[i].resize(1);
-            connectivity[i][0] = i;
-
-        }
-        bitpit::VTKUnstructuredGrid output(dir,name,cellType);
-        output.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-        output.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-        output.setDimensions(connectivity.size(), points.size());
-        output.setCodex(bitpit::VTKFormat::APPENDED);
-        if(checkField){
-            dvector1D field = field_supp.getDataAsVector();
-            output.addData("field", bitpit::VTKFieldType::SCALAR, loc, field);
-        }
-        output.write();
-    }
 }
 
 /*!
