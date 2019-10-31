@@ -1695,12 +1695,14 @@ void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, b
 void VTUPointCloudStreamer::decodeRawData(bitpit::PatchKernel & patch)
 {
     //time to check reading result.
-    std::size_t nVertices;
+    std::size_t nVertices, nCells;
     nVertices = points.size();
+    nCells = nVertices;
     if(nVertices == 0){
         throw std::runtime_error("Error VTUPointCloudStreamer : no point coordinates detected while reading *.vtu file.");
     }
     patch.reserveVertices(nVertices);
+    patch.reserveCells(nCells);
 
     //reading mesh nodes and store it in vertices.
     //check labels if any;
@@ -1718,7 +1720,15 @@ void VTUPointCloudStreamer::decodeRawData(bitpit::PatchKernel & patch)
         if(checkPointsID) idV = pointsID[counter];
         bitpit::PatchKernel::VertexIterator it = patch.addVertex(p, idV);
         mapVert[counter] = (*it).getId();
+
+        //Add cell of type VERTEX
+        long ID = mapVert[counter];
+        livector1D conn(1, ID);
+        long idC = ID;
+        patch.addCell(bitpit::ElementType::VERTEX, conn, idC);
+
         ++counter;
+
     }
 }
 

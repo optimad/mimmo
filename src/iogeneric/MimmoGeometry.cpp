@@ -589,6 +589,7 @@ MimmoGeometry::write(){
     case FileType::SURFVTU :
     case FileType::VOLVTU :
     case FileType::CURVEVTU:
+    case FileType::PCVTU:
         //Export Surface/Volume/3DCurve VTU
     {
         if(!m_codex){
@@ -645,27 +646,27 @@ MimmoGeometry::write(){
         return true;
     }
     break;
-
-    case FileType::PCVTU :
-        //Export Point Cloud VTU
-    {
-        dvecarr3E    points = getGeometry()->getVerticesCoords();
-        ivector2D    connectivity(points.size(), ivector1D(1,0));
-        int counter = 0;
-        for(auto & c:connectivity){
-            c[0] = counter;
-            counter++;
-        }
-        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::VERTEX);
-        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
-        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
-        vtk.setDimensions(connectivity.size(), points.size());
-        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
-        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
-        vtk.write() ;
-        return true;
-    }
-    break;
+//
+//    case FileType::PCVTU :
+//        //Export Point Cloud VTU
+//    {
+//        dvecarr3E    points = getGeometry()->getVerticesCoords();
+//        ivector2D    connectivity(points.size(), ivector1D(1,0));
+//        int counter = 0;
+//        for(auto & c:connectivity){
+//            c[0] = counter;
+//            counter++;
+//        }
+//        bitpit::VTKUnstructuredGrid  vtk(m_winfo.fdir, m_winfo.fname, bitpit::VTKElementType::VERTEX);
+//        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, points) ;
+//        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity) ;
+//        vtk.setDimensions(connectivity.size(), points.size());
+//        if(!m_codex)    vtk.setCodex(bitpit::VTKFormat::ASCII);
+//        else            vtk.setCodex(bitpit::VTKFormat::APPENDED);
+//        vtk.write() ;
+//        return true;
+//    }
+//    break;
 
     case FileType::MIMMO :
     	//Export in mimmo (bitpit) dump format
@@ -866,7 +867,14 @@ MimmoGeometry::read(){
         int sizeV = Ipoints.size();
         m_intgeo->getPatch()->reserveVertices(sizeV);
 
-        for(const auto & vv : Ipoints)        m_intgeo->addVertex(vv);
+        long Id = 0;
+        for(const auto & vv : Ipoints){
+        	m_intgeo->addVertex(vv, Id);
+        	livector1D conn(1,Id);
+        	bitpit::ElementType eltype = bitpit::ElementType::VERTEX;
+			m_intgeo->addConnectedCell(conn, eltype, Id);
+			Id++;
+        }
 #if MIMMO_ENABLE_MPI
     	}
 #endif
@@ -886,6 +894,8 @@ MimmoGeometry::read(){
 
         VTUPointCloudStreamer vtustreamer;
         VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()), bitpit::VTKElementType::VERTEX);
+//        VTUGridStreamer vtustreamer;
+//        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
         input.read() ;
 #if MIMMO_ENABLE_MPI
     	}
