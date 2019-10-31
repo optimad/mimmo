@@ -67,7 +67,7 @@ void test00006() {
     int np = 10;
     dvecarr3E rbfNodes(10);
     std::minstd_rand rgen;
-    rgen.seed(16);
+    rgen.seed(160);
     double dist = (rgen.max()-rgen.min());
     for (int i=0; i<np; i++){
         for (int j=0; j<3; j++)
@@ -94,8 +94,8 @@ void test00006() {
      */
     mimmo::MRBF* mrbf = new mimmo::MRBF();
     mrbf->setMode(mimmo::MRBFSol::NONE);
-    mrbf->setFunction(mimmo::MRBFBasisFunction::HEAVISIDE1000);
-    mrbf->setSupportRadius(0.025);
+    mrbf->setFunction(bitpit::RBFBasisFunction::WENDLANDC2);
+    mrbf->setSupportRadius(0.05);
     mrbf->setPlotInExecution(true);
 
 
