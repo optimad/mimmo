@@ -483,37 +483,46 @@ if (MODULE_ENABLED_IOOFOAM)
 
     # ---- OpenFOAM forced ---
     if(NOT OPENFOAM_PREC)
-        # Set default precision for Openfoam in double
+        # Set default OpenFOAM precision: double
         set(OPENFOAM_PREC "WM_$ENV{WM_PRECISION_OPTION}" CACHE STRING
-            "Get type of current Openfoam installation precision, typical options are: WM_SP for Single precision or WM_DP for Double precision."
+            "Get OpenFOAM scalar precision, typical options are: WM_SP for Single precision or WM_DP for Double precision."
             FORCE)
         # Set the possible values of build type for the GUI
         # set_property(CACHE OPENFOAM_PREC PROPERTY STRINGS "WM_DP" "WM_SP")
     endif()
     if(NOT OPENFOAM_LABEL)
-           # Set default precision for Openfoam in double
+        # Set default OpenFOAM label-size: int32
         set(OPENFOAM_LABEL "WM_LABEL_SIZE=$ENV{WM_LABEL_SIZE}" CACHE STRING
-            "Get the size of Openfoam label, typical options are: WM_LABEL_SIZE=32, WM_LABEL_SIZE=64 or None(for version older than 2.x)"
+            "Get OpenFOAM label-size, typical options are: WM_LABEL_SIZE=32, WM_LABEL_SIZE=64 or None(for version older than 2.x)"
             FORCE)
         # set_property(CACHE OPENFOAM_LABEL PROPERTY STRINGS "WM_LABEL_SIZE=32" "WM_LABEL_SIZE=64" "")
     endif()
     if(NOT OPENFOAM_ARCH)
-        # Set default precision for Openfoam in double
+        # Set OpenFOAM WM_ARCH_OPTION (compiling with -m32 option on 64-bit system)
         set(OPENFOAM_ARCH "WM_ARCH_OPTION=$ENV{WM_ARCH_OPTION}" CACHE STRING
-            "Get the type of Openfoam Architecture, typical option are WM_ARCH_OPTION=64 for 64bit systems, WM_ARCH_OPTION=32 for 32bit systems"
+            "Get OpenFOAM arch-options, typical option are WM_ARCH_OPTION=64 for 64bit systems, WM_ARCH_OPTION=32 for 32bit systems"
             FORCE)
         # Set the possible values of build type for the GUI
         # set_property(CACHE OPENFOAM_ARCH PROPERTY STRINGS "WM_ARCH_OPTION=64" "WM_ARCH_OPTION=32")
     endif()
     if(NOT OPENFOAM_OLDVER)
-        # Set control versions of Openfoam
-        set(OPENFOAM_OLDVER 1 CACHE BOOL  "Set ON if your current Openfoam version is older then the Official Foundation 5.0.x release or its forks")
+        # Set control versions of OpenFOAM
+        set(OPENFOAM_OLDVER 1 CACHE BOOL  "Set ON if your OpenFOAM version is older than Foundation release 5.0 or equivalent")
     endif()
 
-    set(OPENFOAM_DIR " " CACHE PATH "path to OpenFoam installation")
+    # Set the FOAM_API (4-digits) from the environment (1812 and later) or from the version
+    set(FOAM_API "$ENV{FOAM_API}")
+
+    # Match v1606+, v1712, etc - the naming convention used by www.openfoam.com
+    if(NOT "${FOAM_API}")
+        string(REGEX REPLACE "^v([0-9][0-9][0-9][0-9]).*" \\1 FOAM_API ${WM_PROJECT_VERSION})
+    endif()
+
+    set(OPENFOAM_DIR " " CACHE PATH "path to OpenFOAM installation")
     set(OFOAM_INCLUDES finiteVolume meshTools fvOptions sampling OpenFOAM OSspecific/POSIX)
     set(OFOAM_LIBS finiteVolume fileFormats surfMesh meshTools OpenFOAM )
-    if(NOT "$ENV{WM_PROJECT_VERSION}" STREQUAL "v1806+")
+    # Standalone triSurface library used prior to OpenFOAM-v1706, and versions not from www.openfoam.com
+    if("$FOAM_API" LESS 1706)
         set(OFOAM_LIBS ${OFOAM_LIBS} triSurface)
     endif()
     set(OFOAM_DUMMYLIBS Pstream)
