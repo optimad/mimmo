@@ -523,7 +523,7 @@ if (MODULE_ENABLED_IOOFOAM)
             string(REGEX REPLACE "^([0-9]).*" "\\1" WOFAPI "$ENV{WM_PROJECT_VERSION}")
         endif()
     endif()
-    set(OPENFOAM_DIR "$ENV{WM_PROJECT_INST_DIR}" CACHE PATH "path to OpenFOAM installation" FORCE)
+    set(OPENFOAM_DIR "$ENV{WM_PROJECT_DIR}" CACHE PATH "path to OpenFOAM Project Dir" FORCE)
     set(OPENFOAM_API "${WOFAPI}" CACHE STRING "OpenFOAM API Version Major" FORCE)
 
     ## add other needed libs according to version
