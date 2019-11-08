@@ -608,17 +608,45 @@ MimmoGeometry::write(){
     break;
 
     case FileType::NAS :
-        //Export Nastran file
+        //Export Nastran file - Id of vertex and cell cannot be 0 or negative. So all
+        // nas vertex/cell id etiquette are incremented by 1;
+        // same for PID: if 0 exists, pids are incremented by 1; if -1 exists are incremented by 2;
+        // Beware if id >= 10^8 nas format does not support it.
     {
         liimap mapDataInv;
-        dvecarr3E    points = getGeometry()->getVerticesCoords(&mapDataInv);
-        livector1D   pointsID = getGeometry()->getVertices().getIds(false);
+        dvecarr3E    points = getGeometry()->getVerticesCoords();
+        livector1D   pointsID;
+        pointsID.reserve(points.size());
+        bitpit::PiercedVector<bitpit::Vertex> & vertices = getGeometry()->getVertices();
+        long id;
+        for(bitpit::Vertex & vv : vertices){
+            id = vv.getId();
+            mapDataInv[id] = id+1;
+            pointsID.push_back(id+1);
+        }
+        //return compactconnectivity using vertex map
         livector2D   connectivity = getGeometry()->getCompactConnectivity(mapDataInv);
-        livector1D   elementsID = getGeometry()->getCells().getIds(false);
+        livector1D   elementsID;
+        elementsID.reserve(connectivity.size());
+        for(bitpit::Cell & cell : getGeometry()->getCells()){
+            elementsID.push_back(cell.getId()+1);
+        }
         NastranInterface nastran;
         nastran.setWFormat(m_wformat);
         livector1D pids = getGeometry()->getCompactPID();
         std::unordered_set<long>  pidsset = getGeometry()->getPIDTypeList();
+        // pid cannot be negative or 0 in NAS.
+        if(pidsset.count(-1) > 0 || pidsset.count(0) > 0){
+            std::unordered_set<long> temp;
+            long offset = 1+ long(pidsset.count(-1)>0);
+            for(auto & val : pidsset){
+                temp.insert(val+offset);
+            }
+            std::swap(temp, pidsset);
+            for(long & val :pids){
+                val+=offset;
+            }
+        }
 #if MIMMO_ENABLE_MPI
         std::string namefile = m_winfo.fname+"."+std::to_string(m_rank);
 #else
@@ -1289,6 +1317,21 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
         setClean(value);
     };
 
+    if(slotXML.hasOption("FormatNAS")){
+        input = slotXML.get("FormatNAS");
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::string::trim(input));
+            ss >> value;
+        }
+        if(value){
+            setFormatNAS(WFORMAT::Long);
+        }else{
+            setFormatNAS(WFORMAT::Short);
+        }
+    };
+
+
 };
 
 /*!
@@ -1352,6 +1395,7 @@ MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
 
     output = std::to_string(m_clean);
     slotXML.set("Clean", output);
+    slotXML.set("FormatNAS", std::to_string(bool(m_wformat == WFORMAT::Long)));
 
 };
 
@@ -1366,7 +1410,7 @@ MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
  * \param[in] wf WFORMAT Short/Long of your nastran file
  */
 void NastranInterface::setWFormat(WFORMAT wf){
-    wformat = wf;
+    m_wformat = wf;
 }
 
 /*!
@@ -1376,7 +1420,7 @@ void NastranInterface::setWFormat(WFORMAT wf){
  */
 void NastranInterface::writeKeyword(std::string key, std::ofstream& os){
     os.setf(std::ios_base::left);
-    switch (wformat)
+    switch (m_wformat)
     {
     case Short:
     {
@@ -1422,7 +1466,7 @@ void NastranInterface::writeCoord(const darray3E& p, const long& pointI, std::of
     os << separator_;
     writeValue(p[1], os);
     os << separator_;
-    switch (wformat)
+    switch (m_wformat)
     {
     case Short:
     {
@@ -1474,8 +1518,8 @@ void NastranInterface::writeFace(std::string faceType, const livector1D& facePts
 
     // For CTRIA3 elements, cols 7 onwards are not used
 
-    WFORMAT wformat_ = wformat;
-    wformat = Short;
+    WFORMAT wformat_ = m_wformat;
+    m_wformat = Short;
     std::string separator_("");
     writeKeyword(faceType, os);
     os << separator_;
@@ -1484,13 +1528,13 @@ void NastranInterface::writeFace(std::string faceType, const livector1D& facePts
     os << separator_;
     writeValue(PID, os);
     int fp1;
-    switch (wformat)
+    switch (m_wformat)
     {
     case Short:
     {
         for (int i=0; i< (int)facePts.size(); i++)
         {
-            fp1 = facePts[i] + 1;
+            fp1 = facePts[i];
             writeValue(fp1, os);
         }
 
@@ -1500,7 +1544,7 @@ void NastranInterface::writeFace(std::string faceType, const livector1D& facePts
     {
         for (int i=0; i< (int)facePts.size(); i++)
         {
-            fp1 = facePts[i] + 1;
+            fp1 = facePts[i];
             writeValue(fp1, os);
             //            if (i == 1)
             //            {
@@ -1520,7 +1564,7 @@ void NastranInterface::writeFace(std::string faceType, const livector1D& facePts
     }
     os << nl;
     os.unsetf(std::ios_base::right);
-    wformat = wformat_;
+    m_wformat = wformat_;
 }
 
 /*!
@@ -1552,9 +1596,11 @@ bool NastranInterface::writeGeometry(dvecarr3E& points, livector1D& pointsID, li
         if (flagpid) PID = (*PIDS)[counter];
         if (f.size() == 3){
             writeFace("CTRIA3", f, facesID[counter], os, PID);
+            ++counter;
         }
         else if (f.size() == 4){
             writeFace("CQUAD4", f, facesID[counter], os, PID);
+            ++counter;
         }else{
             throw std::runtime_error ("Error NastranInterface::writeGeometry : unknown face format");
         }
@@ -1578,7 +1624,7 @@ void NastranInterface::writeFooter(std::ofstream& os, std::unordered_set<long>* 
         for (int i = 0; i < 6; i++)
         {
             // Dummy values
-            double uno = 1.0;
+            long uno = 1;
             os << separator_;
             writeValue(uno, os);
         }
@@ -1594,7 +1640,7 @@ void NastranInterface::writeFooter(std::ofstream& os, std::unordered_set<long>* 
             for (int i = 0; i < 6; i++)
             {
                 // Dummy values
-                double uno = 1.0;
+                long uno = 1;
                 os << separator_;
                 writeValue(uno, os);
             }
