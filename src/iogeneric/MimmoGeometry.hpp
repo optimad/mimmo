@@ -26,6 +26,8 @@
 
 #include "BaseManipulation.hpp"
 #include "enum.hpp"
+#include <typeinfo>
+#include <type_traits>
 
 BETTER_ENUM(FileType, int, STL = 0, SURFVTU = 1, VOLVTU = 2, NAS = 3, OFP = 4, PCVTU = 5, CURVEVTU = 6, MIMMO = 99);
 BETTER_ENUM(IOMode, int, READ = 0, WRITE = 1, CONVERT = 2);
@@ -122,6 +124,8 @@ enum WFORMAT{
  *                     translate all existent PIDs w.r.t. the reference PID assigned. Default value is RefPID = 0.
  * - <B>Tolerance</B>:value of the geometric tolerance to be used;
  * - <B>Clean</B>: clean the geometry after read true 1/false 0;
+ * - <B>FormatNAS</B>: 0-singlePrecision 1-doubleprecision for writing nas files;
+
  *
  * In case of writing mode Geometry has to be mandatorily passed through port.
  *
@@ -234,7 +238,7 @@ class NastranInterface{
     static const char nl = '\n'; /**< static const declaration of new line command. */
 public:
 
-    WFORMAT    wformat; /**< member storing the file type format Short/Long */
+    WFORMAT    m_wformat; /**< member storing the file type format Short/Long */
 
     void setWFormat(WFORMAT);
     void writeKeyword(std::string key, std::ofstream& os);
@@ -257,10 +261,11 @@ public:
     void writeValue (Type& value, std::ofstream& os){
 
         std::size_t offset = 5;
-        if (wformat == Long) offset = 13;
+        if (m_wformat == WFORMAT::Long) offset = 13;
 
         std::stringstream manip;
-        manip << value;
+        manip <<std::fixed<<std::setprecision(offset+3);
+        manip<<value;
         std::string manips = manip.str();
         std::string mantissa, expon;
         std::size_t pos = manips.find("E");
@@ -277,7 +282,7 @@ public:
         }
         manips = manips.substr(0, offset+3);
 
-        switch (wformat)
+        switch (m_wformat)
         {
         case Short:
         {
