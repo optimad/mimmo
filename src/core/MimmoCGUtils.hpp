@@ -36,9 +36,9 @@ namespace mimmo{
 namespace mimmoCGUtils{
 
     double distancePointPolygon(const darray3E & point, const dvecarr3E & vertCoords);
-    bool   isPointInsideSegment(const darray3E & point, const darray3E &  V0, const darray3E &  V1);
-    bool   isPointInsideTriangle(const darray3E & point, const darray3E &  V0, const darray3E &  V1, const darray3E &  V2);
-    bool   isPointInsidePolygon(const darray3E & point, const dvecarr3E & vertCoords);
+    bool   isPointInsideSegment(const darray3E & point, const darray3E &  V0, const darray3E &  V1, double tol = 1.E-12);
+    bool   isPointInsideTriangle(const darray3E & point, const darray3E &  V0, const darray3E &  V1, const darray3E &  V2, double tol = 1.E-12);
+    bool   isPointInsidePolygon(const darray3E & point, const dvecarr3E & vertCoords, double tol = 1.E-12);
 
 }; //end namespace mimmoCGUtils
 

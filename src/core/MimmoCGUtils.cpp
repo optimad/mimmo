@@ -62,14 +62,15 @@ double distancePointPolygon(const darray3E & p,const dvecarr3E & vertCoords){
  * \param[in] p target point coordinates
  * \param[in] V0 segment first vertex
  * \param[in] V1 segment second vertex
+ * \param[in] tol geometric tolerance
  */
-bool isPointInsideSegment(const darray3E & p, const darray3E & V0,const darray3E & V1 ){
+bool isPointInsideSegment(const darray3E & p, const darray3E & V0,const darray3E & V1, double tol ){
     darray3E Pv      = p - V0;
     darray3E segment = V1 - V0;
     double normSegment = norm2(segment);
     if(normSegment > std::numeric_limits<double>::min()) segment /= normSegment;
     double V = dotProduct(Pv, segment);
-    if(norm2(Pv - V*segment)> 1.E-12)  return false;
+    if(norm2(Pv - V*segment)> tol)  return false;
     return ( V >=0.0 && V <= normSegment);
 }
 
@@ -79,20 +80,21 @@ bool isPointInsideSegment(const darray3E & p, const darray3E & V0,const darray3E
  * \param[in] V0 triangle first vertex
  * \param[in] V1 triangle second vertex
  * \param[in] V2 triangle third vertex
+ * \param[in] tol geometric tolerance
  */
-bool isPointInsideTriangle(const darray3E & p, const darray3E & V0,const darray3E & V1,const darray3E & V2){
+bool isPointInsideTriangle(const darray3E & p, const darray3E & V0,const darray3E & V1,const darray3E & V2, double tol){
 
     darray3E normal  = crossProduct(V1 - V0,V2 - V0);
     double normNormal = norm2(normal);
     if(normNormal > std::numeric_limits<double>::min()) normal /= normNormal;
     else return false;
 
-    if(std::abs(dotProduct((p-V0), normal)) > std::numeric_limits<double>::min()){ return false;}
+    if(std::abs(dotProduct((p-V0), normal)) > tol){ return false;}
 
     double a1 = bitpit::CGElem::areaTriangle(p,V0,V1)/(0.5*normNormal);
     double a2 = bitpit::CGElem::areaTriangle(p,V1,V2)/(0.5*normNormal);
     double a3 = bitpit::CGElem::areaTriangle(p,V2,V0)/(0.5*normNormal);
-    return ( (a1+a2+a3 -1.0) <=1.0E-12 );
+    return ( (a1+a2+a3 -1.0) <= tol );
 }
 
 /*!
@@ -101,8 +103,9 @@ bool isPointInsideTriangle(const darray3E & p, const darray3E & V0,const darray3
  * in each sub-triangle is computed.
  * \param[in] p target point coordinates
  * \param[in] vertCoords vertices of the polygon
+ * \param[in] tol geometric tolerance
  */
-bool isPointInsidePolygon(const darray3E & p,const dvecarr3E & vertCoords){
+bool isPointInsidePolygon(const darray3E & p,const dvecarr3E & vertCoords, double tol){
 
     //calculate barycenter
     darray3E barycenter = {{0.0,0.0,0.0}};
@@ -116,7 +119,7 @@ bool isPointInsidePolygon(const darray3E & p,const dvecarr3E & vertCoords){
     std::size_t sizeV = vertCoords.size();
     std::size_t i = 0;
     while(i<sizeV-1 && !check ){
-        check = mimmoCGUtils::isPointInsideTriangle(p, barycenter, vertCoords[i], vertCoords[i+1]);
+        check = mimmoCGUtils::isPointInsideTriangle(p, barycenter, vertCoords[i], vertCoords[i+1], tol);
         ++i;
     }
     return check;
