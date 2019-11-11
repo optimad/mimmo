@@ -25,7 +25,7 @@
 #include "MimmoNamespace.hpp"
 #include "SkdTreeUtils.hpp"
 #if MIMMO_ENABLE_MPI
-    #include "communications.hpp"
+#include "communications.hpp"
 #endif
 #include <Operators.hpp>
 #include <set>
@@ -43,7 +43,7 @@ MimmoSurfUnstructured::MimmoSurfUnstructured():bitpit::SurfUnstructured(){}
  * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
  */
 MimmoSurfUnstructured::MimmoSurfUnstructured(int patch_dim):
-                    				   bitpit::SurfUnstructured(int(patch_dim),int(3)){}
+                    						   bitpit::SurfUnstructured(int(patch_dim),int(3)){}
 
 /*!
  * MimmoSurfUnstructured custom constructor
@@ -51,14 +51,14 @@ MimmoSurfUnstructured::MimmoSurfUnstructured(int patch_dim):
  * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
  */
 MimmoSurfUnstructured::MimmoSurfUnstructured(int id, int patch_dim):
-                    				   bitpit::SurfUnstructured(int(id), int(patch_dim), int(3)){}
+                    						   bitpit::SurfUnstructured(int(id), int(patch_dim), int(3)){}
 
 /*!
  * MimmoSurfUnstructured custom constructor
  * \param[in] stream input stream where reading from
  */
 MimmoSurfUnstructured::MimmoSurfUnstructured(std::istream & stream):
-                    				   bitpit::SurfUnstructured(stream){}
+                    						   bitpit::SurfUnstructured(stream){}
 
 
 /*!
@@ -80,7 +80,7 @@ MimmoSurfUnstructured::clone() const{
  * \param[in] dimension dimensionality of elements (3- 3D tetrahedra/hexahedra ..., 2- 2D triangles/quads/polygons)
  */
 MimmoVolUnstructured::MimmoVolUnstructured(int dimension):
-				bitpit::VolUnstructured(int(dimension)){}
+						bitpit::VolUnstructured(int(dimension)){}
 
 /*!
  * MimmoVolUnstructured custom constructor
@@ -88,7 +88,7 @@ MimmoVolUnstructured::MimmoVolUnstructured(int dimension):
  * \param[in] dimension dimensionality of elements (3- 3D tetrahedra/hexahedra ..., 2- 2D triangles/quads/polygons)
  */
 MimmoVolUnstructured::MimmoVolUnstructured(int id, int dimension):
-				bitpit::VolUnstructured(int(id), int(dimension)){}
+						bitpit::VolUnstructured(int(id), int(dimension)){}
 
 /*!
  * Basic Destructor
@@ -108,14 +108,14 @@ MimmoVolUnstructured::clone() const{
  * MimmoPointCloud basic constructor
  */
 MimmoPointCloud::MimmoPointCloud():
-				bitpit::SurfUnstructured(int(2),int(3)){}
+						bitpit::SurfUnstructured(int(2),int(3)){}
 
 /*!
  * MimmoPointCloud custom constructor
  * \param[in] id custom identification label of the mesh
  */
 MimmoPointCloud::MimmoPointCloud(int id):
-				bitpit::SurfUnstructured(int(id), int(2), int(3)){}
+						bitpit::SurfUnstructured(int(id), int(2), int(3)){}
 
 /*!
  * Basic Destructor
@@ -186,8 +186,8 @@ MimmoObject::MimmoObject(int type){
 #if MIMMO_ENABLE_MPI
 	initializeParallel();
 #else
-    m_rank = 0;
-    m_nprocs = 1;
+	m_rank = 0;
+	m_nprocs = 1;
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
@@ -233,15 +233,15 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 
 	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 
-//	if(connectivity == NULL){
-//		m_type = 3;
-//	}else{
-		m_type = std::max(type,1);
-		if (m_type > 4){
-			(*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
-			throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
-		}
-//	}
+	//	if(connectivity == NULL){
+	//		m_type = 3;
+	//	}else{
+	m_type = std::max(type,1);
+	if (m_type > 4){
+		(*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
+		throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
+	}
+	//	}
 
 	switch(m_type){
 	case 1:
@@ -286,33 +286,33 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 
 	m_log->setPriority(bitpit::log::Priority::DEBUG);
 
-//	if(m_type != 3){
-		livector1D temp;
-		std::size_t sizeCell = connectivity->size();
-		m_patch->reserveCells(sizeCell);
-		for(auto const & cc : *connectivity){
-			eltype = desumeElement(cc);
-			if(eltype != bitpit::ElementType::UNDEFINED){
-				addConnectedCell(cc, eltype); //if MPI, is adding cell with rank =-1, that is is using local m_rank.
-			}else{
-				(*m_log)<<"warning: in MimmoObject custom constructor. Undefined cell type detected and skipped."<<std::endl;
-			}
+	//	if(m_type != 3){
+	livector1D temp;
+	std::size_t sizeCell = connectivity->size();
+	m_patch->reserveCells(sizeCell);
+	for(auto const & cc : *connectivity){
+		eltype = desumeElement(cc);
+		if(eltype != bitpit::ElementType::UNDEFINED){
+			addConnectedCell(cc, eltype); //if MPI, is adding cell with rank =-1, that is is using local m_rank.
+		}else{
+			(*m_log)<<"warning: in MimmoObject custom constructor. Undefined cell type detected and skipped."<<std::endl;
 		}
+	}
 
-		m_pidsType.insert(0);
-		m_pidsTypeWNames.insert(std::make_pair(0,""));
+	m_pidsType.insert(0);
+	m_pidsTypeWNames.insert(std::make_pair(0,""));
 
-//	}else{
-//		(*m_log)<<"Not supported connectivity found for MimmoObject"<<std::endl;
-//		(*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
-//	}
+	//	}else{
+	//		(*m_log)<<"Not supported connectivity found for MimmoObject"<<std::endl;
+	//		(*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
+	//	}
 	m_log->setPriority(bitpit::log::Priority::NORMAL);
 
 #if MIMMO_ENABLE_MPI
 	initializeParallel();
 #else
-    m_rank = 0;
-    m_nprocs = 1;
+	m_rank = 0;
+	m_nprocs = 1;
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
@@ -434,7 +434,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_skdTreeSync = false;
 	m_kdTreeSync = false;
 
-    m_AdjBuilt = geometry->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
+	m_AdjBuilt = geometry->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
 	m_IntBuilt = geometry->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
 
 	//recover cell PID
@@ -447,8 +447,8 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 #if MIMMO_ENABLE_MPI
 	initializeParallel();
 #else
-    m_rank = 0;
-    m_nprocs = 1;
+	m_rank = 0;
+	m_nprocs = 1;
 #endif
 	m_patchInfo.setPatch(m_extpatch);
 	m_patchInfo.update();
@@ -572,7 +572,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	m_kdTreeSync = false;
 
 	//check if adjacencies and interfaces are built.(Patch called it BuildStrategy -- NONE is unbuilt)
-    m_AdjBuilt = m_patch->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
+	m_AdjBuilt = m_patch->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
 	m_IntBuilt = m_patch->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
 
 	//recover cell PID
@@ -583,10 +583,10 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	}
 
 #if MIMMO_ENABLE_MPI
-    initializeParallel();
+	initializeParallel();
 #else
-    m_rank = 0;
-    m_nprocs = 1;
+	m_rank = 0;
+	m_nprocs = 1;
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
@@ -659,8 +659,8 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 	m_nglobalvertices = other.m_nglobalvertices;
 	m_pointGhostExchangeInfoSync = false;
 #else
-    m_rank = 0;
-    m_nprocs=1;
+	m_rank = 0;
+	m_nprocs=1;
 #endif
 
 	m_pointConnectivitySync = false;
@@ -731,7 +731,7 @@ MimmoObject::initializeParallel(){
 	//Recover or fix communicator
 	if (m_internalPatch){
 		if (m_patch->isCommunicatorSet()){
-			 MPI_Comm_dup(m_patch->getCommunicator(), &m_communicator);
+			MPI_Comm_dup(m_patch->getCommunicator(), &m_communicator);
 		}
 		else{
 			MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
@@ -762,7 +762,7 @@ MimmoObject::initializeParallel(){
  */
 bitpit::Logger&
 MimmoObject::getLog(){
-    return (*m_log);
+	return (*m_log);
 }
 
 /*!
@@ -772,8 +772,8 @@ MimmoObject::getLog(){
 bool
 MimmoObject::isEmpty(){
 
-    bool check = getNVertices() == 0;
-//	if(m_type != 3) check = check || (getNCells() == 0);
+	bool check = getNVertices() == 0;
+	//	if(m_type != 3) check = check || (getNCells() == 0);
 	check = check || (getNCells() == 0);
 
 	return check;
@@ -843,8 +843,8 @@ MimmoObject::getNInternalVertices(){
 		return getNVertices();
 #if MIMMO_ENABLE_MPI
 
-//	if (!arePointGhostExchangeInfoSync())
-//		updatePointGhostExchangeInfo();
+	//	if (!arePointGhostExchangeInfoSync())
+	//		updatePointGhostExchangeInfo();
 
 	return m_ninteriorvertices;
 #endif
@@ -863,8 +863,8 @@ MimmoObject::getNGlobalVertices(){
 		return p->getVertexCount();
 	}
 
-//	if (!arePointGhostExchangeInfoSync())
-//		updatePointGhostExchangeInfo();
+	//	if (!arePointGhostExchangeInfoSync())
+	//		updatePointGhostExchangeInfo();
 
 	return m_nglobalvertices;
 };
@@ -894,8 +894,8 @@ MimmoObject::getPointGlobalCountOffset(){
 	if (!getPatch()->isPartitioned())
 		return 0;
 
-//	if (!arePointGhostExchangeInfoSync())
-//		updatePointGhostExchangeInfo();
+	//	if (!arePointGhostExchangeInfoSync())
+	//		updatePointGhostExchangeInfo();
 
 	return m_globaloffset;
 };
@@ -942,9 +942,9 @@ darray3E
 MimmoObject::getVertexCoords(long i) const
 {
 	if(!(getVertices().exists(i))){
-        double ff = std::numeric_limits<double>::max();
-        return darray3E({{ff,ff,ff}});
-    }
+		double ff = std::numeric_limits<double>::max();
+		return darray3E({{ff,ff,ff}});
+	}
 	return 	getPatch()->getVertexCoords(i);
 };
 
@@ -1155,7 +1155,7 @@ MimmoObject::getMapData(bool withghosts){
 	for (auto const & vertex : getVertices()){
 		long id = vertex.getId();
 		if (mapDataInv.count(id))
-		    mapData[mapDataInv[id]] = id;
+			mapData[mapDataInv[id]] = id;
 	}
 	return mapData;
 };
@@ -1263,7 +1263,7 @@ MimmoObject::getPIDTypeListWNames(){
  */
 livector1D
 MimmoObject::getCompactPID() {
-//	if(!m_skdTreeSupported || m_pidsType.empty())	return livector1D(0);
+	//	if(!m_skdTreeSupported || m_pidsType.empty())	return livector1D(0);
 	if(m_pidsType.empty())	return livector1D(0);
 	livector1D result(getNCells());
 	int counter=0;
@@ -1281,7 +1281,7 @@ MimmoObject::getCompactPID() {
  */
 std::unordered_map<long,long>
 MimmoObject::getPID() {
-//	if(!m_skdTreeSupported || m_pidsType.empty())	return std::unordered_map<long,long>();
+	//	if(!m_skdTreeSupported || m_pidsType.empty())	return std::unordered_map<long,long>();
 	if(m_pidsType.empty())	return std::unordered_map<long,long>();
 	std::unordered_map<long,long> 	result;
 	for(auto const & cell : getCells()){
@@ -1310,8 +1310,8 @@ MimmoObject::isSkdTreeSync(){
 bool
 MimmoObject::isInfoSync(){
 #if MIMMO_ENABLE_MPI
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+	MPI_Barrier(m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 #endif
 	return m_infoSync;
 }
@@ -1343,7 +1343,7 @@ MimmoObject::getPatchInfo(){
  */
 bool
 MimmoObject::isKdTreeSync(){
-    return m_kdTreeSync;
+	return m_kdTreeSync;
 }
 
 /*!
@@ -1370,11 +1370,11 @@ MimmoObject::isPointInterior(long id)
 	if (!getPatch()->isPartitioned())
 		return true;
 
-//	if (!arePointGhostExchangeInfoSync())
-//		updatePointGhostExchangeInfo();
+	//	if (!arePointGhostExchangeInfoSync())
+	//		updatePointGhostExchangeInfo();
 
-//	if (!m_isPointInterior.count(id))
-//		return false;
+	//	if (!m_isPointInterior.count(id))
+	//		return false;
 
 	return m_isPointInterior.at(id);
 
@@ -1396,7 +1396,7 @@ MimmoObject::getTolerance(){
 	Gets the MPI rank associated to the object.
     For serial version return always 0.
 	\return The MPI rank associated to the object.
-*/
+ */
 int MimmoObject::getRank() const
 {
 	return m_rank;
@@ -1406,7 +1406,7 @@ int MimmoObject::getRank() const
 	Gets the MPI processors in the communicator associated to the object.
     For serial version return always 1
 	\return The MPI processors in the communicator associated to the object
-*/
+ */
 int MimmoObject::getProcessorCount() const
 {
 	return m_nprocs;
@@ -1419,7 +1419,7 @@ int MimmoObject::getProcessorCount() const
 	Gets the MPI communicator associated to the object
 
 	\return The MPI communicator associated to the object.
-*/
+ */
 const MPI_Comm & MimmoObject::getCommunicator() const
 {
 	return m_communicator;
@@ -1431,7 +1431,7 @@ const MPI_Comm & MimmoObject::getCommunicator() const
 
 	\return a constant reference to the ghost targets needed for point data
 	exchange.
-*/
+ */
 const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExchangeTargets() const
 {
 	return m_pointGhostExchangeTargets;
@@ -1442,7 +1442,7 @@ const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExc
 
 	\return A constant reference to the ghost sources needed for point data
 	exchange.
-*/
+ */
 const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExchangeSources() const
 {
 	return m_pointGhostExchangeSources;
@@ -1453,12 +1453,12 @@ const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExc
 	Checks if the ghost exchange information are dirty.
 	\return  true if the ghost exchange information on points are dirty, false
 	otherwise.
-*/
+ */
 bool MimmoObject::arePointGhostExchangeInfoSync()
 {
 #if MIMMO_ENABLE_MPI
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+	MPI_Barrier(m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 #endif
 	return m_pointGhostExchangeInfoSync;
 }
@@ -1466,7 +1466,7 @@ bool MimmoObject::arePointGhostExchangeInfoSync()
 /*!
 	Update the information needed for ghost point data exchange as well as
 	the shared points.
-*/
+ */
 void MimmoObject::updatePointGhostExchangeInfo()
 {
 
@@ -1491,109 +1491,109 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	//Start update structure if partitioned
 	if (getPatch()->isPartitioned()){
 
-	//Fill the nodes of the targets
-	for (const auto &entry : m_patch->getGhostExchangeTargets()) {
-		int ghostRank = entry.first;
-		std::vector<long> ghostIds = entry.second;
-		std::unordered_set<long> ghostVertices;
-		for (long cellId : ghostIds){
-			for (long vertexId : m_patch->getCell(cellId).getVertexIds()){
-				ghostVertices.insert(vertexId);
-			}
-		}
-		m_pointGhostExchangeTargets[ghostRank].assign(ghostVertices.begin(), ghostVertices.end());
-	}
-
-	//Fill the nodes of the sources
-	for (const auto &entry : m_patch->getGhostExchangeSources()) {
-		int recvRank = entry.first;
-		std::vector<long> localIds = entry.second;
-		std::unordered_set<long> localVertices;
-		for (long cellId : localIds){
-			for (long vertexId : m_patch->getCell(cellId).getVertexIds()){
-				localVertices.insert(vertexId);
-			}
-		}
-		m_pointGhostExchangeSources[recvRank].assign(localVertices.begin(), localVertices.end());
-	}
-
-	//Note. All the processes will receive the data on the shared points from all the processes,
-	// but they will save the data received by the lowest process that shares those nodes.
-
-	//Erase common vertices
-	for (auto & sourceEntry : m_pointGhostExchangeSources){
-		int recvRank = sourceEntry.first;
-		if (m_pointGhostExchangeTargets.count(recvRank)){
-			std::size_t sourceLast = sourceEntry.second.size()-1;
-			auto & sourceVertices = sourceEntry.second;
-			std::size_t targetLast = m_pointGhostExchangeTargets[recvRank].size()-1;
-			auto & targetVertices = m_pointGhostExchangeTargets[recvRank];
-			std::vector<long>::iterator itsourceend = sourceVertices.end();
-			for (std::vector<long>::iterator itsource=sourceVertices.begin(); itsource!=itsourceend; itsource++){
-				auto iter = std::find(targetVertices.begin(), targetVertices.end(), *itsource);
-				if (iter != targetVertices.end()){
-					//insert shared point
-					m_pointGhostExchangeShared[recvRank].push_back(*itsource);
-
-					//Maintain shared points only in the sources of the lower rank and in the target of the greater one.
-					//Note. Some nodes will be repeated if shared by several processes. During the communications only the
-					//the data given by the lowest sender will be saved.
-					if (m_rank < recvRank){
-						//The nodes are not repeated so the target vertices don't need to be resized during loop
-						*iter = targetVertices[targetLast];
-						targetLast--;
-					}
-					else if (m_rank > recvRank){
-						*itsource = *(sourceVertices.end()-1);
-						sourceLast--;
-						sourceVertices.resize(sourceLast+1);
-						itsourceend = sourceVertices.end();
-						itsource--;
-					}
+		//Fill the nodes of the targets
+		for (const auto &entry : m_patch->getGhostExchangeTargets()) {
+			int ghostRank = entry.first;
+			std::vector<long> ghostIds = entry.second;
+			std::unordered_set<long> ghostVertices;
+			for (long cellId : ghostIds){
+				for (long vertexId : m_patch->getCell(cellId).getVertexIds()){
+					ghostVertices.insert(vertexId);
 				}
 			}
-			targetVertices.resize(targetLast+1);
+			m_pointGhostExchangeTargets[ghostRank].assign(ghostVertices.begin(), ghostVertices.end());
 		}
-	}
 
-	// Sort the targets
-	for (auto &entry : m_pointGhostExchangeTargets) {
-		std::vector<long> &rankTargets = entry.second;
-		std::sort(rankTargets.begin(), rankTargets.end(), VertexPositionLess(*this));
-	}
-
-	// Sort the sources
-	for (auto &entry : m_pointGhostExchangeSources) {
-		std::vector<long> &rankSources = entry.second;
-		std::sort(rankSources.begin(), rankSources.end(), VertexPositionLess(*this));
-	}
-
-	// Sort the shared
-	for (auto &entry : m_pointGhostExchangeShared) {
-		std::vector<long> &rankShared = entry.second;
-		std::sort(rankShared.begin(), rankShared.end(), VertexPositionLess(*this));
-	}
-
-
-	//Correct target ghost points
-	for (auto &entry : m_pointGhostExchangeTargets) {
-		std::vector<long> &rankTargets = entry.second;
-		for (long id : rankTargets){
-			m_isPointInterior.at(id) = false;
+		//Fill the nodes of the sources
+		for (const auto &entry : m_patch->getGhostExchangeSources()) {
+			int recvRank = entry.first;
+			std::vector<long> localIds = entry.second;
+			std::unordered_set<long> localVertices;
+			for (long cellId : localIds){
+				for (long vertexId : m_patch->getCell(cellId).getVertexIds()){
+					localVertices.insert(vertexId);
+				}
+			}
+			m_pointGhostExchangeSources[recvRank].assign(localVertices.begin(), localVertices.end());
 		}
-	}
 
-	//The owner of a shared point is the lower rank
-	for (auto &entry : m_pointGhostExchangeShared){
-		int sharingRank = entry.first;
-		//Correct shared points only if shared with a lower rank
-		if (sharingRank < m_rank){
-			std::vector<long> &sharedPoints = entry.second;
-			for (long id : sharedPoints){
+		//Note. All the processes will receive the data on the shared points from all the processes,
+		// but they will save the data received by the lowest process that shares those nodes.
+
+		//Erase common vertices
+		for (auto & sourceEntry : m_pointGhostExchangeSources){
+			int recvRank = sourceEntry.first;
+			if (m_pointGhostExchangeTargets.count(recvRank)){
+				std::size_t sourceLast = sourceEntry.second.size()-1;
+				auto & sourceVertices = sourceEntry.second;
+				std::size_t targetLast = m_pointGhostExchangeTargets[recvRank].size()-1;
+				auto & targetVertices = m_pointGhostExchangeTargets[recvRank];
+				std::vector<long>::iterator itsourceend = sourceVertices.end();
+				for (std::vector<long>::iterator itsource=sourceVertices.begin(); itsource!=itsourceend; itsource++){
+					auto iter = std::find(targetVertices.begin(), targetVertices.end(), *itsource);
+					if (iter != targetVertices.end()){
+						//insert shared point
+						m_pointGhostExchangeShared[recvRank].push_back(*itsource);
+
+						//Maintain shared points only in the sources of the lower rank and in the target of the greater one.
+						//Note. Some nodes will be repeated if shared by several processes. During the communications only the
+						//the data given by the lowest sender will be saved.
+						if (m_rank < recvRank){
+							//The nodes are not repeated so the target vertices don't need to be resized during loop
+							*iter = targetVertices[targetLast];
+							targetLast--;
+						}
+						else if (m_rank > recvRank){
+							*itsource = *(sourceVertices.end()-1);
+							sourceLast--;
+							sourceVertices.resize(sourceLast+1);
+							itsourceend = sourceVertices.end();
+							itsource--;
+						}
+					}
+				}
+				targetVertices.resize(targetLast+1);
+			}
+		}
+
+		// Sort the targets
+		for (auto &entry : m_pointGhostExchangeTargets) {
+			std::vector<long> &rankTargets = entry.second;
+			std::sort(rankTargets.begin(), rankTargets.end(), VertexPositionLess(*this));
+		}
+
+		// Sort the sources
+		for (auto &entry : m_pointGhostExchangeSources) {
+			std::vector<long> &rankSources = entry.second;
+			std::sort(rankSources.begin(), rankSources.end(), VertexPositionLess(*this));
+		}
+
+		// Sort the shared
+		for (auto &entry : m_pointGhostExchangeShared) {
+			std::vector<long> &rankShared = entry.second;
+			std::sort(rankShared.begin(), rankShared.end(), VertexPositionLess(*this));
+		}
+
+
+		//Correct target ghost points
+		for (auto &entry : m_pointGhostExchangeTargets) {
+			std::vector<long> &rankTargets = entry.second;
+			for (long id : rankTargets){
 				m_isPointInterior.at(id) = false;
 			}
 		}
-	}
+
+		//The owner of a shared point is the lower rank
+		for (auto &entry : m_pointGhostExchangeShared){
+			int sharingRank = entry.first;
+			//Correct shared points only if shared with a lower rank
+			if (sharingRank < m_rank){
+				std::vector<long> &sharedPoints = entry.second;
+				for (long id : sharedPoints){
+					m_isPointInterior.at(id) = false;
+				}
+			}
+		}
 
 	}//end update if partitioned
 
@@ -1639,114 +1639,114 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	//Start update structure if partitioned
 	if (getPatch()->isPartitioned()){
 
-	//Perform twice the communication to guarantee the propagation
-	//TODO OPTIMIZE THIS ASPECT
-	//TODO USE HALOSIZE(?)
-	for (int istep=0; istep<2; istep++){
+		//Perform twice the communication to guarantee the propagation
+		//TODO OPTIMIZE THIS ASPECT
+		//TODO USE HALOSIZE(?)
+		for (int istep=0; istep<2; istep++){
 
-		//---
-		//Communicate consecutive ids for ghost points
-		//---
-		{
-			size_t exchangeDataSize = sizeof(consecutiveId);
-			std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
-			dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
-			for (const auto entry : m_pointGhostExchangeTargets) {
-				const int rank = entry.first;
-				const auto &list = entry.second;
-				dataCommunicator->setRecv(rank, list.size() * exchangeDataSize);
-				dataCommunicator->startRecv(rank);
-			}
-
-			// Set and start the sends
-			for (const auto entry : m_pointGhostExchangeSources) {
-				const int rank = entry.first;
-				auto &list = entry.second;
-				dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
-				bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
-				for (long id : list) {
-					if (m_pointConsecutiveId.count(id)){
-						buffer << m_pointConsecutiveId.at(id);
-					}else{
-						buffer << long(-1);
-					}
-				}
-				dataCommunicator->startSend(rank);
-			}
-
-			// Receive the consecutive ids of the ghosts
-			int nCompletedRecvs = 0;
-			while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
-				int rank = dataCommunicator->waitAnyRecv();
-				const auto &list = m_pointGhostExchangeTargets[rank];
-
-				bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
-				for (long id : list) {
-					buffer >> consecutiveId;
-					if (consecutiveId > -1){
-						m_pointConsecutiveId[id] = consecutiveId;
-					}
-				}
-				++nCompletedRecvs;
-			}
-			// Wait for the sends to finish
-			dataCommunicator->waitAllSends();
-		}
-
-		//---
-		//Communicate consecutive ids for not owned shared points
-		//---
-		{
-			size_t exchangeDataSize = sizeof(consecutiveId);
-			std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
-			dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
-			for (const auto entry : m_pointGhostExchangeShared) {
-				const int rank = entry.first;
-				const auto &list = entry.second;
-				if (rank<m_rank){
+			//---
+			//Communicate consecutive ids for ghost points
+			//---
+			{
+				size_t exchangeDataSize = sizeof(consecutiveId);
+				std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+				dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
+				for (const auto entry : m_pointGhostExchangeTargets) {
+					const int rank = entry.first;
+					const auto &list = entry.second;
 					dataCommunicator->setRecv(rank, list.size() * exchangeDataSize);
 					dataCommunicator->startRecv(rank);
 				}
-			}
 
-			// Set and start the sends
-			for (const auto entry : m_pointGhostExchangeShared) {
-				const int rank = entry.first;
-				auto &list = entry.second;
-				if (rank>m_rank){
+				// Set and start the sends
+				for (const auto entry : m_pointGhostExchangeSources) {
+					const int rank = entry.first;
+					auto &list = entry.second;
 					dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
 					bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
 					for (long id : list) {
 						if (m_pointConsecutiveId.count(id)){
 							buffer << m_pointConsecutiveId.at(id);
-						}
-						else{
+						}else{
 							buffer << long(-1);
 						}
 					}
 					dataCommunicator->startSend(rank);
 				}
+
+				// Receive the consecutive ids of the ghosts
+				int nCompletedRecvs = 0;
+				while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+					int rank = dataCommunicator->waitAnyRecv();
+					const auto &list = m_pointGhostExchangeTargets[rank];
+
+					bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+					for (long id : list) {
+						buffer >> consecutiveId;
+						if (consecutiveId > -1){
+							m_pointConsecutiveId[id] = consecutiveId;
+						}
+					}
+					++nCompletedRecvs;
+				}
+				// Wait for the sends to finish
+				dataCommunicator->waitAllSends();
 			}
 
-			// Receive the consecutive ids of the ghosts
-			int nCompletedRecvs = 0;
-			while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
-				int rank = dataCommunicator->waitAnyRecv();
-				const auto &list = m_pointGhostExchangeShared[rank];
-
-				bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
-				for (long id : list) {
-					buffer >> consecutiveId;
-					if (consecutiveId > -1){
-						m_pointConsecutiveId[id] = consecutiveId;
+			//---
+			//Communicate consecutive ids for not owned shared points
+			//---
+			{
+				size_t exchangeDataSize = sizeof(consecutiveId);
+				std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+				dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
+				for (const auto entry : m_pointGhostExchangeShared) {
+					const int rank = entry.first;
+					const auto &list = entry.second;
+					if (rank<m_rank){
+						dataCommunicator->setRecv(rank, list.size() * exchangeDataSize);
+						dataCommunicator->startRecv(rank);
 					}
 				}
-				++nCompletedRecvs;
+
+				// Set and start the sends
+				for (const auto entry : m_pointGhostExchangeShared) {
+					const int rank = entry.first;
+					auto &list = entry.second;
+					if (rank>m_rank){
+						dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
+						bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+						for (long id : list) {
+							if (m_pointConsecutiveId.count(id)){
+								buffer << m_pointConsecutiveId.at(id);
+							}
+							else{
+								buffer << long(-1);
+							}
+						}
+						dataCommunicator->startSend(rank);
+					}
+				}
+
+				// Receive the consecutive ids of the ghosts
+				int nCompletedRecvs = 0;
+				while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+					int rank = dataCommunicator->waitAnyRecv();
+					const auto &list = m_pointGhostExchangeShared[rank];
+
+					bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+					for (long id : list) {
+						buffer >> consecutiveId;
+						if (consecutiveId > -1){
+							m_pointConsecutiveId[id] = consecutiveId;
+						}
+					}
+					++nCompletedRecvs;
+				}
+				// Wait for the sends to finish
+				dataCommunicator->waitAllSends();
 			}
-			// Wait for the sends to finish
-			dataCommunicator->waitAllSends();
 		}
-	}
 
 	}//end update structure if partitioned
 
@@ -1757,7 +1757,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 /*!
 	Reset any information for ghost point data exchange.
 	Shared points included.
-*/
+ */
 void MimmoObject::resetPointGhostExchangeInfo()
 {
 	// Clear targets
@@ -1789,123 +1789,123 @@ void MimmoObject::resetPointGhostExchangeInfo()
     General checker for SkdTree status throughout all procs. If at least one partition
     has not-syncronized SkdTree set all the other procs to not syncronized and free the structure eventually.
     \return true if the structure was reset, false if nothing was done.
-*/
+ */
 bool MimmoObject::cleanParallelSkdTreeSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_skdTreeSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+	//make sure all procs arrive at this point.
+	MPI_Barrier(m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_skdTreeSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
-    //if the boolen is false you need to reset
-    if(!m_skdTreeSync){
-        cleanSkdTree();
-    }
-    //return true clean if the boolean was false, and viceversa.
-    return (!m_skdTreeSync);
+	//if the boolen is false you need to reset
+	if(!m_skdTreeSync){
+		cleanSkdTree();
+	}
+	//return true clean if the boolean was false, and viceversa.
+	return (!m_skdTreeSync);
 }
 
 /*!
     General checker for KdTree status throughout all procs. If at least one partition
     has not-syncronized KdTree set all the other procs to not syncronized and free the structure eventually.
     \return true if the structure was reset, false if nothing was done.
-*/
+ */
 bool MimmoObject::cleanParallelKdTreeSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_kdTreeSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+	//make sure all procs arrive at this point.
+	MPI_Barrier(m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_kdTreeSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
-    //if the boolen is false you need to reset
-    if(!m_kdTreeSync){
-        cleanKdTree();
-    }
-    //return true clean if the boolean was false, and viceversa.
-    return (!m_kdTreeSync);
+	//if the boolen is false you need to reset
+	if(!m_kdTreeSync){
+		cleanKdTree();
+	}
+	//return true clean if the boolean was false, and viceversa.
+	return (!m_kdTreeSync);
 }
 /*!
     General checker for Adjacencies status throughout all procs. If at least one partition
     has not-syncronized Adj set all the other procs to not syncronized and free the structure eventually.
     \return true if the structure was reset, false if nothing was done.
-*/
+ */
 bool MimmoObject::cleanParallelAdjacenciesSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_AdjBuilt, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+	//make sure all procs arrive at this point.
+	MPI_Barrier(m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_AdjBuilt, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
-    //if the boolen is false you need to reset
-    if(!m_AdjBuilt){
-        resetAdjacencies();
-    }
-    //return true clean if the boolean was false, and viceversa.
-    return (!m_AdjBuilt);
+	//if the boolen is false you need to reset
+	if(!m_AdjBuilt){
+		resetAdjacencies();
+	}
+	//return true clean if the boolean was false, and viceversa.
+	return (!m_AdjBuilt);
 }
 
 /*!
     General checker for Interfaces status throughout all procs. If at least one partition
     has not-syncronized Interfaces set all the other procs to not syncronized and free the structure eventually.
     \return true if the structure was reset, false if nothing was done.
-*/
+ */
 bool MimmoObject::cleanParallelInterfacesSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_IntBuilt, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+	//make sure all procs arrive at this point.
+	MPI_Barrier(m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_IntBuilt, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
-    //if the boolen is false you need to reset
-    if(!m_IntBuilt){
-        resetInterfaces();
-    }
-    //return true clean if the boolean was false, and viceversa.
-    return (!m_IntBuilt);
+	//if the boolen is false you need to reset
+	if(!m_IntBuilt){
+		resetInterfaces();
+	}
+	//return true clean if the boolean was false, and viceversa.
+	return (!m_IntBuilt);
 }
 
 /*!
     General checker for PointConnectivity status throughout all procs. If at least one partition
     has not-syncronized PointConnectivity set all the other procs to not syncronized and free the structure eventually.
     \return true if the structure was reset, false if nothing was done.
-*/
+ */
 bool MimmoObject::cleanParallelPointConnectivitySync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_pointConnectivitySync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+	//make sure all procs arrive at this point.
+	MPI_Barrier(m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_pointConnectivitySync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
-    //if the boolen is false you need to reset
-    if(!m_pointConnectivitySync){
-        cleanPointConnectivity();
-    }
-    //return true clean if the boolean was false, and viceversa.
-    return (!m_pointConnectivitySync);
+	//if the boolen is false you need to reset
+	if(!m_pointConnectivitySync){
+		cleanPointConnectivity();
+	}
+	//return true clean if the boolean was false, and viceversa.
+	return (!m_pointConnectivitySync);
 }
 /*!
     General checker for Interfaces status throughout all procs. If at least one partition
     has not-syncronized Interfaces set all the other procs to not syncronized and free the structure eventually.
     \return true if the structure was reset, false if nothing was done.
-*/
+ */
 bool MimmoObject::cleanParallelInfoSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+	//make sure all procs arrive at this point.
+	MPI_Barrier(m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
-    //if the boolen is false you need to reset
-    if(!m_infoSync){
-        m_patchInfo.reset();
-    }
-    //return true clean if the boolean was false, and viceversa.
-    return (!m_infoSync);
+	//if the boolen is false you need to reset
+	if(!m_infoSync){
+		m_patchInfo.reset();
+	}
+	//return true clean if the boolean was false, and viceversa.
+	return (!m_infoSync);
 }
 /*!
     General checker for Interfaces status throughout all procs. If at least one partition
     has not-syncronized Interfaces set all the other procs to not syncronized and free the structure eventually.
     \return true if the structure was reset, false if nothing was done.
-*/
+ */
 bool MimmoObject::cleanParallelPointGhostExchangeInfoSync(){
-    //make sure all procs arrive at this point.
-    MPI_Barrier(m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+	//make sure all procs arrive at this point.
+	MPI_Barrier(m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
 
-    //if the boolen is false you need to reset
-    if(!m_pointGhostExchangeInfoSync){
-        resetPointGhostExchangeInfo();
-    }
-    //return true clean if the boolean was false, and viceversa.
-    return (!m_pointGhostExchangeInfoSync);
+	//if the boolen is false you need to reset
+	if(!m_pointGhostExchangeInfoSync){
+		resetPointGhostExchangeInfo();
+	}
+	//return true clean if the boolean was false, and viceversa.
+	return (!m_pointGhostExchangeInfoSync);
 }
 
 /*!
@@ -1918,7 +1918,7 @@ MimmoObject::setPartitioned()
 		return;
 
 	std::unordered_map<long,int> partition;
-    for (bitpit::Cell & cell : getCells()){
+	for (bitpit::Cell & cell : getCells()){
 		if (cell.isInterior()){
 			partition[cell.getId()] = getRank();
 		}
@@ -1926,8 +1926,8 @@ MimmoObject::setPartitioned()
 
 	getPatch()->partition(partition,false,true);
 
-    buildPatchInfo();
-    updatePointGhostExchangeInfo();
+	buildPatchInfo();
+	updatePointGhostExchangeInfo();
 
 }
 
@@ -1939,55 +1939,55 @@ MimmoObject::setPartitioned()
  */
 void MimmoObject::deleteOrphanGhostCells(){
 
-    //Check ghosts if any
-    if(getPatch()->getGhostCount() < 1){
-        //do nothing and return;
-        MPI_Barrier(m_communicator);
-        return;
-    }
+	//Check ghosts if any
+	if(getPatch()->getGhostCount() < 1){
+		//do nothing and return;
+		MPI_Barrier(m_communicator);
+		return;
+	}
 
-    //check if there are internals.
-    if(getPatch()->getInternalCount() < 1){
-        resetPatch();
-        MPI_Barrier(m_communicator);
-        return;
-    }
+	//check if there are internals.
+	if(getPatch()->getInternalCount() < 1){
+		resetPatch();
+		MPI_Barrier(m_communicator);
+		return;
+	}
 
-    //build temporarely adjacencies to get orphans.
-    bool checkResetAdjacencies = false;
-    if(!areAdjacenciesBuilt()){
-         buildAdjacencies();
-         checkResetAdjacencies = true;
-    }
-    std::vector<long> markToDelete;
+	//build temporarely adjacencies to get orphans.
+	bool checkResetAdjacencies = false;
+	if(!areAdjacenciesBuilt()){
+		buildAdjacencies();
+		checkResetAdjacencies = true;
+	}
+	std::vector<long> markToDelete;
 
-    //Track orphan ghosts, that is ghost cells which have no neighbour cell marked as internal.
-    bitpit::PiercedVector<bitpit::Cell> & patchCells = getCells();
-    for(auto it = getPatch()->ghostBegin(); it != getPatch()->ghostEnd(); ++it){
-        std::vector<long> neighs = getPatch()->findCellNeighs(it.getId());
-        bool check = false;
-        std::vector<long>::iterator itN = neighs.begin();
-        while(itN != neighs.end() && !check){
-            check = check || patchCells[*itN].isInterior();
-            ++itN;
-        }
+	//Track orphan ghosts, that is ghost cells which have no neighbour cell marked as internal.
+	bitpit::PiercedVector<bitpit::Cell> & patchCells = getCells();
+	for(auto it = getPatch()->ghostBegin(); it != getPatch()->ghostEnd(); ++it){
+		std::vector<long> neighs = getPatch()->findCellNeighs(it.getId());
+		bool check = false;
+		std::vector<long>::iterator itN = neighs.begin();
+		while(itN != neighs.end() && !check){
+			check = check || patchCells[*itN].isInterior();
+			++itN;
+		}
 
-        //if check is still false, send this ghost cell to deletion
-        if(!check){
-            markToDelete.push_back(it.getId());
-        }
-    }
+		//if check is still false, send this ghost cell to deletion
+		if(!check){
+			markToDelete.push_back(it.getId());
+		}
+	}
 
-    //clean marked ghosts;
-    if(!markToDelete.empty()){
-        getPatch()->deleteCells(markToDelete);
-    }
-    //erase temporarely adjacencies
-    if(checkResetAdjacencies){
-       resetAdjacencies();
-    }
+	//clean marked ghosts;
+	if(!markToDelete.empty()){
+		getPatch()->deleteCells(markToDelete);
+	}
+	//erase temporarely adjacencies
+	if(checkResetAdjacencies){
+		resetAdjacencies();
+	}
 
-    MPI_Barrier(m_communicator);
+	MPI_Barrier(m_communicator);
 }
 
 #endif
@@ -2011,13 +2011,13 @@ MimmoObject::setTolerance(double tol)
  * Vertices of ghost cells have to be considered.
  *
  * \param[in] vertex vertex coordinates to be added
- * \param[in] idtag  unique id associated to the vertex
- * \return true if the vertex is successful inserted.
+ * \param[in/out] idtag  unique id associated to the vertex
+ * \return id of the inserted vertex. return bitpit::Vertex::NULL_ID if failed.
  */
-bool
+long
 MimmoObject::addVertex(const darray3E & vertex, const long idtag){
 
-	if(idtag != bitpit::Vertex::NULL_ID && getVertices().exists(idtag))    return false;
+	if(idtag != bitpit::Vertex::NULL_ID && getVertices().exists(idtag))    return bitpit::Vertex::NULL_ID;
 
 	bitpit::PatchKernel::VertexIterator it;
 	auto patch = getPatch();
@@ -2027,14 +2027,16 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
 		it = patch->addVertex(vertex, idtag);
 	}
 
+	long id = it->getId();
+
 	m_skdTreeSync = false;
 	m_kdTreeSync = false;
 	m_infoSync = false;
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
-    m_pointConnectivitySync = false;
-	return true;
+	m_pointConnectivitySync = false;
+	return id;
 };
 
 /*!
@@ -2046,12 +2048,12 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
  *
  * \param[in] vertex vertex to be added
  * \param[in] idtag  unique id associated to the vertex
- * \return true if the vertex is successful inserted.
+ * \return id of the inserted vertex. return bitpit::Vertex::NULL_ID if failed.
  */
-bool
+long
 MimmoObject::addVertex(const bitpit::Vertex & vertex, const long idtag){
 
-	if(idtag != bitpit::Vertex::NULL_ID && getVertices().exists(idtag))    return false;
+	if(idtag != bitpit::Vertex::NULL_ID && getVertices().exists(idtag))    return bitpit::Vertex::NULL_ID;
 
 	bitpit::PatchKernel::VertexIterator it;
 	auto patch = getPatch();
@@ -2061,14 +2063,16 @@ MimmoObject::addVertex(const bitpit::Vertex & vertex, const long idtag){
 		it = patch->addVertex(vertex, idtag);
 	}
 
+	long id = it->getId();
+
 	m_skdTreeSync = false;
 	m_kdTreeSync = false;
 	m_infoSync = false;
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
-    m_pointConnectivitySync = false;
-	return true;
+	m_pointConnectivitySync = false;
+	return id;
 };
 
 
@@ -2097,19 +2101,21 @@ MimmoObject::modifyVertex(const darray3E & vertex, const long & id){
 /*!
  * See method addConnectedCell(const livector1D & conn, bitpit::ElementType type, long PID, long idtag, int rank) doxy.
  * The only difference is the automatic assignment to PID= 0 for the current element and the automatic assignment of ID.
+ * \return id of the inserted cell. return bitpit::Cell::NULL_ID if failed.
  */
-bool
+long
 MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, int rank){
-    return addConnectedCell(conn, type, 0, bitpit::Cell::NULL_ID, rank);
+	return addConnectedCell(conn, type, 0, bitpit::Cell::NULL_ID, rank);
 };
 
 /*!
  * See method addConnectedCell(const livector1D & conn, bitpit::ElementType type, long PID, long idtag, int rank) doxy.
  * The only difference is the automatic assignment to PID= 0 for the current element.
+ * \return id of the inserted cell. return bitpit::Cell::NULL_ID if failed.
  */
-bool
+long
 MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, long idtag, int rank){
-    return addConnectedCell(conn, type, 0, idtag, rank);
+	return addConnectedCell(conn, type, 0, idtag, rank);
 };
 
 /*!
@@ -2117,7 +2123,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
  * be added and its own unique id. If no id is specified, teh method assigns it automatically.
  * Cell type and connectivity dimension of the cell are cross-checked with the mesh type of the class: if mismatch, the method
  * does not add the cell and return false.
- * If class type is a pointcloud one (type 3) the method creates cell of type bitpit::VERTEX
+ * If class type is a pointcloud one (type 3) the method creates cell of type bitpit::Vertex
  * A part identifier PID mark can be associated to the cell.
  *
  * As a reminder for connectivity conn argument:
@@ -2135,28 +2141,28 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
  * \param[in] PID   part identifier
  * \param[in] idtag id of the cell
  * \param[in] rank  belonging proc rank of the Cell (for MPI version only)
- * \return false if no geometry is linked, idtag already assigned or mismatched connectivity/element type
+ * \return id of the inserted cell. return bitpit::Cell::NULL_ID if failed.
  */
-bool
+long
 MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type, long PID, long idtag, int rank){
 
 #if MIMMO_ENABLE_MPI==0
-    BITPIT_UNUSED(rank);
+	BITPIT_UNUSED(rank);
 #endif
 
-//	if (conn.empty() || !m_skdTreeSupported) return false;
+	//	if (conn.empty() || !m_skdTreeSupported) return false;
 	if (conn.empty()) return false;
-	if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return false;
+	if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return bitpit::Cell::NULL_ID;
 
 	if(!checkCellConnCoherence(type, conn))  return false;
 
 	auto patch = getPatch();
 
-    bitpit::PatchKernel::CellIterator it;
+	bitpit::PatchKernel::CellIterator it;
 	long checkedID;
 #if MIMMO_ENABLE_MPI
-    if(rank < 0)    rank = m_rank;
-    it = patch->addCell(type, conn, rank, idtag);
+	if(rank < 0)    rank = m_rank;
+	it = patch->addCell(type, conn, rank, idtag);
 #else
 	it = patch->addCell(type, conn, idtag);
 #endif
@@ -2171,18 +2177,19 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
-    m_pointConnectivitySync = false;
-	return true;
+	m_pointConnectivitySync = false;
+	return checkedID;
 };
 
 
 /*!
  * Same as MimmoObject::addCell(bitpit::Cell & cell, const long idtag, int rank), but
  * using id automatic assignment.
+ * \return id of the inserted cell. return bitpit::Cell::NULL_ID if failed.
  */
-bool
+long
 MimmoObject::addCell(bitpit::Cell & cell, int rank){
-    return addCell(cell, bitpit::Cell::NULL_ID, rank);
+	return addCell(cell, bitpit::Cell::NULL_ID, rank);
 }
 
 /*!
@@ -2198,50 +2205,50 @@ MimmoObject::addCell(bitpit::Cell & cell, int rank){
  * \param[in] cell cell to be added
  * \param[in] idtag  unique id associated to the cell
  * \param[in] rank  belonging proc rank of the Cell (for MPI version only)
- * \return true if the cell is successful inserted.
+ * \return id of the inserted cell. return bitpit::Cell::NULL_ID if failed.
  */
-bool
+long
 MimmoObject::addCell(bitpit::Cell & cell, const long idtag, int rank){
 #if MIMMO_ENABLE_MPI==0
-    BITPIT_UNUSED(rank);
+	BITPIT_UNUSED(rank);
 #endif
 
-    if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag))    return false;
-    auto patch = getPatch();
+	if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag))    return bitpit::Cell::NULL_ID;
+	auto patch = getPatch();
 
-    //patchkernel methods addCell(const & Cell... ) copy everything from the target cell, adjacencies and interfaces included.
-    //and move them into the new patch.
-    // But pay attention  these information are useless for you, since you considered interfaces and
-    // adjacencies invalidated every time you add a cell.
-    //So practically keep using an add cell method passing connectivity, type, PID and rank.
+	//patchkernel methods addCell(const & Cell... ) copy everything from the target cell, adjacencies and interfaces included.
+	//and move them into the new patch.
+	// But pay attention  these information are useless for you, since you considered interfaces and
+	// adjacencies invalidated every time you add a cell.
+	//So practically keep using an add cell method passing connectivity, type, PID and rank.
 
-    int connectSize = cell.getConnectSize();
-    long *conn = cell.getConnect();
-    std::unique_ptr<long[]> connectStorage = std::unique_ptr<long[]>(new long[connectSize]);
-    std::copy(conn, conn+connectSize, connectStorage.get());
-    bitpit::PatchKernel::CellIterator itcell;
+	int connectSize = cell.getConnectSize();
+	long *conn = cell.getConnect();
+	std::unique_ptr<long[]> connectStorage = std::unique_ptr<long[]>(new long[connectSize]);
+	std::copy(conn, conn+connectSize, connectStorage.get());
+	bitpit::PatchKernel::CellIterator itcell;
 #if MIMMO_ENABLE_MPI==1
-    if(rank < 0)    rank = m_rank;
-    itcell = patch->addCell(cell.getType(), std::move(connectStorage), rank, idtag);
+	if(rank < 0)    rank = m_rank;
+	itcell = patch->addCell(cell.getType(), std::move(connectStorage), rank, idtag);
 #else
-    itcell = patch->addCell(cell.getType(), std::move(connectStorage), idtag);
+	itcell = patch->addCell(cell.getType(), std::move(connectStorage), idtag);
 #endif
 
-    long checkedID = itcell->getId();
+	long checkedID = itcell->getId();
 
-    setPIDCell(checkedID, cell.getPID());
+	setPIDCell(checkedID, cell.getPID());
 
-    m_skdTreeSync = false;
-    m_kdTreeSync = false;
+	m_skdTreeSync = false;
+	m_kdTreeSync = false;
 	m_infoSync = false;
-    m_AdjBuilt = false;
-    m_IntBuilt = false;
+	m_AdjBuilt = false;
+	m_IntBuilt = false;
 
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
-    m_pointConnectivitySync = false;
-    return true;
+	m_pointConnectivitySync = false;
+	return checkedID;
 };
 
 
@@ -2321,7 +2328,7 @@ bool
 MimmoObject::setPIDName(long pid, const std::string & name){
 	if(! bool(m_pidsTypeWNames.count(pid))) return false;
 	m_pidsTypeWNames[pid] = name;
-    return true;
+	return true;
 }
 
 /*!
@@ -2337,14 +2344,14 @@ MimmoObject::resyncPID(){
 	for(const bitpit::Cell & cell : getCells()){
 		m_pidsType.insert( (long)cell.getPID() );
 	}
-    std::string work;
+	std::string work;
 	for(const auto & pid : m_pidsType){
-        if (copynames.count(pid) > 0){
-            work =  copynames[pid];
-        }else{
-            work = "";
-        }
-        m_pidsTypeWNames.insert(std::make_pair( pid, work));
+		if (copynames.count(pid) > 0){
+			work =  copynames[pid];
+		}else{
+			work = "";
+		}
+		m_pidsTypeWNames.insert(std::make_pair( pid, work));
 	}
 };
 
@@ -2359,32 +2366,32 @@ MimmoObject::resyncPID(){
  */
 std::unique_ptr<MimmoObject> MimmoObject::clone() const {
 
-    //first step clone the internal bitpit patch.
-    std::unique_ptr<bitpit::PatchKernel> clonedPatch = m_patch->clone();
+	//first step clone the internal bitpit patch.
+	std::unique_ptr<bitpit::PatchKernel> clonedPatch = m_patch->clone();
 
-    //build the cloned mimmoObject using the custom constructor
-    std::unique_ptr<MimmoObject> result (new MimmoObject(m_type, clonedPatch));
+	//build the cloned mimmoObject using the custom constructor
+	std::unique_ptr<MimmoObject> result (new MimmoObject(m_type, clonedPatch));
 
-    //--> this constructor checks adjacencies and interfaces, initialize parallel
-    // and update the infoSync (cell parallel structures also)
-    //now what missing here?
-    // 1) MimmoObject sync'ed PID structured and get eventually local PID names.
-    result->resyncPID();
+	//--> this constructor checks adjacencies and interfaces, initialize parallel
+	// and update the infoSync (cell parallel structures also)
+	//now what missing here?
+	// 1) MimmoObject sync'ed PID structured and get eventually local PID names.
+	result->resyncPID();
 	for(auto & touple: m_pidsTypeWNames){
 		result->setPIDName(touple.first, touple.second);
 	}
 
-    // 2) check if trees are built here locally and force build to result eventually;
-    if(m_kdTreeSync)    result->buildKdTree();
-    if(m_skdTreeSync)   result->buildSkdTree();
+	// 2) check if trees are built here locally and force build to result eventually;
+	if(m_kdTreeSync)    result->buildKdTree();
+	if(m_skdTreeSync)   result->buildSkdTree();
 
 #if MIMMO_ENABLE_MPI
-    //rank, nprocs and communicator managed inside initializeParallel call  of the MimmoObject constructor
-    //3) check if PointGhost are synchronized, if they are, update point ghost of result
-    if(m_pointGhostExchangeInfoSync)    result->updatePointGhostExchangeInfo();
+	//rank, nprocs and communicator managed inside initializeParallel call  of the MimmoObject constructor
+	//3) check if PointGhost are synchronized, if they are, update point ghost of result
+	if(m_pointGhostExchangeInfoSync)    result->updatePointGhostExchangeInfo();
 #endif
 
-    //4) check if pointConnectivity is built here locally, if it is, force build to result.
+	//4) check if pointConnectivity is built here locally, if it is, force build to result.
 	if(m_pointConnectivitySync)    result->buildPointConnectivity();
 
 	return result;
@@ -2400,7 +2407,7 @@ MimmoObject::cleanGeometry(){
 	auto patch = getPatch();
 	patch->setTol(m_tolerance);
 	patch->deleteCoincidentVertices();
-//	if(m_skdTreeSupported)  patch->deleteOrphanVertices();
+	//	if(m_skdTreeSupported)  patch->deleteOrphanVertices();
 
 	m_kdTreeSync = false;
 	m_infoSync = false;
@@ -2417,22 +2424,22 @@ MimmoObject::cleanGeometry(){
  *\return the list of bitpit::PatchKernel ids of involved vertices.
  */
 livector1D MimmoObject::getVertexFromCellList(const livector1D &cellList){
-    if(isEmpty() || getType() == 3)   return livector1D(0);
+	if(isEmpty() || getType() == 3)   return livector1D(0);
 
-    livector1D result;
-    std::unordered_set<long int> ordV;
-    auto patch = getPatch();
-    bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
-    ordV.reserve(patch->getVertexCount());
-    //get conn from each cell of the list
-    for(const auto id : cellList){
-        if(cells.exists(id)){
-            bitpit::ConstProxyVector<long> ids = cells.at(id).getVertexIds();
-            for(const auto & val: ids){
-                ordV.insert(val);
-            }
-        }
-    }
+	livector1D result;
+	std::unordered_set<long int> ordV;
+	auto patch = getPatch();
+	bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
+	ordV.reserve(patch->getVertexCount());
+	//get conn from each cell of the list
+	for(const auto id : cellList){
+		if(cells.exists(id)){
+			bitpit::ConstProxyVector<long> ids = cells.at(id).getVertexIds();
+			for(const auto & val: ids){
+				ordV.insert(val);
+			}
+		}
+	}
 	result.reserve(ordV.size());
 	result.insert(result.end(), ordV.begin(), ordV.end());
 	return  result;
@@ -2446,39 +2453,39 @@ livector1D MimmoObject::getVertexFromCellList(const livector1D &cellList){
  *\param[in] all extract all interfaces af listed cells. Otherwise (if false) extract only the interfaces shared by the listed cells.
  */
 livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList, bool all){
-    if(isEmpty() || getType() == 3)   return livector1D(0);
+	if(isEmpty() || getType() == 3)   return livector1D(0);
 
-    if(!areInterfacesBuilt())   buildInterfaces();
-    livector1D result;
-    std::unordered_set<long int> ordV;
-    auto patch = getPatch();
-    ordV.reserve(patch->getInterfaceCount());
+	if(!areInterfacesBuilt())   buildInterfaces();
+	livector1D result;
+	std::unordered_set<long int> ordV;
+	auto patch = getPatch();
+	ordV.reserve(patch->getInterfaceCount());
 
-    if (all){
-    	bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
-    	//get conn from each cell of the list
-    	for(const auto id : cellList){
-    		if(cells.exists(id)){
-    			bitpit::Cell & cell = cells.at(id);
-    			long * interf =cell.getInterfaces();
-    			int nIloc = cell.getInterfaceCount();
-    			for(int i=0; i<nIloc; ++i){
-    				if(interf[i] < 0) continue;
-    				ordV.insert(interf[i]);
-    			}
-    		}
-    	}
-    }
-    else{
-    	std::unordered_set<long> targetCells(cellList.begin(), cellList.end());
-    	for(const auto & interf : getInterfaces()){
-    		long idowner = interf.getOwner();
-    		long idneigh = interf.getNeigh();
-    		if (targetCells.count(idowner) && (targetCells.count(idneigh) || idneigh<0)){
+	if (all){
+		bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
+		//get conn from each cell of the list
+		for(const auto id : cellList){
+			if(cells.exists(id)){
+				bitpit::Cell & cell = cells.at(id);
+				long * interf =cell.getInterfaces();
+				int nIloc = cell.getInterfaceCount();
+				for(int i=0; i<nIloc; ++i){
+					if(interf[i] < 0) continue;
+					ordV.insert(interf[i]);
+				}
+			}
+		}
+	}
+	else{
+		std::unordered_set<long> targetCells(cellList.begin(), cellList.end());
+		for(const auto & interf : getInterfaces()){
+			long idowner = interf.getOwner();
+			long idneigh = interf.getNeigh();
+			if (targetCells.count(idowner) && (targetCells.count(idneigh) || idneigh<0)){
 				ordV.insert(interf.getId());
-    		}
-    	}
-    }
+			}
+		}
+	}
 	result.reserve(ordV.size());
 	result.insert(result.end(), ordV.begin(), ordV.end());
 	return  result;
@@ -2494,27 +2501,27 @@ livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList, boo
  * \return list of bitpit::PatchKernel IDs of involved 1-Ring cells.
  */
 livector1D MimmoObject::getCellFromVertexList(const livector1D & vertexList, bool strict){
-    if(isEmpty() || getType() == 3)   return livector1D(0);
+	if(isEmpty() || getType() == 3)   return livector1D(0);
 
-    livector1D result;
-    std::unordered_set<long int> ordV, ordC;
-    ordV.insert(vertexList.begin(), vertexList.end());
-    ordC.reserve(getPatch()->getCellCount());
-    //get conn from each cell of the list
-    for(auto it = getPatch()->cellBegin(); it != getPatch()->cellEnd(); ++it){
-        bitpit::ConstProxyVector<long> vIds= it->getVertexIds();
-        bool check = false;
-        for(const auto & id : vIds){
-            check = (ordV.count(id) > 0);
-            if(!check && strict) {
-                break ;
-            }
-            if(check && !strict) {
-                break ;
-            }
-        }
-        if(check) ordC.insert(it.getId());
-    }
+	livector1D result;
+	std::unordered_set<long int> ordV, ordC;
+	ordV.insert(vertexList.begin(), vertexList.end());
+	ordC.reserve(getPatch()->getCellCount());
+	//get conn from each cell of the list
+	for(auto it = getPatch()->cellBegin(); it != getPatch()->cellEnd(); ++it){
+		bitpit::ConstProxyVector<long> vIds= it->getVertexIds();
+		bool check = false;
+		for(const auto & id : vIds){
+			check = (ordV.count(id) > 0);
+			if(!check && strict) {
+				break ;
+			}
+			if(check && !strict) {
+				break ;
+			}
+		}
+		if(check) ordC.insert(it.getId());
+	}
 	result.reserve(ordC.size());
 	result.insert(result.end(), ordC.begin(), ordC.end());
 	return  result;
@@ -2532,34 +2539,34 @@ livector1D MimmoObject::getCellFromVertexList(const livector1D & vertexList, boo
  */
 
 livector1D MimmoObject::getInterfaceFromVertexList(const livector1D & vertexList, bool strict, bool border){
-    if(isEmpty() || getType() == 3)   return livector1D(0);
+	if(isEmpty() || getType() == 3)   return livector1D(0);
 
-    if(!areInterfacesBuilt())   buildInterfaces();
+	if(!areInterfacesBuilt())   buildInterfaces();
 
-    livector1D result;
-    std::unordered_set<long int> ordV, ordI;
-    ordV.insert(vertexList.begin(), vertexList.end());
-    ordI.reserve(getPatch()->getInterfaceCount());
-    //get conn from each cell of the list
-    for(auto it = getPatch()->interfaceBegin(); it != getPatch()->interfaceEnd(); ++it){
-        if(border && !it->isBorder()) continue;
-        bitpit::ConstProxyVector<long> vIds= it->getVertexIds();
-        bool check = false;
-        for(const auto & id : vIds){
-            check = (ordV.count(id) > 0);
-            if(!check && strict) {
-                break ;
-            }
-            if(check && !strict) {
-                break ;
-            }
-        }
-        if(check) ordI.insert(it.getId());
-    }
+	livector1D result;
+	std::unordered_set<long int> ordV, ordI;
+	ordV.insert(vertexList.begin(), vertexList.end());
+	ordI.reserve(getPatch()->getInterfaceCount());
+	//get conn from each cell of the list
+	for(auto it = getPatch()->interfaceBegin(); it != getPatch()->interfaceEnd(); ++it){
+		if(border && !it->isBorder()) continue;
+		bitpit::ConstProxyVector<long> vIds= it->getVertexIds();
+		bool check = false;
+		for(const auto & id : vIds){
+			check = (ordV.count(id) > 0);
+			if(!check && strict) {
+				break ;
+			}
+			if(check && !strict) {
+				break ;
+			}
+		}
+		if(check) ordI.insert(it.getId());
+	}
 
-    result.reserve(ordI.size());
-    result.insert(result.end(), ordI.begin(), ordI.end());
-    return  result;
+	result.reserve(ordI.size());
+	result.insert(result.end(), ordI.begin(), ordI.end());
+	return  result;
 }
 
 
@@ -2571,8 +2578,8 @@ livector1D MimmoObject::getInterfaceFromVertexList(const livector1D & vertexList
  */
 livector1D 	MimmoObject::extractBoundaryVertexID(bool ghost){
 
-    std::unordered_map<long, std::set<int> > cellmap = extractBoundaryFaceCellID(ghost);
-    if(cellmap.empty()) return livector1D(0);
+	std::unordered_map<long, std::set<int> > cellmap = extractBoundaryFaceCellID(ghost);
+	if(cellmap.empty()) return livector1D(0);
 
 	std::unordered_set<long> container;
 	container.reserve(getPatch()->getVertexCount());
@@ -2605,25 +2612,25 @@ livector1D  MimmoObject::extractBoundaryCellID(bool ghost){
 	if(isEmpty() || m_type==3)   return livector1D(0);
 	if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
 
-    std::unordered_set<long> container;
+	std::unordered_set<long> container;
 	container.reserve(getPatch()->getCellCount());
-    auto itBegin = getPatch()->internalBegin();
-    auto itEnd = getPatch()->internalEnd();
+	auto itBegin = getPatch()->internalBegin();
+	auto itEnd = getPatch()->internalEnd();
 #if MIMMO_ENABLE_MPI
-    if(ghost){
-        itEnd = getPatch()->ghostEnd();
-    }
+	if(ghost){
+		itEnd = getPatch()->ghostEnd();
+	}
 #else
-    BITPIT_UNUSED(ghost);
+	BITPIT_UNUSED(ghost);
 #endif
-    for (auto it=itBegin; it!=itEnd; ++it){
-        int size = it->getFaceCount();
-        for(int face=0; face<size; ++face){
-            if(it->isFaceBorder(face)){
-                container.insert(it.getId());
-            }//endif
-        }// end loop on face
-    }
+	for (auto it=itBegin; it!=itEnd; ++it){
+		int size = it->getFaceCount();
+		for(int face=0; face<size; ++face){
+			if(it->isFaceBorder(face)){
+				container.insert(it.getId());
+			}//endif
+		}// end loop on face
+	}
 	livector1D result;
 	result.reserve(container.size());
 	result.insert(result.end(), container.begin(), container.end());
@@ -2635,7 +2642,7 @@ livector1D  MimmoObject::extractBoundaryCellID(bool ghost){
  * Extract cells  who have one face at the mesh boundaries at least, if any.
  * Return the list of the local faces per cell, which lie exactly on the boundary.
  * The method is meant for connected mesh only, return empty list otherwise.
-*  \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
+ *  \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
  * \return map of boundary cell unique-ids, with local boundary faces list.
  */
 std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID(bool ghost){
@@ -2644,24 +2651,24 @@ std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID
 	if(isEmpty() || m_type ==3)   return result;
 	if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
 
-    auto itBegin = getPatch()->internalBegin();
-    auto itEnd = getPatch()->internalEnd();
+	auto itBegin = getPatch()->internalBegin();
+	auto itEnd = getPatch()->internalEnd();
 #if MIMMO_ENABLE_MPI
-    if(ghost){
-        itEnd = getPatch()->ghostEnd();
-    }
+	if(ghost){
+		itEnd = getPatch()->ghostEnd();
+	}
 #else
-    BITPIT_UNUSED(ghost);
+	BITPIT_UNUSED(ghost);
 #endif
-    for (auto it=itBegin; it!=itEnd; ++it){
-        int size = it->getFaceCount();
-        for(int face=0; face<size; ++face){
-            if(it->isFaceBorder(face)){
-                result[it.getId()].insert(face);
-            }//endif
-        }// end loop on face
-    }
-    return result;
+	for (auto it=itBegin; it!=itEnd; ++it){
+		int size = it->getFaceCount();
+		for(int face=0; face<size; ++face){
+			if(it->isFaceBorder(face)){
+				result[it.getId()].insert(face);
+			}//endif
+		}// end loop on face
+	}
+	return result;
 };
 
 /*!
@@ -2702,26 +2709,26 @@ livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::s
  */
 livector1D  MimmoObject::extractBoundaryInterfaceID(bool ghost){
 
-    if(isEmpty() || m_type==3)   return livector1D(0);
-    if(!areInterfacesBuilt())   buildInterfaces();
+	if(isEmpty() || m_type==3)   return livector1D(0);
+	if(!areInterfacesBuilt())   buildInterfaces();
 
-    std::unordered_set<long> container;
-    container.reserve(getPatch()->getInterfaceCount());
-    std::unordered_map<long, std::set<int> > facemap = extractBoundaryFaceCellID(ghost);
+	std::unordered_set<long> container;
+	container.reserve(getPatch()->getInterfaceCount());
+	std::unordered_map<long, std::set<int> > facemap = extractBoundaryFaceCellID(ghost);
 
-    for(auto & tuple : facemap){
-        long * interfCellList  = getPatch()->getCell(tuple.first).getInterfaces();
-        for(auto & val : tuple.second){
-            if(interfCellList[val] < 0) continue;
-            container.insert(interfCellList[val]);
-        }
-    }
+	for(auto & tuple : facemap){
+		long * interfCellList  = getPatch()->getCell(tuple.first).getInterfaces();
+		for(auto & val : tuple.second){
+			if(interfCellList[val] < 0) continue;
+			container.insert(interfCellList[val]);
+		}
+	}
 
-    livector1D result;
-    result.reserve(container.size());
-    result.insert(result.end(), container.begin(), container.end());
+	livector1D result;
+	result.reserve(container.size());
+	result.insert(result.end(), container.begin(), container.end());
 
-    return result;
+	return result;
 };
 
 /*!
@@ -2886,7 +2893,7 @@ void MimmoObject::buildKdTree(){
 void	MimmoObject::cleanKdTree(){
 	m_kdTree->n_nodes = 0;
 	m_kdTree->nodes.clear();
-    m_kdTreeSync = false;
+	m_kdTreeSync = false;
 }
 
 /*!
@@ -2917,12 +2924,12 @@ void MimmoObject::buildPatchInfo(){
  */
 bool MimmoObject::areAdjacenciesBuilt(){
 
-    //check if you are synchronized with patch
-    bool patchAdjBuilt = getPatch()->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
-    if(m_AdjBuilt != patchAdjBuilt ){
-        m_AdjBuilt = patchAdjBuilt;
-    }
-    return  m_AdjBuilt;
+	//check if you are synchronized with patch
+	bool patchAdjBuilt = getPatch()->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
+	if(m_AdjBuilt != patchAdjBuilt ){
+		m_AdjBuilt = patchAdjBuilt;
+	}
+	return  m_AdjBuilt;
 };
 
 /*!
@@ -2930,13 +2937,13 @@ bool MimmoObject::areAdjacenciesBuilt(){
  * \return true if interfaces are built.
  */
 bool MimmoObject::areInterfacesBuilt(){
-    //check if you are synchronized with patch
-    bool patchIntBuilt = getPatch()->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
-    if(m_IntBuilt != patchIntBuilt ){
-        m_IntBuilt = patchIntBuilt;
-    }
+	//check if you are synchronized with patch
+	bool patchIntBuilt = getPatch()->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
+	if(m_IntBuilt != patchIntBuilt ){
+		m_IntBuilt = patchIntBuilt;
+	}
 
-    return  m_IntBuilt;
+	return  m_IntBuilt;
 };
 
 /*!
@@ -2951,14 +2958,14 @@ bool MimmoObject::isClosedLoop(){
 
 	auto itp = getCells().cbegin();
 	auto itend = getCells().cend();
-    std::vector<long> neighs;
+	std::vector<long> neighs;
 	while(itp != itend && check){
 
 		if (itp->isInterior()){
 			int faces = itp->getFaceCount();
 			for(int face=0; face<faces; ++face){
-                neighs.clear();
-                getPatch()->findCellFaceNeighs(itp->getId(), face, &neighs);
+				neighs.clear();
+				getPatch()->findCellFaceNeighs(itp->getId(), face, &neighs);
 				check = check && (!neighs.empty());
 			}
 			itp++;
@@ -2979,58 +2986,58 @@ bool MimmoObject::isClosedLoop(){
  *\return list of cellIDs set for each subpatch
  */
 livector2D MimmoObject::decomposeLoop(){
-    if(!areAdjacenciesBuilt())	buildAdjacencies();
+	if(!areAdjacenciesBuilt())	buildAdjacencies();
 
-    livector2D result;
-    livector1D globalcellids = getCells().getIds();
-    std::unordered_set<long> checked;
-    bool outcycle = true;
+	livector2D result;
+	livector1D globalcellids = getCells().getIds();
+	std::unordered_set<long> checked;
+	bool outcycle = true;
 
-    while(outcycle){
+	while(outcycle){
 
-        livector1D stack, save;
+		livector1D stack, save;
 
-        auto it = globalcellids.begin();
-        bool found = false;
-        long idstart = -1;
-        while(!found && it != globalcellids.end()){
-            if(checked.count(*it) == 0){
-                idstart = *it;
-                found = true;
-            }
-            ++it;
-        }
+		auto it = globalcellids.begin();
+		bool found = false;
+		long idstart = -1;
+		while(!found && it != globalcellids.end()){
+			if(checked.count(*it) == 0){
+				idstart = *it;
+				found = true;
+			}
+			++it;
+		}
 
-        checked.insert(idstart);
-        stack.push_back(idstart);
+		checked.insert(idstart);
+		stack.push_back(idstart);
 
-        while(!stack.empty()){
+		while(!stack.empty()){
 
-            long target = stack.back();
-            stack.pop_back();
-            save.push_back(target);
+			long target = stack.back();
+			stack.pop_back();
+			save.push_back(target);
 
-            //get the number of faces.
-            int facecount = getPatch()->getCells().at(target).getFaceCount();
-            for(int i=0; i<facecount; ++i){
-                livector1D neighs = getPatch()->findCellFaceNeighs(target,i);
-                bool found = false;
-                auto it = neighs.begin();
-                while(!found && it!=neighs.end()){
-                    if(checked.count(*it) == 0){
-                        stack.push_back(*it);
-                        checked.insert(*it);
-                        found = true;
-                    }
-                    ++it;
-                }
-            }
-        }
-        result.push_back(save);
-        outcycle = (checked.size() < globalcellids.size());
-    }
+			//get the number of faces.
+			int facecount = getPatch()->getCells().at(target).getFaceCount();
+			for(int i=0; i<facecount; ++i){
+				livector1D neighs = getPatch()->findCellFaceNeighs(target,i);
+				bool found = false;
+				auto it = neighs.begin();
+				while(!found && it!=neighs.end()){
+					if(checked.count(*it) == 0){
+						stack.push_back(*it);
+						checked.insert(*it);
+						found = true;
+					}
+					++it;
+				}
+			}
+		}
+		result.push_back(save);
+		outcycle = (checked.size() < globalcellids.size());
+	}
 
-    return result;
+	return result;
 }
 
 /*!
@@ -3061,8 +3068,8 @@ void MimmoObject::buildInterfaces(){
  */
 void MimmoObject::resetAdjacencies(){
 	if(m_type !=3){
-        //do not use delete from bitpit::CELL!!!! PatchKernel does not track them.
-        getPatch()->clearAdjacencies();
+		//do not use delete from bitpit::Cell!!!! PatchKernel does not track them.
+		getPatch()->clearAdjacencies();
 		m_AdjBuilt = false;
 	}
 };
@@ -3086,12 +3093,12 @@ void MimmoObject::resetPatch(){
 	m_IntBuilt = false;
 	m_skdTreeSync = false;
 	m_kdTreeSync = false;
- 	m_patchInfo.reset();
- 	m_infoSync = false;
+	m_patchInfo.reset();
+	m_infoSync = false;
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = false;
 #endif
-    m_pointConnectivitySync = false;
+	m_pointConnectivitySync = false;
 };
 
 /*!
@@ -3196,7 +3203,7 @@ void MimmoObject::reset(int type){
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_infoSync = false;
-    m_pointConnectivitySync = false;
+	m_pointConnectivitySync = false;
 }
 
 /*!
@@ -3208,10 +3215,10 @@ void MimmoObject::reset(int type){
  */
 void MimmoObject::dump(std::ostream & stream){
 
-    //scan pids inside your patch to be sure everything it's in order.
-    resyncPID();
-    //reverse pid and pidnames in vector structures.
-    auto mapPid = getPIDTypeListWNames() ;
+	//scan pids inside your patch to be sure everything it's in order.
+	resyncPID();
+	//reverse pid and pidnames in vector structures.
+	auto mapPid = getPIDTypeListWNames() ;
 	std::vector<long> pid(mapPid.size());
 	std::vector<std::string> sspid(mapPid.size());
 	int counter = 0;
@@ -3220,19 +3227,19 @@ void MimmoObject::dump(std::ostream & stream){
 		sspid[counter] = touple.second;
 		++counter;
 	}
-    //write comparison variables
+	//write comparison variables
 	bitpit::utils::binary::write(stream,m_type);
 #if MIMMO_ENABLE_MPI
-    bitpit::utils::binary::write(stream,m_nprocs);
+	bitpit::utils::binary::write(stream,m_nprocs);
 #endif
-    //write other variables
+	//write other variables
 	bitpit::utils::binary::write(stream,pid);
 	bitpit::utils::binary::write(stream,sspid);
 	bitpit::utils::binary::write(stream,m_AdjBuilt);
 	bitpit::utils::binary::write(stream,m_IntBuilt);
-    bitpit::utils::binary::write(stream,m_pointConnectivitySync);
+	bitpit::utils::binary::write(stream,m_pointConnectivitySync);
 
-    //write the patch
+	//write the patch
 	getPatch()->dump(stream);
 }
 
@@ -3246,48 +3253,48 @@ void MimmoObject::dump(std::ostream & stream){
  */
 
 void MimmoObject::restore(std::istream & stream){
-    //check comparisons
-    int type;
-    bitpit::utils::binary::read(stream,type);
+	//check comparisons
+	int type;
+	bitpit::utils::binary::read(stream,type);
 #if MIMMO_ENABLE_MPI
-    int nprocs;
-    bitpit::utils::binary::read(stream,nprocs);
-    if(nprocs != m_nprocs){
-        throw std::runtime_error("Error during MimmoObject::restore :  uncoherent procs number between contents and container");
-    }
+	int nprocs;
+	bitpit::utils::binary::read(stream,nprocs);
+	if(nprocs != m_nprocs){
+		throw std::runtime_error("Error during MimmoObject::restore :  uncoherent procs number between contents and container");
+	}
 #endif
 
-    //clean up and reset current object to ist virgin state
-    reset(type);
-    //absorb the other data
-    std::vector<long> pid;
-    std::vector<std::string> sspid;
-    bool connpointsync;
+	//clean up and reset current object to ist virgin state
+	reset(type);
+	//absorb the other data
+	std::vector<long> pid;
+	std::vector<std::string> sspid;
+	bool connpointsync;
 
-    bitpit::utils::binary::read(stream,pid);
-    bitpit::utils::binary::read(stream,sspid);
-    bitpit::utils::binary::read(stream,m_AdjBuilt);
-    bitpit::utils::binary::read(stream,m_IntBuilt);
-    bitpit::utils::binary::read(stream,connpointsync);
+	bitpit::utils::binary::read(stream,pid);
+	bitpit::utils::binary::read(stream,sspid);
+	bitpit::utils::binary::read(stream,m_AdjBuilt);
+	bitpit::utils::binary::read(stream,m_IntBuilt);
+	bitpit::utils::binary::read(stream,connpointsync);
 
-    getPatch()->restore(stream);
+	getPatch()->restore(stream);
 
-    //m_patchInfo has already the pointer to the patch set during reset(type)
-    //update it.
-    m_patchInfo.update();
-    m_infoSync = true;
+	//m_patchInfo has already the pointer to the patch set during reset(type)
+	//update it.
+	m_patchInfo.update();
+	m_infoSync = true;
 
-    //rebuild the point ghost exchange information.
+	//rebuild the point ghost exchange information.
 #if MIMMO_ENABLE_MPI
 	updatePointGhostExchangeInfo();
 #endif
 
-    //check point connectivity, if true build it, otherwise leave it as reset put it, i.e. false.
-    if(connpointsync){
-        this->buildPointConnectivity();
-    }
+	//check point connectivity, if true build it, otherwise leave it as reset put it, i.e. false.
+	if(connpointsync){
+		this->buildPointConnectivity();
+	}
 
-    //uncompact and rewrite PID stuff
+	//uncompact and rewrite PID stuff
 	int count = 0;
 	for (long pp : pid){
 		m_pidsType.insert(pp);
@@ -3295,7 +3302,7 @@ void MimmoObject::restore(std::istream & stream){
 		++count;
 	}
 
-    //that's all folks.
+	//that's all folks.
 }
 
 /*!
@@ -3498,8 +3505,8 @@ MimmoObject::elementsMap(bitpit::PatchKernel & obj){
  */
 livector1D
 MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
-    bitpit::PiercedVector<double> res = getCellsNarrowBandToExtSurfaceWDist(surface, maxdist, seedlist);
-    return res.getIds();
+	bitpit::PiercedVector<double> res = getCellsNarrowBandToExtSurfaceWDist(surface, maxdist, seedlist);
+	return res.getIds();
 };
 
 /*!
@@ -3514,113 +3521,113 @@ MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double 
 bitpit::PiercedVector<double>
 MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
 
-    bitpit::PiercedVector<double> result;
-    if(surface.isEmpty() || surface.getType() != 1) return result;
+	bitpit::PiercedVector<double> result;
+	if(surface.isEmpty() || surface.getType() != 1) return result;
 	if(isEmpty() || getType() == 3)  return result;
 
-    if(!surface.areAdjacenciesBuilt()){
-        surface.buildAdjacencies();
-    }
+	if(!surface.areAdjacenciesBuilt()){
+		surface.buildAdjacencies();
+	}
 
-    if (!surface.isSkdTreeSync())
-    	surface.buildSkdTree();
+	if (!surface.isSkdTreeSync())
+		surface.buildSkdTree();
 
-    //use a stack-based search on face cell neighbors of some prescribed seed cells.
-    //You need at least one cell to be near enough to surface
+	//use a stack-based search on face cell neighbors of some prescribed seed cells.
+	//You need at least one cell to be near enough to surface
 
-    //First step check seed list and precalculate distance. If dist >= maxdist
-    //the seed candidate is out.
-    darray3E pp;
-    double distance, maxdistance(maxdist);
-    long idsuppsurf;
-    if(seedlist){
-        for(long id: *seedlist){
-            pp = getPatch()->evalCellCentroid(id);
-            distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-            if(distance < maxdist){
-                result.insert(id, distance);
-            }
-        }
-    }else{
-        //find all the unconnected patches composing surfaces.
-        livector2D loops = surface.decomposeLoop();
-        //ping a seed on each subpatch
-        for(livector1D & loop : loops){
-            long idseed;
-            auto itsurf = loop.begin();
-            auto itsurfend = loop.end();
-            while(itsurf != itsurfend ){
-                //continue to search for a seed cell candidate, visiting all point of the target surface.
-                idseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
-                if(idseed < 0) {
-                    ++itsurf;
-                    continue;
-                }
-                pp = getPatch()->evalCellCentroid(idseed);
-                distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-                if(distance >= maxdist){
-                    ++itsurf;
-                    continue;
-                }
-                result.insert(idseed, distance);
-                itsurf = itsurfend;
-            }
-        }
-    }
+	//First step check seed list and precalculate distance. If dist >= maxdist
+	//the seed candidate is out.
+	darray3E pp;
+	double distance, maxdistance(maxdist);
+	long idsuppsurf;
+	if(seedlist){
+		for(long id: *seedlist){
+			pp = getPatch()->evalCellCentroid(id);
+			distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+			if(distance < maxdist){
+				result.insert(id, distance);
+			}
+		}
+	}else{
+		//find all the unconnected patches composing surfaces.
+		livector2D loops = surface.decomposeLoop();
+		//ping a seed on each subpatch
+		for(livector1D & loop : loops){
+			long idseed;
+			auto itsurf = loop.begin();
+			auto itsurfend = loop.end();
+			while(itsurf != itsurfend ){
+				//continue to search for a seed cell candidate, visiting all point of the target surface.
+				idseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
+				if(idseed < 0) {
+					++itsurf;
+					continue;
+				}
+				pp = getPatch()->evalCellCentroid(idseed);
+				distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+				if(distance >= maxdist){
+					++itsurf;
+					continue;
+				}
+				result.insert(idseed, distance);
+				itsurf = itsurfend;
+			}
+		}
+	}
 
-    // if no seed is found exit.
-    if(result.empty()){
-        //impossible to find a valid seed;
-        return result;
-    }
+	// if no seed is found exit.
+	if(result.empty()){
+		//impossible to find a valid seed;
+		return result;
+	}
 
 
 
-    // create the stack of neighbours with the seed i have.
-    std::unordered_set<long> visited;
-    livector1D stackNeighs;
-    std::unordered_set<long> tt;
-    for(auto it = result.begin(); it != result.end(); ++it){
-        livector1D neighs = getPatch()->findCellNeighs(it.getId(), 1); //only face neighs.
-        for(long id: neighs){
-            if(!result.exists(id))  visited.insert(id);
-        }
-    }
-    stackNeighs.insert(stackNeighs.end(), visited.begin(), visited.end());
+	// create the stack of neighbours with the seed i have.
+	std::unordered_set<long> visited;
+	livector1D stackNeighs;
+	std::unordered_set<long> tt;
+	for(auto it = result.begin(); it != result.end(); ++it){
+		livector1D neighs = getPatch()->findCellNeighs(it.getId(), 1); //only face neighs.
+		for(long id: neighs){
+			if(!result.exists(id))  visited.insert(id);
+		}
+	}
+	stackNeighs.insert(stackNeighs.end(), visited.begin(), visited.end());
 
-    //add as visited also the id already in result;
-    {
-        livector1D temp = result.getIds();
-        visited.insert(temp.begin(), temp.end());
-    }
+	//add as visited also the id already in result;
+	{
+		livector1D temp = result.getIds();
+		visited.insert(temp.begin(), temp.end());
+	}
 
-    long target;
-    //search until the stack is empty.
-    while(!stackNeighs.empty()){
+	long target;
+	//search until the stack is empty.
+	while(!stackNeighs.empty()){
 
-        // extract the candidate
-        target = stackNeighs.back();
+		// extract the candidate
+		target = stackNeighs.back();
 
-        stackNeighs.pop_back();
-        visited.insert(target);
-        // evaluate its distance;
-        pp = getPatch()->evalCellCentroid(target);
-        distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+		stackNeighs.pop_back();
+		visited.insert(target);
+		// evaluate its distance;
+		pp = getPatch()->evalCellCentroid(target);
+		distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
 
-        if(distance < maxdist){
-            result.insert(target, distance);
+		if(distance < maxdist){
+			result.insert(target, distance);
 
-            livector1D neighs = getPatch()->findCellNeighs(target, 1); //only face neighs.
-            for(long id: neighs){
-                if(visited.count(id) < 1){
-                    visited.insert(id);
-                    stackNeighs.push_back(id);
-                }
-            }
-        }
-    }
-    return result;
-    //TODO need to find a cooking recipe here in case of PARALLEL computing of the narrow band.
+			livector1D neighs = getPatch()->findCellNeighs(target, 1); //only face neighs.
+			for(long id: neighs){
+				if(visited.count(id) < 1){
+					visited.insert(id);
+					stackNeighs.push_back(id);
+				}
+			}
+		}
+	}
+	return result;
+	//TODO need to find a cooking recipe here in case of PARALLEL computing of the narrow band.
 
 };
 
@@ -3637,7 +3644,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 std::unordered_map<long,long> MimmoObject::getInverseConnectivity(){
 
 	std::unordered_map<long,long> invConn ;
-//	if(getType() == 3) return invConn;
+	//	if(getType() == 3) return invConn;
 
 	long cellId;
 	for(const auto &cell : getCells()){
@@ -3683,24 +3690,24 @@ std::set<long> MimmoObject::findVertexVertexOneRing(const long & cellId, const l
  *\return cell centroid coordinate
  */
 std::array<double,3> MimmoObject::evalCellCentroid(const long & id){
-   std::array<double,3> result = {{0.0,0.0,0.0}};
-   if(getPatch()){
-       result = getPatch()->evalCellCentroid(id);
-   }
-   return result;
+	std::array<double,3> result = {{0.0,0.0,0.0}};
+	if(getPatch()){
+		result = getPatch()->evalCellCentroid(id);
+	}
+	return result;
 }
 
- /*!
-  * Evaluate the centroid of the target interface. Need to have interface built.
-  *\param[in] id of interface, no control if interface exists is done
-  *\return interface centroid coordinate
-  */
+/*!
+ * Evaluate the centroid of the target interface. Need to have interface built.
+ *\param[in] id of interface, no control if interface exists is done
+ *\return interface centroid coordinate
+ */
 std::array<double,3> MimmoObject::evalInterfaceCentroid(const long & id){
-    std::array<double,3> result = {{0.0,0.0,0.0}};
-    if(areInterfacesBuilt()){
-        result = getPatch()->evalInterfaceCentroid(id);
-    }
-    return result;
+	std::array<double,3> result = {{0.0,0.0,0.0}};
+	if(areInterfacesBuilt()){
+		result = getPatch()->evalInterfaceCentroid(id);
+	}
+	return result;
 }
 
 /*!
@@ -3713,32 +3720,32 @@ std::array<double,3> MimmoObject::evalInterfaceCentroid(const long & id){
  *\return normal to interface
  */
 std::array<double,3> MimmoObject::evalInterfaceNormal(const long & id){
-    std::array<double,3> result ({0.0,0.0,0.0});
-    if(!areInterfacesBuilt())  return result;
+	std::array<double,3> result ({0.0,0.0,0.0});
+	if(!areInterfacesBuilt())  return result;
 
-    switch(m_type){
-        case 1:
-            {
-                bitpit::Interface & interf = getInterfaces().at(id);
-                std::array<double,3> enormal = static_cast<bitpit::SurfaceKernel*>(getPatch())->evalEdgeNormal(interf.getOwner(), interf.getOwnerFace());
-                bitpit::ConstProxyVector<long> vv = interf.getVertexIds();
-                result = crossProduct(getVertexCoords(vv[1]) - getVertexCoords(vv[0]), enormal);
-                double normres = norm2(result);
-                if(normres > std::numeric_limits<double>::min()){
-                    result /= normres;
-                }
-            }
-            break;
+	switch(m_type){
+	case 1:
+	{
+		bitpit::Interface & interf = getInterfaces().at(id);
+		std::array<double,3> enormal = static_cast<bitpit::SurfaceKernel*>(getPatch())->evalEdgeNormal(interf.getOwner(), interf.getOwnerFace());
+		bitpit::ConstProxyVector<long> vv = interf.getVertexIds();
+		result = crossProduct(getVertexCoords(vv[1]) - getVertexCoords(vv[0]), enormal);
+		double normres = norm2(result);
+		if(normres > std::numeric_limits<double>::min()){
+			result /= normres;
+		}
+	}
+	break;
 
-        case 2:
-            result = static_cast<bitpit::VolUnstructured*>(getPatch())->evalInterfaceNormal(id);
-            break;
+	case 2:
+		result = static_cast<bitpit::VolUnstructured*>(getPatch())->evalInterfaceNormal(id);
+		break;
 
-        default:
-            //do nothing
-            break;
-    }
-    return result;
+	default:
+		//do nothing
+		break;
+	}
+	return result;
 }
 
 /*!
@@ -3751,26 +3758,26 @@ std::array<double,3> MimmoObject::evalInterfaceNormal(const long & id){
  *\return value of interface area/length.
  */
 double MimmoObject::evalInterfaceArea(const long & id){
-    double result (0.0);
-    if(!areInterfacesBuilt())  return result;
+	double result (0.0);
+	if(!areInterfacesBuilt())  return result;
 
-    switch(m_type){
-        case 1:
-            {
-                bitpit::Interface & interf = getInterfaces().at(id);
-                result = static_cast<bitpit::SurfaceKernel*>(getPatch())->evalEdgeLength(interf.getOwner(), interf.getOwnerFace());
-            }
-            break;
+	switch(m_type){
+	case 1:
+	{
+		bitpit::Interface & interf = getInterfaces().at(id);
+		result = static_cast<bitpit::SurfaceKernel*>(getPatch())->evalEdgeLength(interf.getOwner(), interf.getOwnerFace());
+	}
+	break;
 
-        case 2:
-            result = static_cast<bitpit::VolUnstructured*>(getPatch())->evalInterfaceArea(id);
-            break;
+	case 2:
+		result = static_cast<bitpit::VolUnstructured*>(getPatch())->evalInterfaceArea(id);
+		break;
 
-        default:
-            //do nothing
-            break;
-    }
-    return result;
+	default:
+		//do nothing
+		break;
+	}
+	return result;
 }
 
 /*!
@@ -3782,61 +3789,77 @@ MimmoObject::buildPointConnectivity()
 {
 	cleanPointConnectivity();
 
-	if(getType() == 3)  return;
+	//No point connectivity for point cloud
+	if(getType() == 3) return;
 
 	m_pointConnectivity.reserve(getNVertices());
-//	std::set<long> visited;
 
-	//ONLY EDGE CONNECTIVITY
-    std::set<std::pair<long,long> > edges;
-    for (bitpit::Cell & cell : getCells()){
-    	int ne = 0;
-    	if (m_type == 1)
-    		ne = cell.getFaceCount();
-    	if (m_type == 2)
-    		ne = cell.getEdgeCount();
+	if(getType() == 1 || getType() == 2 || getType() == 4){
+		//Surface/volume mesh & 3d curve point connectivity
 
-    	for (int i=0; i<ne; i++){
-    		bitpit::ConstProxyVector<long> ids;
-        	if (m_type == 1)
-        		ids = cell.getFaceVertexIds(i);
-        	if (m_type == 2)
-        		ids = cell.getEdgeVertexIds(i);
-    		//Always two nodes!?! I think yes...
-    		long id1 = ids[0];
-    		long id2 = ids[1];
-    		std::pair<long,long> item;
-    		if (id1<id2)
-    			item=std::pair<long,long>(id1,id2);
-    		else
-    			item = std::pair<long,long>(id2,id1);
-    		if (!edges.count(item)){
-    			edges.insert(item);
-    			m_pointConnectivity[id1].insert(id2);
-    			m_pointConnectivity[id2].insert(id1);
-    		}
-    	}
-    }
+		//	std::set<long> visited;
+		//ONLY EDGE CONNECTIVITY
+		std::set<std::pair<long,long> > edges;
+		for (bitpit::Cell & cell : getCells()){
+			int ne = 0;
+			if (m_type == 1)
+				ne = cell.getFaceCount();
+			if (m_type == 2)
+				ne = cell.getEdgeCount();
+			if (m_type == 4)
+				ne = 1;
 
-//
-//	//ONE RING CELL CONNECTIVITY
-//	for (bitpit::Cell & cell : getCells()){
-//		long idcell = cell.getId();
-//		int nv = cell.getVertexCount();
-//		for (int iv=0; iv<nv; iv++){
-//			long id = cell.getVertexId(iv);
-//			if (!visited.count(id)){
-//				livector1D list = getPatch()->findCellVertexOneRing(idcell, iv);
-//				visited.insert(id);
-//				for(const auto & cellIndex : list){
-//			          bitpit::ConstProxyVector<long> ids = getPatch()->getCell(cellIndex).getVertexIds();
-//			          m_pointConnectivity[id].insert(ids.begin(), ids.end());
-//				}
-//				m_pointConnectivity[id].erase(id);
-//			}
-//		}
-//	}
-    m_pointConnectivitySync = true;
+			for (int i=0; i<ne; i++){
+				bitpit::ConstProxyVector<long> ids;
+				if (m_type == 1)
+					ids = cell.getFaceVertexIds(i);
+				if (m_type == 2)
+					ids = cell.getEdgeVertexIds(i);
+				if (m_type == 4)
+					ids = cell.getVertexIds();
+
+				//Always two nodes!?! I think yes...
+				long id1 = ids[0];
+				long id2 = ids[1];
+				std::pair<long,long> item;
+				if (id1<id2)
+					item=std::pair<long,long>(id1,id2);
+				else
+					item = std::pair<long,long>(id2,id1);
+				if (!edges.count(item)){
+					edges.insert(item);
+					m_pointConnectivity[id1].insert(id2);
+					m_pointConnectivity[id2].insert(id1);
+				}
+			}
+		}
+
+		//
+		//	//ONE RING CELL CONNECTIVITY
+		//	for (bitpit::Cell & cell : getCells()){
+		//		long idcell = cell.getId();
+		//		int nv = cell.getVertexCount();
+		//		for (int iv=0; iv<nv; iv++){
+		//			long id = cell.getVertexId(iv);
+		//			if (!visited.count(id)){
+		//				livector1D list = getPatch()->findCellVertexOneRing(idcell, iv);
+		//				visited.insert(id);
+		//				for(const auto & cellIndex : list){
+		//			          bitpit::ConstProxyVector<long> ids = getPatch()->getCell(cellIndex).getVertexIds();
+		//			          m_pointConnectivity[id].insert(ids.begin(), ids.end());
+		//				}
+		//				m_pointConnectivity[id].erase(id);
+		//			}
+		//		}
+		//	}
+
+	}
+	else{
+		//No allowed type
+		return;
+	}
+
+	m_pointConnectivitySync = true;
 }
 
 /*!
@@ -3846,7 +3869,7 @@ void
 MimmoObject::cleanPointConnectivity()
 {
 	std::unordered_map<long, std::unordered_set<long> >().swap(m_pointConnectivity);
-    m_pointConnectivitySync = false;
+	m_pointConnectivitySync = false;
 }
 
 /*!
@@ -3863,7 +3886,7 @@ MimmoObject::getPointConnectivity(const long & id)
 
 /*!
     \return true if the node-node connectivity is built.
-*/
+ */
 bool
 MimmoObject::isPointConnectivitySync(){
 	return m_pointConnectivitySync;
