@@ -234,15 +234,15 @@ public:
 
     void 		setTolerance(double tol);
 
-    bool        addVertex(const darray3E & vertex, long idtag = bitpit::Vertex::NULL_ID);
-    bool        addVertex(const bitpit::Vertex & vertex, long idtag = bitpit::Vertex::NULL_ID);
+    long        addVertex(const darray3E & vertex, const long idtag = bitpit::Vertex::NULL_ID);
+    long        addVertex(const bitpit::Vertex & vertex, const long idtag = bitpit::Vertex::NULL_ID);
     bool        modifyVertex(const darray3E & vertex, const long & id);
 
-    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, int rank = -1);
-    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long idtag, int rank = -1);
-    bool        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long PID, long idtag, int rank = -1);
-    bool        addCell(bitpit::Cell & cell, int rank = -1);
-    bool        addCell(bitpit::Cell & cell, long idtag, int rank = -1);
+    long        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, int rank = -1);
+    long        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long idtag, int rank = -1);
+    long        addConnectedCell(const livector1D & locConn, bitpit::ElementType type, long PID, long idtag, int rank = -1);
+    long        addCell(bitpit::Cell & cell, int rank = -1);
+    long        addCell(bitpit::Cell & cell, long idtag, int rank = -1);
 
     void        setPID(livector1D );
     void        setPID(std::unordered_map<long, long>  );
