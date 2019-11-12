@@ -22,7 +22,7 @@
  *
 \*---------------------------------------------------------------------------*/
 
-#include "SwitchFields.hpp"
+#include "SelectField.hpp"
 #include "SkdTreeUtils.hpp"
 #include "ExtractFields.hpp"
 #include <unordered_map>
@@ -33,8 +33,8 @@ namespace mimmo{
  * Default constructor.
  * \param[in] loc MPVLocation of fields data: POINT, CELL or INTERFACE.
  */
-SwitchScalarField::SwitchScalarField(MPVLocation loc):SwitchField(){
-    m_name = "mimmo.SwitchScalarField";
+SelectVectorField::SelectVectorField(MPVLocation loc):SelectField(){
+    m_name = "mimmo.SelectVectorField";
     m_loc = loc;
     if(m_loc == MPVLocation::UNDEFINED) m_loc= MPVLocation::POINT;
 }
@@ -43,7 +43,7 @@ SwitchScalarField::SwitchScalarField(MPVLocation loc):SwitchField(){
  * Custom constructor reading xml data
  * \param[in] rootXML reference to your xml tree section
  */
-SwitchScalarField::SwitchScalarField(const bitpit::Config::Section & rootXML){
+SelectVectorField::SelectVectorField(const bitpit::Config::Section & rootXML){
 
     std::string fallback_name = "ClassNONE";
     std::string fallback_loc  = "-1";
@@ -60,10 +60,9 @@ SwitchScalarField::SwitchScalarField(const bitpit::Config::Section & rootXML){
     }else{
         m_loc = MPVLocation::POINT;
     }
+    m_name = "mimmo.SelectVectorField";
 
-    m_name = "mimmo.SwitchScalarField";
-
-    if(input_name == "mimmo.SwitchScalarField"){
+    if(input_name == "mimmo.SelectVectorField" ){
         absorbSectionXML(rootXML);
     }else{
         warningXML(m_log, m_name);
@@ -73,12 +72,12 @@ SwitchScalarField::SwitchScalarField(const bitpit::Config::Section & rootXML){
 /*!
  * Default destructor
  */
-SwitchScalarField::~SwitchScalarField(){}
+SelectVectorField::~SelectVectorField(){}
 
 /*!
  * Copy constructor
  */
-SwitchScalarField::SwitchScalarField(const SwitchScalarField & other):SwitchField(other){
+SelectVectorField::SelectVectorField(const SelectVectorField & other):SelectField(other){
     m_loc = other.m_loc;
     m_fields = other.m_fields;
     m_result = other.m_result;
@@ -88,36 +87,36 @@ SwitchScalarField::SwitchScalarField(const SwitchScalarField & other):SwitchFiel
  * Swap function.
  * \param[in] x object to be swapped
  */
-void SwitchScalarField::swap(SwitchScalarField & x) noexcept
+void SelectVectorField::swap(SelectVectorField & x) noexcept
 {
     std::swap(m_loc, x.m_loc);
     std::swap(m_fields, x.m_fields);
     //std::swap(m_result, x.m_result);
     m_result.swap(x.m_result);
-    SwitchField::swap(x);
+    SelectField::swap(x);
 }
 
 /*!
  * Build the ports of the class;
  */
 void
-SwitchScalarField::buildPorts(){
+SelectVectorField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<std::vector<dmpvector1D*>, SwitchScalarField>(this, &mimmo::SwitchScalarField::setFields, M_VECSFIELDS, true, 1));
-    built = (built && createPortIn<dmpvector1D*, SwitchScalarField>(this, &mimmo::SwitchScalarField::addField, M_SCALARFIELD, true, 1));
-    built = (built && createPortOut<dmpvector1D*, SwitchScalarField>(this, &mimmo::SwitchScalarField::getSwitchedField, M_SCALARFIELD));
+    built = (built && createPortIn<std::vector<dmpvecarr3E*>, SelectVectorField>(this, &mimmo::SelectVectorField::setFields, M_VECVFIELDS, true, 1));
+    built = (built && createPortIn<dmpvecarr3E*, SelectVectorField>(this, &mimmo::SelectVectorField::addField, M_VECTORFIELD, true, 1));
+    built = (built && createPortOut<dmpvecarr3E*, SelectVectorField>(this, &mimmo::SelectVectorField::getSelectedField, M_VECTORFIELD));
 
-    SwitchField::buildPorts();
+    SelectField::buildPorts();
     m_arePortsBuilt = built;
 }
 
 /*!
- * Get switched field.
- * \return switched field
+ * Get Selected field.
+ * \return Selected field
  */
-dmpvector1D *
-SwitchScalarField::getSwitchedField(){
-    return  &m_result;
+dmpvecarr3E*
+SelectVectorField::getSelectedField(){
+    return &m_result;
 }
 
 /*!
@@ -125,10 +124,10 @@ SwitchScalarField::getSwitchedField(){
  * \param[in] fields scalar fields
  */
 void
-SwitchScalarField::setFields(std::vector<dmpvector1D*> fields){
+SelectVectorField::setFields(std::vector<dmpvecarr3E*> fields){
     m_fields.clear();
     m_fields.reserve(fields.size());
-    for(dmpvector1D * ff : fields){
+    for(dmpvecarr3E * ff : fields){
         if(!ff) continue;
         if(ff->getDataLocation() == m_loc && ff->getGeometry()!= NULL){
             m_fields.push_back(*ff);
@@ -142,105 +141,133 @@ SwitchScalarField::setFields(std::vector<dmpvector1D*> fields){
  * \param[in] field scalar field
  */
 void
-SwitchScalarField::addField(dmpvector1D *field){
+SelectVectorField::addField(dmpvecarr3E *field){
     if(!field) return;
     if(field->getDataLocation() == m_loc && field->getGeometry() != NULL){
         m_fields.push_back(*field);
     }
-
 }
 
 /*!
  * Clear content of the class
  */
 void
-SwitchScalarField::clear(){
+SelectVectorField::clear(){
     m_fields.clear();
     m_result.clear();
-    SwitchField::clear();
+    SelectField::clear();
 }
 
 /*!
- * Plot switched field on its geometry
+ * Plot Selected field on its geometry.
  */
 void
-SwitchScalarField::plotOptionalResults(){
+SelectVectorField::plotOptionalResults(){
 
 	m_result.setName("field");
 	write(m_result.getGeometry(), m_result);
 
 }
 
-
 /*!
- * Switch your original field along the input geometry provided
- * \return true if switch without errors
+ * Select your original field along the input geometry provided
+ * \return true if Select without errors
  */
 bool
-SwitchScalarField::mswitch(){
+SelectVectorField::mSelect(){
 
-    if (getGeometry() == NULL) return true; // false;
+	m_result.clear();
 
-    m_result.clear();
+	switch(m_mode) {
 
-    //Extract by link to geometry
-    for (const auto & field : m_fields){
-        if (field.getGeometry() == getGeometry()){
-            m_result = field;
-            //geometry and location are copied from field.
-            return true;
-        }
-    }
+	case SelectType::GEOMETRY:
+	{
+		//Check if geometry is linked
+		if (getGeometry() == nullptr) return false;
 
-    //Extract by geometric mapping if active and if no positive match is found.
-    if (m_mapping && getGeometry()->getType() != 3){
+		//Extract by link to geometry
+		for (const auto & field : m_fields){
+			if (field.getGeometry() == getGeometry()){
+				m_result = field;
+				//geometry, location and name are copied from field.
+				return true;
+			}
+		}
+		break;
+	}
 
-        m_result.setGeometry(getGeometry());
-        m_result.setDataLocation(m_loc);
+	case SelectType::NAME:
+	{
+		//Extract by link to geometry
+		for (const auto & field : m_fields){
+			if (field.getName() == getFieldName()){
+				m_result = field;
+				//geometry, location and name are copied from field.
+				return true;
+			}
+		}
+		break;
+	}
 
-        ExtractScalarField * ef = new ExtractScalarField();
-        ef->setGeometry(getGeometry());
-        ef->setMode(ExtractMode::MAPPING);
-        ef->setTolerance(m_tol);
+	case SelectType::MAPPING:
+	{
+		//Check if geometry is linked
+		if (getGeometry() == nullptr) return false;
 
-        //create map for overlapping ids purpose;
-        std::unordered_map<long, int> idRepetition;
+		//Extract by geometric mapping if active and if no positive match is found.
+		if (getGeometry()->getType() != 3){
 
-        for (dmpvector1D & field : m_fields){
-            ef->setField(&field);
-            bool check = ef->extract();
-            if(!check) continue;
+			m_result.setGeometry(getGeometry());
+			m_result.setDataLocation(m_loc);
 
-            dmpvector1D * temp = ef->getExtractedField();
-            dmpvector1D::iterator itB;
-            auto itE = temp->end();
-            long id;
-            for(itB = temp->begin(); itB != itE; ++itB){
-                id = itB.getId();
-                if(!m_result.exists(id)){
-                    m_result.insert(id, *itB);
-                }else{
-                    m_result[id] += *itB;
-                    if(idRepetition.count(id)>0){
-                        ++idRepetition[id];
-                    }else{
-                        idRepetition[id] = 2;
-                    }
-                }
-            }
-        }
+			ExtractVectorField * ef = new ExtractVectorField();
+			ef->setGeometry(getGeometry());
+			ef->setMode(ExtractMode::MAPPING);
+			ef->setTolerance(m_tol);
 
-        //resolve overlapping ids by averaging correspondent value;
+			//create map for overlapping ids purpose;
+			std::unordered_map<long, int> idRepetition;
 
-        for(auto &itval : idRepetition){
-            m_result[itval.first] /= double(itval.second);
-        }
+			for (dmpvecarr3E & field : m_fields){
+				ef->setField(&field);
+				bool check = ef->extract();
+				if(!check) continue;
 
-        delete ef;
-    }
+				dmpvecarr3E * temp = ef->getExtractedField();
+				dmpvecarr3E::iterator itB;
+				auto itE = temp->end();
+				long id;
+				for(itB = temp->begin(); itB != itE; ++itB){
+					id = itB.getId();
+					if(!m_result.exists(id)){
+						m_result.insert(id, *itB);
+					}else{
+						m_result[id] += *itB;
+						if(idRepetition.count(id)>0){
+							++idRepetition[id];
+						}else{
+							idRepetition[id] = 2;
+						}
+					}
+				}
+			}
 
-    if (m_result.isEmpty()) return false;
-    return true;
+			//resolve overlapping ids by averaging correspondent value;
+
+			for(auto &itval : idRepetition){
+				m_result[itval.first] /= double(itval.second);
+			}
+
+			delete ef;
+		}
+		break;
+	}
+
+	} // end switch mode
+
+
+	if (m_result.isEmpty()) return false;
+	return true;
 }
 
 /*!
@@ -248,7 +275,7 @@ SwitchScalarField::mswitch(){
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void SwitchScalarField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+void SelectVectorField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
 
@@ -266,7 +293,7 @@ void SwitchScalarField::absorbSectionXML(const bitpit::Config::Section & slotXML
         }
     }
 
-    SwitchField::absorbSectionXML(slotXML, name);
+    SelectField::absorbSectionXML(slotXML, name);
 
 
 };
@@ -276,12 +303,13 @@ void SwitchScalarField::absorbSectionXML(const bitpit::Config::Section & slotXML
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void SwitchScalarField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void SelectVectorField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     BITPIT_UNUSED(name);
     slotXML.set("DataLocation", std::to_string(int(m_loc)));
-    SwitchField::flushSectionXML(slotXML, name);
+    SelectField::flushSectionXML(slotXML, name);
 };
+
 
 
 }
