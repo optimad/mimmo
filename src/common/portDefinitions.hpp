@@ -86,6 +86,7 @@
 #define M_POLYDATA_       "M_POLYDATA_"         /**< Port dedicated to communicate a pointer to a vtk polydata mesh [vtkPolyData *] */
 #define M_UMAPIDS      	  "M_UMAPIDS"           /**< Port dedicated to communicate a map between IDs [std::unordered_map<long, long> *] */
 #define M_UMAPI      	  "M_UMAPI"             /**< Port dedicated to communicate a map between IDs and int [std::unordered_map<long, int> *] */
+#define M_NAME            "M_NAME"              /**< Port dedicated to communication of a name [std::string]*/
 
 /*!
  * \}
@@ -132,6 +133,7 @@
 #define  MD_MPVECFLOAT_             "MD_MPVECFLOAT_"             /**< pointer to MimmoPiercedVector<double> data structure*/
 #define  MD_MPVECARR3FLOAT_         "MD_MPVECARR3FLOAT_"         /**< pointer to MimmoPiercedVector<array<double,3> > data structure */
 #define  MD_MATRIXCOEFF_            "MD_MATRIXCOEFF_"            /**< pointer to array< array< vector<double> ,3> > */
+#define  MD_STRING                  "MD_STRING"                  /**< string data identifier*/
 
 
 /*!
