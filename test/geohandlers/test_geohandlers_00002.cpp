@@ -188,14 +188,15 @@ int test2() {
 		check = check && (val == 1.0);
 	}
 
-	mimmo::SwitchScalarField * swtch = new mimmo::SwitchScalarField();
+	mimmo::SelectScalarField * swtch = new mimmo::SelectScalarField();
 
 	swtch->setFields(recon->getResultFields());
 	swtch->setGeometry(sel1->getPatch());
+	swtch->setMode(mimmo::SelectType::GEOMETRY);
 	swtch->setPlotInExecution(true);
 	swtch->exec();
 
-	mimmo::MimmoPiercedVector<double> * finalfieldswitch = swtch->getSwitchedField();
+	mimmo::MimmoPiercedVector<double> * finalfieldswitch = swtch->getSelectedField();
 	std::vector<double> vectorfield = finalfieldswitch->getDataAsVector();
 
 	for(auto & val : vectorfield){

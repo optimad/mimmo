@@ -42,5 +42,5 @@
 #include "RefineGeometry.hpp"
 #include "StitchGeometry.hpp"
 #include "SurfaceTriangulator.hpp"
-#include "SwitchFields.hpp"
+#include "SelectField.hpp"
 #endif
