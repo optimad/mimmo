@@ -1390,9 +1390,9 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
 	}
 
 #if MIMMO_ENABLE_MPI
-	if (m_method == PropagatorMethod::FINITEVOLUMES){
-		communicateGhostData(mpvres.get());
-	}
+	// if (m_method == PropagatorMethod::FINITEVOLUMES){
+	// 	communicateGhostData(mpvres.get());
+	// }
 	if (m_method == PropagatorMethod::GRAPHLAPLACE){
 		communicatePointGhostData(mpvres.get());
 	}
@@ -1556,8 +1556,8 @@ long PropagateField<NCOMP>::getGlobalCountOffset(PropagatorMethod method)
 	if (method == PropagatorMethod::GRAPHLAPLACE)
 		return getGeometry()->getPointGlobalCountOffset();
 
-	if (method == PropagatorMethod::FINITEVOLUMES)
-		return getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
+	// if (method == PropagatorMethod::FINITEVOLUMES)
+	// 	return getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
 
 	return 0;
 
