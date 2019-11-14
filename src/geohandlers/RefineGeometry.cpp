@@ -185,6 +185,9 @@ RefineGeometry::execute(){
 		throw std::runtime_error (m_name + " : data structure type different from Surface");
 	}
 
+	// Initialize active cells with all geometry cells
+	m_activecells = getGeometry()->getCellsIds();
+
 	if (m_type == RefineType::TERNARY){
 		for (int i=0; i<m_refinements; i++)
 			ternaryRefine();
@@ -217,7 +220,7 @@ void RefineGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 		setRefineType(value);
 	}
 
-    if(slotXML.hasOption("RefineSteps")){
+	if(slotXML.hasOption("RefineSteps")){
 		std::string input = slotXML.get("RefineSteps");
 		input = bitpit::utils::string::trim(input);
 		int value = 0;
@@ -263,8 +266,8 @@ void RefineGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 
 	BaseManipulation::flushSectionXML(slotXML, name);
 	slotXML.set("RefineType", std::to_string(int(m_type)));
-    slotXML.set("RefineSteps", std::to_string(m_refinements));
-    slotXML.set("SmoothingSteps", std::to_string(m_steps));
+	slotXML.set("RefineSteps", std::to_string(m_refinements));
+	slotXML.set("SmoothingSteps", std::to_string(m_steps));
 
 };
 
@@ -281,7 +284,7 @@ RefineGeometry::plotOptionalResults(){
  * One triangle for each edge is added for every cell.
  */
 void
-RefineGeometry::ternaryRefine()
+RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, MimmoObject* coarsepatch, MimmoObject* refinepatch)
 {
 	//TERNARY REFINEMENT
 
@@ -297,85 +300,188 @@ RefineGeometry::ternaryRefine()
 #else
 
 	MimmoObject * geometry = getGeometry();
-	long maxID, newID, newVertID;
-	const auto orderedCellID = geometry->getCells().getIds(true);
-	maxID = orderedCellID[(int)orderedCellID.size()-1];
-	newID = maxID+1;
+	std::unordered_set<long> newCells;
+	std::unordered_set<long> toDelete;
+
+	for(const long cellId : m_activecells){
+
+		// Recover cell
+		bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
+
+		// Eval centroid
+		std::array<double,3> centroid = getGeometry()->evalCellCentroid(cellId);
+
+		// Build perimeter structure with the vertices of the cell and then a triangulation refinement
+		// will be performed by placing the centroid as new vertex
+		std::vector<bitpit::Vertex> perimeter;
+		for (const long & id : cell.getVertexIds()){
+			perimeter.emplace_back(getGeometry()->getPatch()->getVertex(id));
+		}
+
+		// Refine cell
+		std::vector<long> generatedCells = ternaryRefineCell(cellId, perimeter, centroid);
+
+		//Add cell to todelete and refined structure
+		toDelete.insert(cellId);
+
+		// Add vertices and cell to coarse patch
+		if (coarsepatch != nullptr)
+		{
+			bitpit::Cell cell = getGeometry()->getPatch()->getCell(cellId);
+			coarsepatch->addCell(cell, cellId);
+			for (long vertexId : cell.getVertexIds()){
+				bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
+				coarsepatch->addVertex(vertex, vertexId);
+			}
+
+		}
+
+		// Add entry to refine-coarse mapping and newCells structure
+		for (long newCellId : generatedCells){
+			if (mapping != nullptr)
+				mapping->insert({newCellId, cellId});
+			newCells.insert(newCellId);
+		}
+
+	} // end loop on cells
+
+	//Delete cells and clean geometries
 	{
-		const auto orderedVertID = geometry->getVertices().getIds(true);
-		newVertID = orderedVertID[(int)orderedVertID.size()-1] +1;
+		for (const long & cellId : toDelete){
+			getGeometry()->getPatch()->deleteCell(cellId);
+		}
+		getGeometry()->cleanGeometry();
+		if (coarsepatch != nullptr)
+			coarsepatch->cleanGeometry();
+
+		// Force build adjacencies
+		getGeometry()->buildAdjacencies();
+		if (coarsepatch != nullptr)
+			coarsepatch->buildAdjacencies();
 	}
+
+	// Add vertices and cells to refine patch
+	if (refinepatch != nullptr){
+		for (long newcellId : newCells){
+			bitpit::Cell cell = getGeometry()->getPatch()->getCell(newcellId);
+			refinepatch->addCell(cell, newcellId);
+			for (long vertexId : cell.getVertexIds()){
+				bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
+				refinepatch->addVertex(vertex, vertexId);
+			}
+		}
+		// Clean refine patch
+		refinepatch->cleanGeometry();
+		refinepatch->buildAdjacencies();
+	}
+
+	//
+	//		livector1D conn = geometry->getCellConnectivity(idcell);
+	//		eletype = geometry->getPatch()->getCell(idcell).getType();
+	//		long pid = geometry->getPatch()->getCell(idcell).getPID();
+	//
+	//		// New cells Id from refinement
+	//		std::vector<long> generatedCells;
+	//
+	//		switch (eletype){
+	//		case bitpit::ElementType::TRIANGLE:
+	//		case bitpit::ElementType::PIXEL:
+	//		case bitpit::ElementType::QUAD:
+	//		{
+	//			std::size_t startIndex = 0;
+	//			std::size_t nnewTri = conn.size() - startIndex;
+	//			generatedCells[nnewTri];
+	//			//calculate barycenter and add it as new vertex
+	//			darray3E barycenter = geometry->getPatch()->evalCellCentroid(idcell);
+	//			newVertID = geometry->addVertex(barycenter);
+	//			//insert current cell in to delete cells
+	//			toDelete.insert(idcell);
+	//			//insert new triangles from polygon subdivision
+	//			for(std::size_t i=0; i<nnewTri; ++i){
+	//				connTriangle[0] = newVertID;
+	//				connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
+	//				connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
+	//				generatedCells[i] = geometry->addConnectedCell(connTriangle, eletri, pid);
+	//			}
+	//		}
+	//		break;
+	//		case bitpit::ElementType::POLYGON:
+	//		{
+	//			std::size_t startIndex = 1;
+	//			std::size_t nnewTri = conn.size() - startIndex;
+	//			//calculate barycenter and add it as new vertex
+	//			darray3E barycenter = geometry->getPatch()->evalCellCentroid(idcell);
+	//			geometry->addVertex(barycenter, newVertID);
+	//			//delete current polygon
+	//			geometry->getPatch()->deleteCell(idcell);
+	//			//insert new triangles from polygon subdivision
+	//			for(std::size_t i=0; i<nnewTri; ++i){
+	//				connTriangle[0] = newVertID;
+	//				connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
+	//				connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
+	//				geometry->addConnectedCell(connTriangle, eletri, pid, newID);
+	//				++newID;
+	//			}
+	//			//increment label of vertices
+	//			++newVertID;
+	//		}
+	//		break;
+	//		default:
+	//			throw std::runtime_error("unrecognized cell type in 3D surface mesh of CGNSPidExtractor");
+	//			break;
+	//		}
+
+
+#endif
+}
+
+
+/*!
+ * It refines the target cell with perimeter defined by vertices and center point.
+ */
+std::vector<long>
+RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit::Vertex> & vertices, const std::array<double,3> & center)
+{
+
+	long newID, newVertID;
+
+	std::vector<long> newCellIDs;
 
 	bitpit::ElementType eletype;
 	bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
 	livector1D connTriangle(3);
 
-	for(const auto &idcell : orderedCellID){
+	eletype = getGeometry()->getPatch()->getCell(cellId).getType();
+	long pid = getGeometry()->getPatch()->getCell(cellId).getPID();
 
-		livector1D conn = geometry->getCellConnectivity(idcell);
-		eletype = geometry->getPatch()->getCell(idcell).getType();
-		long pid = geometry->getPatch()->getCell(idcell).getPID();
+	//Number of new triangles is the number of the perimetral vertices
+	std::size_t nnewTri = vertices.size();
+	newCellIDs.reserve(nnewTri);
 
-		switch (eletype){
-		case bitpit::ElementType::TRIANGLE:
-		case bitpit::ElementType::PIXEL:
-		case bitpit::ElementType::QUAD:
-		{
-			std::size_t startIndex = 0;
-			std::size_t nnewTri = conn.size() - startIndex;
-			//calculate barycenter and add it as new vertex
-			darray3E barycenter = geometry->getPatch()->evalCellCentroid(idcell);
-			geometry->addVertex(barycenter, newVertID);
-			//delete current polygon
-			geometry->getPatch()->deleteCell(idcell);
-			//insert new triangles from polygon subdivision
-			for(std::size_t i=0; i<nnewTri; ++i){
-				connTriangle[0] = newVertID;
-				connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
-				connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
-				geometry->addConnectedCell(connTriangle, eletri, pid, newID);
-				++newID;
-			}
-			//increment label of vertices
-			++newVertID;
-		}
-		break;
-		case bitpit::ElementType::POLYGON:
-		{
-			std::size_t startIndex = 1;
-			std::size_t nnewTri = conn.size() - startIndex;
-			//calculate barycenter and add it as new vertex
-			darray3E barycenter = geometry->getPatch()->evalCellCentroid(idcell);
-			geometry->addVertex(barycenter, newVertID);
-			//delete current polygon
-			geometry->getPatch()->deleteCell(idcell);
-			//insert new triangles from polygon subdivision
-			for(std::size_t i=0; i<nnewTri; ++i){
-				connTriangle[0] = newVertID;
-				connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
-				connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
-				geometry->addConnectedCell(connTriangle, eletri, pid, newID);
-				++newID;
-			}
-			//increment label of vertices
-			++newVertID;
-		}
-		break;
-		default:
-			throw std::runtime_error("unrecognized cell type in 3D surface mesh of CGNSPidExtractor");
-			break;
-		}
+	// Add barycenter and new vertices (check for old vertices)
+	newVertID = getGeometry()->addVertex(center);
+
+	//insert new triangles from polygon subdivision
+	for(std::size_t i=0; i<nnewTri; ++i){
+		connTriangle[0] = newVertID;
+		connTriangle[1] = vertices[ std::size_t( i % nnewTri) ].getId();
+		connTriangle[2] = vertices[ std::size_t( (i+1) % nnewTri ) ].getId();
+		newCellIDs.push_back(getGeometry()->addConnectedCell(connTriangle, eletri));
 	}
-#endif
+
+	return newCellIDs;
+
 }
+
 
 /*!
  * Perform the laplacian smoothing for the surface patch.
  * Each step is divided in two sub-steps, a laplacian smoothing
  * and a laplacian anti-smoothing with negative coefficient.
+ * \param[in] constrainedVertices Pointer to set of constrined vertices indices
  */
 void
-RefineGeometry::smoothing()
+RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 {
 	MimmoObject * geometry = getGeometry();
 	if (!(geometry->areAdjacenciesBuilt()))
@@ -388,43 +494,10 @@ RefineGeometry::smoothing()
 	double lambda = 0.6;
 	double kappa = -0.603*lambda;
 
-	//TODO WORK ON FEATURES PRESERVING (PRE-PROCESSING IDENTIFICATION OF FEATURES AND REINTRODUCTION OF NORMAL BASED FORMULA?)
-	//Threshold angle for features preserving
-	double angledeg = 10; /*degrees*/
-	double anglerad = angledeg * M_PI / 180.;
-
-	//Compute vertex normals
-	std::unordered_map<long, std::array<double, 3>> normals;
-	if (angledeg > 0.){
-		for (const bitpit::Cell & cell : geometry->getCells()){
-			int iv = 0;
-			for (long idvertex : cell.getVertexIds()){
-				if (!(normals.count(idvertex)))
-					normals[idvertex] = static_cast<bitpit::SurfaceKernel*>(geometry->getPatch())->evalVertexNormal(cell.getId(), iv);
-				iv++;
-			}
-		}
-	}
-
 	if (!(geometry->isPointConnectivitySync()))
 		geometry->buildPointConnectivity();
 
 	for (int istep=0; istep < m_steps; istep++){
-
-//		//Compute vertex normals
-//		std::unordered_map<long, std::array<double, 3>> normals;
-//		if (angledeg > 0.){
-//			for (const bitpit::Cell & cell : geometry->getCells()){
-//				int iv = 0;
-//				for (long idvertex : cell.getVertexIds()){
-//					if (!(normals.count(idvertex)))
-//						normals[idvertex] = static_cast<bitpit::SurfaceKernel*>(geometry->getPatch())->evalVertexNormal(cell.getId(), iv);
-//					iv++;
-//				}
-//			}
-//		}
-
-//		std::cout << "smoothing steps " << istep+1 << " of " << m_steps << std::endl;
 
 		{
 			// First sub-step (positive) of laplacian smoothing
@@ -437,26 +510,23 @@ RefineGeometry::smoothing()
 			for (long id : geometry->getVertices().getIds()){
 
 				oldcoords = geometry->getVertexCoords(id);
-				pointconnectivity = geometry->getPointConnectivity(id);
 				newcoords = std::array<double,3>{{0.,0.,0.}};
 
-				sumweights = 0.;
-				for (long idneigh : pointconnectivity){
-					neighcoords = geometry->getVertexCoords(idneigh);
-					std::array<double,3> distancevector = (neighcoords-oldcoords);
-					weight = 1.;
-
-					if (angledeg > 0.){
-						//features preserving
-						weight *= double(std::abs(dotProduct(distancevector/norm2(distancevector), normals[id])) < std::cos(M_PI/2. - anglerad));
-						//weight *= double(std::abs(dotProduct(normals[idneigh], normals[id])) > std::cos(anglerad));
+				// If constrained vertex do nothing
+				if (constrainedVertices != nullptr && !constrainedVertices->count(id)){
+					pointconnectivity = geometry->getPointConnectivity(id);
+					sumweights = 0.;
+					for (long idneigh : pointconnectivity){
+						neighcoords = geometry->getVertexCoords(idneigh);
+						std::array<double,3> distancevector = (neighcoords-oldcoords);
+						weight = 1.;
+						sumweights += weight;
+						newcoords += lambda*weight*distancevector;
 					}
-
-					sumweights += weight;
-					newcoords += lambda*weight*distancevector;
-				}
-				if (sumweights > 0.)
+					if (sumweights > 0.)
 					newcoords /= sumweights;
+				}
+
 				newcoords += oldcoords;
 				newcoordinates[id] = newcoords;
 			}
@@ -465,9 +535,9 @@ RefineGeometry::smoothing()
 				geometry->modifyVertex(newcoordinates[id], id);
 			}
 
-//			//TODO DEBUG WRITE
-//			std::string name = "geometry.a."+std::to_string(istep);
-//			geometry->getPatch()->write(name);
+			//			//TODO DEBUG WRITE
+			//			std::string name = "geometry.a."+std::to_string(istep);
+			//			geometry->getPatch()->write(name);
 		}
 
 		{
@@ -481,26 +551,23 @@ RefineGeometry::smoothing()
 			for (long id : geometry->getVertices().getIds()){
 
 				oldcoords = geometry->getVertexCoords(id);
-				pointconnectivity = geometry->getPointConnectivity(id);
 				newcoords = std::array<double,3>{{0.,0.,0.}};
 
-				sumweights = 0.;
-				for (long idneigh : pointconnectivity){
-					neighcoords = geometry->getVertexCoords(idneigh);
-					std::array<double,3> distancevector = (neighcoords-oldcoords);
-					weight = 1.;
-
-					if (angledeg > 0.){
-						//features preserving
-						weight *= double(std::abs(dotProduct(distancevector/norm2(distancevector), normals[id])) < std::cos(M_PI/2. - anglerad));
-						//weight *= double(std::abs(dotProduct(normals[idneigh], normals[id])) > std::cos(anglerad));
+				// If constrained vertex do nothing
+				if (constrainedVertices != nullptr && !constrainedVertices->count(id)){
+					pointconnectivity = geometry->getPointConnectivity(id);
+					sumweights = 0.;
+					for (long idneigh : pointconnectivity){
+						neighcoords = geometry->getVertexCoords(idneigh);
+						std::array<double,3> distancevector = (neighcoords-oldcoords);
+						weight = 1.;
+						sumweights += weight;
+						newcoords += kappa*weight*(neighcoords-oldcoords);
 					}
-
-					sumweights += weight;
-					newcoords += kappa*weight*(neighcoords-oldcoords);
+					if (sumweights > 0.)
+						newcoords /= sumweights;
 				}
-				if (sumweights > 0.)
-					newcoords /= sumweights;
+
 				newcoords += oldcoords;
 				newcoordinates[id] = newcoords;
 			}
@@ -509,9 +576,9 @@ RefineGeometry::smoothing()
 				geometry->modifyVertex(newcoordinates[id], id);
 			}
 
-//			//TODO DEBUG WRITE
-//			std::string name = "geometry.b."+std::to_string(istep);
-//			geometry->getPatch()->write(name);
+			//			//TODO DEBUG WRITE
+			//			std::string name = "geometry.b."+std::to_string(istep);
+			//			geometry->getPatch()->write(name);
 		}
 	}
 

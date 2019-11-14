@@ -93,6 +93,8 @@ protected:
 	int			m_refinements; /**< Number of refinements. Default 1*/
 	int			m_steps;	/**< Smoothing steps after the refinement. */
 
+	std::vector<long> m_activecells; /**<Cells Id candidate to be refined. */
+
 public:
     RefineGeometry();
     RefineGeometry(const bitpit::Config::Section & rootXML);
@@ -119,8 +121,9 @@ public:
 protected:
     void swap(RefineGeometry & x) noexcept;
 
-    void ternaryRefine();
-    void smoothing();
+    void ternaryRefine(std::unordered_map<long,long> * mapping = nullptr, MimmoObject* coarsepatch = nullptr, MimmoObject* refinepatch = nullptr);
+    std::vector<long> ternaryRefineCell(const long & cellId, const std::vector<bitpit::Vertex> & vertices, const std::array<double,3> & center);
+    void smoothing(std::set<long> * constrainedVertices = nullptr);
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __REFINEGEOMETRY_HPP__)
