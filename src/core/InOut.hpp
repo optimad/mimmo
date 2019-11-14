@@ -397,6 +397,12 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map<long, long>& element);
 
 
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::dmpvector1D*>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::dmpvector1D*>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::dmpvecarr3E*>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::dmpvecarr3E*>& element);
+
 /*!
  *\}
  */
