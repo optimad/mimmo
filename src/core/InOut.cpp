@@ -1160,7 +1160,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::map<int, s
 }
 
 /*!
-    Output stream operator for std::map<int,string>
+    Output stream operator for std::string
     \param[in] buffer is the output stream
     \param[in] element is the element to be streamed
     \result Returns the same output stream received in input.
@@ -1176,7 +1176,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::stri
 }
 
 /*!
-    Input stream operator for std::map<int,std::string>
+    Input stream operator for std::string
     \param[in] buffer is the input stream
     \param[in] element is the element to be streamed
     \result Returns the same input stream received in input.
@@ -1189,6 +1189,69 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::string& el
         buffer >> inputss[i];
     }
     element = std::string(inputss.begin(), inputss.end());
+    return buffer;
+}
+
+
+/*!
+    Output stream operator for std::vector<dmpvector1D*>
+    \param[in] buffer is the output stream
+    \param[in] element is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector<mimmo::dmpvector1D*>& element){
+
+    buffer << (std::size_t)element.size();
+    for (void* pp : element){
+        buffer<<pp;
+    }
+    return buffer;
+}
+
+/*!
+    Input stream operator for std::vector<dmpvector1D*>
+    \param[in] buffer is the input stream
+    \param[in] element is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mimmo::dmpvector1D*>& element){
+    std::size_t nps;
+    buffer >> nps;
+    element.resize(nps);
+    for (std::size_t i = 0; i < nps; ++i){
+        buffer >> element[i];
+    }
+    return buffer;
+}
+
+/*!
+    Output stream operator for std::vector<dmpvecarr3E*>
+    \param[in] buffer is the output stream
+    \param[in] element is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector<mimmo::dmpvecarr3E*>& element){
+
+    buffer << (std::size_t)element.size();
+    for (void* pp : element){
+        buffer<<pp;
+    }
+    return buffer;
+}
+
+/*!
+    Input stream operator for std::vector<dmpvecarr3E*>
+    \param[in] buffer is the input stream
+    \param[in] element is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mimmo::dmpvecarr3E*>& element){
+    std::size_t nps;
+    buffer >> nps;
+    element.resize(nps);
+    for (std::size_t i = 0; i < nps; ++i){
+        buffer >> element[i];
+    }
     return buffer;
 }
 
