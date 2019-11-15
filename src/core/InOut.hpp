@@ -403,6 +403,13 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::dmpvecarr3E*>& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::dmpvecarr3E*>& element);
 
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,mimmo::MimmoPiercedVector<long>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::MimmoPiercedVector<long>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::MimmoPiercedVector<long>*>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::MimmoPiercedVector<long>*>& element);
+
+
 /*!
  *\}
  */

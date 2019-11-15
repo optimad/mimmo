@@ -1256,6 +1256,199 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mim
 }
 
 
+/*!
+* Input stream operator for bitpit::PiercedVector\< long \>
+* \param[in] buffer is the input stream
+* \param[in] element is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::MimmoPiercedVector<long>& element){
+
+    element.clear();
+    mimmo::MimmoObject* geo;
+    buffer >> geo;
+    element.setGeometry(geo);
+
+    std::string name;
+    std::size_t length;
+    buffer >> length;
+    std::vector<char> vectorname(length);
+    for (char & a : vectorname){
+    	buffer >> a;
+    }
+    std::memcpy(&name, vectorname.data(), length);
+    element.setName(name);
+
+    int loc_;
+    buffer >> loc_;
+    element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
+    std::size_t nP;
+    buffer >> nP;
+    long val;
+    long int Id;
+    for (std::size_t i = 0; i < nP; ++i) {
+        buffer >> Id;
+        buffer >> val;
+        element.insert(Id, val);
+    }
+    return buffer;
+};
+
+/*!
+* Output stream operator for bitpit::PiercedVector\< long \>
+* \param[in] buffer is the output stream
+* \param[in] element is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::MimmoPiercedVector<long>& element){
+
+    buffer << element.getGeometry();
+
+    std::string name = element.getName();
+    std::size_t length = name.size();
+    buffer << length;
+    for (std::size_t i=0; i<length; i++){
+    	char a = name.at(i);
+    	buffer << a;
+    }
+
+    buffer << static_cast<int>(element.getConstDataLocation());
+    buffer << (std::size_t)element.size();
+    auto itE = element.cend();
+    for (auto it=element.cbegin(); it!=itE; it++){
+        buffer << it.getId()<<*it;
+    }
+    return buffer;
+};
+
+/*!
+    Output stream operator for std::vector<MimmoPiercedVector<long>*>
+    \param[in] buffer is the output stream
+    \param[in] element is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector<mimmo::MimmoPiercedVector<long>*>& element){
+
+    buffer << (std::size_t)element.size();
+    for (void* pp : element){
+        buffer<<pp;
+    }
+    return buffer;
+}
+
+/*!
+    Input stream operator for std::vector<MimmoPiercedVector<long>*>
+    \param[in] buffer is the input stream
+    \param[in] element is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mimmo::MimmoPiercedVector<long>*>& element){
+    std::size_t nps;
+    buffer >> nps;
+    element.resize(nps);
+    for (std::size_t i = 0; i < nps; ++i){
+        buffer >> element[i];
+    }
+    return buffer;
+}
+
+
+/*!
+* Input stream operator for bitpit::PiercedVector\< std::string \>
+* \param[in] buffer is the input stream
+* \param[in] element is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::MimmoPiercedVector<std::string>& element){
+
+    element.clear();
+    mimmo::MimmoObject* geo;
+    buffer >> geo;
+    element.setGeometry(geo);
+
+    std::string name;
+    std::size_t length;
+    buffer >> length;
+    std::vector<char> vectorname(length);
+    for (char & a : vectorname){
+    	buffer >> a;
+    }
+    std::memcpy(&name, vectorname.data(), length);
+    element.setName(name);
+
+    int loc_;
+    buffer >> loc_;
+    element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
+    std::size_t nP;
+    buffer >> nP;
+    std::string val;
+    long int Id;
+    for (std::size_t i = 0; i < nP; ++i) {
+        buffer >> Id;
+        buffer >> val;
+        element.insert(Id, val);
+    }
+    return buffer;
+};
+
+/*!
+* Output stream operator for bitpit::PiercedVector\< long \>
+* \param[in] buffer is the output stream
+* \param[in] element is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::MimmoPiercedVector<std::string>& element){
+
+    buffer << element.getGeometry();
+
+    std::string name = element.getName();
+    std::size_t length = name.size();
+    buffer << length;
+    for (std::size_t i=0; i<length; i++){
+    	char a = name.at(i);
+    	buffer << a;
+    }
+
+    buffer << static_cast<int>(element.getConstDataLocation());
+    buffer << (std::size_t)element.size();
+    auto itE = element.cend();
+    for (auto it=element.cbegin(); it!=itE; it++){
+        buffer << it.getId()<<*it;
+    }
+    return buffer;
+};
+
+/*!
+    Output stream operator for std::vector<MimmoPiercedVector<std::string>*>
+    \param[in] buffer is the output stream
+    \param[in] element is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::vector<mimmo::MimmoPiercedVector<std::string>*>& element){
+
+    buffer << (std::size_t)element.size();
+    for (void* pp : element){
+        buffer<<pp;
+    }
+    return buffer;
+}
+
+/*!
+    Input stream operator for std::vector<MimmoPiercedVector<std::string>*>
+    \param[in] buffer is the input stream
+    \param[in] element is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<mimmo::MimmoPiercedVector<std::string>*>& element){
+    std::size_t nps;
+    buffer >> nps;
+    element.resize(nps);
+    for (std::size_t i = 0; i < nps; ++i){
+        buffer >> element[i];
+    }
+    return buffer;
+}
+
 //==============================================================//
 // DATA TYPE  CLASS	IMPLEMENTATION								//
 // //==============================================================//
