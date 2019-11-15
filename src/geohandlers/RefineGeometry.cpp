@@ -466,7 +466,7 @@ RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit:
 		connTriangle[0] = newVertID;
 		connTriangle[1] = vertices[ std::size_t( i % nnewTri) ].getId();
 		connTriangle[2] = vertices[ std::size_t( (i+1) % nnewTri ) ].getId();
-		newCellIDs.push_back(getGeometry()->addConnectedCell(connTriangle, eletri));
+		newCellIDs.push_back(getGeometry()->addConnectedCell(connTriangle, eletri, pid, bitpit::Cell::NULL_ID));
 	}
 
 	return newCellIDs;
