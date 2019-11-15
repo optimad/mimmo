@@ -56,8 +56,12 @@
 #define M_SCALARFIELD2    "M_SCALARFIELD2"      /**< Port dedicated to communication of a generic scalar field [ POINTER to MimmoPiercedvector < double > ] */
 #define M_VECTORFIELD     "M_VECTORFIELD"       /**< Port dedicated to communication of a generic vector field [ POINTER to MimmoPiercedvector < array< double,3> > ] */
 #define M_VECTORFIELD2    "M_VECTORFIELD2"      /**< Port dedicated to communication of a generic vector field [ POINTER to MimmoPiercedvector < array< double,3> > ] */
-#define M_VECSFIELDS      "M_VECSFIELDS"        /**< Port dedicated to communication of a std::vector of pointers to generic scalar fields [ std::vector< MimmoPiercedvector < double > * >] */
-#define M_VECVFIELDS      "M_VECVFIELDS"        /**< Port dedicated to communication of a std::vector of pointers to generic vector fields [ std::vector< MimmoPiercedvector < array< double,3> > * >] */
+#define M_STRINGFIELD     "M_STRINGFIELD"       /**< Port dedicated to communication of a generic string field [ POINTER to MimmoPiercedvector < std::string > ] */
+#define M_LONGFIELD       "M_LONGFIELD"         /**< Port dedicated to communication of a generic long field [ POINTER to MimmoPiercedvector < long > ] */
+#define M_VECSCALARFIELDS "M_VECSCALARFIELDS"   /**< Port dedicated to communication of a std::vector of pointers to generic scalar fields [ std::vector< MimmoPiercedvector < double > * >] */
+#define M_VECVECTORFIELDS "M_VECVECTORFIELDS"   /**< Port dedicated to communication of a std::vector of pointers to generic vector fields [ std::vector< MimmoPiercedvector < array< double,3> > * >] */
+#define M_VECSTRINGFIELDS "M_VECSTRINGFIELDS"   /**< Port dedicated to communication of a std::vector of pointers to generic vector fields [ std::vector< MimmoPiercedvector < string > * >] */
+#define M_VECLONGFIELDS   "M_VECLONGFIELDS"     /**< Port dedicated to communication of a std::vector of pointers to generic vector fields [ std::vector< MimmoPiercedvector < long > * >] */
 #define M_POINT           "M_POINT"             /**< Port dedicated to communication of 3D point coordinates [ array < double,3 > ] */
 #define M_AXIS            "M_AXIS"              /**< Port dedicated to communication of an axis direction [ array < double,3 > ] */
 #define M_AXES            "M_AXES"              /**< Port dedicated to communication of a 3 axis reference system [ array < array< double,3 >, 3>] */
@@ -134,6 +138,8 @@
 #define  MD_MPVECARR3FLOAT_         "MD_MPVECARR3FLOAT_"         /**< pointer to MimmoPiercedVector<array<double,3> > data structure */
 #define  MD_MATRIXCOEFF_            "MD_MATRIXCOEFF_"            /**< pointer to array< array< vector<double> ,3> > */
 #define  MD_STRING                  "MD_STRING"                  /**< string data identifier*/
+#define  MD_MPVECSTRING_            "MD_MPVECSTRING_"            /**< pointer to MimmoPiercedVector<std::string> data structure*/
+#define  MD_MPVECLONG_              "MD_MPVECLONG_"              /**< pointer to MimmoPiercedVector<std::long> data structure*/
 
 
 /*!

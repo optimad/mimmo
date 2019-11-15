@@ -102,7 +102,7 @@ void SelectVectorField::swap(SelectVectorField & x) noexcept
 void
 SelectVectorField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<std::vector<dmpvecarr3E*>, SelectVectorField>(this, &mimmo::SelectVectorField::setFields, M_VECVFIELDS, true, 1));
+    built = (built && createPortIn<std::vector<dmpvecarr3E*>, SelectVectorField>(this, &mimmo::SelectVectorField::setFields, M_VECVECTORFIELDS, true, 1));
     built = (built && createPortIn<dmpvecarr3E*, SelectVectorField>(this, &mimmo::SelectVectorField::addField, M_VECTORFIELD, true, 1));
     built = (built && createPortOut<dmpvecarr3E*, SelectVectorField>(this, &mimmo::SelectVectorField::getSelectedField, M_VECTORFIELD));
 
