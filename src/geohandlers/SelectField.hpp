@@ -146,7 +146,7 @@ private:
      |                 Port Input   ||                              |
      |--------------|--------------------|----------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_VECSFIELDS| setFields           | (MC_VECTOR, MD_MPVECFLOAT_)|
+     | M_VECSCALARFIELDS| setFields           | (MC_VECTOR, MD_MPVECFLOAT_)|
      | M_SCALARFIELD| addField           | (MC_SCALAR, MD_MPVECFLOAT_)|
 
 
@@ -220,6 +220,8 @@ private:
 
 };
 
+
+
 /*!
  *  \class SelectVectorField
     \ingroup geohandlers
@@ -234,7 +236,7 @@ private:
  |                 Port Input   ||                              |
  |--------------|--------------------|----------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- | M_VECVFIELDS| setFields           | (MC_VECTOR, MD_MPVECARR3FLOAT_)|
+ | M_VECVECTORFIELDS| setFields           | (MC_VECTOR, MD_MPVECARR3FLOAT_)|
  | M_VECTORFIELD| addField           | (MC_SCALAR, MD_MPVECARR3FLOAT_)|
 
 
@@ -308,15 +310,203 @@ private:
 
 };
 
+
+
+/*!
+ *  \class SelectLongField
+    \ingroup geohandlers
+ *    \brief SelectLongField is specialized derived class of SelectField to Select a
+ *         scalar field of long data.
+ *
+ * Ports available in SelectLongField Class :
+ *
+ *    =========================================================
+
+
+ |                 Port Input   ||                              |
+ |--------------|--------------------|----------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_VECLONGFIELDS| setFields           | (MC_VECTOR, MD_MPVECLONG_)|
+ | M_LONGFIELD| addField           | (MC_SCALAR, MD_MPVECLONG_)|
+
+
+ |            Port Output   ||                                        |
+ |-----------|-------------------|--------------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_LONGFIELD  | getSelectedField     | (MC_SCALAR, MD_MPVECLONG_)       |
+
+
+ Inherited from SelectField
+
+ |                 Port Input   ||                                                         |
+ |------------|------------------------------------|-----------------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
+ | M_NAME     | setName		                        | (MC_SCALAR, MD_STRING)            |
+
+ |            Port Output  ||                               |
+ |-----------|------------------------------------|-----------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+ *    =========================================================
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.SelectLongField</tt>
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+
+ * Inherited from SelectField:
+ * - <B>SelectType</B>: selection method. Default SelectType::NAME.
+ * - <B>Tolerance</B>: double > 0, set tolerance of mapping. The option is ignored if mapping is not active.
+ * - <B>FieldName</B>: name of the field to be selected. Default "data".
+ *
+ * Proper of the class:
+ * - <B>Location</B> set unique data location for all fields 1-POINT, 2-CELL, 3-INTERFACE.
+ *
+ * Fields have to be mandatorily passed through port.
+ */
+class SelectLongField: public SelectField{
+private:
+    MPVLocation 							m_loc;  	/**< field data reference location */
+    std::vector<MimmoPiercedVector<long> >	m_fields;	/**<Input fields to be Select. */
+    MimmoPiercedVector<long>				m_result;   /**<Result Select fields. */
+
+public:
+
+    SelectLongField(MPVLocation loc = MPVLocation::POINT);
+    SelectLongField(const bitpit::Config::Section & rootXMl);
+    SelectLongField(const SelectLongField & other);
+    virtual ~SelectLongField();
+
+    void buildPorts();
+    MimmoPiercedVector<long>*     getSelectedField();
+    void     setFields(std::vector<MimmoPiercedVector<long> *> fields);
+    void     addField(MimmoPiercedVector<long> *field);
+
+    void clear();
+
+    void     plotOptionalResults();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
+protected:
+    void swap(SelectLongField &) noexcept;
+
+private:
+    bool mSelect();
+
+};
+
+
+
+/*!
+ *  \class SelectStringField
+    \ingroup geohandlers
+ *    \brief SelectStringField is specialized derived class of SelectField to Select a
+ *         scalar field of string data.
+ *
+ * Ports available in SelectStringField Class :
+ *
+ *    =========================================================
+
+
+ |                 Port Input   ||                              |
+ |--------------|--------------------|----------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_VECSTRINGFIELDS| setFields           | (MC_VECTOR, MD_MPVECSTRING_)|
+ | M_STRINGFIELD| addField           | (MC_SCALAR, MD_MPVECSTRING_)|
+
+
+ |            Port Output   ||                                        |
+ |-----------|-------------------|--------------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_STRINGFIELD  | getSelectedField     | (MC_SCALAR, MD_MPVECSTRING_)       |
+
+
+ Inherited from SelectField
+
+ |                 Port Input   ||                                                         |
+ |------------|------------------------------------|-----------------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
+ | M_NAME     | setName		                        | (MC_SCALAR, MD_STRING)            |
+
+ |            Port Output  ||                               |
+ |-----------|------------------------------------|-----------------------|
+ | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+ *    =========================================================
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.SelectStringField</tt>
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+
+ * Inherited from SelectField:
+ * - <B>SelectType</B>: selection method. Default SelectType::NAME.
+ * - <B>Tolerance</B>: double > 0, set tolerance of mapping. The option is ignored if mapping is not active.
+ * - <B>FieldName</B>: name of the field to be selected. Default "data".
+ *
+ * Proper of the class:
+ * - <B>Location</B> set unique data location for all fields 1-POINT, 2-CELL, 3-INTERFACE.
+ *
+ * Fields have to be mandatorily passed through port.
+ */
+class SelectStringField: public SelectField{
+private:
+    MPVLocation 									m_loc;		/**< field data reference location */
+    std::vector<MimmoPiercedVector<std::string>> 	m_fields;	/**<Input fields to be Select. */
+    MimmoPiercedVector<std::string>					m_result;   /**<Result Select fields. */
+
+public:
+
+    SelectStringField(MPVLocation loc = MPVLocation::POINT);
+    SelectStringField(const bitpit::Config::Section & rootXMl);
+    SelectStringField(const SelectStringField & other);
+    virtual ~SelectStringField();
+
+    void buildPorts();
+    MimmoPiercedVector<std::string>*     getSelectedField();
+    void     setFields(std::vector<MimmoPiercedVector<std::string> *> fields);
+    void     addField(MimmoPiercedVector<std::string> *field);
+
+    void clear();
+
+    void     plotOptionalResults();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
+protected:
+    void swap(SelectStringField &) noexcept;
+
+private:
+    bool mSelect();
+
+};
+
+
+
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __SelectFieldS_HPP__)
 REGISTER_PORT(M_NAME, MC_SCALAR, MD_STRING, __SelectFieldS_HPP__)
 REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_, __SelectFieldS_HPP__)
 REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_, __SelectFieldS_HPP__)
-REGISTER_PORT(M_VECSFIELDS, MC_VECTOR, MD_MPVECFLOAT_, __SelectFieldS_HPP__)
-REGISTER_PORT(M_VECVFIELDS, MC_VECTOR, MD_MPVECARR3FLOAT_, __SelectFieldS_HPP__)
+REGISTER_PORT(M_LONGFIELD, MC_SCALAR, MD_MPVECLONG_, __SelectFieldS_HPP__)
+REGISTER_PORT(M_STRINGFIELD, MC_SCALAR, MD_MPVECSTRING_, __SelectFieldS_HPP__)
+REGISTER_PORT(M_VECSCALARFIELDS, MC_VECTOR, MD_MPVECFLOAT_, __SelectFieldS_HPP__)
+REGISTER_PORT(M_VECVECTORFIELDS, MC_VECTOR, MD_MPVECARR3FLOAT_, __SelectFieldS_HPP__)
+REGISTER_PORT(M_VECLONGFIELDS, MC_VECTOR, MD_MPVECLONG_, __SelectFieldS_HPP__)
+REGISTER_PORT(M_VECSTRINGFIELDS, MC_VECTOR, MD_MPVECSTRING_, __SelectFieldS_HPP__)
 
 REGISTER(BaseManipulation, SelectScalarField, "mimmo.SelectScalarField")
 REGISTER(BaseManipulation, SelectVectorField, "mimmo.SelectVectorField")
+REGISTER(BaseManipulation, SelectLongField, "mimmo.SelectLongField")
+REGISTER(BaseManipulation, SelectStringField, "mimmo.SelectStringField")
 };
 
 #endif /* __SelectFieldS_HPP__ */

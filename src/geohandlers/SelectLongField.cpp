@@ -33,8 +33,8 @@ namespace mimmo{
  * Default constructor.
  * \param[in] loc MPVLocation of fields data: POINT, CELL or INTERFACE.
  */
-SelectScalarField::SelectScalarField(MPVLocation loc):SelectField(){
-	m_name = "mimmo.SelectScalarField";
+SelectLongField::SelectLongField(MPVLocation loc):SelectField(){
+	m_name = "mimmo.SelectLongField";
 	m_loc = loc;
 	if(m_loc == MPVLocation::UNDEFINED) m_loc= MPVLocation::POINT;
 }
@@ -43,7 +43,7 @@ SelectScalarField::SelectScalarField(MPVLocation loc):SelectField(){
  * Custom constructor reading xml data
  * \param[in] rootXML reference to your xml tree section
  */
-SelectScalarField::SelectScalarField(const bitpit::Config::Section & rootXML){
+SelectLongField::SelectLongField(const bitpit::Config::Section & rootXML){
 
 	std::string fallback_name = "ClassNONE";
 	std::string fallback_loc  = "-1";
@@ -61,9 +61,9 @@ SelectScalarField::SelectScalarField(const bitpit::Config::Section & rootXML){
 		m_loc = MPVLocation::POINT;
 	}
 
-	m_name = "mimmo.SelectScalarField";
+	m_name = "mimmo.SelectLongField";
 
-	if(input_name == "mimmo.SelectScalarField"){
+	if(input_name == "mimmo.SelectLongField"){
 		absorbSectionXML(rootXML);
 	}else{
 		warningXML(m_log, m_name);
@@ -73,12 +73,12 @@ SelectScalarField::SelectScalarField(const bitpit::Config::Section & rootXML){
 /*!
  * Default destructor
  */
-SelectScalarField::~SelectScalarField(){}
+SelectLongField::~SelectLongField(){}
 
 /*!
  * Copy constructor
  */
-SelectScalarField::SelectScalarField(const SelectScalarField & other):SelectField(other){
+SelectLongField::SelectLongField(const SelectLongField & other):SelectField(other){
 	m_loc = other.m_loc;
 	m_fields = other.m_fields;
 	m_result = other.m_result;
@@ -88,7 +88,7 @@ SelectScalarField::SelectScalarField(const SelectScalarField & other):SelectFiel
  * Swap function.
  * \param[in] x object to be swapped
  */
-void SelectScalarField::swap(SelectScalarField & x) noexcept
+void SelectLongField::swap(SelectLongField & x) noexcept
 {
 	std::swap(m_loc, x.m_loc);
 	std::swap(m_fields, x.m_fields);
@@ -101,11 +101,11 @@ void SelectScalarField::swap(SelectScalarField & x) noexcept
  * Build the ports of the class;
  */
 void
-SelectScalarField::buildPorts(){
+SelectLongField::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<std::vector<dmpvector1D*>, SelectScalarField>(this, &mimmo::SelectScalarField::setFields, M_VECSCALARFIELDS, true, 1));
-	built = (built && createPortIn<dmpvector1D*, SelectScalarField>(this, &mimmo::SelectScalarField::addField, M_SCALARFIELD, true, 1));
-	built = (built && createPortOut<dmpvector1D*, SelectScalarField>(this, &mimmo::SelectScalarField::getSelectedField, M_SCALARFIELD));
+	built = (built && createPortIn<std::vector<MimmoPiercedVector<long>*>, SelectLongField>(this, &mimmo::SelectLongField::setFields, M_VECLONGFIELDS, true, 1));
+	built = (built && createPortIn<MimmoPiercedVector<long>*, SelectLongField>(this, &mimmo::SelectLongField::addField, M_LONGFIELD, true, 1));
+	built = (built && createPortOut<MimmoPiercedVector<long>*, SelectLongField>(this, &mimmo::SelectLongField::getSelectedField, M_LONGFIELD));
 
 	SelectField::buildPorts();
 	m_arePortsBuilt = built;
@@ -115,8 +115,8 @@ SelectScalarField::buildPorts(){
  * Get Selected field.
  * \return Selected field
  */
-dmpvector1D *
-SelectScalarField::getSelectedField(){
+MimmoPiercedVector<long> *
+SelectLongField::getSelectedField(){
 	return  &m_result;
 }
 
@@ -125,10 +125,10 @@ SelectScalarField::getSelectedField(){
  * \param[in] fields scalar fields
  */
 void
-SelectScalarField::setFields(std::vector<dmpvector1D*> fields){
+SelectLongField::setFields(std::vector<MimmoPiercedVector<long>*> fields){
 	m_fields.clear();
 	m_fields.reserve(fields.size());
-	for(dmpvector1D * ff : fields){
+	for(MimmoPiercedVector<long> * ff : fields){
 		if(!ff) continue;
 		if(ff->getDataLocation() == m_loc && ff->getGeometry()!= NULL){
 			m_fields.push_back(*ff);
@@ -142,7 +142,7 @@ SelectScalarField::setFields(std::vector<dmpvector1D*> fields){
  * \param[in] field scalar field
  */
 void
-SelectScalarField::addField(dmpvector1D *field){
+SelectLongField::addField(MimmoPiercedVector<long> *field){
 	if(!field) return;
 	if(field->getDataLocation() == m_loc && field->getGeometry() != NULL){
 		m_fields.push_back(*field);
@@ -154,7 +154,7 @@ SelectScalarField::addField(dmpvector1D *field){
  * Clear content of the class
  */
 void
-SelectScalarField::clear(){
+SelectLongField::clear(){
 	m_fields.clear();
 	m_result.clear();
 	SelectField::clear();
@@ -164,7 +164,7 @@ SelectScalarField::clear(){
  * Plot Selected field on its geometry
  */
 void
-SelectScalarField::plotOptionalResults(){
+SelectLongField::plotOptionalResults(){
 
 	m_result.setName(m_fieldname);
 	write(m_result.getGeometry(), m_result);
@@ -176,7 +176,7 @@ SelectScalarField::plotOptionalResults(){
  * \return true if Select without errors
  */
 bool
-SelectScalarField::mSelect(){
+SelectLongField::mSelect(){
 
 	m_result.clear();
 
@@ -222,7 +222,7 @@ SelectScalarField::mSelect(){
 			m_result.setGeometry(getGeometry());
 			m_result.setDataLocation(m_loc);
 
-			ExtractScalarField * ef = new ExtractScalarField();
+			ExtractLongField * ef = new ExtractLongField();
 			ef->setGeometry(getGeometry());
 			ef->setMode(ExtractMode::MAPPING);
 			ef->setTolerance(m_tol);
@@ -230,35 +230,25 @@ SelectScalarField::mSelect(){
 			//create map for overlapping ids purpose;
 			std::unordered_map<long, int> idRepetition;
 
-			for (dmpvector1D & field : m_fields){
+			for (MimmoPiercedVector<long> & field : m_fields){
 				ef->setField(&field);
 				bool check = ef->extract();
 				if(!check) continue;
 
-				dmpvector1D * temp = ef->getExtractedField();
-				dmpvector1D::iterator itB;
+				MimmoPiercedVector<long> * temp = ef->getExtractedField();
+				MimmoPiercedVector<long>::iterator itB;
 				auto itE = temp->end();
 				long id;
 				for(itB = temp->begin(); itB != itE; ++itB){
 					id = itB.getId();
+					// For long values insert the first encountered
 					if(!m_result.exists(id)){
 						m_result.insert(id, *itB);
-					}else{
-						m_result[id] += *itB;
-						if(idRepetition.count(id)>0){
-							++idRepetition[id];
-						}else{
-							idRepetition[id] = 2;
-						}
 					}
 				}
 			}
 
-			//resolve overlapping ids by averaging correspondent value;
-
-			for(auto &itval : idRepetition){
-				m_result[itval.first] /= double(itval.second);
-			}
+			//not resolve overlapping because I've chosen the first encountered value
 
 			delete ef;
 		}
@@ -277,7 +267,7 @@ SelectScalarField::mSelect(){
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void SelectScalarField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
+void SelectLongField::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
 	BITPIT_UNUSED(name);
 
@@ -305,7 +295,7 @@ void SelectScalarField::absorbSectionXML(const bitpit::Config::Section & slotXML
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
  */
-void SelectScalarField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
+void SelectLongField::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 	BITPIT_UNUSED(name);
 	slotXML.set("DataLocation", std::to_string(int(m_loc)));
