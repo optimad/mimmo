@@ -409,7 +409,7 @@ ReconstructScalar::buildPorts(){
     //output
     built = (built && createPortOut<dmpvector1D*, ReconstructScalar>(this, &ReconstructScalar::getResultField, M_SCALARFIELD));
     built = (built && createPortOut<MimmoObject *, ReconstructScalar>(&m_geometry, M_GEOM));
-    built = (built && createPortOut<std::vector<dmpvector1D*>, ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFields, M_VECSFIELDS));
+    built = (built && createPortOut<std::vector<dmpvector1D*>, ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFields, M_VECSCALARFIELDS));
     m_arePortsBuilt = built;
 };
 

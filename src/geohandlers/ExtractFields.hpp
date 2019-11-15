@@ -130,6 +130,7 @@ protected:
 
 };
 
+
 /*!
  * \class ExtractScalarField
  * \ingroup geohandlers
@@ -175,9 +176,7 @@ protected:
  * Inherited from ExtractField:
  * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or MAPPING(3);
  * - <B>Tolerance</B>: tolerance for extraction by patch, meaningful only in Mapping mode.
-
  */
-
 class ExtractScalarField: public ExtractField{
 private:
     dmpvector1D m_field;             /**<Input field to be extract. */
@@ -212,6 +211,7 @@ private:
     void extractMapping(mimmo::MPVLocation loc);
 
 };
+
 
 /*!
  *  \class ExtractVectorField
@@ -293,13 +293,182 @@ private:
 
 };
 
+
+/*!
+ * \class ExtractLongField
+ * \ingroup geohandlers
+ * \brief ExtractLongField is specialized derived class of ExtractField to extract a
+ *         scalar field of long.
+ *
+ * Ports available in ExtractLongField Class :
+ *
+ *    =========================================================
+ *
+     |                 Port Input   ||                              |
+     |--------------|--------------------|----------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_LONGFIELD| setField           | (MC_SCALAR, MD_MPVECLONG_)|
+
+
+     |            Port Output   ||                                        |
+     |-----------|-------------------|--------------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_LONGFIELD  | getExtractedField     | (MC_SCALAR, MD_MPVECLONG_)       |
+
+
+  Inherited from ExtractField
+
+     |                 Port Input   ||                                                         |
+     |------------|------------------------------------|-----------------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
+
+     |            Port Output  ||                               |
+     |-----------|------------------------------------|-----------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+ *    =========================================================
+ *
+ * Parameters:
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.ExtractLongField</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Inherited from ExtractField:
+ * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or MAPPING(3);
+ * - <B>Tolerance</B>: tolerance for extraction by patch, meaningful only in Mapping mode.
+ */
+class ExtractLongField: public ExtractField{
+private:
+    MimmoPiercedVector<long> m_field;             /**<Input field to be extract. */
+    MimmoPiercedVector<long> m_result;               /**<Result extract field. */
+
+public:
+    ExtractLongField();
+    ExtractLongField(const bitpit::Config::Section & rootXMl);
+    virtual ~ExtractLongField();
+
+    ExtractLongField(const ExtractLongField & other);
+    ExtractLongField& operator=(const ExtractLongField & other);
+
+    void buildPorts();
+    MimmoPiercedVector<long>* getExtractedField();
+    void     setField(MimmoPiercedVector<long> *field);
+
+    MimmoPiercedVector<long> getOriginalField();
+
+    void clear();
+
+    void     plotOptionalResults();
+    bool     extract();
+
+protected:
+    void swap(ExtractLongField & x) noexcept;
+
+private:
+
+    void extractID(mimmo::MPVLocation loc);
+    void extractPID(mimmo::MPVLocation loc);
+    void extractMapping(mimmo::MPVLocation loc);
+
+};
+
+
+
+/*!
+ * \class ExtractStringField
+ * \ingroup geohandlers
+ * \brief ExtractStringField is specialized derived class of ExtractField to extract a
+ *         scalar field of string.
+ *
+ * Ports available in ExtractStringField Class :
+ *
+ *    =========================================================
+ *
+     |                 Port Input   ||                              |
+     |--------------|--------------------|----------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_STRINGFIELD| setField           | (MC_SCALAR, MD_MPVECSTRING_)|
+
+
+     |            Port Output   ||                                        |
+     |-----------|-------------------|--------------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_STRINGFIELD  | getExtractedField     | (MC_SCALAR, MD_MPVECSTRING_)       |
+
+
+  Inherited from ExtractField
+
+     |                 Port Input   ||                                                         |
+     |------------|------------------------------------|-----------------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_GEOM     | setGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
+
+     |            Port Output  ||                               |
+     |-----------|------------------------------------|-----------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+ *    =========================================================
+ *
+ * Parameters:
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.ExtractStringField</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class.
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Inherited from ExtractField:
+ * - <B>ExtractMode</B>: activate extraction mode by ID(1), PID(2) or MAPPING(3);
+ * - <B>Tolerance</B>: tolerance for extraction by patch, meaningful only in Mapping mode.
+ */
+class ExtractStringField: public ExtractField{
+private:
+    MimmoPiercedVector<std::string> m_field;             /**<Input field to be extract. */
+    MimmoPiercedVector<std::string> m_result;               /**<Result extract field. */
+
+public:
+    ExtractStringField();
+    ExtractStringField(const bitpit::Config::Section & rootXMl);
+    virtual ~ExtractStringField();
+
+    ExtractStringField(const ExtractStringField & other);
+    ExtractStringField& operator=(const ExtractStringField & other);
+
+    void buildPorts();
+    MimmoPiercedVector<std::string>* getExtractedField();
+    void     setField(MimmoPiercedVector<std::string> *field);
+
+    MimmoPiercedVector<std::string> getOriginalField();
+
+    void clear();
+
+    void     plotOptionalResults();
+    bool     extract();
+
+protected:
+    void swap(ExtractStringField & x) noexcept;
+
+private:
+
+    void extractID(mimmo::MPVLocation loc);
+    void extractPID(mimmo::MPVLocation loc);
+    void extractMapping(mimmo::MPVLocation loc);
+
+};
+
+
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __EXTRACTFIELDS_HPP__)
 REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_,__EXTRACTFIELDS_HPP__)
 REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_,__EXTRACTFIELDS_HPP__)
-
+REGISTER_PORT(M_LONGFIELD, MC_SCALAR, MD_MPVECLONG_,__EXTRACTFIELDS_HPP__)
+REGISTER_PORT(M_STRINGFIELD, MC_SCALAR, MD_MPVECSTRING_,__EXTRACTFIELDS_HPP__)
 
 REGISTER(BaseManipulation, ExtractScalarField, "mimmo.ExtractScalarField")
 REGISTER(BaseManipulation, ExtractVectorField, "mimmo.ExtractVectorField")
+REGISTER(BaseManipulation, ExtractLongField, "mimmo.ExtractLongField")
+REGISTER(BaseManipulation, ExtractStringField, "mimmo.ExtractStringField")
 };
 
 #endif /* __EXTRACTFIELDS_HPP__ */

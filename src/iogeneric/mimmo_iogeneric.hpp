@@ -39,5 +39,6 @@
 #include "GenericOutput.hpp"
 #include "IOCloudPoints.hpp"
 #include "MimmoGeometry.hpp"
+#include "IOWavefrontOBJ.hpp"
 
 #endif
