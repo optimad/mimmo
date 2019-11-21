@@ -74,6 +74,7 @@ public:
     dmpvecarr3E    m_input; /**< storing vector fields of floats */
     dmpvector1D    m_scalarinput; /**< storing scalar fields of floats */
     double		   m_factor; /**< scaling factor of deformation field. */
+    dmpvecarr3E    m_output; /**< storing vector fields of floats for output (input modified with filter and factor)*/
 
     Apply();
     Apply(const bitpit::Config::Section & rootXML);
@@ -90,6 +91,8 @@ public:
     void setScaling(double alpha);
 
     void execute();
+
+    dmpvecarr3E * getOutput();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
