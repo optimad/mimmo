@@ -42,6 +42,9 @@ std::array<double, 3> operator-(const bitpit::Vertex &v1, const bitpit::Vertex &
  * \{
  */
 
+int countSubstring(const std::string& str, const std::string& sub);
+
+
 /*!
 * Template for freeing any std::vector container, by swap
 *  \param[in] t std::vector structure to be freed.
