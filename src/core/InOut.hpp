@@ -396,7 +396,6 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::string 
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map<long, long>& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map<long, long>& element);
 
-
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::dmpvector1D*>& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::dmpvector1D*>& element);
 
@@ -408,6 +407,12 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::Mimmo
 
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::MimmoPiercedVector<long>*>& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::MimmoPiercedVector<long>*>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,mimmo::MimmoPiercedVector<std::string>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::MimmoPiercedVector<std::string>& element);
+
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::MimmoPiercedVector<std::string>*>& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::MimmoPiercedVector<std::string>*>& element);
 
 
 /*!
