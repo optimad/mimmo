@@ -89,6 +89,7 @@ Apply::buildPorts(){
 	built = (built && createPortIn<dmpvector1D*, Apply>(this, &Apply::setScalarInput, M_SCALARFIELD, true, 1));
 	built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, true));
 	built = (built && createPortOut<MimmoObject*, Apply>(this, &BaseManipulation::getGeometry, M_GEOM));
+	built = (built && createPortOut<dmpvecarr3E*, Apply>(this, &Apply::getOutput, M_GDISPLS));
 	m_arePortsBuilt = built;
 };
 
@@ -121,6 +122,13 @@ Apply::setScaling(double alpha){
 	m_factor = alpha;
 };
 
+/*!It get the displacements output.
+ * \return Output displacements of the geometry vertices.
+ */
+dmpvecarr3E*
+Apply::getOutput(){
+    return	&m_output;
+};
 /*!Execution command.
  * It applies the deformation stored in the input of base class (casting the input
  * for apply object to dvecarr3E) to the linked geometry.
@@ -143,12 +151,16 @@ Apply::execute(){
 
 	checkInput();
 
+	m_output = m_input;
+
 	darray3E vertexcoords;
 	long int ID;
 	for (const auto & vertex : m_geometry->getVertices()){
 		vertexcoords = vertex.getCoords();
 		ID = vertex.getId();
-		vertexcoords += m_factor*m_input[ID];
+		std::array<double,3> val = m_factor*m_input[ID];
+		m_output[ID] = val;
+		vertexcoords += val;
 		getGeometry()->modifyVertex(vertexcoords, ID);
 	}
 
