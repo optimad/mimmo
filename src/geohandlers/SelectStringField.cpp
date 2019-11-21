@@ -166,8 +166,7 @@ SelectStringField::clear(){
 void
 SelectStringField::plotOptionalResults(){
 
-	m_result.setName(m_fieldname);
-	write(m_result.getGeometry(), m_result);
+	// No data to write. String are not supported by bitpit vtk.
 
 }
 

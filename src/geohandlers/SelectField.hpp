@@ -74,6 +74,7 @@ enum class SelectType{
      |            Port Output         ||             |
      |------------|------------------------------------|-----------------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_GEOM     | getGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
 
  *    =========================================================
  *
@@ -167,6 +168,7 @@ private:
      |            Port Output  ||                               |
      |-----------|------------------------------------|-----------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_GEOM     | getGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
 
  *    =========================================================
  * The xml available parameters, sections and subsections are the following :
@@ -257,6 +259,7 @@ private:
  |            Port Output  ||                               |
  |-----------|------------------------------------|-----------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_GEOM     | getGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
 
  *    =========================================================
  * The xml available parameters, sections and subsections are the following :
@@ -347,6 +350,7 @@ private:
  |            Port Output  ||                               |
  |-----------|------------------------------------|-----------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_GEOM     | getGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
 
  *    =========================================================
  * The xml available parameters, sections and subsections are the following :
@@ -437,6 +441,7 @@ private:
  |            Port Output  ||                               |
  |-----------|------------------------------------|-----------------------|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+ | M_GEOM     | getGeometry                        | (MC_SCALAR, MD_MIMMO_)            |
 
  *    =========================================================
  * The xml available parameters, sections and subsections are the following :
