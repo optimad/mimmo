@@ -94,6 +94,7 @@ bool isPointInsideTriangle(const darray3E & p, const darray3E & V0,const darray3
     double a1 = bitpit::CGElem::areaTriangle(p,V0,V1)/(0.5*normNormal);
     double a2 = bitpit::CGElem::areaTriangle(p,V1,V2)/(0.5*normNormal);
     double a3 = bitpit::CGElem::areaTriangle(p,V2,V0)/(0.5*normNormal);
+
     return ( (a1+a2+a3 -1.0) <= tol );
 }
 
@@ -107,24 +108,16 @@ bool isPointInsideTriangle(const darray3E & p, const darray3E & V0,const darray3
  */
 bool isPointInsidePolygon(const darray3E & p,const dvecarr3E & vertCoords, double tol){
 
-    //calculate barycenter
-    darray3E barycenter = {{0.0,0.0,0.0}};
-    for(const auto & vv : vertCoords){
-        barycenter += vv;
-    }
-    barycenter /= double(vertCoords.size());
-
-    //split it in subtriangles - fixed barycenter, run 2-by-2 along vertCoords to get the other two vertices
+    //split it in subtriangles - fixed vertex 0 as pivot point, run 2-by-2 along vertCoords to get the other two vertices
     bool check = false;
     std::size_t sizeV = vertCoords.size();
-    std::size_t i = 0;
+    std::size_t i = 1;
     while(i<sizeV-1 && !check ){
-        check = mimmoCGUtils::isPointInsideTriangle(p, barycenter, vertCoords[i], vertCoords[i+1], tol);
+        check = mimmoCGUtils::isPointInsideTriangle(p, vertCoords[0], vertCoords[i], vertCoords[i+1], tol);
         ++i;
     }
     return check;
 }
-
 
 }
 
