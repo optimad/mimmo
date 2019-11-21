@@ -368,6 +368,29 @@ long locatePointOnPatch(const std::array<double, 3> &point, bitpit::PatchSkdTree
         }
     }
 
+
+    // Process the candidates to eliminate some of them
+    std::vector<long> toerase;
+    for (std::size_t k = 0; k < m_candidateIds.size(); ++k) {
+
+        // Evaluate the min distance between all cells in the candidate node
+        std::size_t nodeId = m_candidateIds[k];
+        const bitpit::SkdNode &node = tree.getNode(nodeId);
+
+        // Do not consider nodes with a minimum distance greater than
+        // the distance estimate
+        double nodeMinDistance = node.evalPointMinDistance(point);
+        if (nodeMinDistance > distance) {
+        	toerase.push_back(nodeId);
+        }
+    }
+
+    for (long iderase : toerase){
+    	std::vector<std::size_t>::iterator it = std::find(m_candidateIds.begin(), m_candidateIds.end(), iderase);
+    	if (it != m_candidateIds.end())
+    		m_candidateIds.erase(it);
+    }
+
     // Process the candidates and find which cell contains the point
     for (std::size_t k = 0; k < m_candidateIds.size(); ++k) {
 
@@ -386,6 +409,7 @@ long locatePointOnPatch(const std::array<double, 3> &point, bitpit::PatchSkdTree
                 vertCoords[counterList] = tree.getPatch().getVertexCoords(idV);
                 ++counterList;
             }
+
             switch(eltype){
                 case bitpit::ElementType::LINE:
                     checkBelong = mimmoCGUtils::isPointInsideSegment(point, vertCoords[0], vertCoords[1]);
@@ -404,6 +428,7 @@ long locatePointOnPatch(const std::array<double, 3> &point, bitpit::PatchSkdTree
             }
             if (checkBelong) {
                 id       = cellId;
+                return id;
             }
         }
     }
