@@ -11,7 +11,6 @@
 #define XD_WOBJDATA_ "XD_WOBJDATA_"     /**< pointer to Wavefront OBJ data structure */
 
 //port definition
-#define X_TEXTURE       "X_TEXTURE"         /**< port to pass a pointer to MimmoObject data */
 #define X_WDATA         "X_WDATA"          /**< port to pass a XD_WOBJDATA_ data (pointer to WavefrontObjData)*/
 
 namespace mimmo{
@@ -34,6 +33,9 @@ public:
     std::unordered_set<long> smoothidsList; /**< list of all smoothing group ids inside the class */
 
     std::string materialfile; /**< path to materials file associated to the obj file */
+
+    MimmoPiercedVector<std::array<double,3>> vertexTexture; /**< replaced vertex normals of the object */
+    MimmoPiercedVector<std::array<double,3>> vertexNormal; /**< replaced vertex normals of the object */
 
     WavefrontObjData();
     /*! destructor */
@@ -87,15 +89,21 @@ Ports available in IOWaveFrontOBJ Class :
 |-|-|-|
 | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 | M_GEOM       | setGeometry          | (MC_SCALAR, MD_MIMMO_)          |
-| X_TEXTURE    | setTexture           | (MC_SCALAR, MD_MIMMO_) |
 | X_WDATA      | setData              | (MC_SCALAR, XD_WOBJDATA_) |
+| M_STRINGFIELD      | setMaterials              | (MC_SCALAR, MD_MPVECSTRING_) |
+| M_LONGFIELD      | setSmoothIds              | (MC_SCALAR, MD_MPVECLONG_) |
+| M_VECTORFIELD      | setNormals              | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
+| M_VECTORFIELD2    | setTexture           | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
 
 |Port Output | | |
 |-|-|-|
 | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
 | M_GEOM       | getGeometry          | (MC_SCALAR,MD_MIMMO_)      |
-| X_TEXTURE    | getTexture           | (MC_SCALAR, MD_MIMMO_) |
 | X_WDATA      | getData              | (MC_SCALAR, XD_WOBJDATA_) |
+| M_STRINGFIELD      | getMaterials              | (MC_SCALAR, MD_MPVECSTRING_) |
+| M_LONGFIELD      | getSmoothIds              | (MC_SCALAR, MD_MPVECLONG_) |
+| M_VECTORFIELD      | getNormals              | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
+| M_VECTORFIELD2    | getTexture           | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
 
 =========================================================
     \n
@@ -139,27 +147,29 @@ public:
     int            whichModeInt();
 
     MimmoObject*                          	getGeometry();
-    MimmoObject*                          	getTexture();
+    std::string								getMaterialFile();
     WavefrontObjData*                     	getData();
     std::unordered_map<long, std::string>	getSubParts();
 
-    MimmoPiercedVector<std::string>*	getMaterials();
-    MimmoPiercedVector<long>*			getSmoothIds();
-
-    bool	isSkippingTexture();
+    MimmoPiercedVector<std::string>*			getMaterials();
+    MimmoPiercedVector<long>*					getSmoothIds();
+    MimmoPiercedVector<std::array<double,3>>*	getNormals();
+    MimmoPiercedVector<std::array<double,3>>*	getTexture();
 
     void	setGeometry(MimmoObject * geo);
-    void	setTexture(MimmoObject* texture);
+    void    setMaterialFile(std::string materialfile);
     void	setData(WavefrontObjData* data);
 
     void	setMaterials(MimmoPiercedVector<std::string>* materials);
     void	setSmoothIds(MimmoPiercedVector<long>* smoothids);
+    void	setNormals(MimmoPiercedVector<std::array<double,3>>* normals);
+    void	setTexture(MimmoPiercedVector<std::array<double,3>>* texture);
+    void	setGeometryDisplacements(MimmoPiercedVector<std::array<double,3>>* displacements);
 
     void	setDir(const std::string & pathdir);
     void    setFilename(const std::string & name);
     void    setGeomTolerance(double tolerance);
     void    setTextureTolerance(double tolerance);
-    void    skipTexture(bool skip);
     void    printResumeFile(bool print);
 
     void    execute();
@@ -185,37 +195,42 @@ protected:
                               long &nVertTot, long &nCellTot);
 
     void readObjectData(std::ifstream & in, const std::streampos &begObjectStream, const long &PID,
-                        long &vOffset, long &vTxtOffset, long &cOffset);
+                        long &vOffset, long &vnOffset, long &vTxtOffset, long &cOffset);
 
-    void writeObjectData(std::ofstream & out, const livector1D &vertList, const livector1D &txtVertList,
-                         const livector1D & cellList, long & vOffset, long & vTxtOffset, long& cOffset);
+    void writeObjectData(WavefrontObjData* objData, std::ofstream & out, const livector1D &vertList, const livector1D &txtVertList, const livector1D & vnVertList,
+                         const livector1D & cellList, long & vOffset, long & vnOffset, long & vTxtOffset, long& cOffset);
 
-    std::unordered_map<std::string, std::vector<long>> regroupCellsByMaterials(const livector1D & cellList);
+    std::unordered_map<std::string, std::vector<long>> regroupCellsByMaterials(const WavefrontObjData* objData, const livector1D & cellList);
+
+    void computeMovedNormals();
 
 private:
 
     IOMode m_mode;      /**< working mode */
     std::unique_ptr<MimmoObject> m_intPatch; /**< internal mesh  */
-    std::unique_ptr<MimmoObject> m_intTexture; /**< internal texture  */
     std::unique_ptr<WavefrontObjData> m_intData; /**< internal data  */
-    MimmoObject * m_extTexture; /**< externally linked texture*/
     WavefrontObjData * m_extData; /**< externally linked data*/
 
     std::string m_dir; /**< io directory path  */
     std::string m_filename; /**< io name of the file  */
     bool m_resume; /**< boolean to print resume file */
-    bool m_skiptexture; /**< if true skip IO of texture */
     double m_tol; /**< geometric tolerance for duplicate vertex collapsing */
-    double m_txttol; /**< geometric tolerance for duplicate vertex collapsing on texture */
+
+    std::size_t m_totalVertexCount;
+    std::size_t m_totalCellCount;
+
+    MimmoPiercedVector<std::array<double,3>> m_displacements; /**< Geometry vertex displacements. If filled is used to interpolate new normals during write.*/
 
     int convertKeyEntryToInt(const std::string & key);
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __IOWAVEFRONTOBJ__HPP__)
-REGISTER_PORT(X_TEXTURE, MC_SCALAR, MD_MIMMO_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(X_WDATA, MC_SCALAR, XD_WOBJDATA_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_STRINGFIELD, MC_SCALAR, MD_MPVECSTRING_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_LONGFIELD, MC_SCALAR, MD_MPVECLONG_, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_VECTORFIELD2, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOWAVEFRONTOBJ__HPP__)
 
 REGISTER(BaseManipulation, IOWavefrontOBJ, "mimmo.IOWaveFrontOBJ")
 
