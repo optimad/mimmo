@@ -385,8 +385,8 @@ MimmoPiercedVector<mpv_t>::checkDataIdsCoherence(){
 	case MPVLocation::POINT:
 	{
 		auto vvert = m_geometry->getPatch()->getVertices();
-		for(auto el : ids){
-			check =check && vvert.exists(el);
+		for(auto el = this->begin(); el != this->end(); el++ ){
+			check =check && vvert.exists(el.getId());
 		}
 	}
 	break;
