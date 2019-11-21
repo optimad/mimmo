@@ -36,3 +36,21 @@ std::array<double, 3> operator-(const bitpit::Vertex &v1, const bitpit::Vertex &
     return ( coords2 );
 }
 
+/*!
+ * Count of non-overlapping occurrences of a sub-string in a string
+ * \return count of non-overlapping occurrences of a sub-string in a string
+ * \param[in] str input string
+ * \param[in] sub input sub-string
+ */
+int
+countSubstring(const std::string& str, const std::string& sub)
+{
+    if (sub.length() == 0) return 0;
+    int count = 0;
+    for (size_t offset = str.find(sub); offset != std::string::npos;
+     offset = str.find(sub, offset + sub.length()))
+    {
+        ++count;
+    }
+    return count;
+}
