@@ -164,7 +164,7 @@ SelectVectorField::clear(){
 void
 SelectVectorField::plotOptionalResults(){
 
-	m_result.setName("field");
+	m_result.setName(m_fieldname);
 	write(m_result.getGeometry(), m_result);
 
 }

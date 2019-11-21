@@ -70,6 +70,7 @@ SelectField::buildPorts(){
     built = (built && createPortIn<MimmoObject*, SelectField>(this, &mimmo::SelectField::setGeometry, M_GEOM));
     built = (built && createPortIn<std::string, SelectField>(this, &mimmo::SelectField::setFieldName, M_NAME));
     built = (built && createPortOut<std::string, SelectField>(this, &mimmo::SelectField::getFieldName, M_NAME));
+    built = (built && createPortOut<MimmoObject*, SelectField>(this, &mimmo::BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 }
 
