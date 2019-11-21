@@ -1167,12 +1167,24 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::map<int, s
 */
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::string& element){
 
-    std::vector<char> inputss(element.c_str(), element.c_str()+element.size()+1);
+    // Copy until +1 size term, the last one is the end character (old version)
+	// std::vector<char> inputss(element.c_str(), element.c_str()+element.size()+1);
+
+	std::vector<char> inputss(element.c_str(), element.c_str()+element.size());
     buffer << (std::size_t)inputss.size();
     for (char & pp: inputss){
         buffer<<pp;
     }
+
+//    std::size_t length = element.size();
+//    buffer << length;
+//    for (std::size_t i=0; i<length; i++){
+//    	char a = element.at(i);
+//    	buffer << a;
+//    }
+
     return buffer;
+
 }
 
 /*!
@@ -1182,16 +1194,21 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::stri
     \result Returns the same input stream received in input.
 */
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::string& element){
-    std::size_t nids;
+
+	std::size_t nids;
     buffer >> nids;
     std::vector<char> inputss(nids);
     for (std::size_t i = 0; i < nids; ++i){
         buffer >> inputss[i];
     }
-    element = std::string(inputss.begin(), inputss.end());
-    return buffer;
-}
+    // Copy until -1 term, the last one is the end character (old version)
+    //  element = std::string(inputss.begin(), inputss.end()-1);
 
+    element = std::string(inputss.begin(), inputss.end());
+
+    return buffer;
+
+}
 
 /*!
     Output stream operator for std::vector<dmpvector1D*>
