@@ -25,6 +25,7 @@
 //==============================================================//
 // TEMPLATE DERIVED INOUT CLASS	TEMPLATE METHODS                //
 //==============================================================//
+#include <binary_stream.hpp>
 
 namespace mimmo {
 
@@ -262,4 +263,246 @@ PortInT<T, O>::readBuffer(){
     }
 }
 
+
+} //end of mimmo namespace
+
+//BINARY STREAMS
+/*!
+    Output stream operator for vector<T>
+    \param[in] buffer is the output stream
+    \param[in] var is the element to be streamed
+    \result Returns the same output stream received in input.
+*/
+template<typename T>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vector<T> &var)
+{
+    std::size_t nP = var.size();
+    buffer << nP;
+    for (std::size_t i = 0; i < nP; ++i) {
+        buffer << var[i];
+    }
+    return buffer;
 }
+
+
+/*!
+    Input stream operator for vector<T>
+    \param[in] buffer is the input stream
+    \param[in] var is the element to be streamed
+    \result Returns the same input stream received in input.
+*/
+template<typename T>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<T> &var)
+{
+    std::size_t nP;
+    buffer >> nP;
+    var.resize(nP);
+    for (std::size_t i = 0; i < nP; ++i) {
+        buffer >> var[i];
+    }
+    return buffer;
+}
+
+
+/*!
+*	Output stream operator for std::array\<T,d\> enum
+*	\param[in] buffer is the output stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same output stream received in input.
+*/
+template <typename T, std::size_t d>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::array<T,d> &var)
+{
+    for(std::size_t i=0; i<d; ++i){
+        buffer << var[i];
+    }
+    return buffer;
+}
+
+
+/*!
+*	Input stream operator for std::array\<T,d\> enum
+*	\param[in] buffer is the input stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same input stream received in input.
+*/
+template <typename T, std::size_t d>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::array<T,d> &var)
+{
+    for(std::size_t i=0; i<d; ++i){
+        buffer >> var[i];
+    }
+    return buffer;
+}
+
+/*!
+*	Input stream operator for std::pair\<T,Q\>
+*	\param[in] buffer is the input stream
+*	\param[in] element is the element to be streamed
+*	\result Returns the same input stream received in input.
+*/
+template<typename T, typename Q>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<T, Q>& element){
+
+    T geo;
+    Q data;
+    buffer >> geo >> data ;
+    element = std::make_pair(geo, data);
+    return buffer;
+};
+
+/*!
+*	Output stream operator for std::pair\<T, Q\>
+*	\param[in] buffer is the input stream
+*	\param[in] element is the element to be streamed
+*	\result Returns the same input stream received in input.
+*/
+template<typename T, typename Q>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair<T, Q>& element){
+
+    buffer<<element.first<<element.second;
+    return buffer;
+};
+
+
+/*!
+*	Input stream operator for std::unordered_map\<T,Q\>
+*	\param[in] buffer is the input stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same input stream received in input.
+*/
+template<typename T, typename Q>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map<T, Q >&  var){
+
+    T key;
+    Q value;
+    std::size_t nP;
+    buffer >> nP;
+    for (std::size_t i = 0; i < nP; ++i) {
+        buffer >> key>> value;
+        var[key] = value;
+    }
+    return buffer;
+};
+
+/*!
+*	Output stream operator for std::unordered_map\<T, Q\>
+*	\param[in] buffer is the output stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same output stream received in input.
+*/
+template<typename T, typename Q>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map<T, Q>& var){
+
+    std::size_t nP = var.size();
+    buffer << nP;
+    for (auto & ee : var) {
+        buffer << ee.first<<ee.second;
+    }
+    return buffer;
+};
+
+/*!
+*	Input stream operator for std::map\<T,Q\>
+*	\param[in] buffer is the input stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same input stream received in input.
+*/
+template<typename T, typename Q>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::map<T, Q >&  var){
+
+    T key;
+    Q value;
+    std::size_t nP;
+    buffer >> nP;
+    for (std::size_t i = 0; i < nP; ++i) {
+        buffer >> key>> value;
+        var[key] = value;
+    }
+    return buffer;
+};
+
+/*!
+*	Output stream operator for std::map\<T, Q\>
+*	\param[in] buffer is the output stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same output stream received in input.
+*/
+template<typename T, typename Q>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::map<T, Q>& var){
+
+    std::size_t nP = var.size();
+    buffer << nP;
+    for (std::pair<T,Q> & ee : var) {
+        buffer << ee.first<<ee.second;
+    }
+    return buffer;
+};
+
+/*!
+* Input stream operator for bitpit::MimmoPiercedVector\< T \>
+* \param[in] buffer is the input stream
+* \param[in] element is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+template< typename T>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::MimmoPiercedVector<T>& element){
+
+    element.clear();
+    mimmo::MimmoObject* geo;
+    buffer >> geo;
+    element.setGeometry(geo);
+
+    std::string name;
+    // std::size_t length;
+    // buffer >> length;
+    // std::vector<char> vectorname(length);
+    // for (char & a : vectorname){
+    // 	buffer >> a;
+    // }
+    // std::memcpy(&name, vectorname.data(), length);
+    buffer>>name;
+    element.setName(name);
+
+    int loc_;
+    buffer >> loc_;
+    element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
+    std::size_t nP;
+    buffer >> nP;
+    T val;
+    long int id;
+    for (std::size_t i = 0; i < nP; ++i) {
+        buffer >> id;
+        buffer >> val;
+        element.insert(id, val);
+    }
+    return buffer;
+};
+
+/*!
+* Output stream operator for bitpit::MimmoPiercedVector\< T \>
+* \param[in] buffer is the output stream
+* \param[in] element is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+template<typename T>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::MimmoPiercedVector<T>& element){
+
+    buffer << element.getGeometry();
+
+    std::string name = element.getName();
+    // std::size_t length = name.size();
+    // buffer << length;
+    // for (std::size_t i=0; i<length; i++){
+    // 	char a = name.at(i);
+    // 	buffer << a;
+    // }
+    buffer << name;
+    buffer << static_cast<int>(element.getConstDataLocation());
+    buffer << (std::size_t)element.size();
+    auto itE = element.cend();
+    for (auto it=element.cbegin(); it!=itE; it++){
+        buffer << it.getId()<<*it;
+    }
+    return buffer;
+};
