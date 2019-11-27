@@ -30,6 +30,7 @@ get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 # List of tests
 set(TESTS "")
+list(APPEND TESTS "test_core_00000")
 list(APPEND TESTS "test_core_00001")
 list(APPEND TESTS "test_core_00002")
 list(APPEND TESTS "test_core_00003")
@@ -51,4 +52,3 @@ unset(TESTS)
 #     TARGET "name test in the list" PRE_BUILD
 #     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/data/xxx" "${CMAKE_CURRENT_BINARY_DIR}/data/xxx"
 #     )
-
