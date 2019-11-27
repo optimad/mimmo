@@ -33,7 +33,7 @@ namespace mimmo{
 
 class BaseManipulation;
 struct FileDataInfo;
-class TrackingPointer;
+//class TrackingPointer;
 
 /*!
  * \ingroup typedefs
@@ -299,121 +299,54 @@ public:
  * \ingroup binaryStream
  * \{
  */
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvector1D& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvector1D& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,livector1D& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const livector1D& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,livector2D& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const livector2D& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,shivector1D& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const shivector1D& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvecarr3E& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvecarr3E& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::array<mimmo::CoordType,3>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::array<mimmo::CoordType,3>& element);
+//BASIC TYPES
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, mimmo::CoordType& element);
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::CoordType& element);
 
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, mimmo::ShapeType& element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::ShapeType& element);
 
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::MimmoObject*, dvecarr3E *>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::MimmoObject*, dvecarr3E *>& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::MimmoObject*, dvector1D *>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::MimmoObject*, dvector1D *>& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::TrackingPointer * >& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::TrackingPointer * >& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<mimmo::BaseManipulation*, double>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<mimmo::BaseManipulation *, double>& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,dvecarr2E& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const dvecarr2E& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,ivecarr2E& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const ivecarr2E& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,std::vector< dvecarr2E >&  element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector< dvecarr2E >& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map< std::string, std::pair<int, mimmo::MimmoObject* > >&  element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map< std::string, std::pair<int, mimmo::MimmoObject* > >& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map< long, std::pair<int, long> >&  element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map< long, std::pair<int, long > >& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector< mimmo::MimmoObject* >&  element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector< mimmo::MimmoObject* >& element);
-
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, mimmo::FileDataInfo&  element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::FileDataInfo& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::FileDataInfo>&  element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::FileDataInfo>& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map< mimmo::MimmoObject*, dvector1D* >&  element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map< mimmo::MimmoObject*, dvector1D* >& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map< mimmo::MimmoObject*, dvecarr3E* >&  element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map< mimmo::MimmoObject*, dvecarr3E* >& element);
-
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector< std::pair<mimmo::MimmoObject*, dvector1D *> >& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector< std::pair<mimmo::MimmoObject*, dvecarr3E *> >& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,mimmo::dmpvector1D& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::dmpvector1D& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,mimmo::dmpvecarr3E& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::dmpvecarr3E& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::map<int,int>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::map<int, int>& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::map<int, std::vector<int> >& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::map<int, std::vector<int>>& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map<long, int>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map<long, int>& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,ivector1D& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const ivector1D& element);
-
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::map<int,std::string>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::map<int, std::string>& element);
 
 bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::string & element);
 bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::string & element);
 
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map<long, long>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map<long, long>& element);
+//TEMPLATE STRUCTURES
+template<typename T>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, T& element);
+template<typename T>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const T& element);
 
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::dmpvector1D*>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::dmpvector1D*>& element);
+template<typename T>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,std::vector<T>& element);
+template<typename T>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<T>& element);
 
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::dmpvecarr3E*>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::dmpvecarr3E*>& element);
+template<typename T, std::size_t d>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::array<T,d>& element);
+template<typename T, std::size_t d>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::array<T,d>& element);
 
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,mimmo::MimmoPiercedVector<long>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::MimmoPiercedVector<long>& element);
+template<typename T, typename Q>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::pair<T, Q>& element);
+template<typename T, typename Q>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::pair<T, Q>& element);
 
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::MimmoPiercedVector<long>*>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::MimmoPiercedVector<long>*>& element);
+template<typename T, typename Q>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::unordered_map<T, Q>&  element);
+template<typename T, typename Q>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::unordered_map<T, Q >& element);
 
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,mimmo::MimmoPiercedVector<std::string>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::MimmoPiercedVector<std::string>& element);
+template<typename T, typename Q>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::map<T,Q>& element);
+template<typename T, typename Q>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::map<T, Q>& element);
 
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf, std::vector<mimmo::MimmoPiercedVector<std::string>*>& element);
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const std::vector<mimmo::MimmoPiercedVector<std::string>*>& element);
-
+template<typename T>
+bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buf,mimmo::MimmoPiercedVector<T>& element);
+template<typename T>
+bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buf, const mimmo::MimmoPiercedVector<T>& element);
 
 /*!
  *\}
