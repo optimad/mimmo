@@ -43,9 +43,8 @@ void test00002() {
 
     /* reading target stanford Bunny
      */
-    mimmo::MimmoGeometry * bunny = new mimmo::MimmoGeometry();
+    mimmo::MimmoGeometry * bunny = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
 
-    bunny->setIOMode(IOMode::READ);
     bunny->setReadDir("geodata");
     bunny->setReadFileType(FileType::STL);
     bunny->setReadFilename("stanfordBunny2");

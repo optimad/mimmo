@@ -45,8 +45,7 @@ void test00002() {
     /* Creation of mimmo containers.
      * Inputs and output MimmoGeometry are instantiated.
      */
-	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
-    mimmo0->setIOMode(IOMode::CONVERT);
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
 	mimmo0->setReadDir("geodata");
 	mimmo0->setReadFilename("sphere2");
 	mimmo0->setReadFileType(FileType::STL);
@@ -54,8 +53,7 @@ void test00002() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00002.0000");
 
-    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
-    mimmo1->setIOMode(IOMode::CONVERT);
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo1->setReadDir("geodata");
     mimmo1->setReadFilename("stanfordBunny2");
     mimmo1->setReadFileType(FileType::STL);
@@ -63,8 +61,7 @@ void test00002() {
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("geohandlers_output_00002.0001");
 
-    mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry();
-    mimmo2->setIOMode(IOMode::WRITE);
+    mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo2->setWriteDir("./");
     mimmo2->setWriteFileType(FileType::STL);
     mimmo2->setWriteFilename("geohandlers_output_00002.0002");

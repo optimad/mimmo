@@ -50,9 +50,8 @@ void test00003() {
 
     /* Creation of mimmo containers.
      */
-	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setName("converterGeometry");
-    mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
     mimmo0->setReadFilename("sphere2");

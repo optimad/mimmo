@@ -44,8 +44,7 @@ void test00003() {
 
     /* Reading plane
      */
-	mimmo::MimmoGeometry * read = new mimmo::MimmoGeometry();
-    read->setIOMode(IOMode::CONVERT);
+	mimmo::MimmoGeometry * read = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     read->setReadDir("geodata");
     read->setReadFilename("plane4");
     read->setReadFileType(FileType::STL);

@@ -30,8 +30,7 @@
  */
 int test1() {
 
-	mimmo::MimmoGeometry * reader = new mimmo::MimmoGeometry();
-    reader->setIOMode(IOMode::READ);
+	mimmo::MimmoGeometry * reader = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     reader->setReadDir("geodata");
     reader->setReadFilename("prism");
     reader->setReadFileType(FileType::STL);
@@ -60,8 +59,7 @@ int test1() {
  */
 int test2() {
 
-	mimmo::MimmoGeometry * reader1 = new mimmo::MimmoGeometry();
-    reader1->setIOMode(IOMode::READ);
+	mimmo::MimmoGeometry * reader1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     reader1->setReadDir("geodata");
     reader1->setReadFilename("mixedP2D");
     reader1->setReadFileType(FileType::SURFVTU);
@@ -72,8 +70,7 @@ int test2() {
 
     reader1->getGeometry()->getPatch()->write("surface");
 
-    mimmo::MimmoGeometry * reader2 = new mimmo::MimmoGeometry();
-    reader2->setIOMode(IOMode::READ);
+    mimmo::MimmoGeometry * reader2 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     reader2->setReadDir("geodata");
     reader2->setReadFilename("mixedP3D");
     reader2->setReadFileType(FileType::VOLVTU);
