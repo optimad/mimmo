@@ -25,9 +25,6 @@
 #define __IOOFOAM_HPP__
 
 #include "MimmoFvMesh.hpp"
-#include "enum.hpp"
-
-BETTER_ENUM(IOOFMode, int, READ = 0, WRITE = 1, WRITEPOINTSONLY = 2);
 
 namespace mimmo{
 
@@ -71,21 +68,20 @@ namespace mimmo{
 class IOOFOAM_Kernel: public MimmoFvMesh{
 
 protected:
-    int                      m_type;         /**<mode type of the class see IOOFMode enum */
+    bool                     m_write;         /**<1-write, 0-read */
     std::string              m_path;         /**< path to current mesh for reading/writing */
     std::unordered_map<std::string, bitpit::ElementType>    m_OFE_supp;     /**<list of openfoam shapes actually supported as it is, and not as generic polyhedron*/
 	std::unordered_map<long,long> 	m_OFbitpitmapfaces; /**< OpenFoam faces -> bitpit Interfaces map. Used to to detect boundaries correspondence. */
     std::string                     m_fieldname;    /**< name of current field for reading/writing */
 
 public:
-    IOOFOAM_Kernel(int type = IOOFMode::READ);
-    IOOFOAM_Kernel(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, int type = IOOFMode::WRITE);
+    IOOFOAM_Kernel(bool writemode = false);
+    IOOFOAM_Kernel(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, bool writemode);
     IOOFOAM_Kernel(const IOOFOAM_Kernel & other);
     virtual ~IOOFOAM_Kernel();
 
-    virtual void                    buildPorts();
     std::unordered_map<long,long>   getFacesMap();
-    int                             getType();
+    bool                            isWriteMode();
 
 
     void            setDir(const std::string &dir);
@@ -93,8 +89,6 @@ public:
     void            setBoundaryGeometry(MimmoObject * boundary);
     void            setFacesMap(std::unordered_map<long,long> mapFaces);
     void            setFieldName(const std::string & fieldname);
-    void            setType(int type);
-    void            setType(IOOFMode type);
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
@@ -117,16 +111,15 @@ protected:
 
  The class is derived from IOOFOAM_Kernel interface.
 
- It works as reader and writer. Its mode types are summarized in the following better enum
- IOOFMode list:
+ It works as reader and writer. Its mode types are summarized in:
   - <B>READ           </B> : import bulk and boundary mesh from an OpenFOAM case
   - <B>WRITE          </B> : export bulk and boundary mesh to an OpenFOAM case from scratch
-  - <B>WRITEPOINTSONLY</B> : export only bulk mesh points coordinates to a pre-existent and compatible OpenFOAM case.
+  NOTE: if setWritePointsOnly is enabled to true, write mode will export only bulk
+  mesh points coordinates to a pre-existent and compatible OpenFOAM case.
 
- Warning: WRITE mode is not available yet. It triggers the WRITEPOINTSONLY mode,
- which is a temporary mode to write only the coordinates of OpenFOAM mesh points.
+ WARNING: WRITE mode is available at the moment only with writePointsOnly option always enabled.
 
- Ports inherited from IOOFOAM_Kernel Class :
+ Proper of the class :
 *
 |                     Port Input   ||                                 |
 |------------------|---------------------|----------------------------|
@@ -148,9 +141,12 @@ protected:
 *
 * - <B>ClassName</B>: name of the class as <tt>mimmo.IOOFOAM</tt>;
 * - <B>Priority</B>: uint marking priority in multi-chain execution;
-* - <B>IOMode</B>: activate mode of the class: READ, WRITE, WRITEPOINTSONLY;
+* - <B>IOMode</B>: activate mode of the class: 0-READ, 1-WRITE;
 * - <B>Dir</B>: path to the current OpenFOAM mesh for reading/writing purposes;
-* - <B>Overwrite</B>: option valid only in WRITEPOINTSONLY mode: if 1-true overwrite
+* - <B>WritePointsOnly</B>: valid only in WRITE mode. if 1- write mesh points
+                            coordinates to a pre-existent and compatible OpenFOAM case,
+                            0 - write mesh from scratch (OPTIONS NOT AVAILABLE FOR NOW)
+* - <B>Overwrite</B>: valid only in WRITE mode and WritePointOnly activated: if 1-true overwrite
                       points in the current OpenFoam case time of the mesh at WriteDir.
                       If 0-false (DEFAULT) save them in a newly created case time at current time + 1;
 
@@ -160,11 +156,12 @@ protected:
 class IOOFOAM: public IOOFOAM_Kernel{
 
 protected:
-    bool        m_overwrite;    /**< Overwrite in time case when in mode WRITEPOINTSONLY */
+    bool        m_overwrite;        /**< Overwrite in time case when in mode WRITE and writePointsOnly is true */
+    bool        m_writepointsonly;  /**< write points only attaching it to a preexistent OF mesh */
 
 public:
-   IOOFOAM(int type = IOOFMode::READ);
-   IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, int type = IOOFMode::WRITE);
+   IOOFOAM(bool writemode = false);
+   IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary);
    IOOFOAM(const bitpit::Config::Section & rootXML);
    virtual ~IOOFOAM();
 
@@ -172,9 +169,11 @@ public:
    IOOFOAM & operator=(IOOFOAM other);
 
    void            execute();
-
+   void            buildPorts();
    bool            getOverwrite();
+   bool            getWritePointsOnly();
    void            setOverwrite(bool flag);
+   void            setWritePointsOnly(bool flag);
 
    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
@@ -206,7 +205,7 @@ private:
 
  * \n
  *
- Ports inherited from IOOFOAM_Kernel Class :
+ Proper of the class:
 *
 |                     Port Input   ||                                 |
 |------------------|---------------------|----------------------------|
@@ -223,7 +222,6 @@ private:
 | M_GEOMOFOAM2      | getBoundaryGeometry       | (MC_SCALAR, MD_MIMMO_)    |
 | M_UMAPIDS         | getFacesMap               | (MC_UMAP, MD_LONG)|
 
- Proper of the class:
 
 |                     Port Input   ||                                     |
 |------------------|---------------------|----------------------|
@@ -258,7 +256,7 @@ protected:
     dmpvector1D m_boundaryField;        /**<Surface boundary field. */
 
 public:
-    IOOFOAMScalarField(int type = IOOFMode::READ);
+    IOOFOAMScalarField(bool writemode = false);
     IOOFOAMScalarField(const bitpit::Config::Section & rootXML);
     virtual ~IOOFOAMScalarField();
 
@@ -348,7 +346,7 @@ protected:
     dmpvecarr3E m_boundaryField;        /**<Surface boundary field. */
 
 public:
-    IOOFOAMVectorField(int type = IOOFMode::READ);
+    IOOFOAMVectorField(bool writemode = false);
     IOOFOAMVectorField(const bitpit::Config::Section & rootXML);
     virtual ~IOOFOAMVectorField();
 
