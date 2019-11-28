@@ -72,11 +72,15 @@ Thus, the obj file must have:
 Mesh Object names/parts are absorbed/flushed through PID/PIDNames mechanism
 of MimmoObject surface mesh cells.
 
-Textures information (if any) are managed as a MimmoObject mesh which shares
-the same cell ids as the original polygonal Mesh.
+Textures information (if any) are managed as a vector field attached to vertices. During writing,
+the same values (or with a difference less than a threshold) are written once.
 
 Materials assigned on cells and smoothing group ids are managed as special
 fields attached to the MimmoObject mesh cells-ids.
+
+Normals (if any) are managed as a vector field attached to vertices. During writing,
+if a geometry displacement field is passed as input, the normals are recomputed on moved vertices
+by using the vertex normals of of the geometry.
 
 Group naming (g key entry) is ignored and not supported in the current class;
 
@@ -94,6 +98,8 @@ Ports available in IOWaveFrontOBJ Class :
 | M_LONGFIELD      | setSmoothIds              | (MC_SCALAR, MD_MPVECLONG_) |
 | M_VECTORFIELD      | setNormals              | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
 | M_VECTORFIELD2    | setTexture           | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
+| M_GDISPLS      | setGeometryDisplacements              | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
+| M_NAME      | setMaterialFile              | (MC_SCALAR, MD_STRING) |
 
 |Port Output | | |
 |-|-|-|
@@ -104,6 +110,7 @@ Ports available in IOWaveFrontOBJ Class :
 | M_LONGFIELD      | getSmoothIds              | (MC_SCALAR, MD_MPVECLONG_) |
 | M_VECTORFIELD      | getNormals              | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
 | M_VECTORFIELD2    | getTexture           | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
+| M_NAME      | getMaterialFile              | (MC_SCALAR, MD_STRING) |
 
 =========================================================
     \n
@@ -168,7 +175,7 @@ public:
 
     void	setDir(const std::string & pathdir);
     void    setFilename(const std::string & name);
-    void    setGeomTolerance(double tolerance);
+    void    setGeometryTolerance(double tolerance);
     void    setTextureTolerance(double tolerance);
     void    printResumeFile(bool print);
 
@@ -215,6 +222,7 @@ private:
     std::string m_filename; /**< io name of the file  */
     bool m_resume; /**< boolean to print resume file */
     double m_tol; /**< geometric tolerance for duplicate vertex collapsing */
+    double m_texturetol; /**< texture tolerance for duplicate vertex collapsing */
 
     std::size_t m_totalVertexCount;
     std::size_t m_totalCellCount;
@@ -231,6 +239,7 @@ REGISTER_PORT(M_LONGFIELD, MC_SCALAR, MD_MPVECLONG_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_VECTORFIELD2, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_NAME, MC_SCALAR, MD_STRING, __IOWAVEFRONTOBJ__HPP__)
 
 REGISTER(BaseManipulation, IOWavefrontOBJ, "mimmo.IOWaveFrontOBJ")
 
