@@ -112,7 +112,7 @@ void
 IOCloudPoints::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setPoints, M_COORDS));
+    built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setPoints, M_COORDS,!m_read));
     built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setVectorField, M_DISPLS));
     built = (built && createPortIn<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setScalarField, M_DATAFIELD));
     built = (built && createPortIn<livector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setLabels, M_VECTORLI));

@@ -102,7 +102,7 @@ ExtractStringField::buildPorts(){
     ExtractField::buildPorts();
 
     bool built = m_arePortsBuilt;
-    built = (built && createPortIn<MimmoPiercedVector<std::string>*, ExtractStringField>(this, &mimmo::ExtractStringField::setField, M_STRINGFIELD, true, 1));
+    built = (built && createPortIn<MimmoPiercedVector<std::string>*, ExtractStringField>(this, &mimmo::ExtractStringField::setField, M_STRINGFIELD, true));
     built = (built && createPortOut<MimmoPiercedVector<std::string>*, ExtractStringField>(this, &mimmo::ExtractStringField::getExtractedField, M_STRINGFIELD));
 
     m_arePortsBuilt = built;

@@ -106,7 +106,7 @@ void PropagateScalarField::swap(PropagateScalarField & x) noexcept {
 void
 PropagateScalarField::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dmpvector1D*, PropagateScalarField>(this, &PropagateScalarField::setDirichletConditions, M_FILTER));
+	built = (built && createPortIn<dmpvector1D*, PropagateScalarField>(this, &PropagateScalarField::setDirichletConditions, M_FILTER, true));
 	built = (built && createPortOut<dmpvector1D*, PropagateScalarField>(this, &PropagateScalarField::getPropagatedField, M_FILTER));
 	PropagateField<1>::buildPorts();
 	m_arePortsBuilt = built;
@@ -485,7 +485,7 @@ void PropagateVectorField::swap(PropagateVectorField & x) noexcept {
 void
 PropagateVectorField::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<dmpvecarr3E *, PropagateVectorField>(this, &PropagateVectorField::setDirichletConditions, M_GDISPLS));
+	built = (built && createPortIn<dmpvecarr3E *, PropagateVectorField>(this, &PropagateVectorField::setDirichletConditions, M_GDISPLS, true));
 	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::setSlipBoundarySurface, M_GEOM4));
 	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::setSlipReferenceSurface, M_GEOM6));
 	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::addPeriodicBoundarySurface, M_GEOM5));
