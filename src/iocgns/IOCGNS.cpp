@@ -48,6 +48,20 @@ IOCGNS::IOCGNS(const bitpit::Config::Section & rootXML){
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::string::trim(input);
+
+    { //check the mode of the class
+        std::string fallback_name2 = "0";
+        std::string input2 = rootXML.get("IOCGNS_Mode", fallback_name2);
+        input2 = bitpit::utils::string::trim(input2);
+        int value = 0;
+        if(!input2.empty()){
+            std::stringstream ss(input2);
+            ss >> value;
+        }
+        value = std::min(3, std::max(0, value));
+        m_mode = static_cast<IOCGNS_Mode>(value);
+    }
+
     if(input == "mimmo.IOCGNS"){
         absorbSectionXML(rootXML);
     }else{
@@ -140,8 +154,18 @@ void
 IOCGNS::buildPorts(){
 
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setGeometry, M_GEOM));
-    built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setSurfaceBoundary, M_GEOM2));
+    bool mandatory_input = false;
+    switch(m_mode){
+        case IOCGNS_Mode::WRITE :
+        case IOCGNS_Mode::DUMP :
+            mandatory_input = true;
+            break;
+        default:
+            //do nothing;
+            break;
+    }
+    built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setGeometry, M_GEOM, mandatory_input, 0));
+    built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setSurfaceBoundary, M_GEOM2, mandatory_input, 0));
     built = (built && createPortIn<BCCGNS*, IOCGNS>(this, &IOCGNS::setBoundaryConditions, M_BCCGNS));
 
     built = (built && createPortOut<MimmoObject*, IOCGNS>(this, &IOCGNS::getGeometry, M_GEOM));
@@ -211,7 +235,13 @@ IOCGNS::getBoundaryConditions(){
 };
 
 /*!
- * Return the working mode of the class. See setMode method doc for detailed explanation.
+ * Return the working mode of the class, i.e. given a target filename "test"
+   and a target dir "pathdir/":
+ - READ        : read the mesh from abs path file pathdir/test.cgns
+ - RESTORE     : restore the mesh from abs path file pathdir/test.xxx.dump.
+ - WRITE       : write the mesh to abs path file pathdir/test.cgns.
+ - DUMP        : write the mesh to dump abs path pathdir/test.xxx.dump.
+
  * \return working mode
  */
 IOCGNS::IOCGNS_Mode
@@ -273,20 +303,6 @@ IOCGNS::setFilename(const std::string & filename){
     m_filename = filename;
 }
 
-
-/*!It sets the  working mode of the class.
-   Given a target filename "test" and a target dir "pathdir/"
-   - READ        : read the mesh from abs path file pathdir/test.cgns
-   - RESTORE     : restore the mesh from abs path file pathdir/test.xxx.dump.
-   - WRITE       : write the mesh to abs path file pathdir/test.cgns.
-   - DUMP        : write the mesh to dump abs path pathdir/test.xxx.dump.
-
- * \param[in] mode working mode of the class
- */
-void
-IOCGNS::setMode(IOCGNS::IOCGNS_Mode mode){
-    m_mode = mode;
-}
 
 
 /*!Write info of the mesh on file, such as zone names, bc names, etc... .
@@ -1395,17 +1411,6 @@ IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string na
     std::string input;
 
     BaseManipulation::absorbSectionXML(slotXML, name);
-
-    if(slotXML.hasOption("IOCGNS_Mode")){
-        input = slotXML.get("IOCGNS_Mode");
-        int value = 0;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss >> value;
-        }
-        value = std::min(3, std::max(0, value));
-        setMode(static_cast<IOCGNS_Mode>(value));
-    };
 
     if(slotXML.hasOption("Dir")){
         input = slotXML.get("Dir");
