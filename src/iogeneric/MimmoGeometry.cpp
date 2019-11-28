@@ -28,11 +28,19 @@
 
 namespace mimmo {
 
-/*!Default constructor of MimmoGeometry.
- */
-MimmoGeometry::MimmoGeometry(){
+/*!
+Default constructor of MimmoGeometry.
+Require to specify mode of the block as reader, writer or converter.
+NOTE: in case of converter the directory and filename will be the same
+for input & output
+(the I/O extensions have to be set by setReadFileType & setWriteFileType).
+
+\param[in] mode Modality of the block -READ/WRITE/CONVERT
+*/
+MimmoGeometry::MimmoGeometry(MimmoGeometry::IOMode mode){
     m_name         = "mimmo.Geometry";
     setDefaults();
+    setIOMode(mode);
 }
 
 /*!
@@ -47,6 +55,15 @@ MimmoGeometry::MimmoGeometry(const bitpit::Config::Section & rootXML){
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
     input = bitpit::utils::string::trim(input);
+
+    std::string fallback_name2 = "READ";
+    std::string input2 = rootXML.get("IOMode", fallback_name2);
+    input2 = bitpit::utils::string::trim(input2);
+
+    setIOMode(IOMode::READ);
+    if(input2 == "WRITE") setIOMode(IOMode::WRITE);
+    if(input2 == "CONVERT") setIOMode(IOMode::CONVERT);
+
     if(input == "mimmo.Geometry"){
         absorbSectionXML(rootXML);
     }else{
@@ -123,7 +140,8 @@ void MimmoGeometry::swap(MimmoGeometry & x) noexcept
 void
 MimmoGeometry::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::setGeometry, M_GEOM));
+    bool mandatory_input = (m_write && !m_read);
+    built = (built && createPortIn<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::setGeometry, M_GEOM, mandatory_input));
     built = (built && createPortOut<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 }
@@ -281,24 +299,24 @@ MimmoGeometry::setWriteFilename(std::string filename){
  * (the I/O extensions have to be set by setReadFileType & setWriteFileType).
  */
 void
-MimmoGeometry::setIOMode(IOMode mode){
-    if (mode._to_integral() == IOMode::READ){
-        _setRead();
-        _setWrite(false);
-    }
-    else if (mode._to_integral() == IOMode::WRITE){
-        _setRead(false);
-        _setWrite();
-    }
-    else if (mode._to_integral() == IOMode::CONVERT){
-        _setRead();
-        _setWrite();
-    }
-    else{
-        (*m_log) << m_name << " warning: no allowed IOMode found -> set as reader" << std::endl;
-        _setRead();
-        _setWrite(false);
-    }
+MimmoGeometry::setIOMode(MimmoGeometry::IOMode mode){
+    switch(mode){
+        case MimmoGeometry::IOMode::READ :
+            _setRead();
+            _setWrite(false);
+            break;
+        case MimmoGeometry::IOMode::WRITE :
+            _setRead(false);
+            _setWrite();
+            break;
+        case MimmoGeometry::IOMode::CONVERT :
+            _setRead();
+            _setWrite();
+            break;
+        default:
+            //never been reached
+            break;
+        }
 }
 
 /*!Set the mode of the block as reader, writer or converter.
@@ -309,23 +327,7 @@ MimmoGeometry::setIOMode(IOMode mode){
  */
 void
 MimmoGeometry::setIOMode(int mode){
-    if (mode == IOMode::READ){
-        _setRead();
-        _setWrite(false);
-    }
-    else if (mode == IOMode::WRITE){
-        _setRead(false);
-        _setWrite();
-    }
-    else if (mode == IOMode::CONVERT){
-        _setRead();
-        _setWrite();
-    }
-    else{
-        (*m_log) << m_name << " warning: no allowed IOMode find -> set as reader" << std::endl;
-        _setRead();
-        _setWrite(false);
-    }
+    setIOMode(static_cast<MimmoGeometry::IOMode>(mode));
 }
 
 /*!It sets the name of directory to read/write the geometry.
@@ -1138,20 +1140,6 @@ MimmoGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, std::st
 
     BaseManipulation::absorbSectionXML(slotXML, name);
 
-    if(slotXML.hasOption("IOMode")){
-        input = slotXML.get("IOMode");
-        input = bitpit::utils::string::trim(input);
-        if(!input.empty()){
-            for(auto c: IOMode::_values()){
-                if(input == c._to_string()){
-                    setIOMode(c);
-                }
-            }
-        }else{
-            setIOMode(0);
-        }
-    };
-
     if(slotXML.hasOption("FileType")){
         input = slotXML.get("FileType");
         input = bitpit::utils::string::trim(input);
@@ -1349,7 +1337,9 @@ MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
     std::string output;
 
     {
-        std::string temp = (IOMode::_from_integral(m_write+m_read*m_write))._to_string();
+        std::string temp = "READ";
+        if(m_read && m_write)   temp = "CONVERT";
+        if(!m_read && m_write)  temp = "WRITE";
         slotXML.set("IOMode", temp);
     }
 
