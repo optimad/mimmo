@@ -22,7 +22,7 @@
         <FFD>
             <ClassName>mimmo.FFDLattice</ClassName>
             <Origin>-1537.5 -500.0 3352.5</Origin>
-            <Span>100.0 6.28 1000.0</Span>
+            <Span>100.0 6.29 1000.0</Span>
             <Dimension>2 15 20</Dimension>
             <Degrees>1 2 10</Degrees>
             <Shape>CYLINDER</Shape>
@@ -77,4 +77,4 @@
 			<receiverPort>M_GEOM</receiverPort>
 		</c4>
 	</Connections>
-</mimmoXML>	
+</mimmoXML>
