@@ -180,7 +180,6 @@ public:
     bool              isWritingMultiZone();
 
     void            setDir(const std::string &dir);
-    void            setMode(IOCGNS_Mode mode);
     void            setFilename(const std::string &filename);
 
     void            setGeometry(MimmoObject*);
