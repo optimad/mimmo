@@ -30,7 +30,6 @@
 #include <type_traits>
 
 BETTER_ENUM(FileType, int, STL = 0, SURFVTU = 1, VOLVTU = 2, NAS = 3, OFP = 4, PCVTU = 5, CURVEVTU = 6, MIMMO = 99);
-BETTER_ENUM(IOMode, int, READ = 0, WRITE = 1, CONVERT = 2);
 
 namespace mimmo{
 
@@ -153,7 +152,17 @@ private:
     bool		m_clean;					/**<Set if the geometry has to cleaned after reading. */
 
 public:
-    MimmoGeometry();
+    /*!
+     * \ingroup iogeneric
+     * enum for MimmoGeometry class mode
+     */
+    enum class IOMode{
+        READ = 0,    /**<reading mode */
+        WRITE = 1,   /**< writing mode */
+        CONVERT = 2 /**< convert mode, i.e. first read from, then write to */
+    };
+
+    MimmoGeometry(IOMode mode = IOMode::READ);
     MimmoGeometry(const bitpit::Config::Section & rootXML);
     virtual ~MimmoGeometry();
 
@@ -172,8 +181,6 @@ public:
     void        setReadFilename(std::string filename);
     void        setWriteFilename(std::string filename);
 
-    void        setIOMode(IOMode mode);
-    void        setIOMode(int mode);
     void        setDir(std::string dir);
     void        setFilename(std::string filename);
     void        setReadFileType(FileType type);
@@ -220,6 +227,8 @@ public:
 
 protected:
     void swap(MimmoGeometry & x) noexcept;
+    void        setIOMode(IOMode mode);
+    void        setIOMode(int mode);
 
 private:
     void    setDefaults();
