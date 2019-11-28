@@ -29,10 +29,10 @@
 // =================================================================================== //
 int test1() {
 
-    mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(IOOFMode::READ);
+    mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(false);
     reader->setDir("geodata/OFOAM");
 
-    mimmo::IOOFOAMScalarField * fieldreader = new mimmo::IOOFOAMScalarField();
+    mimmo::IOOFOAMScalarField * fieldreader = new mimmo::IOOFOAMScalarField(false);
     fieldreader->setDir("geodata/OFOAM");
     fieldreader->setFieldName("p");
 

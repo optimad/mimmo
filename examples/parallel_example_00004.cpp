@@ -200,8 +200,7 @@ int test00004() {
 
 	/* Creation of mimmo containers. MimmoGeometry used to dump partitioned mesh
 	 */
-	mimmo::MimmoGeometry * mimmoVolumeOut = new mimmo::MimmoGeometry();
-	mimmoVolumeOut->setIOMode(IOMode::WRITE);
+	mimmo::MimmoGeometry * mimmoVolumeOut = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
 	mimmoVolumeOut->setWriteDir("./");
 	mimmoVolumeOut->setWriteFileType(FileType::MIMMO);
 	mimmoVolumeOut->setWriteFilename("parallel_example_00004.volume.partitioned");
@@ -210,8 +209,7 @@ int test00004() {
 
 	/* Creation of mimmo containers. MimmoGeometry used to restore partitioned mesh
 	 */
-	mimmo::MimmoGeometry * mimmoVolumeIn = new mimmo::MimmoGeometry();
-	mimmoVolumeIn->setIOMode(IOMode::CONVERT);
+	mimmo::MimmoGeometry * mimmoVolumeIn = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
 	mimmoVolumeIn->setReadDir("./");
 	mimmoVolumeIn->setReadFileType(FileType::MIMMO);
 	mimmoVolumeIn->setReadFilename("parallel_example_00004.volume.partitioned");

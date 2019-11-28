@@ -44,8 +44,7 @@ void test00005() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
-    mimmo0->setIOMode(IOMode::CONVERT);
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::PCVTU);
     mimmo0->setReadFilename("spherepc");
@@ -54,8 +53,7 @@ void test00005() {
     mimmo0->setWriteFileType(FileType::PCVTU);
     mimmo0->setWriteFilename("manipulators_output_00005.0000");
 
-    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
-    mimmo1->setIOMode(IOMode::WRITE);
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::PCVTU);
     mimmo1->setWriteFilename("manipulators_output_00005.0001");

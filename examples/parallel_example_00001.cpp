@@ -48,19 +48,16 @@ void test00001() {
     //  * as two different objects (no loop in chain are permitted).
     //  */
     // /* Create IO_CGNS object to import input file. */
-    // IOCGNS * mimmo0 = new IOCGNS();
-    // mimmo0->setMode(IOCGNS::IOCGNS_Mode::READ);
+    // IOCGNS * mimmo0 = new IOCGNS(mimmo::IOCGNS::IOCGNS_Mode::READ);
     // mimmo0->setDir("geodata");
     // mimmo0->setFilename("StaticMixer");
     //
-    // MimmoGeometry * mimmo1 = new MimmoGeometry();
-    // mimmo1->setIOMode(IOMode::WRITE);
+    // MimmoGeometry * mimmo1 = new MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     // mimmo1->setWriteDir(".");
     // mimmo1->setWriteFileType(FileType::VOLVTU);
     // mimmo1->setWriteFilename("parallel_Voutput_00001.0001");
     //
-    // MimmoGeometry * mimmo2 = new MimmoGeometry();
-    // mimmo2->setIOMode(IOMode::WRITE);
+    // MimmoGeometry * mimmo2 = new MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     // mimmo2->setWriteDir(".");
     // mimmo2->setWriteFileType(FileType::SURFVTU);
     // mimmo2->setWriteFilename("parallel_Soutput_00001.0001");

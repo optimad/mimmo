@@ -55,7 +55,7 @@
 
 void OFOAM_manip() {
 
-    mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(IOOFMode::READ);
+    mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(false);
     reader->setDir("geodata/OFOAM");
 
     mimmo::FFDLattice * ffd = new mimmo::FFDLattice();
@@ -78,7 +78,8 @@ void OFOAM_manip() {
 
     mimmo::Apply * applier = new mimmo::Apply();
 
-    mimmo::IOOFOAM * writer = new mimmo::IOOFOAM(IOOFMode::WRITEPOINTSONLY);
+    mimmo::IOOFOAM * writer = new mimmo::IOOFOAM(true);
+    writer->setWritePointsOnly(true);
     writer->setOverwrite(false);
 
     mimmo::pin::addPin(reader, ffd, M_GEOMOFOAM, M_GEOM);
@@ -103,18 +104,17 @@ void OFOAM_manip() {
 
 void OFOAM_sensi() {
 
-    mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(IOOFMode::READ);
+    mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(false);
     reader->setDir("geodata/OFOAM");
 
-    mimmo::IOOFOAMScalarField * fieldreader = new mimmo::IOOFOAMScalarField();
+    mimmo::IOOFOAMScalarField * fieldreader = new mimmo::IOOFOAMScalarField(false);
     fieldreader->setDir("geodata/OFOAM");
     fieldreader->setFieldName("p");
 
     mimmo::Apply * applier = new mimmo::Apply();
     applier->setScaling(0.1);
 
-    mimmo::MimmoGeometry * writer = new mimmo::MimmoGeometry();
-    writer->setIOMode(IOMode::WRITE);
+    mimmo::MimmoGeometry * writer = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     writer->setWriteDir(".");
     writer->setWriteFileType(FileType::SURFVTU);
     writer->setWriteFilename("ofoam_sensi_output");

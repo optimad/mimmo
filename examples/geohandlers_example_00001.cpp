@@ -46,9 +46,8 @@ void test00001() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setName("mimmo0");
-    mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("./geodata");
     mimmo0->setReadFileType(FileType::STL);
     mimmo0->setReadFilename("sphere2");
@@ -56,14 +55,12 @@ void test00001() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00001.0000");
 
-    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
-    mimmo1->setIOMode(IOMode::WRITE);
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("geohandlers_output_00001.0001");
 
-    mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry();
-    mimmo2->setIOMode(IOMode::WRITE);
+    mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo2->setWriteDir(".");
     mimmo2->setWriteFileType(FileType::STL);
     mimmo2->setWriteFilename("geohandlers_output_00001.0002");
@@ -153,6 +150,6 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
 	MPI_Finalize();
 #endif
-	
+
 	return 0;
 }

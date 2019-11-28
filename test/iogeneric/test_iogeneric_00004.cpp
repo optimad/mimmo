@@ -30,8 +30,7 @@
  */
 int test1() {
 
-	mimmo::MimmoGeometry * reader = new mimmo::MimmoGeometry();
-    reader->setIOMode(IOMode::READ);
+	mimmo::MimmoGeometry * reader = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     reader->setReadDir("geodata");
     reader->setReadFilename("curve");
     reader->setReadFileType(FileType::CURVEVTU);
@@ -42,9 +41,8 @@ int test1() {
     check = check && reader->getGeometry()->getPatch()->getVertexCount() == 414;
     std::cout<<"test1 passed :"<<check<<std::endl;
 
-    mimmo::MimmoGeometry * writer = new mimmo::MimmoGeometry();
+    mimmo::MimmoGeometry * writer = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     writer->setGeometry(reader->getGeometry());
-    writer->setIOMode(IOMode::WRITE);
     writer->setWriteDir(".");
     writer->setWriteFilename("curve_copy");
     writer->setWriteFileType(FileType::CURVEVTU);

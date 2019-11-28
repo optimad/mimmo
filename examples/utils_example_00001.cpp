@@ -42,9 +42,8 @@ void test00001() {
 
     /* Creation of mimmo containers.
      */
-	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
 
-    mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::SURFVTU);
     mimmo0->setReadFilename("mixedP2D");

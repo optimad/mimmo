@@ -43,9 +43,8 @@ void test00004() {
 
     /* Creation of mimmo containers for target StanfordBunny.
      */
-	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setName("StanfordBunnyReader");
-    mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
     mimmo0->setReadFilename("stanfordBunny2");
