@@ -102,7 +102,7 @@ void
 ControlDeformExtSurface::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<dmpvecarr3E*, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::setDefField, M_GDISPLS, true));
+    built = (built && createPortIn<dmpvecarr3E*, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::setDefField, M_GDISPLS));
     built = (built && createPortIn<MimmoObject*, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::setGeometry, M_GEOM, true));
 
     built = (built && createPortOut<double, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolation, M_VALUED));

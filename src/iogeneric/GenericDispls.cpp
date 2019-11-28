@@ -111,7 +111,7 @@ GenericDispls::buildPorts(){
 
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, GenericDispls>(this, &mimmo::GenericDispls::setDispl, M_DISPLS));
+    built = (built && createPortIn<dvecarr3E, GenericDispls>(this, &mimmo::GenericDispls::setDispl, M_DISPLS, !m_read));
     built = (built && createPortIn<livector1D, GenericDispls>(this, &mimmo::GenericDispls::setLabels, M_VECTORLI));
     built = (built && createPortIn<int, GenericDispls>(this, &mimmo::GenericDispls::setNDispl, M_VALUEI));
 

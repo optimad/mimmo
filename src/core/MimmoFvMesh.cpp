@@ -132,8 +132,10 @@ void MimmoFvMesh::swap(MimmoFvMesh & x) noexcept{
 void MimmoFvMesh::buildPorts(){
 
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::setGeometry, M_GEOM, true, 0 ));
-    built = (built && createPortIn<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::setBoundaryGeometry, M_GEOM2, true, 0));
+    //Don't push mandatory ports here, this class is thought more as an intermediate interface,
+    //than a proper mimmo executable block. See IOOFoam families, for example.
+    built = (built && createPortIn<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::setGeometry, M_GEOM ));
+    built = (built && createPortIn<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::setBoundaryGeometry, M_GEOM2));
     // creating output ports
     built = (built && createPortOut<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::getGeometry, M_GEOM));
     built = (built && createPortOut<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOM2));

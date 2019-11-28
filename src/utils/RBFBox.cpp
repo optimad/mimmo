@@ -90,7 +90,7 @@ RBFBox::buildPorts(){
 
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, RBFBox>(this, &mimmo::RBFBox::setNode, M_COORDS));
+    built = (built && createPortIn<dvecarr3E, RBFBox>(this, &mimmo::RBFBox::setNode, M_COORDS, true));
     built = (built && createPortIn<double, RBFBox>(this, &mimmo::RBFBox::setSupportRadius, M_VALUED));
 
     built = (built && createPortOut<darray3E, RBFBox>(this, &mimmo::RBFBox::getOrigin, M_POINT));

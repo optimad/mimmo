@@ -102,7 +102,7 @@ ExtractLongField::buildPorts(){
     ExtractField::buildPorts();
 
     bool built = m_arePortsBuilt;
-    built = (built && createPortIn<MimmoPiercedVector<long>*, ExtractLongField>(this, &mimmo::ExtractLongField::setField, M_LONGFIELD, true, 1));
+    built = (built && createPortIn<MimmoPiercedVector<long>*, ExtractLongField>(this, &mimmo::ExtractLongField::setField, M_LONGFIELD, true));
     built = (built && createPortOut<MimmoPiercedVector<long>*, ExtractLongField>(this, &mimmo::ExtractLongField::getExtractedField, M_LONGFIELD));
 
     m_arePortsBuilt = built;

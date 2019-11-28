@@ -128,7 +128,7 @@ void
 PropagateField<NCOMP>::buildPorts(){
 	bool built = true;
 	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setGeometry, M_GEOM, true));
-	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setDirichletBoundarySurface, M_GEOM2));
+	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setDirichletBoundarySurface, M_GEOM2, true));
 	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setDumpingBoundarySurface, M_GEOM3));
 	m_arePortsBuilt = built;
 };
