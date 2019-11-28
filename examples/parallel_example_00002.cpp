@@ -44,20 +44,17 @@ void test00002() {
      * Input and output MimmoGeometry are instantiated
      * as two different objects (no loop in chain are permitted).
      */
-	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
-    mimmo0->setIOMode(IOMode::READ);
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
     mimmo0->setReadFilename("sphere2");
 
-    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
-    mimmo1->setIOMode(IOMode::WRITE);
+    mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::SURFVTU);
     mimmo1->setWriteFilename("parallel_output_00002.0001");
 
-    mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry();
-    mimmo2->setIOMode(IOMode::WRITE);
+    mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo2->setWriteDir(".");
     mimmo2->setWriteFileType(FileType::SURFVTU);
     mimmo2->setWriteFilename("parallel_output_00002.0002");

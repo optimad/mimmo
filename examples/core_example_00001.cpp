@@ -44,9 +44,7 @@ void test00001() {
 
 	/* Creation of mimmo containers.
 	 */
-	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
-
-	mimmo0->setIOMode(IOMode::READ);
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
 	mimmo0->setReadDir("geodata");
 	mimmo0->setReadFileType(FileType::STL);
 	mimmo0->setReadFilename("plane3");

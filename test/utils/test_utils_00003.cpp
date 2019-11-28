@@ -35,15 +35,13 @@ using namespace mimmo;
  */
 int test3() {
 
-    MimmoGeometry * reader1 = new MimmoGeometry();
-    reader1->setIOMode(IOMode::READ);
+    MimmoGeometry * reader1 = new MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     reader1->setReadDir("geodata");
     reader1->setReadFilename("stanfordBunny2");
     reader1->setReadFileType(FileType::STL);
     reader1->execute();
 
-    MimmoGeometry * reader2 = new MimmoGeometry();
-    reader2->setIOMode(IOMode::READ);
+    MimmoGeometry * reader2 = new MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     reader2->setReadDir("geodata");
     reader2->setReadFilename("sphere2");
     reader2->setReadFileType(FileType::STL);

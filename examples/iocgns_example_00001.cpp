@@ -54,14 +54,12 @@
 void example00001() {
 
     /* Create IO_CGNS object to import input file. */
-	mimmo::IOCGNS * cgnsI = new mimmo::IOCGNS();
-    cgnsI->setMode(mimmo::IOCGNS::IOCGNS_Mode::READ);
+	mimmo::IOCGNS * cgnsI = new mimmo::IOCGNS(mimmo::IOCGNS::IOCGNS_Mode::READ);
     cgnsI->setDir("geodata");
     cgnsI->setFilename("grid");
 
     /* Create IO_CGNS object to export output file. */
-    mimmo::IOCGNS * cgnsO = new mimmo::IOCGNS();
-    cgnsO->setMode(mimmo::IOCGNS::IOCGNS_Mode::WRITE);;
+    mimmo::IOCGNS * cgnsO = new mimmo::IOCGNS(mimmo::IOCGNS::IOCGNS_Mode::WRITE);
     cgnsO->setDir(".");
     cgnsO->setFilename("iocgns_output_00001");
 

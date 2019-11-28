@@ -42,9 +42,8 @@ void test00005() {
 
     /* Reading target surface (bunny)
      */
-	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
 
-    mimmo0->setIOMode(IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
     mimmo0->setReadFilename("stanfordBunny3");
@@ -56,9 +55,8 @@ void test00005() {
 
     /* Reading 3D Curve to be projected
      */
-	mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry();
+	mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
 
-    mimmo1->setIOMode(IOMode::CONVERT);
     mimmo1->setReadDir("geodata");
     mimmo1->setReadFileType(FileType::CURVEVTU);
     mimmo1->setReadFilename("curve");

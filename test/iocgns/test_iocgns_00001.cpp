@@ -28,8 +28,7 @@
 
 int test1() {
 
-	mimmo::IOCGNS * cgnsI = new mimmo::IOCGNS();
-    cgnsI->setMode(mimmo::IOCGNS::IOCGNS_Mode::READ);
+	mimmo::IOCGNS * cgnsI = new mimmo::IOCGNS(mimmo::IOCGNS::IOCGNS_Mode::READ);
     cgnsI->setDir("geodata");
     cgnsI->setFilename("grid");
 
