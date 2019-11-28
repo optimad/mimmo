@@ -28,14 +28,10 @@ namespace mimmo{
 
 /*!
  * Default constructor of IOOFOAM_Kernel.
- * \param[in] type int from enum IOOFMode. Default is READ.
+ * \param[in] writemode if true, put the class in write mode, otherwise in read mode.
  */
-IOOFOAM_Kernel::IOOFOAM_Kernel(int type):MimmoFvMesh(){
-	m_type = IOOFMode::READ;
-    auto maybeIOMode = IOOFMode::_from_integral_nothrow(type);
-    if(maybeIOMode){
-		m_type = type;
-	}
+IOOFOAM_Kernel::IOOFOAM_Kernel(bool writemode):MimmoFvMesh(){
+	m_write = writemode;
 	setDefaults();
 }
 
@@ -48,23 +44,14 @@ IOOFOAM_Kernel::IOOFOAM_Kernel(int type):MimmoFvMesh(){
  *  - bulk MimmoObject of type 2-Volume and boundary MimmoObject of type 1-Surface
  *  - bulk MimmoObject of type 1-Surface and boundary MimmoObject of type 4-3DCurve.
  *
- * The class is meant for writing modes WRITE and WRITEPOINTSONLY. If a READ mode is passed
- * in argument, it throws an error.
  *
  *\param[in] bulk unique pointer to the bulk MimmoObject
  *\param[in] boundary unique pointer to the boundary MimmoObject
- *\param[in] type int from enum IOOFMode. Default is WRITE.
+ *\param[in] writemode if true, put the class in write mode, otherwise in read mode.
  *
  */
-IOOFOAM_Kernel::IOOFOAM_Kernel(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, int type): MimmoFvMesh(bulk,boundary){
-	auto maybeIOMode = IOOFMode::_from_integral_nothrow(type);
-    m_type = IOOFMode::WRITE;
-	if(maybeIOMode){
-		if(maybeIOMode->_to_integral() == IOOFMode::READ){
-			throw std::runtime_error("Error in IOOFOAM constructor. Forcing READ mode in a constructor meant for writing modes only");
-		}
-		m_type = type;
-	}
+IOOFOAM_Kernel::IOOFOAM_Kernel(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, bool writemode): MimmoFvMesh(bulk,boundary){
+	m_write = writemode;
 	setDefaults();
 }
 
@@ -84,7 +71,7 @@ IOOFOAM_Kernel::IOOFOAM_Kernel(const IOOFOAM_Kernel & other): MimmoFvMesh(other)
     m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
     m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
 
-    m_type = other.m_type;
+    m_write = other.m_write;
     m_name = other.m_name;
     m_path = other.m_path;
     m_fieldname = other.m_fieldname;
@@ -97,7 +84,7 @@ IOOFOAM_Kernel::IOOFOAM_Kernel(const IOOFOAM_Kernel & other): MimmoFvMesh(other)
  */
 void IOOFOAM_Kernel::swap(IOOFOAM_Kernel & x) noexcept
 {
-	std::swap(m_type, x.m_type);
+	std::swap(m_write, x.m_write);
 	std::swap(m_path, x.m_path);
 	std::swap(m_fieldname, x.m_fieldname);
 	std::swap(m_OFbitpitmapfaces, x.m_OFbitpitmapfaces);
@@ -120,24 +107,6 @@ IOOFOAM_Kernel::setDefaults(){
 	m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
 }
 
-/*! It builds the input/output ports of the object
- */
-void
-IOOFOAM_Kernel::buildPorts(){
-	bool built = true;
-	// creating input ports
-	built = (built && createPortIn<MimmoObject*, IOOFOAM_Kernel>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM));
-	built = (built && createPortIn<MimmoObject*, IOOFOAM_Kernel>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2));
-    built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAM_Kernel>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
-
-	// creating output ports
-	built = (built && createPortOut<MimmoObject*, IOOFOAM_Kernel>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
-	built = (built && createPortOut<MimmoObject*, IOOFOAM_Kernel>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
-	built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAM_Kernel>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
-
-	m_arePortsBuilt = built;
-};
-
 /*!
  * Get current map between OFOAM faces -> bitpit interfaces.
  * \return reference to interfaces map.
@@ -148,12 +117,11 @@ IOOFOAM_Kernel::getFacesMap(){
 }
 
 /*!
- * Get type parameter - int casting of IOOFMode enum.
- * \return type parameter content
+ * \return if the class is in writing or reading mode.
  */
-int
-IOOFOAM_Kernel::getType(){
-	return m_type;
+bool
+IOOFOAM_Kernel::isWriteMode(){
+	return m_write;
 }
 
 /*!
@@ -211,25 +179,6 @@ IOOFOAM_Kernel::setFieldName(const std::string & fieldname){
 }
 
 /*!
- * Set mode of the class, IOOFMode enum.
- * \param[in] type IOOFMode enum
- */
-void
-IOOFOAM_Kernel::setType(IOOFMode type){
-	m_type = type;
-}
-
-/*!
- * Set mode of the class, IOOFMode enum.
- * \param[in] type int casting to IOOFMode enum
- */
-void
-IOOFOAM_Kernel::setType(int type){
-    auto maybe = IOOFMode::_from_integral_nothrow(type);
-    if(maybe)   setType(*maybe);
-}
-
-/*!
  * It sets infos reading from a XML bitpit::Config::section.
  * \param[in] slotXML bitpit::Config::Section of XML file
  * \param[in] name   name associated to the slot
@@ -242,17 +191,6 @@ IOOFOAM_Kernel::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
 	std::string input;
 
 	BaseManipulation::absorbSectionXML(slotXML, name);
-
-    if(slotXML.hasOption("IOMode")){
-        std::string fallback_type = "IOModeNONE";
-    	std::string input_type = slotXML.get("IOMode", fallback_type);
-    	input_type = bitpit::utils::string::trim(input_type);
-
-    	auto maybeIOOFMode = IOOFMode::_from_string_nothrow(input_type.c_str());
-        if(maybeIOOFMode){
-            setType(maybeIOOFMode->_to_integral());
-        }
-    }
 
 	if(slotXML.hasOption("Dir")){
 		input = slotXML.get("Dir");
@@ -274,7 +212,7 @@ IOOFOAM_Kernel::flushSectionXML(bitpit::Config::Section & slotXML, std::string n
 
 	BaseManipulation::flushSectionXML(slotXML, name);
 
-	slotXML.set("IOMode", IOOFMode::_from_integral(m_type)._to_string());
+	slotXML.set("IOMode", std::to_string(m_write));
 	slotXML.set("Dir", m_path);
 };
 
@@ -282,12 +220,16 @@ IOOFOAM_Kernel::flushSectionXML(bitpit::Config::Section & slotXML, std::string n
  * ========================================================================================================
  */
 
+
+
 /*!
     Default constructor
+    \param[in] writemode if true, put the class in write mode, otherwise in read mode.
 */
-IOOFOAM::IOOFOAM(int type):IOOFOAM_Kernel(type){
+IOOFOAM::IOOFOAM(bool writemode):IOOFOAM_Kernel(writemode){
     m_name = "mimmo.IOOFOAM";
-    m_overwrite=false;
+    m_overwrite = false;
+    m_writepointsonly = true;
 };
 
 /*!
@@ -299,20 +241,19 @@ IOOFOAM::IOOFOAM(int type):IOOFOAM_Kernel(type){
  *  - bulk MimmoObject of type 2-Volume and boundary MimmoObject of type 1-Surface
  *  - bulk MimmoObject of type 1-Surface and boundary MimmoObject of type 4-3DCurve.
  *
- * The class is meant for writing modes WRITE and WRITEPOINTSONLY. If a READ mode is passed
- * in argument, it throws an error.
+ * The class is meant for writing mode ONLY when built with this constructor.
  *
  *\param[in] bulk unique pointer to the bulk MimmoObject
  *\param[in] boundary unique pointer to the boundary MimmoObject
- *\param[in] type int from enum IOOFMode. Default is WRITE.
  *
  */
 
-IOOFOAM::IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, int type):
-         IOOFOAM_Kernel(bulk,boundary, type)
+IOOFOAM::IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary):
+         IOOFOAM_Kernel(bulk,boundary, true)
 {
     m_name = "mimmo.IOOFOAM";
     m_overwrite= false;
+    m_writepointsonly = true;
 };
 
 /*!
@@ -326,6 +267,14 @@ IOOFOAM::IOOFOAM(const bitpit::Config::Section & rootXML){
     std::string fallback_name = "ClassNONE";
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::string::trim(input);
+
+    std::string fallback_name2 = "0";
+	std::string input2 = rootXML.get("IOMode", fallback_name2);
+	input2 = bitpit::utils::string::trim(input2);
+    {
+        std::stringstream ss(input2);
+        ss>>m_write;
+    }
 
 	if(input == "mimmo.IOOFOAM"){
 		setDefaults();
@@ -345,7 +294,8 @@ Copy constructor of IOOFOAM. Internal volume and boundary mesh are not copied.
  */
 IOOFOAM::IOOFOAM(const IOOFOAM & other):IOOFOAM_Kernel(other){
     setDefaults();
-	m_type = other.m_type;
+	m_write = other.m_write;
+    m_writepointsonly = other.m_writepointsonly;
 	m_path = other.m_path;
 	m_overwrite = other.m_overwrite;
 	m_OFbitpitmapfaces = other.m_OFbitpitmapfaces;
@@ -366,6 +316,7 @@ IOOFOAM & IOOFOAM::operator=(IOOFOAM other){
 void IOOFOAM::swap(IOOFOAM & x) noexcept
 {
 	std::swap(m_overwrite, x.m_overwrite);
+    std::swap(m_writepointsonly, x.m_writepointsonly);
 	IOOFOAM_Kernel::swap(x);
 };
 
@@ -375,11 +326,58 @@ void IOOFOAM::swap(IOOFOAM & x) noexcept
 void
 IOOFOAM::setDefaults(){
 	m_overwrite = false;
+    m_writepointsonly = true;
     IOOFOAM_Kernel::setDefaults();
 }
 
+/*! It builds the input/output ports of the object
+ */
+void
+IOOFOAM::buildPorts(){
+   bool built = true;
+    // creating input ports
+    // check if geometries are really mandatory (in case custom constructor with bulk and boundary is used.)
+    bool m_mandbulk = (m_write && getGeometry() == nullptr);
+    bool m_mandbndy = (m_write && getBoundaryGeometry() == nullptr);
+    m_mandbndy = m_mandbndy && !m_writepointsonly; //boundary are not needed really if you write only points.
+
+    built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, m_mandbulk));
+    built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, m_mandbndy));
+    built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAM>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
+
+    // creating output ports
+    built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
+    built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAM>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
+
+   m_arePortsBuilt = built;
+};
+
+
+
 /*!
- * Set overwrite parameter. This option is valid only in WRITEPOINTSONLY mode.
+ * Set writePointsOnly parameter. This option is valid only in write mode.
+ * If true write mesh points only in a preexistent OpenFoam mesh case, if false
+   write mesh from scratch.
+ * \param[in] flag activation flag.
+ */
+void
+IOOFOAM::setWritePointsOnly(bool flag){
+	//m_writepointsonly = flag;
+    m_writepointsonly = true; //TODO set to flag once write() is coded
+}
+
+/*!
+ * Get WritePointsOnly parameter.  See setWritePointsOnly method.
+ * \return writePointsOnly parameter content
+ */
+bool
+IOOFOAM::getWritePointsOnly(){
+	return m_writepointsonly;
+}
+
+/*!
+ * Set overwrite parameter. This option is valid only in write mode and WritePointsOnly parameter enabled.
  * If true overwrite points in the current OpenFoam case time of the mesh at WriteDir.
  * If false save them in a newly created case time at current time + 1;
  * \param[in] flag activation flag.
@@ -412,6 +410,15 @@ IOOFOAM::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string n
 	std::string input;
 
 	IOOFOAM_Kernel::absorbSectionXML(slotXML, name);
+    if(slotXML.hasOption("WritePointsOnly")){
+		input = slotXML.get("WritePointsOnly");
+		bool value = true;
+		if(!input.empty()){
+			std::stringstream ss(bitpit::utils::string::trim(input));
+			ss >> value;
+		}
+		setOverwrite(value);
+	};
 	if(slotXML.hasOption("Overwrite")){
 		input = slotXML.get("Overwrite");
 		bool value = false;
@@ -434,7 +441,8 @@ IOOFOAM::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	BITPIT_UNUSED(name);
 
 	IOOFOAM_Kernel::flushSectionXML(slotXML, name);
-	slotXML.set("Overwrite", std::to_string(m_overwrite));
+    slotXML.set("WritePointsOnly", std::to_string(m_overwrite));
+    slotXML.set("Overwrite", std::to_string(m_overwrite));
 };
 
 /*!Execution command.
@@ -443,19 +451,14 @@ IOOFOAM::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 void
 IOOFOAM::execute(){
 	bool check = true;
-	switch (m_type){
-	case IOOFMode::READ :
-		check = read();
-		break;
-	case IOOFMode::WRITE :
-		//             check = write(); //TODO coding complete mesh writing from scratch.
-		//             break;
-	case IOOFMode::WRITEPOINTSONLY :
-		check = writePointsOnly();
-		break;
-	default:
-		//never been reached
-		break;
+	if(!m_write){
+        check = read();
+    }else{
+        if (!m_writepointsonly){
+            check = write();
+        }else{
+            check = writePointsOnly();
+        }
 	}
 	if (!check){
 		throw std::runtime_error (m_name + ": an error occured while reading from/writing to files");
@@ -661,9 +664,9 @@ IOOFOAM::writePointsOnly(){
 
 /*!
  * Default constructor of IOOFOAMScalarField.
- * \param[in] type int from enum IOOFMode, for class mode: READ, WRITE. Default is READ.
+ \param[in] writemode if true, put the class in write mode, otherwise in read mode.
  */
-IOOFOAMScalarField::IOOFOAMScalarField(int type):IOOFOAM_Kernel(type){
+IOOFOAMScalarField::IOOFOAMScalarField(bool writemode):IOOFOAM_Kernel(writemode){
 	m_name           = "mimmo.IOOFOAMScalarField";
 }
 
@@ -678,6 +681,13 @@ IOOFOAMScalarField::IOOFOAMScalarField(const bitpit::Config::Section & rootXML){
 	std::string input = rootXML.get("ClassName", fallback_name);
 	input = bitpit::utils::string::trim(input);
 
+    std::string fallback_name2 = "0";
+	std::string input2 = rootXML.get("IOMode", fallback_name2);
+	input2 = bitpit::utils::string::trim(input2);
+    {
+        std::stringstream ss(input2);
+        ss>>m_write;
+    }
 
 	if(input == "mimmo.IOOFOAMScalarField"){
 		setDefaults();
@@ -721,9 +731,17 @@ void IOOFOAMScalarField::swap(IOOFOAMScalarField & x) noexcept
  */
 void
 IOOFOAMScalarField::buildPorts(){
-	IOOFOAM_Kernel::buildPorts();
-	bool built = m_arePortsBuilt;
-	// creating output ports
+	bool built = true;
+
+    //depending if the field to be read/written is bulk or boundary, you need at least bulk or boundary connected.
+    built = (built && createPortIn<MimmoObject*, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, true,1));
+    built = (built && createPortIn<MimmoObject*, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, true,1));
+    built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
+
+    // creating output ports
+    built = (built && createPortOut<MimmoObject*, IOOFOAMScalarField>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
+    built = (built && createPortOut<MimmoObject*, IOOFOAMScalarField>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
 	built = (built && createPortOut<dmpvector1D*, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getField, M_SCALARFIELD));
 	built = (built && createPortOut<dmpvector1D*, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getBoundaryField, M_SCALARFIELD2));
 	m_arePortsBuilt = built;
@@ -752,20 +770,15 @@ IOOFOAMScalarField::getBoundaryField(){
  */
 void
 IOOFOAMScalarField::execute(){
-	bool check = true;
-	switch (m_type){
-	case IOOFMode::READ :
-		check = read();
-		break;
-	case IOOFMode::WRITE :
-		//             check = write(); //TODO coding complete mesh writing from scratch.
-	default:
-		//never been reached
-		break;
-	}
-	if (!check){
-		throw std::runtime_error (m_name + ": an error occured while reading from/writing to files");
-	}
+    bool check = true;
+    if(!m_write){
+        check = read();
+    }else{
+        check = write();
+    }
+    if (!check){
+        throw std::runtime_error (m_name + ": an error occured while reading from/writing to files");
+    }
 }
 
 
@@ -891,11 +904,11 @@ IOOFOAMScalarField::read(){
  */
 bool
 IOOFOAMScalarField::write(){
-	if(!checkMeshCoherence()) return false;
+    if(!checkMeshCoherence()) return false;
 
-	//do nothing for now
+    (*m_log)<<"WARNING: "<<m_name<<" Writing OF field is not available yet. Did nothing."<<std::endl;
 
-	return true;
+    return true;
 }
 
 
@@ -905,9 +918,9 @@ IOOFOAMScalarField::write(){
  */
  /*!
   * Default constructor of IOOFOAMVectorField.
-  * \param[in] type int from enum IOOFMode, for class mode: READ, WRITE. Default is READ.
-  */
- IOOFOAMVectorField::IOOFOAMVectorField(int type):IOOFOAM_Kernel(type){
+  \param[in] writemode if true, put the class in write mode, otherwise in read mode.
+ */
+ IOOFOAMVectorField::IOOFOAMVectorField(bool writemode):IOOFOAM_Kernel(writemode){
  	m_name           = "mimmo.IOOFOAMVectorField";
  }
 
@@ -921,6 +934,14 @@ IOOFOAMScalarField::write(){
  	std::string fallback_name = "ClassNONE";
  	std::string input = rootXML.get("ClassName", fallback_name);
  	input = bitpit::utils::string::trim(input);
+
+    std::string fallback_name2 = "0";
+	std::string input2 = rootXML.get("IOMode", fallback_name2);
+	input2 = bitpit::utils::string::trim(input2);
+    {
+        std::stringstream ss(input2);
+        ss>>m_write;
+    }
 
  	if(input == "mimmo.IOOFOAMVectorField"){
  		setDefaults();
@@ -964,9 +985,16 @@ IOOFOAMScalarField::write(){
   */
  void
  IOOFOAMVectorField::buildPorts(){
- 	IOOFOAM_Kernel::buildPorts();
- 	bool built = m_arePortsBuilt;
- 	// creating output ports
+    bool built = true;
+
+    built = (built && createPortIn<MimmoObject*, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, true,1));
+    built = (built && createPortIn<MimmoObject*, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, true,1));
+    built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
+
+    // creating output ports
+    built = (built && createPortOut<MimmoObject*, IOOFOAMVectorField>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
+    built = (built && createPortOut<MimmoObject*, IOOFOAMVectorField>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
  	built = (built && createPortOut<dmpvecarr3E*, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getField, M_VECTORFIELD));
  	built = (built && createPortOut<dmpvecarr3E*, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getBoundaryField, M_VECTORFIELD2));
  	m_arePortsBuilt = built;
@@ -996,15 +1024,10 @@ IOOFOAMScalarField::write(){
  void
  IOOFOAMVectorField::execute(){
  	bool check = true;
- 	switch (m_type){
- 	case IOOFMode::READ :
- 		check = read();
- 		break;
- 	case IOOFMode::WRITE :
- 		//             check = write(); //TODO coding complete mesh writing from scratch.
- 	default:
- 		//never been reached
- 		break;
+ 	if(!m_write){
+        check = read();
+    }else{
+        check = write();
  	}
  	if (!check){
  		throw std::runtime_error (m_name + ": an error occured while reading from/writing to files");
@@ -1124,7 +1147,7 @@ bool
 IOOFOAMVectorField::write(){
 	if(!checkMeshCoherence()) return false;
 
-	//do nothing for now
+	(*m_log)<<"WARNING: "<<m_name<<" Writing OF field is not available yet. Did nothing."<<std::endl;
 
 	return true;
 }
