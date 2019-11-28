@@ -235,6 +235,7 @@ IOWavefrontOBJ::IOWavefrontOBJ(IOWavefrontOBJ::IOMode mode){
     m_filename = "iowavefrontobj";
     m_resume = false;
     m_tol = 1.0E-8;
+    m_texturetol = 1.0E-8;
 }
 
 /*!
@@ -248,6 +249,7 @@ IOWavefrontOBJ::IOWavefrontOBJ(const bitpit::Config::Section & rootXML){
     m_filename = "iowavefrontobj";
     m_resume = false;
     m_tol = 1.0E-8;
+    m_texturetol = 1.0E-8;
 
     std::string fallback_name = "ClassNONE";
     std::string fallback_mode = "0";
@@ -284,6 +286,7 @@ void IOWavefrontOBJ::swap(IOWavefrontOBJ & x) noexcept{
     std::swap(m_filename, x.m_filename);
     std::swap(m_resume, x.m_resume);
     std::swap(m_tol, x.m_tol);
+    std::swap(m_texturetol, x.m_texturetol);
 
     std::swap(m_intPatch, x.m_intPatch);
     std::swap(m_intData, x.m_intData);
@@ -586,8 +589,16 @@ void    IOWavefrontOBJ::printResumeFile(bool print){
     set the geometric tolerance for duplicated vertices collapsing
     \param[in] tolerance
 */
-void    IOWavefrontOBJ::setGeomTolerance(double tolerance){
+void    IOWavefrontOBJ::setGeometryTolerance(double tolerance){
     m_tol= std::max(std::numeric_limits<double>::min(), tolerance);
+}
+
+/*!
+    set the texture tolerance for duplicated vertices collapsing
+    \param[in] tolerance
+*/
+void    IOWavefrontOBJ::setTextureTolerance(double tolerance){
+    m_texturetol= std::max(std::numeric_limits<double>::min(), tolerance);
 }
 
 /*!
@@ -627,17 +638,27 @@ void    IOWavefrontOBJ::absorbSectionXML(const bitpit::Config::Section & slotXML
         printResumeFile(value);
     };
 
-    if(slotXML.hasOption("GeomTolerance")){
-        input = slotXML.get("GeomTolerance");
+    if(slotXML.hasOption("GeometryTolerance")){
+        input = slotXML.get("GeometryTolerance");
         double value = 1.0E-8;
         if(!input.empty()){
             input = bitpit::utils::string::trim(input);
             std::stringstream ss(input);
             ss >> value;
         }
-        setGeomTolerance(value);
+        setGeometryTolerance(value);
     };
 
+    if(slotXML.hasOption("TextureTolerance")){
+        input = slotXML.get("TextureTolerance");
+        double value = 1.0E-8;
+        if(!input.empty()){
+            input = bitpit::utils::string::trim(input);
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setTextureTolerance(value);
+    };
 }
 
 /*!
@@ -654,7 +675,8 @@ void    IOWavefrontOBJ::flushSectionXML(bitpit::Config::Section & slotXML, std::
     slotXML.set("Dir", m_dir);
     slotXML.set("Filename", m_filename);
     slotXML.set("PrintResumeFile", std::to_string(m_resume));
-    slotXML.set("GeomTolerance", std::to_string(m_tol));
+    slotXML.set("GeometryTolerance", std::to_string(m_tol));
+    slotXML.set("TextureTolerance", std::to_string(m_texturetol));
 
 }
 
@@ -875,6 +897,7 @@ void IOWavefrontOBJ::restore(std::istream & in){
     //initialized
 
     bitpit::utils::binary::read(in, m_tol);
+    bitpit::utils::binary::read(in, m_texturetol);
 
     bool geoMark, txtMark, dataMark;
 
@@ -904,15 +927,22 @@ void IOWavefrontOBJ::restore(std::istream & in){
 void IOWavefrontOBJ::dump(std::ostream & out){
 
     bitpit::utils::binary::write(out, m_tol);
+    bitpit::utils::binary::write(out, m_texturetol);
 
     bool geoMark = (m_geometry != nullptr);
-    bool dataMark = (m_extData != nullptr);
-
     bitpit::utils::binary::write(out, geoMark);
     if(geoMark) m_geometry->dump(out);
 
+    // Use internal or external data object
+    WavefrontObjData* objData = nullptr;
+    if (m_extData != nullptr)
+    	objData = m_extData;
+    else if (m_intData != nullptr)
+    	objData = m_intData.get();
+
+    bool dataMark = (objData != nullptr);
     bitpit::utils::binary::write(out, dataMark);
-    if(dataMark) m_extData->dump(out);
+    if(dataMark) objData->dump(out);
 
 }
 
@@ -1156,26 +1186,6 @@ void IOWavefrontOBJ::readObjectData(std::ifstream & in, const std::streampos &be
         	bool textureOn = false;
         	for(std::string & str: tempstring){
 
-        		//                    	str = str.substr(0,str.find("//"));
-        		//                        std::replace(str.begin(), str.end(), '/', ' ');
-        		//                        std::stringstream ss(str);
-        		//                        ss>>locConn[counter];
-        		//
-        		//                        //handling negative vertex indexing rule of obj file
-        		//                        if(locConn[counter] < 0) locConn[counter] += vOffset;
-        		//
-        		//                        if(ss.good() && !m_skiptexture){
-        		//                            textureOn=true;
-        		//                            ss>>txtConn[counter];
-        		//                            if(txtConn[counter] < 0) txtConn[counter] += vTxtOffset;
-        		//                        }
-        		//
-        		//                        if(ss.good()){
-        		//                            ss>>vnormConn[counter];
-        		//                            if(vnormConn[counter] < 0) vnormConn[counter] += vnOffset;
-        		//                        }
-        		//
-
         		// Define the type of facet definition if not already defined
         		if (facetdefinition == -1){
 
@@ -1382,12 +1392,26 @@ void IOWavefrontOBJ::writeObjectData(WavefrontObjData* objData, std::ofstream & 
     vOffset += count;
 
     //texture vertices with its own insertion map
+	bitpit::KdTree<3,std::array<double,3>,long> kdTreeTexture;
     count = 0;
     for(long idTexture: txtVertList){
-    	temp = objData->vertexTexture[idTexture];
-    	out<<"vt "<<std::fixed<<std::setprecision(6)<<temp[0]<<" "<<temp[1]<<" "<<temp[2]<<std::endl;
-    	mapVTxtID_index[idTexture] = vTxtOffset+count;
-    	++count;
+    	darray3E & texturePoint = objData->vertexTexture[idTexture];
+
+    	// Check if the texture point is already written
+    	// Set a texture tolerance
+		int inode = kdTreeTexture.hNeighbor(&texturePoint, m_texturetol, false);
+
+		// If returned node index is < 0 no coincident texture points are found
+		if (inode < 0){
+			long index = vTxtOffset+count;
+			kdTreeTexture.insert(&texturePoint, index);
+			out<<"vt "<<std::fixed<<std::setprecision(6)<<texturePoint[0]<<" "<<texturePoint[1]<<" "<<texturePoint[2]<<std::endl;
+			mapVTxtID_index[idTexture] = index;
+			++count;
+		}
+		else{
+			mapVTxtID_index[idTexture] = kdTreeTexture.nodes[inode].label;
+		}
     }
     vTxtOffset += count;
 
@@ -1417,13 +1441,8 @@ void IOWavefrontOBJ::writeObjectData(WavefrontObjData* objData, std::ofstream & 
     MimmoPiercedVector<long>* sid;
     bool deleteSid;
 
-//    if(m_extData){
-        sid = &(objData->smoothids);
-        deleteSid = false;
-//    }else{
-//        sid = new MimmoPiercedVector<long>(m_geometry, MPVLocation::CELL);
-//        deleteSid = true;
-//    }
+    sid = &(objData->smoothids);
+    deleteSid = false;
     sid->completeMissingData(0);
 
 //    std::cout<<" material g cells "<<matgCells.size()<<std::endl;
@@ -1523,7 +1542,11 @@ int IOWavefrontOBJ::convertKeyEntryToInt(const std::string & key){
     return res;
 }
 
-
+/*!
+ * Compute the vertex normals of the vertices involved by geometry displacements.
+ * Use geometry tolerance as threshold on the norm of the displacement vector
+ * to define if a vertex is moved.
+ */
 void IOWavefrontOBJ::computeMovedNormals(){
 
 	if (m_displacements.getDataLocation() != MPVLocation::POINT){
@@ -1535,7 +1558,6 @@ void IOWavefrontOBJ::computeMovedNormals(){
         (*m_log)<<m_name + " : geometry linked in displacements different ffrom target geometry "<<std::endl;
         return;
 	}
-
 
     // Use internal or external data object
     WavefrontObjData* objData;
@@ -1561,18 +1583,15 @@ void IOWavefrontOBJ::computeMovedNormals(){
 	}
 
 	// Define a local tolerance
-	double tolerance = 1.0e-05;
+//	double tolerance = 1.0e-05;
+	double tolerance = m_tol;
 	for (long vertexId : getGeometry()->getPatch()->getVertices().getIds()){
 		if (norm2(m_displacements[vertexId]) > tolerance){
 			std::array<double,3> vertexNormal = vertexNormals[vertexId];
 			objData->vertexNormal[vertexId] = vertexNormal;
 		}
 	}
-
-
 }
-
-
 
 
 }
