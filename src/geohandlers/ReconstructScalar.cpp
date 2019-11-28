@@ -404,7 +404,7 @@ ReconstructScalar::buildPorts(){
 
     //input
     built = (built && createPortIn<MimmoObject *, ReconstructScalar>(&m_geometry, M_GEOM, true));
-    built = (built && createPortIn<dmpvector1D*, ReconstructScalar>(this, &mimmo::ReconstructScalar::addData, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvector1D*, ReconstructScalar>(this, &mimmo::ReconstructScalar::addData, M_SCALARFIELD, true));
 
     //output
     built = (built && createPortOut<dmpvector1D*, ReconstructScalar>(this, &ReconstructScalar::getResultField, M_SCALARFIELD));

@@ -102,7 +102,7 @@ ExtractScalarField::buildPorts(){
     ExtractField::buildPorts();
 
     bool built = m_arePortsBuilt;
-    built = (built && createPortIn<dmpvector1D*, ExtractScalarField>(this, &mimmo::ExtractScalarField::setField, M_SCALARFIELD, true, 1));
+    built = (built && createPortIn<dmpvector1D*, ExtractScalarField>(this, &mimmo::ExtractScalarField::setField, M_SCALARFIELD, true));
     built = (built && createPortOut<dmpvector1D*, ExtractScalarField>(this, &mimmo::ExtractScalarField::getExtractedField, M_SCALARFIELD));
 
     m_arePortsBuilt = built;

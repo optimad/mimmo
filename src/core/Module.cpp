@@ -91,7 +91,7 @@ Module & Module::operator=(Module other){
 void
 Module::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<dmpvecarr3E*, Module>(this, &mimmo::Module::setField, M_VECTORFIELD));
+    built = (built && createPortIn<dmpvecarr3E*, Module>(this, &mimmo::Module::setField, M_VECTORFIELD, true));
     built = (built && createPortOut<dmpvector1D*, Module>(this, &mimmo::Module::getResult, M_SCALARFIELD));
     m_arePortsBuilt = built;
 }

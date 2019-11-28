@@ -117,7 +117,7 @@ void
 StitchGeometry::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::addGeometry, M_GEOM));
+    built = (built && createPortIn<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::addGeometry, M_GEOM, true));
 
     built = (built && createPortOut<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::getGeometry, M_GEOM));
     m_arePortsBuilt = built;

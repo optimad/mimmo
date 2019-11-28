@@ -412,8 +412,8 @@ ReconstructVector::buildPorts(){
     bool built = true;
 
     //input
-    built = (built && createPortIn<MimmoObject *, ReconstructVector>(&m_geometry, M_GEOM, true,1));
-    built = (built && createPortIn<dmpvecarr3E*, ReconstructVector>(this, &mimmo::ReconstructVector::addData, M_VECTORFIELD));
+    built = (built && createPortIn<MimmoObject *, ReconstructVector>(&m_geometry, M_GEOM, true));
+    built = (built && createPortIn<dmpvecarr3E*, ReconstructVector>(this, &mimmo::ReconstructVector::addData, M_VECTORFIELD, true));
 
     //output
     built = (built && createPortOut<dmpvecarr3E*, ReconstructVector>(this, &ReconstructVector::getResultField, M_VECTORFIELD));

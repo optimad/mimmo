@@ -101,7 +101,7 @@ ExtractVectorField::buildPorts(){
     ExtractField::buildPorts();
 
     bool built = m_arePortsBuilt;
-    built = (built && createPortIn<dmpvecarr3E*, ExtractVectorField>(this, &mimmo::ExtractVectorField::setField, M_VECTORFIELD, true, 1));
+    built = (built && createPortIn<dmpvecarr3E*, ExtractVectorField>(this, &mimmo::ExtractVectorField::setField, M_VECTORFIELD, true));
     built = (built && createPortOut<dmpvecarr3E*, ExtractVectorField>(this, &mimmo::ExtractVectorField::getExtractedField, M_VECTORFIELD));
 
     m_arePortsBuilt = built;
