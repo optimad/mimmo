@@ -2154,7 +2154,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 	if (conn.empty()) return false;
 	if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return bitpit::Cell::NULL_ID;
 
-	if(!checkCellConnCoherence(type, conn))  return false;
+	if(!checkCellConnCoherence(type, conn))  return bitpit::Cell::NULL_ID;
 
 	auto patch = getPatch();
 
