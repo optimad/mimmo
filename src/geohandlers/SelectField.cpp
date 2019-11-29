@@ -67,8 +67,8 @@ void SelectField::swap(SelectField & x) noexcept
 void
 SelectField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, SelectField>(this, &mimmo::SelectField::setGeometry, M_GEOM, true,2));
-    built = (built && createPortIn<std::string, SelectField>(this, &mimmo::SelectField::setFieldName, M_NAME,true,2));
+    built = (built && createPortIn<MimmoObject*, SelectField>(this, &mimmo::SelectField::setGeometry, M_GEOM));
+    built = (built && createPortIn<std::string, SelectField>(this, &mimmo::SelectField::setFieldName, M_NAME));
     built = (built && createPortOut<std::string, SelectField>(this, &mimmo::SelectField::getFieldName, M_NAME));
     built = (built && createPortOut<MimmoObject*, SelectField>(this, &mimmo::BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
@@ -149,9 +149,22 @@ SelectField::execute(){
 	bool check = mSelect();
     if(!check){
         (*m_log)<<"Error in "<<m_name<<". Field cannot be Selected"<<std::endl;
-        (*m_log)<<"This could be due to not correct settings"<<std::endl;
+        (*m_log)<<"This could be due to not correct settings:"<<std::endl;
+        switch(m_mode){
+            case SelectType::GEOMETRY :
+                (*m_log)<<"    missing or unfound ref Geometry to select field ->see method setGeometry//M_GEOM port"<<std::endl;
+                break;
+            case SelectType::MAPPING :
+                (*m_log)<<"    empty mapping performed or missing mapping Geometry to select field ->see method setGeometry//M_GEOM port"<<std::endl;
+                break;
+            case SelectType::NAME :
+                (*m_log)<<"    missing or unfound name to select field ->see method setFieldName//M_NAME port"<<std::endl;
+                break;
+            default:
+                //never been reached
+                break;
+        }
         (*m_log)<<"Return empty field"<<std::endl;
-//        throw std::runtime_error (m_name + " : field cannot be Selected.");
     }
 }
 
