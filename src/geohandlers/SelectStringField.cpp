@@ -250,15 +250,15 @@ SelectStringField::mSelect(){
 			//not resolve overlapping because I've chosen the first encountered value
 
 			delete ef;
+            if (m_result.size() > 0) return true;
 		}
 		break;
 	}
 
 	} // end switch mode
 
-
-	if (m_result.isEmpty()) return false;
-	return true;
+    //if you are here something was wrong.
+	return false;
 }
 
 /*!
