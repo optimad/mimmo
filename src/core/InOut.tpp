@@ -274,7 +274,7 @@ PortInT<T, O>::readBuffer(){
     \result Returns the same output stream received in input.
 */
 template<typename T>
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vector<T> &var)
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream  &buffer, const std::vector<T> &var)
 {
     std::size_t nP = var.size();
     buffer << nP;
@@ -292,7 +292,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::vec
     \result Returns the same input stream received in input.
 */
 template<typename T>
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<T> &var)
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, std::vector<T> &var)
 {
     std::size_t nP;
     buffer >> nP;
@@ -311,7 +311,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::vector<T> 
 *	\result Returns the same output stream received in input.
 */
 template <typename T, std::size_t d>
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::array<T,d> &var)
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream  &buffer, const std::array<T,d> &var)
 {
     for(std::size_t i=0; i<d; ++i){
         buffer << var[i];
@@ -327,7 +327,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const std::arr
 *	\result Returns the same input stream received in input.
 */
 template <typename T, std::size_t d>
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::array<T,d> &var)
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, std::array<T,d> &var)
 {
     for(std::size_t i=0; i<d; ++i){
         buffer >> var[i];
@@ -342,11 +342,12 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::array<T,d>
 *	\result Returns the same input stream received in input.
 */
 template<typename T, typename Q>
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<T, Q>& element){
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, std::pair<T, Q>& element){
 
     T geo;
     Q data;
-    buffer >> geo >> data ;
+    buffer >> geo;
+    buffer >> data;
     element = std::make_pair(geo, data);
     return buffer;
 };
@@ -358,9 +359,10 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::pair<T, Q>
 *	\result Returns the same input stream received in input.
 */
 template<typename T, typename Q>
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair<T, Q>& element){
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buffer, const std::pair<T, Q>& element){
 
-    buffer<<element.first<<element.second;
+    buffer<<element.first;
+    buffer<<element.second;
     return buffer;
 };
 
@@ -372,14 +374,15 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::pair
 *	\result Returns the same input stream received in input.
 */
 template<typename T, typename Q>
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_map<T, Q >&  var){
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer,std::unordered_map<T, Q >&  var){
 
     T key;
     Q value;
     std::size_t nP;
     buffer >> nP;
     for (std::size_t i = 0; i < nP; ++i) {
-        buffer >> key>> value;
+        buffer >> key;
+        buffer >> value;
         var[key] = value;
     }
     return buffer;
@@ -392,12 +395,13 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::unordered_m
 *	\result Returns the same output stream received in input.
 */
 template<typename T, typename Q>
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unordered_map<T, Q>& var){
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buffer, const std::unordered_map<T, Q>& var){
 
     std::size_t nP = var.size();
     buffer << nP;
     for (auto & ee : var) {
-        buffer << ee.first<<ee.second;
+        buffer << ee.first;
+        buffer <<ee.second;
     }
     return buffer;
 };
@@ -409,14 +413,15 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::unor
 *	\result Returns the same input stream received in input.
 */
 template<typename T, typename Q>
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::map<T, Q >&  var){
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer,std::map<T, Q >&  var){
 
     T key;
     Q value;
     std::size_t nP;
     buffer >> nP;
     for (std::size_t i = 0; i < nP; ++i) {
-        buffer >> key>> value;
+        buffer >> key;
+        buffer >> value;
         var[key] = value;
     }
     return buffer;
@@ -429,12 +434,13 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer,std::map<T, Q >&
 *	\result Returns the same output stream received in input.
 */
 template<typename T, typename Q>
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::map<T, Q>& var){
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buffer, const std::map<T, Q>& var){
 
     std::size_t nP = var.size();
     buffer << nP;
-    for (std::pair<T,Q> & ee : var) {
-        buffer << ee.first<<ee.second;
+    for (auto & ee : var) {
+        buffer << ee.first;
+        buffer <<ee.second;
     }
     return buffer;
 };
@@ -446,13 +452,12 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::map<
 * \result Returns the same output stream received in input.
 */
 template< typename T>
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::MimmoPiercedVector<T>& element){
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, mimmo::MimmoPiercedVector<T>& element){
 
     element.clear();
     mimmo::MimmoObject* geo;
     buffer >> geo;
     element.setGeometry(geo);
-
     std::string name;
     // std::size_t length;
     // buffer >> length;
@@ -467,8 +472,10 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::MimmoPie
     int loc_;
     buffer >> loc_;
     element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
+
     std::size_t nP;
     buffer >> nP;
+
     T val;
     long int id;
     for (std::size_t i = 0; i < nP; ++i) {
@@ -486,7 +493,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::MimmoPie
 * \result Returns the same output stream received in input.
 */
 template<typename T>
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::MimmoPiercedVector<T>& element){
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buffer, const mimmo::MimmoPiercedVector<T>& element){
 
     buffer << element.getGeometry();
 
@@ -502,7 +509,8 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::Mi
     buffer << (std::size_t)element.size();
     auto itE = element.cend();
     for (auto it=element.cbegin(); it!=itE; it++){
-        buffer << it.getId()<<*it;
+        buffer << it.getId();
+        buffer << *it;
     }
     return buffer;
 };
