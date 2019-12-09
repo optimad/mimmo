@@ -248,7 +248,7 @@ protected:
     template<typename T, typename O>
     bool    createPortIn(O* obj, void (O::*setVar_)(T), PortID portR, bool mandatory = false, int family = 0);
 
-    void    setBufferIn(PortID port, bitpit::IBinaryStream& input);
+    void    setBufferIn(PortID port, mimmo::IBinaryStream& input);
     void    readBufferIn(PortID port);
     void    cleanBufferIn(PortID port);
 

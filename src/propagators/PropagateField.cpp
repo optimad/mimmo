@@ -741,14 +741,14 @@ void PropagateVectorField::initializeSlipSurface(){
 				long vertexBufferSize;
 				MPI_Recv(&vertexBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
 
-				bitpit::IBinaryStream vertexBuffer(vertexBufferSize);
+				mimmo::IBinaryStream vertexBuffer(vertexBufferSize);
 				MPI_Recv(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
 
 				// Cell data
 				long cellBufferSize;
 				MPI_Recv(&cellBufferSize, 1, MPI_LONG, sendRank, 200, m_communicator, MPI_STATUS_IGNORE);
 
-				bitpit::IBinaryStream cellBuffer(cellBufferSize);
+				mimmo::IBinaryStream cellBuffer(cellBufferSize);
 				MPI_Recv(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, sendRank, 210, m_communicator, MPI_STATUS_IGNORE);
 
 				// There are no duplicate in the received vertices, but some of them may
@@ -794,7 +794,7 @@ void PropagateVectorField::initializeSlipSurface(){
 				//
 				// Send vertex data
 				//
-				bitpit::OBinaryStream vertexBuffer;
+				mimmo::OBinaryStream vertexBuffer;
 				long vertexBufferSize = 0;
 				long nVerticesToCommunicate = 0;
 
@@ -829,7 +829,7 @@ void PropagateVectorField::initializeSlipSurface(){
 				//
 				// Send cell data
 				//
-				bitpit::OBinaryStream cellBuffer;
+				mimmo::OBinaryStream cellBuffer;
 				long cellBufferSize = 0;
 				long nCellsToCommunicate = 0;
 
@@ -953,7 +953,7 @@ std::unique_ptr<MimmoPiercedVector<std::array<double,3> > >
 	//Send my own and receive deformations by other.
 
     //prepare my own send buffer.
-    bitpit::OBinaryStream myrankDataBuffer;
+    mimmo::OBinaryStream myrankDataBuffer;
     myrankDataBuffer << *(mpvres.get());
     long myrankDataBufferSize = myrankDataBuffer.getSize();
 
@@ -963,7 +963,7 @@ std::unique_ptr<MimmoPiercedVector<std::array<double,3> > >
             // receive data from other ranks.
 			long defBufferSize;
 			MPI_Recv(&defBufferSize, 1, MPI_LONG, sendRank, 900, m_communicator, MPI_STATUS_IGNORE);
-			bitpit::IBinaryStream defBuffer(defBufferSize);
+			mimmo::IBinaryStream defBuffer(defBufferSize);
 			MPI_Recv(defBuffer.data(), defBuffer.getSize(), MPI_CHAR, sendRank, 910, m_communicator, MPI_STATUS_IGNORE);
 
             MimmoPiercedVector<std::array<double,3>> temp;

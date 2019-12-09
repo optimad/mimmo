@@ -691,10 +691,10 @@ BaseManipulation::deletePorts(){
 /*!
  * It sets the buffer stored in an input port of the object.
  * \param[in] port ID of the input port.
- * \param[in] input Reference to bitpit::IBinaryStream to store in m_ibuffer member of the port.
+ * \param[in] input Reference to mimmo::IBinaryStream to store in m_ibuffer member of the port.
  */
 void
-BaseManipulation::setBufferIn(PortID port, bitpit::IBinaryStream& input){
+BaseManipulation::setBufferIn(PortID port, mimmo::IBinaryStream& input){
     m_portIn[port]->m_ibuffer = input;
 }
 
