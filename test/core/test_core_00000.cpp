@@ -33,7 +33,7 @@
 
 int test1() {
 
-    bitpit::OBinaryStream outbuf;
+    mimmo::OBinaryStream outbuf;
 
     //1. testing a vector of simple type double.
     {
@@ -41,7 +41,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::vector<double>output;
         inbuf>>output;
 
@@ -68,7 +68,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input_ptr;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::vector<double*>output;
         inbuf>>output;
 
@@ -91,7 +91,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::vector<std::array<long,4> >output;
         inbuf>>output;
 
@@ -124,7 +124,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::vector<mimmo::MimmoPiercedVector<std::string> *>output;
         inbuf>>output;
 
@@ -153,7 +153,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::vector<std::pair<int*,std::string>>output;
         inbuf>>output;
 
@@ -177,7 +177,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::vector<std::vector<double> >output;
         inbuf>>output;
 
@@ -204,7 +204,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::pair<double*, long* >output;
         inbuf>>output;
 
@@ -229,7 +229,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::pair<long, double* >output;
         inbuf>>output;
 
@@ -257,7 +257,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::unordered_map<double*, long*> output;
         inbuf>>output;
 
@@ -289,7 +289,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::unordered_map<double, long> output;
         inbuf>>output;
 
@@ -319,7 +319,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         std::unordered_map<std::string, std::pair<long, int>> output;
         inbuf>>output;
 
@@ -356,7 +356,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         mimmo::MimmoPiercedVector<std::string> output;
         inbuf>>output;
 
@@ -394,7 +394,7 @@ int test1() {
 
         outbuf.seekg(0); //clean it
         outbuf << input;
-        bitpit::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
+        mimmo::IBinaryStream inbuf(outbuf.data(), outbuf.getSize());
         mimmo::MimmoPiercedVector<std::array<double,3> > output;
         inbuf>>output;
 

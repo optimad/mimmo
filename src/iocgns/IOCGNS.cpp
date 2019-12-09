@@ -1888,11 +1888,11 @@ void IOCGNS::communicateAllProcsStoredBC(){
     if(m_rank == 0){
 
         //create char output data buffer and reverse data into it.
-        bitpit::OBinaryStream dataBuffer_pidtolisttype;
-        bitpit::OBinaryStream dataBuffer_pidtobc;
-        bitpit::OBinaryStream dataBuffer_zonetobndpid;
-        bitpit::OBinaryStream dataBuffer_bcpidnames;
-        bitpit::OBinaryStream dataBuffer_zonepidnames;
+        mimmo::OBinaryStream dataBuffer_pidtolisttype;
+        mimmo::OBinaryStream dataBuffer_pidtobc;
+        mimmo::OBinaryStream dataBuffer_zonetobndpid;
+        mimmo::OBinaryStream dataBuffer_bcpidnames;
+        mimmo::OBinaryStream dataBuffer_zonepidnames;
 
         dataBuffer_pidtobc << m_storedBC->mcg_pidtobc;
         dataBuffer_zonetobndpid << m_storedBC->mcg_zonetobndpid;
@@ -1928,27 +1928,27 @@ void IOCGNS::communicateAllProcsStoredBC(){
         long dbs1,dbs2, dbs3,dbs4, dbs5;
 
         MPI_Recv(&dbs1, 1, MPI_LONG, 0, 100, m_communicator, MPI_STATUS_IGNORE);
-        bitpit::IBinaryStream dataBuffer_pidtobc(dbs1);
+        mimmo::IBinaryStream dataBuffer_pidtobc(dbs1);
         MPI_Recv(dataBuffer_pidtobc.data(), dataBuffer_pidtobc.getSize(), MPI_CHAR, 0, 110, m_communicator, MPI_STATUS_IGNORE);
         dataBuffer_pidtobc >> m_storedBC->mcg_pidtobc;
 
         MPI_Recv(&dbs2, 1, MPI_LONG, 0, 200, m_communicator, MPI_STATUS_IGNORE);
-        bitpit::IBinaryStream dataBuffer_zonetobndpid(dbs2);
+        mimmo::IBinaryStream dataBuffer_zonetobndpid(dbs2);
         MPI_Recv(dataBuffer_zonetobndpid.data(), dataBuffer_zonetobndpid.getSize(), MPI_CHAR, 0, 210, m_communicator, MPI_STATUS_IGNORE);
         dataBuffer_zonetobndpid >> m_storedBC->mcg_zonetobndpid;
 
         MPI_Recv(&dbs3, 1, MPI_LONG, 0, 300, m_communicator, MPI_STATUS_IGNORE);
-        bitpit::IBinaryStream dataBuffer_pidtolisttype(dbs3);
+        mimmo::IBinaryStream dataBuffer_pidtolisttype(dbs3);
         MPI_Recv(dataBuffer_pidtolisttype.data(), dataBuffer_pidtolisttype.getSize(), MPI_CHAR, 0, 310, m_communicator, MPI_STATUS_IGNORE);
         dataBuffer_pidtolisttype >> m_storedBC->mcg_pidtobc;
 
         MPI_Recv(&dbs4, 1, MPI_LONG, 0, 400, m_communicator, MPI_STATUS_IGNORE);
-        bitpit::IBinaryStream dataBuffer_bcpidnames(dbs4);
+        mimmo::IBinaryStream dataBuffer_bcpidnames(dbs4);
         MPI_Recv(dataBuffer_bcpidnames.data(), dataBuffer_bcpidnames.getSize(), MPI_CHAR, 0, 410, m_communicator, MPI_STATUS_IGNORE);
         dataBuffer_bcpidnames >> m_storedBC->mcg_bcpidnames;
 
         MPI_Recv(&dbs5, 1, MPI_LONG, 0, 500, m_communicator, MPI_STATUS_IGNORE);
-        bitpit::IBinaryStream dataBuffer_zonepidnames(dbs5);
+        mimmo::IBinaryStream dataBuffer_zonepidnames(dbs5);
         MPI_Recv(dataBuffer_zonepidnames.data(), dataBuffer_zonepidnames.getSize(), MPI_CHAR, 0, 510, m_communicator, MPI_STATUS_IGNORE);
         dataBuffer_zonepidnames >> m_storedBC->mcg_zonepidnames;
 
