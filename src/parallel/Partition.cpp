@@ -682,14 +682,14 @@ Partition::serialize(MimmoObject* & geometry, bool isBoundary)
 			long vertexBufferSize;
 			MPI_Recv(&vertexBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
 
-			bitpit::IBinaryStream vertexBuffer(vertexBufferSize);
+			mimmo::IBinaryStream vertexBuffer(vertexBufferSize);
 			MPI_Recv(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
 
 			// Cell data
 			long cellBufferSize;
 			MPI_Recv(&cellBufferSize, 1, MPI_LONG, sendRank, 200, m_communicator, MPI_STATUS_IGNORE);
 
-			bitpit::IBinaryStream cellBuffer(cellBufferSize);
+			mimmo::IBinaryStream cellBuffer(cellBufferSize);
 			MPI_Recv(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, sendRank, 210, m_communicator, MPI_STATUS_IGNORE);
 
 			// There are no duplicate in the received vertices, but some of them may
@@ -739,7 +739,7 @@ Partition::serialize(MimmoObject* & geometry, bool isBoundary)
 	    //
 	    // Send vertex data
 	    //
-	    bitpit::OBinaryStream vertexBuffer;
+	    mimmo::OBinaryStream vertexBuffer;
 	    long vertexBufferSize = 0;
 	    long nVerticesToCommunicate = 0;
 
@@ -767,7 +767,7 @@ Partition::serialize(MimmoObject* & geometry, bool isBoundary)
 	    //
 	    // Send cell data
 	    //
-	    bitpit::OBinaryStream cellBuffer;
+	    mimmo::OBinaryStream cellBuffer;
 	    long cellBufferSize = 0;
 	    long nCellsToCommunicate = 0;
 

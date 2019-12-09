@@ -366,7 +366,7 @@ GenericInput::sendReadDataToAllProcs(T & dataTC){
     if(m_rank == 0){
 
         //create char output data buffer and reverse data into it.
-        bitpit::OBinaryStream dataBuffer;
+        mimmo::OBinaryStream dataBuffer;
         dataBuffer << dataTC;
         long dataBufferSize = dataBuffer.getSize();
         //Send data to all other procs
@@ -379,7 +379,7 @@ GenericInput::sendReadDataToAllProcs(T & dataTC){
 
         long dataBufferSize;
         MPI_Recv(&dataBufferSize, 1, MPI_LONG, 0, 100, m_communicator, MPI_STATUS_IGNORE);
-        bitpit::IBinaryStream dataBuffer(dataBufferSize);
+        mimmo::IBinaryStream dataBuffer(dataBufferSize);
         MPI_Recv(dataBuffer.data(), dataBuffer.getSize(), MPI_CHAR, 0, 110, m_communicator, MPI_STATUS_IGNORE);
 
         dataBuffer >> dataTC;
@@ -523,7 +523,7 @@ GenericInputMPVData::sendReadDataToAllProcs(MimmoPiercedVector<T> & dataTC){
 
     if(m_rank == 0){
 
-        bitpit::OBinaryStream dataBuffer;
+        mimmo::OBinaryStream dataBuffer;
         //create char output data buffer and reverse data into it.
         dataBuffer << dataTC;
         long dataBufferSize = dataBuffer.getSize();
@@ -539,7 +539,7 @@ GenericInputMPVData::sendReadDataToAllProcs(MimmoPiercedVector<T> & dataTC){
         long dataBufferSize;
         MPI_Recv(&dataBufferSize, 1, MPI_LONG, 0, 100, m_communicator, MPI_STATUS_IGNORE);
 
-        bitpit::IBinaryStream dataBuffer(dataBufferSize);
+        mimmo::IBinaryStream dataBuffer(dataBufferSize);
         MPI_Recv(dataBuffer.data(), dataBuffer.getSize(), MPI_CHAR, 0, 110, m_communicator, MPI_STATUS_IGNORE);
 
         dataBuffer >> dataTC;

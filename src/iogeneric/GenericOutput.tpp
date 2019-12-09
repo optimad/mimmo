@@ -299,7 +299,7 @@ GenericOutputMPVData::collectDataFromAllProcs(MimmoPiercedVector<T> & locdata, M
         for (int sendRank=1; sendRank<m_nprocs; sendRank++){
             long dataBufferSize;
             MPI_Recv(&dataBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
-            bitpit::IBinaryStream dataBuffer(dataBufferSize);
+            mimmo::IBinaryStream dataBuffer(dataBufferSize);
             MPI_Recv(dataBuffer.data(), dataBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
 
             //reverse in temp
@@ -316,7 +316,7 @@ GenericOutputMPVData::collectDataFromAllProcs(MimmoPiercedVector<T> & locdata, M
         //hey 0, your job is done.
     }else{
 
-        bitpit::OBinaryStream dataBuffer;
+        mimmo::OBinaryStream dataBuffer;
         dataBuffer << locdata;
         long dataBufferSize = dataBuffer.getSize();
         //Send data to rank 0
