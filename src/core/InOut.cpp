@@ -25,13 +25,46 @@
 #include "MimmoNamespace.hpp"
 #include "BaseManipulation.hpp"
 
+namespace mimmo{
+    /*!
+        base constructor
+    */
+    IBinaryStream::IBinaryStream(void) : bitpit::IBinaryStream(){};
+    /*!
+        custom constructor
+        @param[in] size of the buffer
+    */
+    IBinaryStream::IBinaryStream(std::size_t size) : bitpit::IBinaryStream(size){};
+    /*!
+        custom constructor
+        @param[in] buffer pointer to buffer
+        @param[in] size size of the buffer
+    */
+    IBinaryStream::IBinaryStream(const char *buffer, std::size_t size) : bitpit::IBinaryStream(buffer,size){};
+    /*!
+        custom constructor
+        @param[in] buffer as vector of char
+    */
+    IBinaryStream::IBinaryStream(const std::vector<char> &buffer): bitpit::IBinaryStream(buffer){};
+
+    /*!
+        base constructor
+    */
+    OBinaryStream::OBinaryStream(): bitpit::OBinaryStream(){};
+    /*!
+        custom constructor
+        @param[in] size size of the buffer
+    */
+    OBinaryStream::OBinaryStream(std::size_t size): bitpit::OBinaryStream(size){};
+};
+
 /*!
 *	Output stream operator for mimmo::ShapeType enum
 *	\param[in] buffer is the output stream
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
 */
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::ShapeType &var)
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream  &buffer, const mimmo::ShapeType &var)
 {
     buffer << static_cast<int> (var);
     return buffer;
@@ -44,7 +77,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::S
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
 */
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::ShapeType &var)
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, mimmo::ShapeType &var)
 {
     int val;
     buffer >> val;
@@ -58,7 +91,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::ShapeTyp
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
 */
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::CoordType &var)
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream  &buffer, const mimmo::CoordType &var)
 {
     buffer << static_cast<int> (var);
     return buffer;
@@ -71,7 +104,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream  &buffer, const mimmo::C
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
 */
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::CoordType &var)
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, mimmo::CoordType &var)
 {
     int val;
     buffer >> val;
@@ -85,7 +118,7 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::CoordTyp
 *	\param[in] var is the element to be streamed
 *	\result Returns the same input stream received in input.
 */
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::FileDataInfo&  var){
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, mimmo::FileDataInfo&  var){
 
     buffer >> var.ftype;
     buffer >> var.fdir;
@@ -100,9 +133,11 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, mimmo::FileData
 *	\param[in] var is the element to be streamed
 *	\result Returns the same output stream received in input.
 */
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::FileDataInfo& var){
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buffer, const mimmo::FileDataInfo& var){
 
-    buffer<<var.ftype<<var.fdir<<var.fname;
+    buffer<<var.ftype;
+    buffer<<var.fdir;
+    buffer<<var.fname;
     return buffer;
 
 
@@ -114,7 +149,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const mimmo::Fi
     \param[in] element is the element to be streamed
     \result Returns the same output stream received in input.
 */
-bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::string& element){
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buffer, const std::string& element){
 
     // Copy until +1 size term, the last one is the end character (old version)
 	// std::vector<char> inputss(element.c_str(), element.c_str()+element.size()+1);
@@ -135,7 +170,7 @@ bitpit::OBinaryStream& operator<<(bitpit::OBinaryStream &buffer, const std::stri
     \param[in] element is the element to be streamed
     \result Returns the same input stream received in input.
 */
-bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::string& element){
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, std::string& element){
 
 	std::size_t nids;
     buffer >> nids;
@@ -143,10 +178,12 @@ bitpit::IBinaryStream& operator>>(bitpit::IBinaryStream &buffer, std::string& el
     for (std::size_t i = 0; i < nids; ++i){
         buffer >> inputss[i];
     }
+
     // Copy until -1 term, the last one is the end character (old version)
     //  element = std::string(inputss.begin(), inputss.end()-1);
 
     element = std::string(inputss.begin(), inputss.end());
+
 
     return buffer;
 
@@ -304,7 +341,7 @@ void
 mimmo::PortOut::exec(){
     if (m_objLink.size() > 0){
         writeBuffer();
-        bitpit::IBinaryStream input(m_obuffer.data(), m_obuffer.getSize());
+        mimmo::IBinaryStream input(m_obuffer.data(), m_obuffer.getSize());
         cleanBuffer();
         for (int j=0; j<(int)m_objLink.size(); j++){
             if (m_objLink[j] != NULL){
