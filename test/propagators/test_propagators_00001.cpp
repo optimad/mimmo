@@ -172,9 +172,9 @@ int test1() {
     mimmo::PropagateScalarField * prop = new mimmo::PropagateScalarField();
     prop->setName("test00001_PropagateScalarField");
     prop->setGeometry(mesh.get());
-    prop->setDirichletBoundarySurface(bdirMesh.get());
-    prop->setDirichletConditions(&bc_surf_field);
-    prop->setDumping(false);
+    prop->addDirichletBoundarySurface(bdirMesh.get());
+    prop->addDirichletConditions(&bc_surf_field);
+    prop->setDamping(false);
     prop->setPlotInExecution(true);
 
     prop->exec();
@@ -200,13 +200,13 @@ int test1() {
     mimmo::PropagateVectorField * prop3D = new mimmo::PropagateVectorField();
     prop3D->setName("test00001_PropagateVectorField");
     prop3D->setGeometry(mesh.get());
-    prop3D->setDirichletBoundarySurface(bdirMesh.get());
-    prop3D->setDirichletConditions(&bc_surf_3Dfield);
-    prop3D->setDumping(true);
-    prop3D->setDumpingType(1);
-    prop3D->setDecayFactor(1.0);
-    prop3D->setDumpingInnerDistance(0.5);
-    prop3D->setDumpingOuterDistance(3.5);
+    prop3D->addDirichletBoundarySurface(bdirMesh.get());
+    prop3D->addDirichletConditions(&bc_surf_3Dfield);
+    prop3D->setDamping(true);
+    prop3D->setDampingType(1);
+    prop3D->setDampingDecayFactor(1.0);
+    prop3D->setDampingInnerDistance(0.5);
+    prop3D->setDampingOuterDistance(3.5);
 
     prop3D->setPlotInExecution(true);
 

@@ -217,7 +217,7 @@ int test1() {
     //BEWARE IF THE ROTATION ARC IS similar to a linear segment, this deformation works,
     //for large rotation, where the arc path is very different from a different segment, this
     // could lead to not properly expected results.
-    double alpha = 9.0*BITPIT_PI/180.0;
+    double alpha = 25.0*BITPIT_PI/180.0;
     std::vector<long> d2 = bDIR->getVertexFromCellList(bDIR->extractPIDCells(2));
     for(long id : d2){
         darray3E coord = bDIR->getVertexCoords(id);
@@ -231,20 +231,18 @@ int test1() {
     mimmo::PropagateVectorField * prop3D = new mimmo::PropagateVectorField();
     prop3D->setName("test00003_PropagateVectorField");
     prop3D->setGeometry(mesh.get());
-    prop3D->setDirichletBoundarySurface(bDIR.get());
-    prop3D->setDirichletConditions(&bc_surf_3Dfield);
-    prop3D->setSlipBoundarySurface(bSLIP.get());
-    prop3D->setSlipReferenceSurface(bSLIP.get());
+    prop3D->addDirichletBoundarySurface(bDIR.get());
+    prop3D->addDirichletConditions(&bc_surf_3Dfield);
+    prop3D->addSlipBoundarySurface(bSLIP.get());
+    prop3D->addSlipReferenceSurface(bSLIP.get());
 
-    prop3D->setMethod(mimmo::PropagatorMethod::GRAPHLAPLACE);
+    prop3D->setDamping(true);
+    prop3D->setDampingType(0);
+    prop3D->setDampingDecayFactor(2.0);
+    prop3D->setDampingInnerDistance(0.5);
+    prop3D->setDampingOuterDistance(2.5);
 
-    prop3D->setDumping(true);
-    prop3D->setDumpingType(0);
-    prop3D->setDecayFactor(2.0);
-    prop3D->setDumpingInnerDistance(0.5);
-    prop3D->setDumpingOuterDistance(2.5);
-
-    prop3D->setSolverMultiStep(3);
+    prop3D->setSolverMultiStep(25);
 
     prop3D->setPlotInExecution(true);
 
