@@ -281,11 +281,10 @@ int test1() {
     mimmo::PropagateScalarField * prop = new mimmo::PropagateScalarField();
     prop->setName("test00002_PropagateScalarField");
     prop->setGeometry(mesh.get());
-    prop->setDirichletBoundarySurface(boundary.get());
-    prop->setDirichletConditions(&bc_surf_field);
-    prop->setDumping(false);
+    prop->addDirichletBoundarySurface(boundary.get());
+    prop->addDirichletConditions(&bc_surf_field);
+    prop->setDamping(false);
     prop->setPlotInExecution(true);
-    prop->setMethod(mimmo::PropagatorMethod::GRAPHLAPLACE);
     prop->setSolverMultiStep(4);
     prop->exec();
 

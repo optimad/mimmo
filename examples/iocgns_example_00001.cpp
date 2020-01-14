@@ -122,11 +122,14 @@ void example00001() {
     prop->setPlotInExecution(true);
     prop->setTolerance(1.0e-9);
     prop->setUpdateThreshold(1.0e-12);
-    prop->setDumping(true);
-    prop->setDumpingType(0);
-    prop->setDumpingInnerDistance(0.01);
-    prop->setDumpingOuterDistance(25.0);
-    prop->setDecayFactor(3.0);
+    prop->setDamping(true);
+    prop->setDampingType(0);
+    prop->setDampingInnerDistance(0.01);
+    prop->setDampingOuterDistance(80.0);
+    prop->setDampingDecayFactor(3.0);
+    prop->setNarrowBand(true);
+    prop->setNarrowBandWidth(80.0);
+    prop->setNarrowBandRelaxation(0.3);
     prop->forcePlanarSlip(true);
     prop->setSolverMultiStep(1);
 
@@ -174,6 +177,7 @@ void example00001() {
     mimmo::pin::addPin(cgnsDirichlet, prop, M_GEOM, M_GEOM2)  ;
     mimmo::pin::addPin(cgnsSlip, prop, M_GEOM, M_GEOM4)  ;
     mimmo::pin::addPin(boxSel, prop, M_GEOM, M_GEOM3)  ;
+    mimmo::pin::addPin(boxSel, prop, M_GEOM, M_GEOM7)  ;
 
     mimmo::pin::addPin(recon, prop, M_VECTORFIELD, M_GDISPLS)  ;
     mimmo::pin::addPin(prop, applier, M_GDISPLS, M_GDISPLS)  ;
