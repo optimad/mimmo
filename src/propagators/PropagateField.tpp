@@ -41,57 +41,58 @@ PropagateField<NCOMP>::PropagateField(){
  */
 template<std::size_t NCOMP>
 void PropagateField<NCOMP>::setDefaults(){
-	this->m_isbp.clear();
-	this->m_field.clear();
-	this->m_bc_dir.clear();
-	this->m_surface_bc_dir.clear();
-	this->m_tol       = 1.0e-14;
-	this->m_bsurface  = nullptr;
-	this->m_dsurface  = nullptr;
-	this->m_geometry  = nullptr;
+    this->m_thres = 1.0E-8;
+    this->m_tol   = 1.0E-12;
+    this->m_print = false;
+
+    this->m_dampingActive = false;
+    this->m_dampingType = 0;
 	this->m_decayFactor = 1.0;
-	this->m_dumping.clear();
-	this->m_radius = 0.0;
-	this->m_plateau = 0.0;
-	this->m_dumpingActive = false;
-	this->m_dumpingType = 0;
-	this->m_thres = 1.E-8;
-	this->m_forceDirichletConditions = true;
-	this->m_method = PropagatorMethod::GRAPHLAPLACE;
-	this->m_print = false;
-    this->m_originalDumpingSurface = nullptr;
+    this->m_radius = 0.0;
+    this->m_plateau = 0.0;
+
+    this->m_bandActive = false;
+    this->m_bandwidth = 0.0;
+    this->m_bandrelax = 1.0;
+
+// #if MIMMO_ENABLE_MPI
+//     this->m_ghostTag = 0;
+//     this->m_pointGhostTag = 0;
+// #endif
 }
 
 /*!
  * Destructor;
  */
 template<std::size_t NCOMP>
-PropagateField<NCOMP>::~PropagateField(){
-	clear();
-};
+PropagateField<NCOMP>::~PropagateField(){};
 
 /*!
  * Copy constructor
  */
 template<std::size_t NCOMP>
 PropagateField<NCOMP>::PropagateField(const PropagateField<NCOMP> & other):BaseManipulation(other){
-	setDefaults();
-	this->m_isbp         = other.m_isbp;
-	this->m_bc_dir       = other.m_bc_dir;
-	this->m_surface_bc_dir = other.m_surface_bc_dir;
-	this->m_tol          = other.m_tol;
-	this->m_bsurface     = other.m_bsurface;
-	this->m_dsurface     = other.m_dsurface;
-	this->m_dumping      = other.m_dumping;
-	this->m_decayFactor  = other.m_decayFactor;
-	this->m_radius       = other.m_radius;
-	this->m_plateau      = other.m_plateau;
-	this->m_dumpingActive= other.m_dumpingActive;
-	this->m_dumpingType  = other.m_dumpingType;
-	this->m_thres        = other.m_thres;
-	this->m_forceDirichletConditions = other.m_forceDirichletConditions;
-	this->m_method 		 = other.m_method;
-	this->m_print 		 = other.m_print;
+    setDefaults();
+    this->m_thres   = other.m_thres;
+    this->m_tol     = other.m_tol;
+    this->m_print   = other.m_print;
+    this->m_field   = other.m_field;
+
+    this->m_dirichletSurfaces = other.m_dirichletSurfaces;
+    this->m_dirichletBcs      = other.m_dirichletBcs;
+
+    this->m_dampingActive= other.m_dampingActive;
+    this->m_dampingType  = other.m_dampingType;
+    this->m_decayFactor  = other.m_decayFactor;
+    this->m_radius       = other.m_radius;
+    this->m_plateau      = other.m_plateau;
+    this->m_dampingSurfaces = other.m_dampingSurfaces;
+
+    this->m_bandActive   = other.m_bandActive;
+    this->m_bandwidth    = other.m_bandwidth;
+    this->m_bandrelax    = other.m_bandrelax;
+    this->m_bandSurfaces = other.m_bandSurfaces;
+
 };
 
 /*!
@@ -100,24 +101,30 @@ PropagateField<NCOMP>::PropagateField(const PropagateField<NCOMP> & other):BaseM
  */
 template<std::size_t NCOMP>
 void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
-	this->m_isbp.swap(x.m_isbp);
-	this->m_field.swap(x.m_field);
-	this->m_bc_dir.swap(x.m_bc_dir);
-	this->m_surface_bc_dir.swap(x.m_surface_bc_dir);
-	std::swap(this->m_tol, x.m_tol);
-	std::swap(this->m_bsurface, x.m_bsurface);
-	std::swap(this->m_dsurface, x.m_dsurface);
-	std::swap(this->m_decayFactor, x.m_decayFactor);
-	this->m_dumping.swap(x.m_dumping);
-	std::swap(this->m_radius, x.m_radius);
-	std::swap(this->m_plateau, x.m_plateau);
-	std::swap(this->m_dumpingActive, x.m_dumpingActive);
-	std::swap(this->m_dumpingType, x.m_dumpingType);
-	std::swap(this->m_thres, x.m_thres);
-	this->BaseManipulation::swap(x);
-	std::swap(m_forceDirichletConditions,x.m_forceDirichletConditions);
-	std::swap(this->m_method, x.m_method);
-	std::swap(this->m_print, x.m_print);
+
+    std::swap(this->m_thres, x.m_thres);
+    std::swap(this->m_tol, x.m_tol);
+    std::swap(this->m_print, x.m_print);
+    this->m_field.swap(x.m_field);
+
+    std::swap(this->m_dirichletSurfaces, x.m_dirichletSurfaces);
+    std::swap(this->m_dirichletBcs, x.m_dirichletBcs);
+
+    std::swap(this->m_dampingActive, x.m_dampingActive);
+    std::swap(this->m_dampingType, x.m_dampingType);
+    std::swap(this->m_decayFactor, x.m_decayFactor);
+    std::swap(this->m_radius, x.m_radius);
+    std::swap(this->m_plateau, x.m_plateau);
+    std::swap(this->m_dampingSurfaces, x.m_dampingSurfaces);
+    this->m_damping.swap(x.m_damping);
+
+    std::swap(this->m_bandActive, x.m_bandActive);
+    std::swap(this->m_bandwidth, x.m_bandwidth);
+    std::swap(this->m_bandrelax, x.m_bandrelax);
+    std::swap(this->m_bandSurfaces, x.m_bandSurfaces);
+    this->m_banddistances.swap(x.m_banddistances);
+
+    this->BaseManipulation::swap(x);
 }
 
 /*!
@@ -126,122 +133,21 @@ void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::buildPorts(){
-	bool built = true;
-	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setGeometry, M_GEOM, true));
-	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setDirichletBoundarySurface, M_GEOM2, true));
-	built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setDumpingBoundarySurface, M_GEOM3));
-	m_arePortsBuilt = built;
+    bool built = true;
+    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setGeometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addDirichletBoundarySurface, M_GEOM2, true));
+    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addDampingBoundarySurface, M_GEOM3));
+    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addNarrowBandBoundarySurface, M_GEOM7));
+    m_arePortsBuilt = built;
 };
 
 /*!
- * Set pointer to your target bulk volume geometry. Reimplemented from mimmo::BaseManipulation::setGeometry().
- * Geometry must be a of volume type (MimmoObject type = 2);
- * \param[in] geometry_ pointer to target geometry
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
-
-	if (geometry_ == NULL) return;
-	if (geometry_->getType()!= 2 ) return;
-
-	m_geometry = geometry_;
-
-	if(!m_geometry->areAdjacenciesBuilt()){
-		m_geometry->buildAdjacencies();
-	}
-//	//check and build the interfaces if needed
-//	if(!m_geometry->areInterfacesBuilt()){
-//		m_geometry->buildInterfaces();
-//	}
-}
-
-/*!
- * Sets the portion of boundary mesh relative to geometry target
- * that must be constrained with Dirichlet conditions.
- * \param[in] bsurface Boundary patch.
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::setDirichletBoundarySurface(MimmoObject* bsurface){
-	if (bsurface == nullptr)       return;
-	if (bsurface->getType()!= 1 ) return;
-
-	m_bsurface = bsurface;
-}
-
-/*!
- * It sets the sub-portion of boundary mesh to be used for dumping calculation.
- * Sub-boundary and bulk meshes must be Vertex-Id coherent.
- * Must be a valid surface type mesh (MimmoObject type =1).
- * \param[in] bdumping Boundary sub-portion.
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::setDumpingBoundarySurface(MimmoObject* bdumping){
-	if (bdumping == nullptr)       return;
-	if (bdumping->getType()!= 1 ) return;
-
-	m_dsurface = bdumping;
-}
-
-/*!
- * Activate dumping control of artificial diffusivity(see class doc).
- * \param[in] flag boolean true activate, false deactivate.
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::setDumping(bool flag){
-	m_dumpingActive = flag;
-}
-
-/*!
- * Set the inner dumping radius p (see class doc).
- * \param[in] plateau inner distance.
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::setDumpingInnerDistance(double plateau){
-	m_plateau = plateau;
-}
-
-/*!
- * Set the outer dumping distance r (see class doc).
- * \param[in] radius outer distance.
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::setDumpingOuterDistance(double radius){
-	m_radius = radius;
-}
-
-/*!
- * If dumping is active, set the type of dumping, if distance control based (0) or volume cell control based (1).
- * \param[in] type of control for dumping [0,1].
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::setDumpingType(int type){
-	m_dumpingType = std::max(0, std::min(1, type));
-}
-
-/*!
- * Set the dumping factor.
- * \param[in] decay exponential decay factor of dumping function.
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::setDecayFactor(double decay){
-	m_decayFactor = decay;
-}
-
-/*!
- * It sets the tolerance on residuals for solver convergence on both smoothing and laplacian solver.
+ * It sets the tolerance on residuals for solver convergence for laplacian solver.
  * \param[in] tol Convergence tolerance.
  */
 template <std::size_t NCOMP>
 void PropagateField<NCOMP>::setTolerance(double tol){
-	m_tol = tol;
+    m_tol = std::max(std::numeric_limits<double>::min(), tol);;
 }
 
 /*!
@@ -251,30 +157,12 @@ void PropagateField<NCOMP>::setTolerance(double tol){
  */
 template <std::size_t NCOMP>
 void PropagateField<NCOMP>::setUpdateThreshold(double thres){
-	m_thres = std::max(std::numeric_limits<double>::min(), thres);
+    m_thres = std::max(std::numeric_limits<double>::min(), thres);
 }
 
 /*!
- * Force the boundary condition on dirichlet bounray points during reconstruction phase of finite volume scheme.
- * \param[in] force if true the reconstructed values on Dirichlet boundary points are forced to be the boundary conditions
- */
-template <std::size_t NCOMP>
-void PropagateField<NCOMP>::setForceDirichletConditions(bool force)
-{
-	m_forceDirichletConditions = force;
-}
-
-/*!
- * It sets the method to solve the propagation problem
- * \param[in] method Solver method
- */
-template <std::size_t NCOMP>
-void PropagateField<NCOMP>::setMethod(PropagatorMethod method){
-	m_method = method;
-}
-
-/*!
- * It sets if print residuals and info during system solving
+ * If true print residuals and info during system solving.
+   The option is available only for MPI compilation.
  * \param[in] print Print flag
  */
 template <std::size_t NCOMP>
@@ -286,8 +174,157 @@ void PropagateField<NCOMP>::setPrint(bool print){
     BITPIT_UNUSED(print);
 #endif
     m_print = check;
-
 }
+
+/*!
+ * Set pointer to your target bulk volume geometry. Reimplemented from mimmo::BaseManipulation::setGeometry().
+ * Geometry must be a of volume type (MimmoObject type = 2);
+ * \param[in] geometry_ pointer to target geometry
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
+
+    if (geometry_ == nullptr) return;
+    if (geometry_->getType()!= 2 ) return;
+
+    m_geometry = geometry_;
+
+    if(!m_geometry->areAdjacenciesBuilt()){
+        m_geometry->buildAdjacencies();
+    }
+}
+
+/*!
+ * Add a portion of boundary mesh relative to geometry target
+ * that must be constrained with Dirichlet conditions. See method
+   addDirichletConditions to properly provide a field of bc.
+ * \param[in] bsurface Dirichlet boundary patch.
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::addDirichletBoundarySurface(MimmoObject* bsurface){
+    if (bsurface == nullptr)       return;
+    if (bsurface->getType()!= 1 ) return;
+
+    m_dirichletSurfaces.insert(bsurface);
+}
+
+/*!
+ * Activate Narrow Band Control(see class doc).
+ * \param[in] flag boolean true activate, false deactivate.
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::setNarrowBand(bool flag){
+	m_bandActive = flag;
+}
+
+/*!
+   Add a portion of boundary mesh relative to geometry target
+   to activate Narrow Band Control in its neighborhood (relaxation of Laplace solution).
+   These patches are optional. If nothing is linked, Narrow Band Control (NBC) remains unactive.
+   Please rember to specify the width of the narrow band if the NBC is active.
+   \param[in] surface Boundary patch.
+ */
+ template <std::size_t NCOMP>
+ void
+ PropagateField<NCOMP>::addNarrowBandBoundarySurface(MimmoObject* surface){
+	if (surface == nullptr)      return;
+	if (surface->getType()!= 1 ) return;
+
+    m_bandSurfaces.insert(surface);
+}
+
+/*!
+    Set the width of narrow band for Narrow Band Control method near
+    boundary surfaces (those set with addNarrowBandBoundarySurface method).
+    \param[in] width of the narrow band (>0.0)
+*/
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::setNarrowBandWidth(double width){
+    m_bandwidth = std::max(width, 0.0);
+}
+
+/*!
+    Set the value of relaxation parameter for Narrow Band Control near
+    boundary surfaces (those set with addNarrowBandBoundarySurface method).
+    \param[in] relax  relaxation parameter within [0,1], where 1 means no relaxation, 0 max relaxation.
+*/
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::setNarrowBandRelaxation(double relax){
+    m_bandrelax = std::max(0.0,std::min(relax, 1.0));
+}
+
+/*!
+ * Activate Damping control by means of artificial diffusivity(see class doc).
+ * \param[in] flag boolean true activate, false deactivate.
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::setDamping(bool flag){
+	m_dampingActive = flag;
+}
+
+/*!
+ * If Damping is active, set its type, if distance control based (0) or volume cell control based (1).
+ * \param[in] type of control for dumping [0,1].
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::setDampingType(int type){
+	m_dampingType = std::max(0, std::min(1, type));
+}
+
+
+/*!
+ * Set the Damping decay factor.
+ * \param[in] decay exponential decaying factor for damping function.
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::setDampingDecayFactor(double decay){
+	m_decayFactor = decay;
+}
+
+
+/*!
+ * Add a portion of boundary mesh to be used for damping function/artificial
+   diffusivity calculation.
+ * \param[in] bdumping Boundary patch.
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::addDampingBoundarySurface(MimmoObject* bdumping){
+	if (bdumping == nullptr)       return;
+	if (bdumping->getType()!= 1 ) return;
+
+	m_dampingSurfaces.insert(bdumping);
+}
+
+
+/*!
+ * Set the Damping Inner distance p (see class doc).
+ * \param[in] plateau inner distance.
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::setDampingInnerDistance(double plateau){
+	m_plateau = plateau;
+}
+
+/*!
+ * Set the Damping Outer distance r (see class doc).
+ * \param[in] radius outer distance.
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::setDampingOuterDistance(double radius){
+	m_radius = radius;
+}
+
 
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
@@ -298,117 +335,32 @@ template <std::size_t NCOMP>
 void PropagateField<NCOMP>::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name){
 
 
-	BITPIT_UNUSED(name);
+    BITPIT_UNUSED(name);
 
-	//start absorbing
-	BaseManipulation::absorbSectionXML(slotXML, name);
+    //start absorbing
+    BaseManipulation::absorbSectionXML(slotXML, name);
 
-	if(slotXML.hasOption("Tolerance")){
-		std::string input = slotXML.get("Tolerance");
-		input = bitpit::utils::string::trim(input);
-		double value = 1.0E-12;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-			value = std::fmax(0.0, value);
-		}
-		setTolerance(value);
-	}
-
-	if(slotXML.hasOption("UpdateThres")){
-		std::string input = slotXML.get("UpdateThres");
-		input = bitpit::utils::string::trim(input);
-		double value = 1.0E-8;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-		}
-		setUpdateThreshold(value);
-	}
-
-	if(slotXML.hasOption("Dumping")){
-		std::string input = slotXML.get("Dumping");
-		input = bitpit::utils::string::trim(input);
-		bool value = false;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-		}
-		setDumping(value);
-	}
-
-	if(slotXML.hasOption("DecayFactor")){
-		std::string input = slotXML.get("DecayFactor");
-		input = bitpit::utils::string::trim(input);
-		double value = 1.0;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-			value = std::fmax(0.0, value);
-		}
-		setDecayFactor(value);
-	}
-
-	if(m_dumpingActive){
-
-		if(slotXML.hasOption("DumpingInnerDistance")){
-			std::string input = slotXML.get("DumpingInnerDistance");
-			input = bitpit::utils::string::trim(input);
-			double value = 0.0;
-			if(!input.empty()){
-				std::stringstream ss(input);
-				ss >> value;
-				value = std::fmax(0.0, value);
-			}
-			setDumpingInnerDistance(value);
-		}
-
-		if(slotXML.hasOption("DumpingOuterDistance")){
-			std::string input = slotXML.get("DumpingOuterDistance");
-			input = bitpit::utils::string::trim(input);
-			double value = 1.0e+18;
-			if(!input.empty()){
-				std::stringstream ss(input);
-				ss >> value;
-				value = std::fmax(0.0, value);
-			}
-			setDumpingOuterDistance(value);
-		}
-
-		if(slotXML.hasOption("DumpingType")){
-			std::string input = slotXML.get("DumpingType");
-			input = bitpit::utils::string::trim(input);
-			int value = 0;
-			if(!input.empty()){
-				std::stringstream ss(input);
-				ss >> value;
-			}
-			setDumpingType(value);
-		}
-	}
-
-	if(slotXML.hasOption("Method")){
-		std::string input  = slotXML.get("Method");
-		int value =0;
-		if(!input.empty()){
-			std::stringstream ss(bitpit::utils::string::trim(input));
-			ss>>value;
-		}
-		value = std::max(0, value);
-		value = std::min(1, value);
-		PropagatorMethod method = static_cast<PropagatorMethod>(value);
-		setMethod(method);
-	};
-
-    if(slotXML.hasOption("ForceDirichlet")){
-        std::string input = slotXML.get("ForceDirichlet");
+    if(slotXML.hasOption("Tolerance")){
+        std::string input = slotXML.get("Tolerance");
         input = bitpit::utils::string::trim(input);
-        bool value = false;
+        double value = 1.0E-12;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+            value = std::fmax(0.0, value);
+        }
+        setTolerance(value);
+    }
+
+    if(slotXML.hasOption("UpdateThres")){
+        std::string input = slotXML.get("UpdateThres");
+        input = bitpit::utils::string::trim(input);
+        double value = 1.0E-8;
         if(!input.empty()){
             std::stringstream ss(input);
             ss >> value;
         }
-        setForceDirichletConditions(value);
+        setUpdateThreshold(value);
     }
 
     if(slotXML.hasOption("Print")){
@@ -422,7 +374,123 @@ void PropagateField<NCOMP>::absorbSectionXML(const bitpit::Config::Section & slo
         setPrint(value);
     }
 
-};
+
+    if(slotXML.hasOption("NarrowBand")){
+        std::string input = slotXML.get("NarrowBand");
+        input = bitpit::utils::string::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setNarrowBand(value);
+    }
+
+    if(m_bandActive){
+        if(slotXML.hasOption("NarrowBandWidth")){
+            std::string input = slotXML.get("NarrowBandWidth");
+            input = bitpit::utils::string::trim(input);
+            double value = 0.0;
+            if(!input.empty()){
+                std::stringstream ss(input);
+                ss >> value;
+                value = std::fmax(0.0, value);
+            }
+            setNarrowBandWidth(value);
+        }
+        if(slotXML.hasOption("NarrowBandRelax")){
+            std::string input = slotXML.get("NarrowBandRelax");
+            input = bitpit::utils::string::trim(input);
+            double value = 1.0;
+            if(!input.empty()){
+                std::stringstream ss(input);
+                ss >> value;
+                value = std::fmax(0.0, value);
+            }
+            setNarrowBandRelaxation(value);
+        }
+    }
+
+    std::string inputDamping;
+    if(slotXML.hasOption("Damping")){
+        inputDamping = slotXML.get("Damping");
+    }else if(slotXML.hasOption("Dumping")){  //-->legacy check
+        inputDamping = slotXML.get("Dumping");
+    }
+    if(!inputDamping.empty()){
+        std::string input = bitpit::utils::string::trim(inputDamping);
+        bool value = false;
+        if(!input.empty()){
+           std::stringstream ss(input);
+           ss >> value;
+        }
+       setDamping(value);
+    }
+
+    if(m_dampingActive){
+        if(slotXML.hasOption("DecayFactor")){
+            std::string input = slotXML.get("DecayFactor");
+            input = bitpit::utils::string::trim(input);
+            double value = 1.0;
+            if(!input.empty()){
+                std::stringstream ss(input);
+                ss >> value;
+                value = std::fmax(0.0, value);
+            }
+            setDampingDecayFactor(value);
+        }
+
+        std::string inputDampingType;
+        if(slotXML.hasOption("DampingType")){
+            inputDampingType = slotXML.get("DampingType");
+        }else if(slotXML.hasOption("DumpingType")){ // --> legacy check
+            inputDampingType = slotXML.get("DumpingType");
+        }
+        if(!inputDampingType.empty()){
+            std::string input = bitpit::utils::string::trim(inputDampingType);
+            int value = 0;
+            if(!input.empty()){
+                std::stringstream ss(input);
+                ss >> value;
+            }
+            setDampingType(value);
+        }
+        std::string inputDampingInnerDistance;
+        if(slotXML.hasOption("DampingInnerDistance")){
+            inputDampingInnerDistance = slotXML.get("DampingInnerDistance");
+        }else if(slotXML.hasOption("DumpingInnerDistance")){ // --> legacy check
+            inputDampingInnerDistance = slotXML.get("DumpingInnerDistance");
+        }
+        if(!inputDampingInnerDistance.empty()){
+            std::string input = bitpit::utils::string::trim(inputDampingInnerDistance);
+            double value = 0.0;
+            if(!input.empty()){
+                std::stringstream ss(input);
+                ss >> value;
+                value = std::fmax(0.0, value);
+            }
+            setDampingInnerDistance(value);
+        }
+
+        std::string inputDampingOuterDistance;
+        if(slotXML.hasOption("DampingOuterDistance")){
+            inputDampingOuterDistance = slotXML.get("DampingOuterDistance");
+        }else if(slotXML.hasOption("DumpingOuterDistance")){ // --> legacy check
+            inputDampingOuterDistance = slotXML.get("DumpingOuterDistance");
+        }
+        if(!inputDampingOuterDistance.empty()){
+            std::string input = bitpit::utils::string::trim(inputDampingOuterDistance);
+            double value = 0.0;
+            if(!input.empty()){
+                std::stringstream ss(input);
+                ss >> value;
+                value = std::fmax(0.0, value);
+            }
+            setDampingOuterDistance(value);
+        }
+    }
+
+}
 
 /*!
  * It sets infos from class members in a XML bitpit::Config::section.
@@ -432,23 +500,27 @@ void PropagateField<NCOMP>::absorbSectionXML(const bitpit::Config::Section & slo
 template <std::size_t NCOMP>
 void PropagateField<NCOMP>::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
-	BITPIT_UNUSED(name);
+    BITPIT_UNUSED(name);
 
-	BaseManipulation::flushSectionXML(slotXML, name);
+    BaseManipulation::flushSectionXML(slotXML, name);
 
-	slotXML.set("Tolerance",std::to_string(m_tol));
-	if(m_thres > 0)    slotXML.set("UpdateThres",std::to_string(m_thres));
-	slotXML.set("Dumping", std::to_string(int(m_dumpingActive)));
-	if(m_dumpingActive){
-		slotXML.set("DumpingInnerDistance",std::to_string(m_plateau));
-		slotXML.set("DumpingOuterDistance",std::to_string(m_radius));
-		slotXML.set("DumpingType",std::to_string(m_dumpingType));
-	}
-	slotXML.set("DecayFactor",std::to_string(m_decayFactor));
-	slotXML.set("Method",std::to_string(static_cast<long>(m_method)));
-    slotXML.set("ForceDirichlet",std::to_string(int(m_forceDirichletConditions)));
+    slotXML.set("Tolerance",std::to_string(m_tol));
+    slotXML.set("UpdateThres",std::to_string(m_thres));
     slotXML.set("Print",std::to_string(int(m_print)));
-};
+
+    slotXML.set("NarrowBand", std::to_string(int(m_bandActive)));
+    if(m_bandActive){
+        slotXML.set("NarrowBandWidth",std::to_string(m_bandwidth));
+        slotXML.set("NarrowBandRelax",std::to_string(m_bandrelax));
+    }
+    slotXML.set("Damping", std::to_string(int(m_dampingActive)));
+    if(m_dampingActive){
+        slotXML.set("DampingInnerDistance",std::to_string(m_plateau));
+        slotXML.set("DampingOuterDistance",std::to_string(m_radius));
+        slotXML.set("DampingType",std::to_string(m_dampingType));
+        slotXML.set("DecayFactor",std::to_string(m_decayFactor));
+    }
+}
 
 /*!
  * Restore data as in class default construction.
@@ -456,437 +528,395 @@ void PropagateField<NCOMP>::flushSectionXML(bitpit::Config::Section & slotXML, s
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::clear(){
-	BaseManipulation::clear();
-	setDefaults();
-};
+    BaseManipulation::clear();
+    m_field.clear();
+    m_dirichletSurfaces.clear();
+    m_bc_dir.clear();
+    m_dirichletBcs.clear();
+    m_damping.clear();
+    m_dampingSurfaces.clear();
+    m_dampingUniSurface = nullptr;
+    m_banddistances.clear();
+    m_bandSurfaces.clear();
+    m_bandUniSurface = nullptr;
+
+    setDefaults();
+}
 
 /*!
  * Check coherence of the input data of the class, in particular:
- * - check if boundary patches shares nodes with the bulk geometry
- * - check if data defined on boundary patches are coherent with them
- * if check is good, append the type of BC info on m_isbp.
+   - check if Dirichlet surfaces belongs to the bulk mesh.
+   - check if NarrowBand surfaces belongs to the bulk mesh.
+   - check if Damping surfaces belongs to the bulk mesh.
  * \return true if coherence is satisfied, false otherwise.
  */
 template <std::size_t NCOMP>
 bool
 PropagateField<NCOMP>::checkBoundariesCoherence(){
 
-	// if (m_method == PropagatorMethod::FINITEVOLUMES){
-	// 	//Clean the old m_isbp and initialize it again.
-	// 	initializeBoundaryInfo();
-	// }
+    if(!m_geometry) return false;
 
-	//1st step verify coherence of the Dirichlet point field on boundary surface
-	// with the dirichlet boundary surface provided
-	if (m_surface_bc_dir.getGeometry() != m_bsurface || !m_surface_bc_dir.completeMissingData({0.0})){
-		return false;
-	}
+    std::unordered_set<long> nodeList;
+    for(MimmoObject * obj : m_dirichletSurfaces){
+        std::vector<long> temp = obj->getVerticesIds(true); //only on internals
+        nodeList.insert(temp.begin(), temp.end());
+    }
 
-	// if (m_method == PropagatorMethod::FINITEVOLUMES){
-    //
-	// 	//1st step check if points-ID of m_bsurface get a boundary-interface-patch on the bulk geometry;
-	// 	livector1D interfaces = getGeometry()->getInterfaceFromVertexList(m_bsurface->getVertices().getIds(), true, true);
-	// 	if(interfaces.empty()){
-	// 		return false;
-	// 	}
-    //
-	// 	//update the m_isbp marking dirichlet interfaces
-	// 	for(long id: interfaces){
-	// 		m_isbp.at(id) = 1;
-	// 	}
-    //
-	// }
+    if(m_bandActive){
+        for(MimmoObject * obj : m_bandSurfaces){
+            std::vector<long> temp = obj->getVerticesIds(true); //only on internals
+            nodeList.insert(temp.begin(), temp.end());
+        }
+    }
 
-	return true;
+    if(m_dampingActive){
+        for(MimmoObject * obj : m_dampingSurfaces){
+            std::vector<long> temp = obj->getVerticesIds(true); //only on internals
+            nodeList.insert(temp.begin(), temp.end());
+        }
+    }
+
+    bitpit::PiercedVector<bitpit::Vertex> meshVertices = m_geometry->getVertices();
+    for(long id : nodeList){
+        if(!meshVertices.exists(id)){
+            nodeList.clear();
+            return false;
+        }
+    }
+    return true;
 }
 
 /*!
- * Distribute the input bc values on the border interfaces of the bulk mesh.
- */
-template <std::size_t NCOMP>
-void
-PropagateField<NCOMP>::distributeBCOnBoundaryInterfaces(){
-	//transfer point field info of boundary dirichlet on the volume mesh interfaces.
-	MimmoPiercedVector<std::array<double,NCOMP>> temp(m_geometry, MPVLocation::POINT);
-	temp.reserve(m_surface_bc_dir.size());
-	for(auto it=m_surface_bc_dir.begin(); it!=m_surface_bc_dir.end(); ++it){
-		temp.insert(it.getId(), *it );
-	}
-
-	//interpolate now point data to interface data
-	m_bc_dir.clear();
-	m_bc_dir = temp.pointDataToBoundaryInterfaceData(1.5);
-}
-
-
-/*!
- * Distribute the input bc values on the border points of the bulk mesh.
+ * Distribute the dirichlet bc values on the border points of the bulk mesh.
+   i.e. fill the internal member m_bc_dir.
  */
 template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
-	//transfer point field info of boundary dirichlet on the volume mesh interfaces.
-	m_bc_dir.clear();
-	m_bc_dir.reserve(m_surface_bc_dir.size());
-	for(auto it=m_surface_bc_dir.begin(); it!=m_surface_bc_dir.end(); ++it){
-		m_bc_dir.insert(it.getId(), *it );
-	}
+    //estimate the total number of internal nodes carrying dirichlet bc
+    int ncount = 0;
+    for(MimmoObject * obj : m_dirichletSurfaces){
+        ncount += obj->getNInternalVertices();
+    }
+    m_bc_dir.clear();
+    m_bc_dir.reserve(ncount);
+    m_bc_dir.setDataLocation(MPVLocation::POINT);
+    m_bc_dir.setGeometry(m_geometry);
+
+    //starting from fields, fill in m_bc_dir and track those surfaces without a proper field;
+    std::array<double,NCOMP> zeroval;
+    zeroval.fill(0.0);
+    std::unordered_set<MimmoObject*> withoutField = m_dirichletSurfaces;
+    for(MimmoPiercedVector<std::array<double,NCOMP>> * field : m_dirichletBcs){
+        MimmoObject * ref = field->getGeometry();
+        //remove it from unvisited patch list
+        withoutField.erase(ref);
+        std::vector<long> ids = ref->getVerticesIds(true);
+        for(long id : ids){
+            if(m_bc_dir.exists(id)) continue;
+            if(!field->exists(id)){
+                m_bc_dir.insert(id, zeroval);
+            }else{
+                m_bc_dir.insert(id, field->at(id));
+            }
+        }
+    }
+
+    for(MimmoObject * ref : withoutField){
+        std::vector<long> ids = ref->getVerticesIds(true); //only internals
+        for(long id : ids){
+            if(m_bc_dir.exists(id)) continue;
+            m_bc_dir.insert(id, zeroval);
+        }
+    }
+    //shrink to fit to be sure.
+    m_bc_dir.shrinkToFit();
 }
 
 /*!
- * Instantiate m_originaldumpingsurface, that is the surface where you need to evaluate
- * dumping conditions. In SERIAL version m_dumpingsurface is the m_dumpingsurface passed as boundary.
- * In MPI version m_dumpingsurface is the whole dumping surface rebuilt from every portion "m_dumpingsurface"
- * owned by each rank. Once recollected the whole surface is sent as it is to all ranks.
- * This surface needs to remain untouched and undeformed during Multistep iterations.
+ * Utility to instantiate a unique surface stitching a list of surface patches.
+ * In both Serial and MPI version the final surface is provided as list
+   of boundary patches referring to the target bulk mesh .
+   The aim of this method is to stitch them together in a unique common surface.
+   Moreover, in MPI versions, serialization is needed in order to provide all ranks
+   to work with exactly the same surface (so no ghosts cells/vertices are retained).
+   \param[in] listSurf list of boundary patches
+   \param[out] uniSurf unique_ptr to reconstructed mesh.
  */
 template<std::size_t NCOMP>
-void PropagateField<NCOMP>::initializeDumpingSurface(){
+void
+PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoObject*> & listSurf, std::unique_ptr<MimmoObject> & uniSurf){
 
-    m_originalDumpingSurface = nullptr;
-
-    if (!m_dumpingActive || m_decayFactor <= 1.E-12) {
+    uniSurf = nullptr;
+    // check if list is empty
+    if (listSurf.empty()) {
         return;
     };
 
-    MimmoObject * dumptarget= m_dsurface;
-    if(m_dsurface == nullptr)  dumptarget = m_bsurface;
-
+    //put all surface in the list in a unique surface. For MPI version, surface
+    //are most likely partitioned, so you need to have information on internals/ghosts updated.
+    //reconstructed surface is made by internals element/nodes only.
+    std::unique_ptr<MimmoObject> tempSurface(new MimmoObject(1));
+    for(MimmoObject * obj : listSurf){
 #if MIMMO_ENABLE_MPI
+        if(!obj->isInfoSync()) obj->buildPatchInfo();
+        if(!obj->arePointGhostExchangeInfoSync()) obj->updatePointGhostExchangeInfo();
+#endif
+        tempSurface->getPatch()->reserveVertices(tempSurface->getPatch()->getVertexCount() + obj->getPatch()->getVertexCount());
+        for(bitpit::Vertex & vertex : obj->getVertices()){
+            long vertexId = vertex.getId();
+            if (obj->isPointInterior(vertexId)){
+                tempSurface->addVertex(vertex, vertexId);
+            }
+        }
+        tempSurface->getPatch()->reserveCells(tempSurface->getPatch()->getCellCount() + obj->getPatch()->getCellCount());
+        for (bitpit::Cell &cell : obj->getCells()){
+            if (cell.isInterior()){
+                tempSurface->addCell(cell, cell.getId()); // rank is default, i.e. the actual proc rank in MPI version
+            }
+        }
+    }
 
+    tempSurface->getPatch()->squeezeCells();
+    tempSurface->getPatch()->squeezeVertices();
+
+
+// now in MPI version you need to send all current tempSurface info to all other proc, and receive data from
+// all other procs. In serial version, you are pretty ready to store tempSurface as your m_dampingUniSurface
+#if MIMMO_ENABLE_MPI
     if (getTotalProcs() > 1){
+        uniSurf = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(1)));
 
-    	//MPI version
-    	m_originalDumpingSurface = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(1)));
+        uniSurf->getPatch()->reserveVertices(uniSurf->getPatch()->getVertexCount() + tempSurface->getPatch()->getVertexCount());
+        uniSurf->getPatch()->reserveCells(uniSurf->getPatch()->getCellCount() + tempSurface->getPatch()->getCellCount());
 
-    	//fill serialized geometry
-    	for (bitpit::Vertex &vertex : dumptarget->getVertices()){
-    		long vertexId = vertex.getId();
-    		if (dumptarget->isPointInterior(vertexId)){
-    			m_originalDumpingSurface->addVertex(vertex, vertexId);
-    		}
-    	}
-    	for (bitpit::Cell &cell : dumptarget->getCells()){
-    		if (cell.isInterior()){
-    			m_originalDumpingSurface->addCell(cell, cell.getId());
-    		}
-    	}
+        //serialize reconstructed geometry which is made only by internal cells/vertices!
+        for (bitpit::Vertex &vertex : tempSurface->getVertices()){
+            uniSurf->addVertex(vertex, vertex.getId());
+        }
+        for (bitpit::Cell &cell : tempSurface->getCells()){
+            uniSurf->addCell(cell, cell.getId());
+        }
 
-    	//Receive vertices and cells
-    	for (int sendRank=0; sendRank<m_nprocs; sendRank++){
+        //Receive vertices and cells from other procs
+        for (int sendRank=0; sendRank<m_nprocs; sendRank++){
 
-    		if (m_rank != sendRank){
+            if (m_rank != sendRank){
 
-    			// Vertex data
-    			long vertexBufferSize;
-    			MPI_Recv(&vertexBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
+                // Vertex data
+                long vertexBufferSize;
+                MPI_Recv(&vertexBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
 
-    			mimmo::IBinaryStream vertexBuffer(vertexBufferSize);
-    			MPI_Recv(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
+                mimmo::IBinaryStream vertexBuffer(vertexBufferSize);
+                MPI_Recv(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
 
-    			// Cell data
-    			long cellBufferSize;
-    			MPI_Recv(&cellBufferSize, 1, MPI_LONG, sendRank, 200, m_communicator, MPI_STATUS_IGNORE);
+                // Cell data
+                long cellBufferSize;
+                MPI_Recv(&cellBufferSize, 1, MPI_LONG, sendRank, 200, m_communicator, MPI_STATUS_IGNORE);
 
-    			mimmo::IBinaryStream cellBuffer(cellBufferSize);
-    			MPI_Recv(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, sendRank, 210, m_communicator, MPI_STATUS_IGNORE);
+                mimmo::IBinaryStream cellBuffer(cellBufferSize);
+                MPI_Recv(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, sendRank, 210, m_communicator, MPI_STATUS_IGNORE);
 
-    			// There are no duplicate in the received vertices, but some of them may
-    			// be already a local vertex of a interface cell.
-    			//TODO GENERALIZE IT
-    			//NOTE! THE COHINCIDENT VERTICES ARE SUPPOSED TO HAVE THE SAME ID!!!!
-    			long nRecvVertices;
-    			vertexBuffer >> nRecvVertices;
-    			m_originalDumpingSurface->getPatch()->reserveVertices(m_originalDumpingSurface->getPatch()->getVertexCount() + nRecvVertices);
+                long nRecvVertices;
+                vertexBuffer >> nRecvVertices;
+                uniSurf->getPatch()->reserveVertices(uniSurf->getPatch()->getVertexCount() + nRecvVertices);
 
-    			// Do not add the vertices with Id already in serialized geometry
-    			for (long i = 0; i < nRecvVertices; ++i) {
-    				bitpit::Vertex vertex;
-    				vertexBuffer >> vertex;
-    				long vertexId = vertex.getId();
+                // Do not add the vertices with Id already in serialized geometry
+                for (long i = 0; i < nRecvVertices; ++i) {
+                    bitpit::Vertex vertex;
+                    vertexBuffer >> vertex;
+                    long vertexId = vertex.getId();
+                    if (!uniSurf->getVertices().exists(vertexId)){
+                        uniSurf->addVertex(vertex, vertexId);
+                    }
+                }
 
-    				if (!m_originalDumpingSurface->getVertices().exists(vertexId)){
-    					m_originalDumpingSurface->addVertex(vertex, vertexId);
-    				}
-    			}
+                //Receive and add all Cells
+                long nReceivedCells;
+                cellBuffer >> nReceivedCells;
+                uniSurf->getPatch()->reserveCells(uniSurf->getPatch()->getCellCount() + nReceivedCells);
 
-    			//Receive and add all Cells
-    			long nReceivedCells;
-    			cellBuffer >> nReceivedCells;
-    			m_originalDumpingSurface->getPatch()->reserveCells(m_originalDumpingSurface->getPatch()->getCellCount() + nReceivedCells);
+                for (long i = 0; i < nReceivedCells; ++i) {
+                    // Cell data
+                    bitpit::Cell cell;
+                    cellBuffer >> cell;
+                    long cellId = cell.getId();
+                    // Add cell
+                    uniSurf->addCell(cell, cellId);
+                }
 
-    			for (long i = 0; i < nReceivedCells; ++i) {
-    				// Cell data
-    				bitpit::Cell cell;
-    				cellBuffer >> cell;
+            }else{
+                //Send local vertices and local cells to ranks
+                //
+                // Send vertex data
+                mimmo::OBinaryStream vertexBuffer;
+                long vertexBufferSize = 0;
+                long nVerticesToCommunicate = 0;
 
-    				long cellId = cell.getId();
+                // Fill buffer with vertex data
+                vertexBufferSize += sizeof(long);
+                for (bitpit::Vertex & vert : tempSurface->getVertices()){
+                    vertexBufferSize += vert.getBinarySize();
+                    nVerticesToCommunicate++;
+                }
+                vertexBuffer.setSize(vertexBufferSize);
 
-    				// Add cell
-    				m_originalDumpingSurface->addCell(cell, cellId);
+                vertexBuffer << nVerticesToCommunicate;
+                for (bitpit::Vertex & vert : tempSurface->getVertices()){
+                    vertexBuffer << vert;
+                }
 
-    			}
-    		}
-    		else{
+                for (int recvRank=0; recvRank<m_nprocs; recvRank++){
+                    if (m_rank != recvRank){
+                        // Communication
+                        MPI_Send(&vertexBufferSize, 1, MPI_LONG, recvRank, 100, m_communicator);
+                        MPI_Send(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, recvRank, 110, m_communicator);
+                    }
+                }
+                //
+                // Send cell data
+                //
+                mimmo::OBinaryStream cellBuffer;
+                long cellBufferSize = 0;
+                long nCellsToCommunicate = 0;
 
-    			//Send local vertices and local cells to ranks
+                // Fill the buffer with cell data
+                cellBufferSize += sizeof(long);
+                for (bitpit::Cell & cell : tempSurface->getCells()) {
+                    // WTF this double sizeof(int) is for?
+                    //cellBufferSize += sizeof(int) + sizeof(int) + tempSurface->getCells()[cellId].getBinarySize();
+                    cellBufferSize += cell.getBinarySize();
+                    nCellsToCommunicate++;
+                }
+                cellBuffer.setSize(cellBufferSize);
+                cellBuffer << nCellsToCommunicate;
+                for (bitpit::Cell & cell : tempSurface->getCells()) {
+                    // Cell data
+                    cellBuffer << cell;
+                }
 
-    			//
-    			// Send vertex data
-    			//
-    			mimmo::OBinaryStream vertexBuffer;
-    			long vertexBufferSize = 0;
-    			long nVerticesToCommunicate = 0;
-
-    			// Fill buffer with vertex data
-    			vertexBufferSize += sizeof(long);
-    			for (long vertexId : dumptarget->getVertices().getIds()){
-    				if (dumptarget->isPointInterior(vertexId)){
-    					vertexBufferSize += dumptarget->getVertices()[vertexId].getBinarySize();
-    					nVerticesToCommunicate++;
-    				}
-    			}
-    			vertexBuffer.setSize(vertexBufferSize);
-
-    			vertexBuffer << nVerticesToCommunicate;
-    			for (long vertexId : dumptarget->getVertices().getIds()){
-    				if (dumptarget->isPointInterior(vertexId)){
-    					vertexBuffer << dumptarget->getVertices()[vertexId];
-    				}
-    			}
-
-    			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
-
-    				if (m_rank != recvRank){
-
-    					// Communication
-    					MPI_Send(&vertexBufferSize, 1, MPI_LONG, recvRank, 100, m_communicator);
-    					MPI_Send(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, recvRank, 110, m_communicator);
-
-    				}
-    			}
-
-    			//
-    			// Send cell data
-    			//
-    			mimmo::OBinaryStream cellBuffer;
-    			long cellBufferSize = 0;
-    			long nCellsToCommunicate = 0;
-
-    			// Fill the buffer with cell data
-    			cellBufferSize += sizeof(long);
-    			for (const long cellId : dumptarget->getCellsIds()) {
-    				if (dumptarget->getCells()[cellId].isInterior()){
-    					cellBufferSize += sizeof(int) + sizeof(int) + dumptarget->getCells()[cellId].getBinarySize();
-    					nCellsToCommunicate++;
-    				}
-    			}
-    			cellBuffer.setSize(cellBufferSize);
-
-    			cellBuffer << nCellsToCommunicate;
-    			for (const long cellId : dumptarget->getCellsIds()) {
-    				if (dumptarget->getCells()[cellId].isInterior()){
-    					const bitpit::Cell &cell = dumptarget->getCells()[cellId];
-    					// Cell data
-    					cellBuffer << cell;
-    				}
-    			}
-
-    			for (int recvRank=0; recvRank<m_nprocs; recvRank++){
-
-    				if (m_rank != recvRank){
-    					// Communication
-    					MPI_Send(&cellBufferSize, 1, MPI_LONG, recvRank, 200, m_communicator);
-    					MPI_Send(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, recvRank, 210, m_communicator);
-
-    				}
-    			}
-
-    		}
+                for (int recvRank=0; recvRank<m_nprocs; recvRank++){
+                    if (m_rank != recvRank){
+                        // Communication
+                        MPI_Send(&cellBufferSize, 1, MPI_LONG, recvRank, 200, m_communicator);
+                        MPI_Send(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, recvRank, 210, m_communicator);
+                    }
+                }
+            }
 
     	}// end external sendrank loop
+        uniSurf->getPatch()->squeezeVertices();
+        uniSurf->getPatch()->squeezeCells();
+        tempSurface = nullptr;
     }
     else
 #endif
     {
     	//serial version
-    	m_originalDumpingSurface = dumptarget->clone();
+    	uniSurf = std::move(tempSurface);
     }
+
+    //now uniSurf is the same for all proc, and made only by internals.
 }
 
 /*!
- * It computes the dumping function (artificial diffusivity)
- * used to modulate laplacian solution over the target mesh.
- * The dumping function is now a scalar field data on CELLS (ghost included)
- * and it will be stored in internal member m_dumping.
+   It computes for the first time the damping function (artificial diffusivity)
+   used to modulate Laplacian solution over the target mesh.
+   The damping function is a scalar field data referred on CELLS of the bulk volume
+  (ghost included) and it will be stored in internal member m_damping.
+   Please be sure to create the unique Surface m_dampingUniSurface first.
  */
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::computeDumpingFunction(){
+PropagateField<NCOMP>::initializeDampingFunction(){
 
-	bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
-    m_dumping.clear();
-	m_dumping.reserve(getGeometry()->getNCells());
-	m_dumping.setGeometry(getGeometry());
-	m_dumping.setDataLocation(MPVLocation::CELL);
+    bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
+    m_damping.clear();
+    m_damping.reserve(getGeometry()->getNCells());
+    m_damping.setGeometry(getGeometry());
+    m_damping.setDataLocation(MPVLocation::CELL);
 
     for (auto it = patch_->cellBegin(); it!=patch_->cellEnd(); ++it){
-		m_dumping.insert(it.getId(), 1.0);
-	}
-
-    if(!m_originalDumpingSurface.get()){
-        //this unique_ptr structure is initialized by initializeDumpingSurface
-        // if dumping is not active is set to nullptr
-        return;
+        m_damping.insert(it.getId(), 1.0);
     }
-
-	const double maxd(m_radius);
-
-    livector1D seedlist;
-    {
-    	// Initialize seeds to avoid use of skdtree in narrowband computing
-        std::unordered_set<long> seedtemp;
-    	for(auto it= m_dumping.begin(); it!=m_dumping.end(); ++it){
-    		long id = it.getId();
-    		bitpit::Cell & cell = patch_->getCell(id);
-    		if(cell.isInterior()){
-    			for (int iface=0; iface<cell.getFaceCount(); iface++){
-    				if (cell.isFaceBorder(iface)){
-    					seedtemp.insert(id);
-    				}
-    			}
-    		}else{
-                //this cannot happen in serial, only in partitioned grids.
-                seedtemp.insert(id);
-            }
-    	}
-        seedlist.insert(seedlist.end(), seedtemp.begin(), seedtemp.end());
-    }
-
-    bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*(m_originalDumpingSurface.get()), maxd, &seedlist);
-
-	double distanceMax = std::pow((maxd/m_plateau), m_decayFactor); //made by class parameters, every proc has it.
-	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-		if(*it < m_plateau){
-			(*it) = 1.0;
-		}else{
-			(*it) = (std::pow(maxd/(*it), m_decayFactor) -1.0) / (distanceMax -1.0);
-		}
-	}
-
-	if(m_dumpingType != 1) { // no volume stuff, fill dumping with distance part only
-		for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
-			m_dumping.at(it.getId()) = (distanceMax - 1.0)*(*it) + 1.0;;
-		}
-    }else{
-    	// Evaluating the volume part.
-    	bitpit::PiercedVectorStorage<double> volFactor;
-    	volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
-    	volFactor.fill(1.0);
-
-    	//evaluating cell volumes
-    	double locvol;
-        std::size_t countNegativeVolumes(0);
-
-    	double volmax = 0.0, volmin=1.0E18;
-    	for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
-    		locvol = getGeometry()->evalCellVolume(it.getId());
-    		if(locvol <= std::numeric_limits<float>::min()){
-                ++countNegativeVolumes;
-                locvol = std::numeric_limits<float>::min(); //to assess myself around a 1.E-38 as minimum.
-            }
-    		volFactor.rawAt(it.getRawIndex()) = locvol;
-    		volmin = std::min(volmin,locvol);
-    		volmax = std::max(volmax,locvol);
-    	}
-        if(countNegativeVolumes > 0){
-            (*m_log)<<"Warning in "<<m_name<<". Detected " << countNegativeVolumes<<" cells with almost zero or negative volume"<<std::endl;
-        }
-
-
-#if MIMMO_ENABLE_MPI
-        MPI_Allreduce(MPI_IN_PLACE, &volmin, 1, MPI_DOUBLE, MPI_MIN, m_communicator);
-        MPI_Allreduce(MPI_IN_PLACE, &volmax, 1, MPI_DOUBLE, MPI_MAX, m_communicator);
-#endif
-
-    	//evaluate the volume normalized function and store it in dumping.
-    	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-    		m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
-    	}
-    }
-    //all done if you are here, you computed also the volume part and put together all the stuffs.
-    // you don't need to communicate ghost data for dumping. Everyone, ghost included had the correct info.
-
+    updateDampingFunction();
 }
 
 /*!
- * It updates an existent dumping function (artificial diffusivity) stored in m_dumping.
- * used before to modulate laplacian solution over the target mesh.
+ * It updates an existent damping function (artificial diffusivity) stored in m_damping member.
  * It will extract the pool of cells with diffusivity > 1.0. Thus, it will update
  * the narrow band inside the radius of influence, and recalculate distance and volumes eventually.
  */
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::updateDumpingFunction(){
+PropagateField<NCOMP>::updateDampingFunction(){
 
-    if(!m_originalDumpingSurface.get()){
-        //this unique_ptr structure is initialized by initializeDumpingSurface
-        // if dumping is not active is set to nullptr
-        // leaving dumping as it is.
+    if(!m_dampingUniSurface.get()){
+        //this unique_ptr structure is initialized with initializeUniqueSurface applied to damping surfaces
+        // if damping is not active is set to nullptr
+        // leaving damping as it is.
         return;
     }
 
-	const double maxd(m_radius);
-	//get the list of elements in m_dumping with diffusivity > 1.0;
-	// at the same time reset the dumping function values to 1.0;
-	livector1D seedlist;
-	seedlist.reserve(m_dumping.size());
-	for(auto it= m_dumping.begin(); it!=m_dumping.end(); ++it){
-		if(*it > 1.0 + m_originalDumpingSurface->getPatch()->getTol()){
-			seedlist.push_back(it.getId());
-            //reset local value of m_dumping to 1.0.
-			*it = 1.0;
-		}
-	}
-	seedlist.shrink_to_fit();
+    const double maxd(m_radius);
+    //get the list of elements in m_damping with diffusivity > 1.0;
+    // at the same time reset the dumping function values to 1.0;
+    livector1D seedlist;
+    seedlist.reserve(m_damping.size());
+    for(auto it= m_damping.begin(); it!=m_damping.end(); ++it){
+        if(*it > 1.0){
+            seedlist.push_back(it.getId());
+            //reset local value of m_damping to 1.0.
+            *it = 1.0;
+        }
+    }
 
-	bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*(m_originalDumpingSurface.get()), maxd, &seedlist);
-	seedlist.clear();
+    // if seedlist is still empty have a try finding some seeds along
+    // bulk volume mesh borders (ghost included)
+    if (seedlist.empty()){
+        // Initialize seeds to avoid use of skdtree in narrowband computing
+        seedlist = getGeometry()->extractBoundaryCellID(true); // with ghost included
+    }
+    seedlist.shrink_to_fit();
 
-	double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
-	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-		if(*it < m_plateau){
-			(*it) = 1.0;
-		}else{
-			(*it) = (std::pow(maxd/(*it), m_decayFactor) -1.0) / (distanceMax -1.0);
-		}
-	}
+    //reevaluate narrow band cells at distance d < maxd
+    bitpit::PiercedVector<double> distFactor = getGeometry()->getCellsNarrowBandToExtSurfaceWDist(*(m_dampingUniSurface.get()), maxd, &seedlist);
+    seedlist.clear();
 
-	if(m_dumpingType != 1) { // no volume stuff, fill dumping with distance part only
-		for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
-			m_dumping.at(it.getId()) = (distanceMax - 1.0)*(*it) + 1.0;;
-		}
-	}else{
-    	// Evaluating the volume part.
-    	bitpit::PiercedVectorStorage<double> volFactor;
-    	volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
-    	volFactor.fill(1.0);
+    double distanceMax = std::pow((maxd/m_plateau), m_decayFactor);
+    for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
+        if(*it < m_plateau){
+            (*it) = 1.0;
+        }else{
+            (*it) = (std::pow(maxd/(*it), m_decayFactor) -1.0) / (distanceMax -1.0);
+        }
+    }
 
-    	//evaluating cell volumes
-    	double locvol;
+    if(m_dampingType != 1) { // no volume stuff, fill dumping with distance part only
+        for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
+            m_damping.at(it.getId()) = (distanceMax - 1.0)*(*it) + 1.0;;
+        }
+    }else{
+        // Evaluating the volume part.
+        bitpit::PiercedVectorStorage<double> volFactor;
+        volFactor.setStaticKernel(&distFactor); //, bitpit::PiercedSyncMaster::SyncMode::SYNC_MODE_DISABLED);
+        volFactor.fill(1.0);
+
+        //evaluating cell volumes
+        double locvol;
         std::size_t countNegativeVolumes(0);
 
-    	double volmax = 0.0, volmin=1.0E18;
-    	for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
-    		locvol = getGeometry()->evalCellVolume(it.getId());
-    		if(locvol <= std::numeric_limits<float>::min()){
+        double volmax = 0.0, volmin=std::numeric_limits<double>::max();
+        for(auto it=distFactor.begin(); it!=distFactor.end(); ++it){
+            locvol = getGeometry()->evalCellVolume(it.getId());
+            if(locvol < std::numeric_limits<double>::min()){
                 ++countNegativeVolumes;
-                locvol = std::numeric_limits<float>::min(); //to assess myself around a 1.E-38 as minimum.
-    		}
-    		volFactor.rawAt(it.getRawIndex()) = locvol;
-    		volmin = std::min(volmin,locvol);
-    		volmax = std::max(volmax,locvol);
-    	}
+                locvol = std::numeric_limits<double>::min(); //to assess myself around a 1.E-38 as minimum.
+            }
+            volFactor.rawAt(it.getRawIndex()) = locvol;
+            volmin = std::min(volmin,locvol);
+            volmax = std::max(volmax,locvol);
+        }
         if(countNegativeVolumes > 0){
             (*m_log)<<"Warning in "<<m_name<<". Detected " << countNegativeVolumes<<" cells with almost zero or negative volume"<<std::endl;
         }
@@ -894,114 +924,100 @@ PropagateField<NCOMP>::updateDumpingFunction(){
 #if MIMMO_ENABLE_MPI
         MPI_Allreduce(MPI_IN_PLACE, &volmin, 1, MPI_DOUBLE, MPI_MIN, m_communicator);
         MPI_Allreduce(MPI_IN_PLACE, &volmax, 1, MPI_DOUBLE, MPI_MAX, m_communicator);
+        MPI_Allreduce(MPI_IN_PLACE, &countNegativeVolumes, 1, MPI_INT, MPI_SUM, m_communicator);
 #endif
-
-    	//evaluate the volume normalized function and store it in dumping.
-    	for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
-    		m_dumping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
-    	}
+        //evaluate the volume normalized function and store it in dumping.
+        for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
+            m_damping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
+        }
     }
 	//all done if you are here, you computed also the volume part and put together all the stuffs.
     // you don't need to communicate ghost data for dumping. Everyone, ghost included had the correct info.
 }
 
-///*
-// * Prepare your system solver, feeding the laplacian stencils you previosly calculated.
-// * Provide the map that get consecutive Index from Global Pierced vector Index system for CELLS or POINTS
-// * The stencil will be renumerated with the consecutiveIdIndexing provided.
-// *
-// * param[in] laplacianStencils pointer to MPV structure of laplacian stencils.
-// * param[in] map of consecutive cell/nodes ID from Global indexing
-// */
-//template<std::size_t NCOMP>
-//void
-//PropagateField<NCOMP>::initializeLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals){
-//
-//	bitpit::KSPOptions &solverOptions = m_solver->getKSPOptions();
-//
-//	solverOptions.rtol      = m_tol;
-//	solverOptions.subrtol   = m_tol;
-//
-//	if (m_method == PropagatorMethod::FINITEVOLUMES){
-//		initializeFVLaplaceSolver(laplacianStencils, maplocals);
-//	}
-//	else if (m_method == PropagatorMethod::GRAPHLAPLACE){
-//		initializeGLLaplaceSolver(laplacianStencils, maplocals);
-//	}
-//
-//}
-//
-///*!
-// * Prepare your system solver, feeding the laplacian stencils you previosly calculated
-// * with FVolStencil::computeFVLaplacianStencil method.
-// * Provide the map that get consecutive Index from Global Pierced vector Index system for CELLS
-// * The stencil will be renumerated with the consecutiveIdIndexing provided.
-// *
-// * param[in] laplacianStencils pointer to MPV structure of laplacian stencils.
-// * param[in] map of consecutive cell ID from Global PV indexing (typically get from MimmoObject::getMapcellInv)
-// */
-//template<std::size_t NCOMP>
-//void
-//PropagateField<NCOMP>::initializeFVLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals){
-//
-//	bitpit::KSPOptions &solverOptions = m_solver->getKSPOptions();
-//
-//	solverOptions.rtol      = m_tol;
-//	solverOptions.subrtol   = m_tol;
-//	// total number of local DOFS, determines size of matrix
-//	long nDOFs = laplacianStencils->size();
-//
-//	// total number of non-zero elements in the stencils.
-//	long nNZ(0);
-//	for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
-//		nNZ += it->size();
-//	}
-//
-// # if MIMMO_ENABLE_MPI==1
-//	//instantiate the SparseMatrix
-//	bitpit::SparseMatrix matrix(m_communicator, getGeometry()->getPatch()->isPartitioned(), nDOFs, nDOFs, nNZ);
-// # else
-//	//instantiate the SparseMatrix
-//	bitpit::SparseMatrix matrix(nDOFs, nDOFs, nNZ);
-// # endif
-//
-//	std::vector<long> mapsort(laplacianStencils->size());
-//	long id, ind;
-//	for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
-//		id = it.getId();
-//		ind = maplocals.at(id);
-// # if MIMMO_ENABLE_MPI
-//		ind -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
-// # endif
-//		mapsort[ind] = id;
-//	}
-//
-//	//Add ordered rows
-//	for(auto id : mapsort){
-//		bitpit::StencilScalar item = laplacianStencils->at(id);
-//		//renumber values on the fly.
-//		item.renumber(maplocals);
-//		matrix.addRow(item.size(), item.patternData(), item.weightData());
-//	}
-//
-//	//assembly the matrix;
-//	matrix.assembly();
-//
-//	//clean up the previous stuff in the solver.
-//	m_solver->clear();
-//	// now you can initialize the m_solver with this matrix.
-//	m_solver->getKSPOptions().restart = 20;
-//	m_solver->getKSPOptions().overlap = 0;
-//	m_solver->getKSPOptions().sublevels = 0;
-//	m_solver->initialize(matrix);
-//}
+/*!
+    Compute/Update the list of vertices in the narrow band and store it with their distance
+    in m_banddistances member.
+    If m_banddistances is not empty, use its information as starting point to update
+    the narrow band list.
+    It requires the initialization of a Unique Surface (m_bandUniSurface) for m_bandSurfaces list first.
+*/
+template<std::size_t NCOMP>
+void
+PropagateField<NCOMP>::updateNarrowBand(){
+
+    if(!m_bandUniSurface.get()){
+        //this unique_ptr structure is initialized with initializeUniqueSurface applied to narrow band surfaces
+        // if narrow band control is not active is set to nullptr
+        // and narrow band is not computed.
+        m_banddistances.clear();
+        return;
+    }
+
+    //get the list of vertex elements in m_banddistances;
+    livector1D seedlist = m_banddistances.getIds();
+
+    // is seedlist is still empty have a try finding some vertex seeds along
+    // bulk volume mesh borders (ghost included)
+    if (seedlist.empty()){
+        // Initialize seeds to avoid use of skdtree in narrowband computing
+        seedlist = getGeometry()->extractBoundaryVertexID(true); // ghost included
+    }
+    seedlist.shrink_to_fit();
+
+    //re-evaluate narrow band vertices at distance d < m_bandwidth
+    m_banddistances = getGeometry()->getVerticesNarrowBandToExtSurfaceWDist(*(m_bandUniSurface.get()), m_bandwidth, &seedlist);
+}
 
 
 /*!
+ * The method modifies raw Laplacian stencils (without bc already assigned) on
+   points in Graph Laplacian approximation to take in account a relaxed
+   solution in the narrow band near some target boundary surfaces.
+   The idea is to manipulate stencils of a mesh point inside the narrow band so that
+   nodes nearer to reference boundaries "weights" more than farther ones.
+   This upwinding effect let the solution to diffuse more inside the bulk core.
+   Outside the narrow band stencils are the usual ones.
+ * \param[in, out] laplaceStencils unique pointer to original set of laplacian stencils in input, narrowband modified in output.
+ */
+ template<std::size_t NCOMP>
+ void
+ PropagateField<NCOMP>::modifyStencilsForNarrowBand(GraphLaplStencil::MPVStencilUPtr &laplaceStencils ){
+
+    livector1D nbv_list = m_banddistances.getIds();
+    //loop on stencils associated to nbv_list
+   for (long idT : nbv_list){
+       //if belongs to laplace stencils the point is not a ghost for sure.
+       // So discard point not included in the laplaceStencils
+       if(!laplaceStencils->exists(idT)) continue;
+
+        double localdist = m_banddistances.at(idT);
+        bitpit::StencilScalar &loc_stencil = laplaceStencils->at(idT);
+        std::size_t size = loc_stencil.size();
+        //check content of the stencil.
+        double correction_old = 0.0;
+        double correction_new = 0.0;
+        //the last one is the point idT itself carrying the complement weight.
+        for (std::size_t i=0; i<size-1; ++i){
+            long &idL = loc_stencil.rawGetPattern(i);
+            if(!m_banddistances.exists(idL))         continue;
+            if(m_banddistances.at(idL) > localdist ){
+                correction_old += loc_stencil.rawGetWeight(i);
+                loc_stencil.rawGetWeight(i) *= m_bandrelax; // use here the band relaxation factor.
+                correction_new += loc_stencil.rawGetWeight(i);
+            }
+
+        }
+        loc_stencil.rawGetWeight(size-1) += (correction_old - correction_new); //(-sum(w_i) + sum(w_excluded) - sum_recalc );
+    }
+}
+
+/*!
  * Prepare your system solver, feeding the laplacian stencils you previosly calculated
- * with GraphLaplStencil::computeLaplacianStencil method.
+ * with GraphLaplStencil::computeLaplacianStencil method of StencilFunctions.
  * Provide the map that get consecutive Index from Global Pierced vector Index system for POINTS
  * The stencil will be renumerated with the consecutiveIdIndexing provided.
+ * The method requires the m_solver to be instantiated already
  *
  * param[in] laplacianStencils pointer to MPV structure of laplacian stencils.
  * param[in] map of consecutive points ID from Global PV indexing (typically get from MimmoObject::getMapDataInv)
@@ -1037,7 +1053,7 @@ PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * la
 		id = it.getId();
 		ind = maplocals.at(id);
 #if MIMMO_ENABLE_MPI
-		ind -= getGlobalCountOffset(m_method);
+		ind -= getGeometry()->getPointGlobalCountOffset();
 #endif
 		mapsort[ind] = id;
 	}
@@ -1104,7 +1120,7 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
 		id = it.getId();
 		ind = maplocals.at(id);
 #if MIMMO_ENABLE_MPI
-		ind -= getGlobalCountOffset(m_method);
+		ind -= getGeometry()->getPointGlobalCountOffset();
 #endif
 		rows_involved.push_back(ind);
 		bitpit::StencilScalar item(*it);
@@ -1123,175 +1139,70 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
  * This method evaluate the bc corrections for a singular run of the system solver,
  * update the system matrix in m_solver and evaluate the rhs part due to bc.
  * After you call this method, you are typically ready to solve the laplacian system.
- * The type of bc @ interface are directly desumed from class map member m_isbp.
+ * bc @ nodes are directly taken from class member m_bc_dir.
  * The method requires the Laplacian m_solver to be initialized. No ghost are taken into account.
  *
  * Moreover it needs as input :
  * \param[in] comp target component of bc conditions.
  * \param[in] unused boolean
- * \param[in] borderLaplacianStencil list of laplacian Stencil on border cells, where the bc is temporarely imposed as homogeneous Neumann
- * \param[in] borderCCGradientStencil list of Center cell gradient stencils defined on border cells.
+ * \param[in] borderLaplacianStencil list of laplacian Stencil on border nodes, where the bc is temporarily imposed as homogeneous Neumann
  * \param[in] maplocals map from global id numbering to local system solver numbering.
- * \param[in,out] rhs vector of right-hand-side's to append constant data from bc corrections.
- */
-
-template<std::size_t NCOMP>
-void
-PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
-		FVolStencil::MPVDivergence * borderLaplacianStencil,
-		FVolStencil::MPVGradient * borderCCGradientStencil,
-		const liimap & maplocals,
-		dvector1D & rhs)
-		{
-	BITPIT_UNUSED(unused);
-	//resize rhs to the number of internal cells
-	MimmoObject * geo = getGeometry();
-	rhs.resize(geo->getPatch()->getInternalCount(), 0.0);
-
-	if (!m_solver->isAssembled()) {
-		(*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
-		return;
-	}
-
-	if (!borderLaplacianStencil || !borderCCGradientStencil) {
-		(*m_log)<<"Warning in "<<m_name<<". Unable to reach border cells stencils data. Nothing to do."<<std::endl;
-		return;
-	}
-
-
-	//extract all interfaces from border cells.
-	livector1D interfaceList = geo->getInterfaceFromCellList(borderLaplacianStencil->getIds());
-
-	//copy laplacian stencils in a work mpv .
-	FVolStencil::MPVDivergenceUPtr lapwork (new FVolStencil::MPVDivergence(*borderLaplacianStencil));
-
-	//correct the original border laplacian stencils applying the Dirichlet/Neumann corrections.
-	//renumber it and update the laplacian matrix and fill the rhs.
-	bitpit::StencilVector correction;
-	bitpit::PiercedVector<bitpit::Interface> & mesh_interfaces = geo->getInterfaces();
-
-	long idOwner;
-	std::array<double,3> interfaceNormal, interfaceCentroid, ownerCentroid;
-	double volume, iarea;
-	for(long idInterface : interfaceList){
-
-		correction.clear(false);
-
-		if(!mesh_interfaces.at(idInterface).isBorder()) continue; //skip non-border interfaces;
-
-
-		idOwner = mesh_interfaces.at(idInterface).getOwner();
-		interfaceNormal = geo->evalInterfaceNormal(idInterface);
-		volume = geo->evalCellVolume(idOwner);
-		iarea = geo->evalInterfaceArea(idInterface);
-
-		//apply the correction relative to bc @ interface.
-		switch(m_isbp.at(idInterface)){
-		case 1: //DIRICHLET
-			ownerCentroid = geo->evalCellCentroid(idOwner);
-			interfaceCentroid = geo->evalInterfaceCentroid(idInterface);
-			//get the correction.
-			correction = FVolStencil::correctionDirichletBCFaceGradient(m_bc_dir.at(idInterface)[comp],
-					idOwner,ownerCentroid, interfaceCentroid, interfaceNormal,
-					dotProduct(interfaceCentroid-ownerCentroid, interfaceNormal),
-					borderCCGradientStencil->at(idOwner) );
-			break;
-		default: //NEUMANN for non zero flux, change the first entry.
-			correction = FVolStencil::correctionNeumannBCFaceGradient(0.0, interfaceNormal);
-			break;
-		}
-
-		//calculate the laplacian correction and push it in work laplacian
-		lapwork->at(idOwner) += (m_dumping.at(idOwner) * iarea / volume) * dotProduct(correction, interfaceNormal);
-
-	}
-
-	// now its time to update the solver matrix and to extract the rhs contributes.
-	updateLaplaceSolver(lapwork.get(), maplocals);
-
-	// now get the rhs
-	for(auto it = lapwork->begin(); it != lapwork->end();++it){
-		auto index = maplocals.at(it.getId());
-#if MIMMO_ENABLE_MPI
-		//correct index if in parallel
-		index -= getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
-#endif
-		rhs[index] -= it->getConstant();
-	}
-}
-
-
-/*!
- * This method evaluate the bc corrections for a singular run of the system solver,
- * update the system matrix in m_solver and evaluate the rhs part due to bc.
- * After you call this method, you are typically ready to solve the laplacian system.
- * The type of bc @ nodes are directly desumed from class member m_bc_dir.
- * The method requires the Laplacian m_solver to be initialized. No ghost are taken into account.
- *
- * Moreover it needs as input :
- * \param[in] comp target component of bc conditions.
- * \param[in] unused boolean
- * \param[in] borderLaplacianStencil list of laplacian Stencil on border nodes, where the bc is temporarely imposed as homogeneous Neumann
- * \param[in] maplocals map from global id numbering to local system solver numbering.
- * \param[in,out] rhs vector of right-hand-side's to append constant data from bc corrections.
+ * \param[in,out] rhs vector of right-hand-sides to append constant data from bc corrections.
  */
 template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
-		GraphLaplStencil::MPVStencil * borderLaplacianStencil,
-		const liimap & maplocals,
-		dvector1D & rhs)
+                                              GraphLaplStencil::MPVStencil * borderLaplacianStencil,
+                                              const liimap & maplocals, dvector1D & rhs)
 {
-	BITPIT_UNUSED(unused);
-	//resize rhs to the number of internal cells
-	MimmoObject * geo = getGeometry();
-	rhs.resize(geo->getNInternalVertices(), 0.0);
+    BITPIT_UNUSED(unused);
+    //resize rhs to the number of internal cells
+    MimmoObject * geo = getGeometry();
+    rhs.resize(geo->getNInternalVertices(), 0.0);
 
-	if (!m_solver->isAssembled()) {
-		(*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
-		return;
-	}
+    if (!m_solver->isAssembled()) {
+        (*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
+        return;
+    }
 
-	if (!borderLaplacianStencil) {
-		(*m_log)<<"Warning in "<<m_name<<". Unable to reach border nodes stencils data. Nothing to do."<<std::endl;
-		return;
-	}
+    if (!borderLaplacianStencil) {
+        (*m_log)<<"Warning in "<<m_name<<". Unable to reach border nodes stencils data. Nothing to do."<<std::endl;
+        return;
+    }
 
-	//copy laplacian stencils in a work mpv .
-	GraphLaplStencil::MPVStencilUPtr lapwork(new GraphLaplStencil::MPVStencil(*borderLaplacianStencil));
+    //copy laplacian stencils in a work mpv .
+    GraphLaplStencil::MPVStencilUPtr lapwork(new GraphLaplStencil::MPVStencil(*borderLaplacianStencil));
 
-	//correct the original border laplacian stencils applying the Dirichlet conditions.
-	//Nuemann are implicitely imposed by graph-laplacian scheme.
-	//renumber it and update the laplacian matrix and fill the rhs.
-	bitpit::StencilScalar correction;
+    //correct the original border laplacian stencils applying the Dirichlet conditions.
+    //Neumann are implicitely imposed by graph-laplacian scheme.
+    //renumber it and update the laplacian matrix and fill the rhs.
+    bitpit::StencilScalar correction;
 
-	//loop on all dirichlet boundary nodes.
-	for(long id : m_bc_dir.getIds()){
-		if (geo->isPointInterior(id))
-		{
-			//apply the correction relative to bc @ dirichlet node.
-			correction.clear(true);
-			correction.appendItem(id, 1.);
-			correction.sumConstant(-m_bc_dir[id][comp]);
-			//Fix to zero the old stencil (the update of system solver doesn't substitute but modify or append new pattern item and weights)
-			lapwork->at(id) *= 0.;
-			lapwork->at(id) += correction;
-		}
-	}
+    //loop on all dirichlet boundary nodes.
+    for(long id : m_bc_dir.getIds()){
+        if (geo->isPointInterior(id)){
+            //apply the correction relative to bc @ dirichlet node.
+            correction.clear(true);
+            correction.appendItem(id, 1.);
+            correction.sumConstant(-m_bc_dir[id][comp]);
+            //Fix to zero the old stencil (the update of system solver doesn't substitute but modify or append new pattern item and weights)
+            lapwork->at(id) *= 0.;
+            lapwork->at(id) += correction;
+        }
+    }
 
-	// now its time to update the solver matrix and to extract the rhs contributes.
-	//NOTE: USE THE FINITE VOLUMES METHOD, THE STRUCTURES ARE THE SAME!
-	updateLaplaceSolver(lapwork.get(), maplocals);
+    // now its time to update the solver matrix and to extract the rhs contributes.
+    updateLaplaceSolver(lapwork.get(), maplocals);
 
-	// now get the rhs
-	for(auto it = lapwork->begin(); it != lapwork->end();++it){
-		auto index = maplocals.at(it.getId());
+    // now get the rhs
+    for(auto it = lapwork->begin(); it != lapwork->end();++it){
+        auto index = maplocals.at(it.getId());
 #if MIMMO_ENABLE_MPI
-		//correct index if in parallel
-		index -= getGeometry()->getPointGlobalCountOffset();
+        //correct index if in parallel
+        index -= getGeometry()->getPointGlobalCountOffset();
 #endif
-		rhs[index] -= it->getConstant();
-	}
+        rhs[index] -= it->getConstant();
+    }
 }
 
 
@@ -1307,262 +1218,201 @@ template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::solveLaplace(const dvector1D &rhs, dvector1D &result){
 
-	//just to be sure, resize the vector result
-	// if (m_method == PropagatorMethod::FINITEVOLUMES){
-	// 	result.resize(getGeometry()->getPatch()->getInternalCount(), 0.);
-	// }
-	// else
-    if (m_method == PropagatorMethod::GRAPHLAPLACE){
-		result.resize(getGeometry()->getNInternalVertices(), 0.);
-	}
+    result.resize(getGeometry()->getNInternalVertices(), 0.);
 
+    // Check if the internal solver is initialized
+    if (!m_solver->isAssembled()) {
+        (*m_log)<<"Warning in "<<m_name<<". Unable to solve the system. The solver is not yet initialized."<<std::endl;
+        return;
+    }
 
-	// Check if the internal solver is initialized
-	if (!m_solver->isAssembled()) {
-		(*m_log)<<"Warning in "<<m_name<<". Unable to solve the system. The solver is not yet initialized."<<std::endl;
-		return;
-	}
+    // Solve the system
+    m_solver->solve(rhs, &result);
 
-	// Solve the system
-	m_solver->solve(rhs, &result);
-
-	//think I've done my job.
+    //think I've done my job.
 }
 
 /*!
- * Utility to put laplacian solution into a Cell/Node based MPV and (after point interpolation if needed)
- * directly in m_field (cleared and refreshed).
- * Ghost communication is already taken into account in case of mpi run.
+ * Utility to put laplacian solution directly into m_field (cleared and refreshed).
+ * Ghost communication is already taken into account in case of MPI version.
  * \param[in] results data of laplacian solutions collected in raw vectors.
  * \param[in] mapglobals map to retrieve cell/node global id from locals raw laplacian indexing
- * \param[out] marked (OPTIONAL) list of cells/nodes whose field norm is greater then m_tolerance.
+ * \param[out] marked (OPTIONAL) list of cells/nodes whose field norm is greater then m_thres value.
  */
 template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liimap & mapglobals, livector1D * marked)
 {
-	if(results.size() != NCOMP){
-		(*m_log) << "WARNING in "<<m_name<<" . A field with dimension different from" <<NCOMP<<" is feeded to reconstructResults. m_field is not touched"<<std::endl;
-		return;
-	}
-	// push result in a mpv linked to target mesh and on cell location.
-	MimmoObject * geo = getGeometry();
-	std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvres;
-	// if (m_method == PropagatorMethod::FINITEVOLUMES){
-	// 	mpvres = std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > >(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::CELL));
-	// 	mpvres->reserve(geo->getNCells());
-	// }
-	// else
-    if (m_method == PropagatorMethod::GRAPHLAPLACE){
-		mpvres = std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > >(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::POINT));
-		mpvres->reserve(geo->getNVertices());
-	}
+    if(results.size() != NCOMP){
+        (*m_log) << "WARNING in "<<m_name<<" . A field with dimension different from" <<NCOMP<<" is feeded to reconstructResults. m_field is not touched"<<std::endl;
+        return;
+    }
+    // push result in a mpv linked to target mesh and on cell location.
+    MimmoObject * geo = getGeometry();
+    std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvres(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::POINT));
+    mpvres->reserve(geo->getNVertices());
 
-	long id,counter;
-	std::array<double, NCOMP> temp;
-	for(auto & pair : mapglobals){
-		id = pair.second;
-		bool isInterior = true;
-		// if (m_method == PropagatorMethod::FINITEVOLUMES){
-		// 	isInterior = geo->getPatch()->getCell(id).isInterior();
-		// }
-		//else
-        if (m_method == PropagatorMethod::GRAPHLAPLACE){
-			isInterior = geo->isPointInterior(id);
-		}
-		if (isInterior)
-		{
-			counter = pair.first;
+    long id,counter;
+    std::array<double, NCOMP> temp;
+    for(auto & pair : mapglobals){
+        id = pair.second;
+        if (geo->isPointInterior(id)){
+            counter = pair.first;
 #if MIMMO_ENABLE_MPI
-			counter -= getGlobalCountOffset(m_method);
+            counter -= getGeometry()->getPointGlobalCountOffset();
 #endif
-			for(int i=0; i<int(NCOMP); ++i){
-				temp[i] = results[i][counter];
-			}
-			mpvres->insert(id, temp);
-		}
-		else{
-			for(int i=0; i<int(NCOMP); ++i){
-				temp[i] = 0.0;
-			}
-			mpvres->insert(id, temp);
-		}
-	}
+            for(int i=0; i<int(NCOMP); ++i){
+                temp[i] = results[i][counter];
+            }
+            mpvres->insert(id, temp);
+        }else{
+            for(int i=0; i<int(NCOMP); ++i){
+                temp[i] = 0.0;
+            }
+            mpvres->insert(id, temp);
+        }
+    }
 
 #if MIMMO_ENABLE_MPI
-	// if (m_method == PropagatorMethod::FINITEVOLUMES){
-	// 	communicateGhostData(mpvres.get());
-	// }
-	if (m_method == PropagatorMethod::GRAPHLAPLACE){
-		communicatePointGhostData(mpvres.get());
-	}
+    //communicate ghosts
+    communicatePointGhostData(mpvres.get());
 #endif
 
-	if(marked){
-		marked->clear();
-		marked->reserve(mpvres->size());
-//		int counter = 0;
-		for(auto it=mpvres->begin(); it != mpvres->end(); ++it){
-			if(norm2(*it) > m_thres){
-				marked->push_back(it.getId());
-//				counter++;
-			}
-		}
-//		marked->resize(counter);
-		marked->shrink_to_fit();
-	}
+    //mark point with solution norm above m_thres
+    if(marked){
+        marked->clear();
+        marked->reserve(mpvres->size());
+        for(auto it=mpvres->begin(); it != mpvres->end(); ++it){
+            if(norm2(*it) > m_thres){
+                marked->push_back(it.getId());
+            }
+        }
+        marked->shrink_to_fit();
+    }
 
-	// interpolate result to POINT location.
-	m_field.clear();
-	// if (m_method == PropagatorMethod::FINITEVOLUMES){
-	// 	m_field = mpvres->cellDataToPointData(1.5);
-	// }
-	// else
-    if (m_method == PropagatorMethod::GRAPHLAPLACE){
-		m_field = *(mpvres.get());
-	}
-#if MIMMO_ENABLE_MPI
-		communicatePointGhostData(&m_field);
-#endif
+    // store all in m_field.
+    m_field.swap(*(mpvres.get()));
 }
 
-/*!
- * Initialize m_isbp member getting all the real border interfaces (no ghost) and
- * assigning to them a condition of type 0 (Neummann)
- */
-template<std::size_t NCOMP>
-void
-PropagateField<NCOMP>::initializeBoundaryInfo(){
-	//prepare the m_isbp;
-	m_isbp.clear();
-	// get all the real boundary interfaces (no ghost)
-	livector1D list = m_geometry->extractBoundaryInterfaceID(false);
-	m_isbp.reserve(list.size());
-	//prepare m_isbp pushing neumann condition( 0 type ) to all interfaces of the list.
-	for(const auto & val: list){
-		m_isbp.insert(val, 0);
-	}
-}
-
+//******************
+//EXCLUSIVE MPI METHODS
+//******************
 #if MIMMO_ENABLE_MPI
 /*!
-    Creates a new ghost communicator.
+    Creates a new ghost communicator and return its tag. if already exists, do nothing
+    and return its current tag.
 
-    \param continuous defines if the communicator will be set in continuous mode
-    \return The tag associated to the newly created communicator.
+    \param[in] refGeo pointer to reference partitioned MimmoObject
+    \param[in] continuous defines if the communicator will be set in continuous mode
+    \return The tag associated to the newly created/or already existent communicator.
  */
 template<std::size_t NCOMP>
-int PropagateField<NCOMP>::createGhostCommunicator(bool continuous)
-{
-	// Create communicator
-	m_ghostCommunicator = std::unique_ptr<GhostCommunicator>(new GhostCommunicator(getGeometry()->getPatch()));
-	m_ghostCommunicator->resetExchangeLists();
-	m_ghostCommunicator->setRecvsContinuous(continuous);
+int
+PropagateField<NCOMP>::createGhostCommunicator(MimmoObject* refGeo, bool continuous){
 
-	// Communicator tag
-	int tag = m_ghostCommunicator->getTag();
-
-	// Return communicator tag
-	return tag;
+    if(m_ghostCommunicators.count(refGeo) == 0){
+        // Create communicator
+        m_ghostCommunicators[refGeo] = std::unique_ptr<GhostCommunicator>(new GhostCommunicator(refGeo->getPatch()));
+        m_ghostCommunicators[refGeo]->resetExchangeLists();
+        m_ghostCommunicators[refGeo]->setRecvsContinuous(continuous);
+    }
+    // Return Communicator tag
+    return int(m_ghostCommunicators[refGeo]->getTag());
 }
 
 /*!
     Creates a new point ghost communicator.
 
-    \param continuous defines if the communicator will be set in continuous mode
+    \param[in] refGeo pointer to reference partitioned MimmoObject
+    \param[in] continuous defines if the communicator will be set in continuous mode
     \return The tag associated to the newly created communicator.
  */
 template<std::size_t NCOMP>
-int PropagateField<NCOMP>::createPointGhostCommunicator(bool continuous)
-{
-	// Create communicator
-	m_pointGhostCommunicator = std::unique_ptr<PointGhostCommunicator>(new PointGhostCommunicator(getGeometry()));
-	m_pointGhostCommunicator->resetExchangeLists();
-	m_pointGhostCommunicator->setRecvsContinuous(continuous);
-
-	// Communicator tag
-	int tag = m_pointGhostCommunicator->getTag();
-
-	// Return communicator tag
-	return tag;
+int
+PropagateField<NCOMP>::createPointGhostCommunicator(MimmoObject* refGeo, bool continuous){
+    if(m_pointGhostCommunicators.count(refGeo) == 0){
+        // Create communicator
+        m_pointGhostCommunicators[refGeo] = std::unique_ptr<PointGhostCommunicator>(new PointGhostCommunicator(refGeo));
+        m_pointGhostCommunicators[refGeo]->resetExchangeLists();
+        m_pointGhostCommunicators[refGeo]->setRecvsContinuous(continuous);
+    }
+    // Return Communicator tag
+    return int(m_pointGhostCommunicators[refGeo]->getTag());
 }
 
 /*!
-    Communicate data on ghost cells. The methiod create a new communicator and streamer if not already allocated.
+    Communicate MPV data on ghost cells on the reference geometry linked by data itself.
+    The method creates a new communicator and streamer if not already allocated.
     Otherwise the pointer of the communicator to the data is updated with the input argument.
     \param[in] data Pointer to field with data to communicate
  */
 template<std::size_t NCOMP>
-void PropagateField<NCOMP>::communicateGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data)
-{
-	// Creating point ghost communications for exchanging interpolated values
-	if (getGeometry()->getPatch()->isPartitioned()){
-		if(!m_ghostStreamer) {
-			//Force update exchange info
-			m_ghostStreamer = std::unique_ptr<MimmoDataBufferStreamer<NCOMP>>(new MimmoDataBufferStreamer<NCOMP>(data));
-			m_ghostTag = createGhostCommunicator(true);
-			m_ghostCommunicator->addData(m_ghostStreamer.get());
-		}
-		else{
-			m_ghostStreamer->setData(data);
-		}
+void
+PropagateField<NCOMP>::communicateGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data){
+    // Creating cell ghost communications for exchanging interpolated values
+    MimmoObject * geo = data->getGeometry();
+    if(!geo){
+        throw std::runtime_error("Propagate Class ::communicateGhostData no ref Geometry in mpv data!");
+    }
+    //if geo is not partitioned you have nothing to communicate.
+    if (!geo->getPatch()->isPartitioned()) return;
 
-		if (getGeometry()->getPatch()->isPartitioned()) {
-			// Send data
-			m_ghostCommunicator->startAllExchanges();
-			// Receive data
-			m_ghostCommunicator->completeAllExchanges();
-		}
-	}
+    //check for communicator on geometry, if not exists create it
+    m_ghostTags[geo] = createGhostCommunicator(geo, true);
+    //after this call a communicator dedicated to geo surely exists
+    //check if streamer for data type exists
+    if(m_ghostStreamers.count(geo) > 0){
+        //set data to the streamer. If you created the streamer
+        //you have already add it to its comunicator.
+        m_ghostStreamers[geo]->setData(data);
+    }else{
+        //you need to create it brand new. Attach data directly.
+        m_ghostStreamers[geo] = std::unique_ptr<MimmoDataBufferStreamer<NCOMP>>(new MimmoDataBufferStreamer<NCOMP>(data));
+        m_ghostCommunicators[geo]->addData(m_ghostStreamers[geo].get());
+    }
+
+    // Send data
+    m_ghostCommunicators[geo]->startAllExchanges();
+    // Receive data
+    m_ghostCommunicators[geo]->completeAllExchanges();
 }
 
 /*!
-    Communicate data on ghost points. The methiod create a new communicator and streamer if not already allocated.
+    Communicate MPV data on ghost nodes on the reference geometry linked by data itself.
+    The method creates a new communicator and streamer if not already allocated.
     Otherwise the pointer of the communicator to the data is updated with the input argument.
     \param[in] data Pointer to field with data to communicate
  */
 template<std::size_t NCOMP>
-void PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data)
-{
-	// Creating point ghost communications for exchanging interpolated values
-	if (getGeometry()->getPatch()->isPartitioned()){
-		if(!m_pointGhostStreamer) {
-			// //Force update exchange info
-			// getGeometry()->updatePointGhostExchangeInfo();
-			m_pointGhostStreamer = std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>>(new MimmoPointDataBufferStreamer<NCOMP>(data));
-			m_pointGhostTag = createPointGhostCommunicator(true);
-			m_pointGhostCommunicator->addData(m_pointGhostStreamer.get());
-		}
-		else{
-			m_pointGhostStreamer->setData(data);
-		}
+void
+PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data){
+    // Creating cell ghost communications for exchanging interpolated values
+    MimmoObject * geo = data->getGeometry();
+    if(!geo){
+        throw std::runtime_error("Propagate Class ::communicatePointGhostData no ref Geometry in mpv data!");
+    }
+    //if geo is not partitioned you have nothing to communicate.
+    if (!geo->getPatch()->isPartitioned()) return;
 
-		if (getGeometry()->getPatch()->isPartitioned()) {
-			// Send data
-			m_pointGhostCommunicator->startAllExchanges();
-			// Receive data
-			m_pointGhostCommunicator->completeAllExchanges();
-		}
-	}
+    //check for communicator on geometry, if not exists create it
+    m_pointGhostTags[geo] = createPointGhostCommunicator(geo, true);
+    //after this call a communicator dedicated to geo surely exists
+    //check if streamer for data type exists
+    if(m_pointGhostStreamers.count(geo) > 0){
+        //set data to the streamer. If you created the streamer
+        //you have already add it to its comunicator.
+        m_pointGhostStreamers[geo]->setData(data);
+    }else{
+        //you need to create it brand new. Attach data directly.
+        m_pointGhostStreamers[geo] = std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>>(new MimmoPointDataBufferStreamer<NCOMP>(data));
+        m_pointGhostCommunicators[geo]->addData(m_pointGhostStreamers[geo].get());
+    }
+
+    // Send data
+    m_pointGhostCommunicators[geo]->startAllExchanges();
+    // Receive data
+    m_pointGhostCommunicators[geo]->completeAllExchanges();
 }
-
-/*!
- * Get the point/cell offset for the current partition if graph-laplace/finite-volume method is used
- * \return point/cell offset in function of method member.
- */
-template<std::size_t NCOMP>
-long PropagateField<NCOMP>::getGlobalCountOffset(PropagatorMethod method)
-{
-	if (method == PropagatorMethod::GRAPHLAPLACE)
-		return getGeometry()->getPointGlobalCountOffset();
-
-	// if (method == PropagatorMethod::FINITEVOLUMES)
-	// 	return getGeometry()->getPatchInfo()->getCellGlobalCountOffset();
-
-	return 0;
-
-}
-
 
 #endif
 
