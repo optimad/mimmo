@@ -193,7 +193,8 @@ public:
     bitpit::PiercedVector<bitpit::Interface> &           getInterfaces();
     const bitpit::PiercedVector<bitpit::Interface> &     getInterfaces() const;
 
-    livector1D                                      getCellsIds();
+    livector1D                                      getCellsIds(bool internalsOnly = false);
+    livector1D                                      getVerticesIds(bool internalsOnly = false);
     bitpit::PatchKernel*                            getPatch();
     const bitpit::PatchKernel*                      getPatch() const;
     std::unordered_set<long> &                      getPIDTypeList();
@@ -312,6 +313,13 @@ public:
                                                                    const double & maxdist,
                                                                    livector1D * seedList = nullptr);
     bitpit::PiercedVector<double>   getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface,
+                                                                        const double & maxdist,
+                                                                        livector1D * seedList = nullptr);
+
+    livector1D                      getVerticesNarrowBandToExtSurface(MimmoObject & surface,
+                                                                   const double & maxdist,
+                                                                   livector1D * seedList = nullptr);
+    bitpit::PiercedVector<double>   getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface,
                                                                         const double & maxdist,
                                                                         livector1D * seedList = nullptr);
 

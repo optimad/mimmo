@@ -1116,13 +1116,65 @@ MimmoObject::getInterfaces()  const{
 
 /*!
  * Return a compact vector with the Ids of local cells given by
- * bitpit::PatchKernel unique-labeled indexing. Ghost cells are considered.
- * \return id of cells
+ * bitpit::PatchKernel unique-labeled indexing.
+   \param[in] internalsOnly FOR MPI ONLY: if true method accounts for internal cells only,
+   if false it includes also ghosts. Serial comp ignore this parameter.
+ * \return ids of cells
  */
 livector1D
-MimmoObject::getCellsIds(){
-	return getPatch()->getCells().getIds();
+MimmoObject::getCellsIds(bool internalsOnly){
+
+    std::vector<long> ids;
+
+#if MIMMO_ENABLE_MPI
+    //MPI version
+    if(internalsOnly){
+        ids.reserve(getPatch()->getInternalCount());
+        for(bitpit::PatchKernel::CellIterator it = getPatch()->internalBegin(); it!= getPatch()->internalEnd(); ++it){
+            ids.push_back(it.getId());
+        }
+    }else{
+        ids = getPatch()->getCells().getIds();
+    }
+#else
+    //SERIAL version
+    BITPIT_UNUSED(internalsOnly);
+    ids = getPatch()->getCells().getIds();
+#endif
+
+    return ids;
 };
+
+/*!
+ * Return a compact vector with the Ids of local vertices given by
+ * bitpit::PatchKernel unique-labeled indexing.
+   \param[in] internalsOnly FOR MPI ONLY: if true method accounts for internal vertices only,
+   if false it includes also ghosts. Serial comp ignore this parameter.
+ * \return ids of vertices
+ */
+livector1D
+MimmoObject::getVerticesIds(bool internalsOnly){
+    std::vector<long> ids;
+
+#if MIMMO_ENABLE_MPI
+    //MPI version
+    if(internalsOnly){
+        ids.reserve(getNInternalVertices());
+        for(bitpit::PatchKernel::VertexIterator it = getPatch()->vertexBegin(); it!= getPatch()->vertexEnd(); ++it){
+            if(isPointInterior(it.getId())) ids.push_back(it.getId());
+        }
+    }else{
+        ids = getPatch()->getVertices().getIds();
+    }
+#else
+    //SERIAL version
+    BITPIT_UNUSED(internalsOnly);
+    ids = getPatch()->getVertices().getIds();
+#endif
+
+    return ids;
+};
+
 
 /*!
  * \return pointer to bitpit::PatchKernel structure hold by the class.
@@ -3618,6 +3670,167 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 			result.insert(target, distance);
 
 			livector1D neighs = getPatch()->findCellNeighs(target, 1); //only face neighs.
+			for(long id: neighs){
+				if(visited.count(id) < 1){
+					visited.insert(id);
+					stackNeighs.push_back(id);
+				}
+			}
+		}
+	}
+	return result;
+	//TODO need to find a cooking recipe here in case of PARALLEL computing of the narrow band.
+
+};
+
+
+
+/*!
+ * Get all the vertices of the current mesh  within a prescribed
+   distance maxdist w.r.t to a target surface body.
+ * Ghost vertices are considered. See twin method getCellsNarrowBandToExtSurfaceWDist.
+ * \param[in] surface MimmoObject of type surface.
+ * \param[in] maxdist threshold distance.
+ * \param[in] seedlist (optional) list of vertices to starting narrow band search.
+              In case the current class is a point cloud, a non empty seed list is mandatory.
+
+ * \return list of vertices inside the narrow band at maxdist from target surface.
+ */
+livector1D
+MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
+	bitpit::PiercedVector<double> res = getVerticesNarrowBandToExtSurfaceWDist(surface, maxdist, seedlist);
+	return res.getIds();
+};
+
+/*!
+ * Get all the vertices of the current mesh within a prescribed distance
+   maxdist w.r.t to a target surface body.
+ * Ghost vertices are considered.
+ * \param[in] surface MimmoObject of type surface.
+ * \param[in] maxdist threshold distance.
+ * \param[in] seedlist (optional) list of vertices to starting narrow band search.
+              In case the current class is a point cloud, a non empty seed list is mandatory.
+ * \return list of vertices inside the narrow band at maxdist from target surface with their distance from it.
+ */
+bitpit::PiercedVector<double>
+MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
+
+	bitpit::PiercedVector<double> result;
+	if(surface.isEmpty() || surface.getType() != 1) return result;
+	if(isEmpty())  return result;
+
+	if(!surface.areAdjacenciesBuilt()){
+		surface.buildAdjacencies();
+	}
+
+	if (!surface.isSkdTreeSync())
+		surface.buildSkdTree();
+
+    if(!isPointConnectivitySync())    buildPointConnectivity();
+
+	//use a stack-based search on ring vertex neighbors of some prescribed seed vertex.
+	//You need at least one vertex to be near enough to surface
+
+	//First step check seed list and precalculate distance. If dist >= maxdist
+	//the seed candidate is out.
+	darray3E pp;
+	double distance, maxdistance(maxdist);
+	long idsuppsurf;
+	if(seedlist){
+		for(long id: *seedlist){
+			pp = getVertexCoords(id);
+			distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+			if(distance < maxdist){
+				result.insert(id, distance);
+			}
+		}
+	}else if(getType() != 3){
+		//find all the unconnected patches composing surfaces.
+		livector2D loops = surface.decomposeLoop();
+		//ping a seed on each subpatch
+		for(livector1D & loop : loops){
+			long idcellseed;
+			auto itsurf = loop.begin();
+			auto itsurfend = loop.end();
+			while(itsurf != itsurfend ){
+				//continue to search for a seed cell candidate, visiting all point of the target surface.
+				idcellseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
+				if(idcellseed < 0) {
+					++itsurf;
+					continue;
+				}
+                //check cell centroid first
+                pp = getPatch()->evalCellCentroid(idcellseed);
+				distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+				if(distance >= maxdist){
+					++itsurf;
+					continue;
+				}
+
+                //you found a cell inside. get the closest of its vertex and promote it to seed.
+
+                bitpit::ConstProxyVector<long> conncell = getPatch()->getCell(idcellseed).getVertexIds();
+
+                double distance_xx = maxdist;
+                long candidate;
+                for(long idv : conncell){
+                    pp = getVertexCoords(idv);
+                    distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+                    if(distance < distance_xx){
+                        candidate = idv;
+                        distance_xx = distance;
+                    }
+                }
+                result.insert(candidate, distance);
+                //finalize the search
+                itsurf = itsurfend;
+            }
+        }
+    }
+
+	// if no seed is found exit.
+	if(result.empty()){
+		//impossible to find a valid seed;
+		return result;
+	}
+
+
+
+	// create the stack of neighbours with the seed i have.
+	std::unordered_set<long> visited;
+	livector1D stackNeighs;
+	std::unordered_set<long> tt;
+	for(auto it = result.begin(); it != result.end(); ++it){
+		std::unordered_set<long> neighs = getPointConnectivity(it.getId()); //only edge connected neighbours.
+		for(long id: neighs){
+			if(!result.exists(id))  visited.insert(id);
+		}
+	}
+	stackNeighs.insert(stackNeighs.end(), visited.begin(), visited.end());
+
+	//add as visited also the id already in result;
+	{
+		livector1D temp = result.getIds();
+		visited.insert(temp.begin(), temp.end());
+	}
+
+	long target;
+	//search until the stack is empty.
+	while(!stackNeighs.empty()){
+
+		// extract the candidate
+		target = stackNeighs.back();
+
+		stackNeighs.pop_back();
+		visited.insert(target);
+		// evaluate its distance;
+		pp = getVertexCoords(target);
+		distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+
+		if(distance < maxdist){
+			result.insert(target, distance);
+
+			std::unordered_set<long> neighs = getPointConnectivity(target); //only edge connected
 			for(long id: neighs){
 				if(visited.count(id) < 1){
 					visited.insert(id);
