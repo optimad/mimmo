@@ -531,6 +531,7 @@ MimmoPiercedVector<mpv_t>::completeMissingData(const mpv_t & defValue){
 	if(!this->checkDataSizeCoherence()){
 
 		livector1D ids = this->getGeometryIds();
+        this->reserve(ids.size());
 		for(auto id: ids){
 			if(!this->exists(id)) this->insert(id, defValue);
 		}
