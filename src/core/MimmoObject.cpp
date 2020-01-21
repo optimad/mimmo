@@ -1961,25 +1961,34 @@ bool MimmoObject::cleanParallelPointGhostExchangeInfoSync(){
 }
 
 /*!
- * Set the patch partitioned. It performs a fake partitioning by leaving the partition unaltered.
+ * Set the patch partitioned.
+   It performs a fake partitioning by leaving the partition unaltered.
+   More importantly, it builds adjacencies if not built/synchronized, to deal with
+   bitpit::PatchKernel::partition method dizziness.
+   The method is not available for point clouds (type 3) at the moment.
  */
 void
 MimmoObject::setPartitioned()
 {
-	if (getPatch() == nullptr)
-		return;
+    if (getPatch() == nullptr || m_type == 3){
+        return;
+    }
 
-	std::unordered_map<long,int> partition;
-	for (bitpit::Cell & cell : getCells()){
-		if (cell.isInterior()){
-			partition[cell.getId()] = getRank();
-		}
-	}
+    std::unordered_map<long,int> partition;
+    for (bitpit::Cell & cell : getCells()){
+        if (cell.isInterior()){
+            partition[cell.getId()] = getRank();
+        }
+    }
 
-	getPatch()->partition(partition,false,true);
+    if(!areAdjacenciesBuilt()) {
+        buildAdjacencies();
+    }
 
-	buildPatchInfo();
-	updatePointGhostExchangeInfo();
+    getPatch()->partition(partition,false,true);
+
+    buildPatchInfo();
+    updatePointGhostExchangeInfo();
 
 }
 
