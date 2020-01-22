@@ -223,24 +223,36 @@ int test00003() {
 	// Now create a PropagateScalarField and solve the laplacian.
 	mimmo::PropagateVectorField * prop = new mimmo::PropagateVectorField();
 	prop->setGeometry(partition->getGeometry());
-	prop->setDirichletBoundarySurface(partition->getBoundaryGeometry());
-	prop->setDirichletConditions(&bc_surf_field);
-	prop->setDumping(false);
-	prop->setMethod(mimmo::PropagatorMethod::GRAPHLAPLACE);
-	prop->setSolverMultiStep(4);
+	prop->addDirichletBoundarySurface(partition->getBoundaryGeometry());
+	prop->addDirichletConditions(&bc_surf_field);
+	prop->setSolverMultiStep(10);
 	prop->setPlotInExecution(true);
 	prop->setApply(true);
 
-	t1 = Clock::now();
-	if (rank ==0)
-		std::cout << "Start Propagator vector field " << std::endl;
-	prop->exec();
-	t2 = Clock::now();
-	if (rank ==0){
-		std::cout << "Propagator vector field execution time: "
-				<< std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
-				<< " seconds" << std::endl;
-	}
+    prop->setDamping(true);
+    prop->setDampingType(1);
+    prop->setDampingDecayFactor(1.0);
+    prop->setDampingInnerDistance(0.05);
+    prop->setDampingOuterDistance(0.35);
+    prop->addDampingBoundarySurface(partition->getBoundaryGeometry());
+
+    // prop->setNarrowBand(true);
+    // prop->setNarrowBandWidth(0.6);
+    // prop->setNarrowBandRelaxation(0.7);
+    // prop->addNarrowBandBoundarySurface(partition->getBoundaryGeometry());
+
+
+    t1 = Clock::now();
+    if (rank == 0){
+        std::cout << "Start Propagator vector field " << std::endl;
+    }
+    prop->exec();
+    t2 = Clock::now();
+    if (rank ==0){
+        std::cout << "Propagator vector field execution time: "
+                  << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
+                  << " seconds" << std::endl;
+    }
 
 	prop->getGeometry()->getPatch()->write("deformed");
 

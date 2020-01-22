@@ -1116,13 +1116,65 @@ MimmoObject::getInterfaces()  const{
 
 /*!
  * Return a compact vector with the Ids of local cells given by
- * bitpit::PatchKernel unique-labeled indexing. Ghost cells are considered.
- * \return id of cells
+ * bitpit::PatchKernel unique-labeled indexing.
+   \param[in] internalsOnly FOR MPI ONLY: if true method accounts for internal cells only,
+   if false it includes also ghosts. Serial comp ignore this parameter.
+ * \return ids of cells
  */
 livector1D
-MimmoObject::getCellsIds(){
-	return getPatch()->getCells().getIds();
+MimmoObject::getCellsIds(bool internalsOnly){
+
+    std::vector<long> ids;
+
+#if MIMMO_ENABLE_MPI
+    //MPI version
+    if(internalsOnly){
+        ids.reserve(getPatch()->getInternalCount());
+        for(bitpit::PatchKernel::CellIterator it = getPatch()->internalBegin(); it!= getPatch()->internalEnd(); ++it){
+            ids.push_back(it.getId());
+        }
+    }else{
+        ids = getPatch()->getCells().getIds();
+    }
+#else
+    //SERIAL version
+    BITPIT_UNUSED(internalsOnly);
+    ids = getPatch()->getCells().getIds();
+#endif
+
+    return ids;
 };
+
+/*!
+ * Return a compact vector with the Ids of local vertices given by
+ * bitpit::PatchKernel unique-labeled indexing.
+   \param[in] internalsOnly FOR MPI ONLY: if true method accounts for internal vertices only,
+   if false it includes also ghosts. Serial comp ignore this parameter.
+ * \return ids of vertices
+ */
+livector1D
+MimmoObject::getVerticesIds(bool internalsOnly){
+    std::vector<long> ids;
+
+#if MIMMO_ENABLE_MPI
+    //MPI version
+    if(internalsOnly){
+        ids.reserve(getNInternalVertices());
+        for(bitpit::PatchKernel::VertexIterator it = getPatch()->vertexBegin(); it!= getPatch()->vertexEnd(); ++it){
+            if(isPointInterior(it.getId())) ids.push_back(it.getId());
+        }
+    }else{
+        ids = getPatch()->getVertices().getIds();
+    }
+#else
+    //SERIAL version
+    BITPIT_UNUSED(internalsOnly);
+    ids = getPatch()->getVertices().getIds();
+#endif
+
+    return ids;
+};
+
 
 /*!
  * \return pointer to bitpit::PatchKernel structure hold by the class.
@@ -1556,25 +1608,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
 			}
 		}
 
-		// Sort the targets
-		for (auto &entry : m_pointGhostExchangeTargets) {
-			std::vector<long> &rankTargets = entry.second;
-			std::sort(rankTargets.begin(), rankTargets.end(), VertexPositionLess(*this));
-		}
-
-		// Sort the sources
-		for (auto &entry : m_pointGhostExchangeSources) {
-			std::vector<long> &rankSources = entry.second;
-			std::sort(rankSources.begin(), rankSources.end(), VertexPositionLess(*this));
-		}
-
-		// Sort the shared
-		for (auto &entry : m_pointGhostExchangeShared) {
-			std::vector<long> &rankShared = entry.second;
-			std::sort(rankShared.begin(), rankShared.end(), VertexPositionLess(*this));
-		}
-
-
 		//Correct target ghost points
 		for (auto &entry : m_pointGhostExchangeTargets) {
 			std::vector<long> &rankTargets = entry.second;
@@ -1635,12 +1668,253 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		}
 	}
 
-
 	//Start update structure if partitioned
 	if (getPatch()->isPartitioned()){
 
+		// A process can have a non-internal point in sources list. It has to push to owner process of this point that it has to communicate
+		// with its target rank. The same it has to push to target rank to add the real source rank of this shared point.
+		{
+			std::unordered_map<int, std::vector<long>> m_pointGhostSendAdditionalSources;
+			std::unordered_map<int, std::vector<int>> m_pointGhostSendRankOfAdditionalSources;
+			std::unordered_map<int, std::vector<long>> m_pointGhostSendAdditionalTargets;
+			std::unordered_map<int, std::vector<int>> m_pointGhostSendRankOfAdditionalTargets;
+
+			std::unordered_map<int, std::vector<long>> m_pointGhostRecvAdditionalSources;
+			std::unordered_map<int, std::vector<int>> m_pointGhostRecvRankOfAdditionalSources;
+			std::unordered_map<int, std::vector<long>> m_pointGhostRecvAdditionalTargets;
+			std::unordered_map<int, std::vector<int>> m_pointGhostRecvRankOfAdditionalTargets;
+
+			// Loop on ghost sources
+			for (auto &entry : m_pointGhostExchangeSources) {
+				const int rank = entry.first;
+				const std::vector<long> &list = entry.second;
+				for (const long & id : list){
+
+					// If a point is in the sources but is not interior
+					// it has to be communicated to the real source rank the other target rank
+					if (!m_isPointInterior.at(id)){
+
+						// Find the source rank
+						int realSourceRank;
+						for (auto &candidateEntry : m_pointGhostExchangeTargets){
+							const int _rank = candidateEntry.first;
+							const std::vector<long> &_list = candidateEntry.second;
+							if (std::find(_list.begin(), _list.end(), id) != _list.end()){
+								realSourceRank = _rank;
+								break;
+							}
+						}
+
+						// Fix the target rank
+						int targetRank = rank;
+
+						m_pointGhostSendAdditionalSources[realSourceRank].push_back(id);
+						m_pointGhostSendAdditionalTargets[targetRank].push_back(id);
+						m_pointGhostSendRankOfAdditionalSources[realSourceRank].push_back(targetRank);
+						m_pointGhostSendRankOfAdditionalTargets[targetRank].push_back(realSourceRank);
+
+					} // end if not interior
+
+				} // end loop on list
+
+			} // end loop on ghost sources
+
+			// Loop on shared
+			for (auto &entry : m_pointGhostExchangeShared) {
+				const int rank = entry.first;
+				const std::vector<long> &list = entry.second;
+				for (const long & id : list){
+					// If a point is in the shared and the rank is lower than current
+					// it has to be communicated to the real source rank the other target rank
+					if (rank < m_rank){
+
+						// If not interior the source rank is the rank sharing the point
+						int realSourceRank = rank;
+
+						// Find the target rank
+						int targetRank = -1;
+						for (auto &candidateEntry : m_pointGhostExchangeSources){
+							const int _rank = candidateEntry.first;
+							const std::vector<long> &_list = candidateEntry.second;
+							if (std::find(_list.begin(), _list.end(), id) != _list.end()){
+								targetRank = _rank;
+								break;
+							}
+						}
+
+						if (targetRank != -1 && targetRank > rank){
+
+							m_pointGhostSendAdditionalSources[realSourceRank].push_back(id);
+							m_pointGhostSendAdditionalTargets[targetRank].push_back(id);
+							m_pointGhostSendRankOfAdditionalSources[realSourceRank].push_back(targetRank);
+							m_pointGhostSendRankOfAdditionalTargets[targetRank].push_back(realSourceRank);
+
+						} // end if target rank found
+
+					} // end if not interior
+
+				} // end loop on list
+
+			} // end loop on ghost sources
+
+			//---
+			// Communicate additional sources ids
+			//---
+			{
+				size_t exchangeDataSize = sizeof(long) + sizeof(int);
+				std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+				dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
+
+				// Set and start the sends
+				for (const auto entry : m_pointGhostSendAdditionalSources) {
+					const int rank = entry.first;
+					auto &list = entry.second;
+					dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
+					bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+					std::size_t index = 0;
+					auto &ranklist = m_pointGhostSendRankOfAdditionalSources[rank];
+					for (long id : list) {
+						buffer << id;
+						buffer << ranklist[index];
+						index++;
+					}
+					dataCommunicator->startSend(rank);
+				}
+
+				// Discover & start all the receives
+				dataCommunicator->discoverRecvs();
+				dataCommunicator->startAllRecvs();
+
+				// Receive the consecutive ids of the ghosts
+				int nCompletedRecvs = 0;
+
+				while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+					int rank = dataCommunicator->waitAnyRecv();
+					const auto &list = m_pointGhostRecvAdditionalSources[rank];
+					bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+					std::size_t bufferSize = buffer.getSize() / exchangeDataSize;
+
+					for (std::size_t index=0; index<bufferSize; index++) {
+						long id;
+						int rankTarget;
+						buffer >> id;
+						buffer >> rankTarget;
+						m_pointGhostRecvAdditionalSources[rank].push_back(id);
+						m_pointGhostRecvRankOfAdditionalSources[rank].push_back(rankTarget);
+					}
+					++nCompletedRecvs;
+				}
+				// Wait for the sends to finish
+				dataCommunicator->waitAllSends();
+
+			} //End communicate additional sources ids
+
+			//---
+			// Communicate additional targets ids
+			//---
+			{
+				size_t exchangeDataSize = sizeof(long) + sizeof(int);
+				std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+				dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
+
+				// Set and start the sends
+				for (const auto entry : m_pointGhostSendAdditionalTargets) {
+					const int rank = entry.first;
+					auto &list = entry.second;
+					dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
+					bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+					std::size_t index = 0;
+					auto &ranklist = m_pointGhostSendRankOfAdditionalTargets[rank];
+					for (long id : list) {
+						buffer << id;
+						buffer << ranklist[index];
+						index++;
+					}
+					dataCommunicator->startSend(rank);
+				}
+
+				// Discover & start all the receives
+				dataCommunicator->discoverRecvs();
+				dataCommunicator->startAllRecvs();
+
+				// Receive the consecutive ids of the ghosts
+				int nCompletedRecvs = 0;
+				while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+					int rank = dataCommunicator->waitAnyRecv();
+					const auto &list = m_pointGhostRecvAdditionalTargets[rank];
+					bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+					std::size_t bufferSize = buffer.getSize() / exchangeDataSize;
+
+					for (std::size_t index=0; index<bufferSize; index++) {
+						long id;
+						int rankSource;
+						buffer >> id;
+						buffer >> rankSource;
+						m_pointGhostRecvAdditionalTargets[rank].push_back(id);
+						m_pointGhostRecvRankOfAdditionalTargets[rank].push_back(rankSource);
+					}
+					++nCompletedRecvs;
+				}
+				// Wait for the sends to finish
+				dataCommunicator->waitAllSends();
+
+			} //End communicate additional targets ids
+
+
+			// Add received additional source/target ids+rank
+			for (const auto entry : m_pointGhostRecvAdditionalSources) {
+				const int fromRank = entry.first;
+				auto &list = entry.second;
+				std::size_t index = 0;
+				auto &ranklist = m_pointGhostRecvRankOfAdditionalSources[fromRank];
+				for (long id : list) {
+					int rankTarget = ranklist[index];
+					// Add to sources
+					if (std::find(m_pointGhostExchangeSources[rankTarget].begin(), m_pointGhostExchangeSources[rankTarget].end(), id) == m_pointGhostExchangeSources[rankTarget].end())
+						m_pointGhostExchangeSources[rankTarget].push_back(id);
+					index++;
+				}
+			}
+			for (const auto entry : m_pointGhostRecvAdditionalTargets) {
+				const int fromRank = entry.first;
+				auto &list = entry.second;
+				std::size_t index = 0;
+				auto &ranklist = m_pointGhostRecvRankOfAdditionalTargets[fromRank];
+				for (long id : list) {
+					int rankSource = ranklist[index];
+					// Add to targets
+					if (std::find(m_pointGhostExchangeTargets[rankSource].begin(), m_pointGhostExchangeTargets[rankSource].end(), id) == m_pointGhostExchangeTargets[rankSource].end())
+						m_pointGhostExchangeTargets[rankSource].push_back(id);
+					index++;
+				}
+			}
+
+		} // end scope of additional sources/targets adding
+
+		//Note. One process can receive the data on a point from multiple processes.
+		// It will save the data received by the lowest process that communicate the data on this node.
+
+		// Sort the targets
+		for (auto &entry : m_pointGhostExchangeTargets) {
+			std::vector<long> &rankTargets = entry.second;
+			std::sort(rankTargets.begin(), rankTargets.end(), VertexPositionLess(*this));
+		}
+
+		// Sort the sources
+		for (auto &entry : m_pointGhostExchangeSources) {
+			std::vector<long> &rankSources = entry.second;
+			std::sort(rankSources.begin(), rankSources.end(), VertexPositionLess(*this));
+		}
+
+		// Sort the shared
+		for (auto &entry : m_pointGhostExchangeShared) {
+			std::vector<long> &rankShared = entry.second;
+			std::sort(rankShared.begin(), rankShared.end(), VertexPositionLess(*this));
+		}
+
+
 		//Perform twice the communication to guarantee the propagation
-		//TODO OPTIMIZE THIS ASPECT
+		//TODO OPTIMIZE THIS
 		//TODO USE HALOSIZE(?)
 		for (int istep=0; istep<2; istep++){
 
@@ -1909,25 +2183,34 @@ bool MimmoObject::cleanParallelPointGhostExchangeInfoSync(){
 }
 
 /*!
- * Set the patch partitioned. It performs a fake partitioning by leaving the partition unaltered.
+ * Set the patch partitioned.
+   It performs a fake partitioning by leaving the partition unaltered.
+   More importantly, it builds adjacencies if not built/synchronized, to deal with
+   bitpit::PatchKernel::partition method dizziness.
+   The method is not available for point clouds (type 3) at the moment.
  */
 void
 MimmoObject::setPartitioned()
 {
-	if (getPatch() == nullptr)
-		return;
+    if (getPatch() == nullptr || m_type == 3){
+        return;
+    }
 
-	std::unordered_map<long,int> partition;
-	for (bitpit::Cell & cell : getCells()){
-		if (cell.isInterior()){
-			partition[cell.getId()] = getRank();
-		}
-	}
+    std::unordered_map<long,int> partition;
+    for (bitpit::Cell & cell : getCells()){
+        if (cell.isInterior()){
+            partition[cell.getId()] = getRank();
+        }
+    }
 
-	getPatch()->partition(partition,false,true);
+    if(!areAdjacenciesBuilt()) {
+        buildAdjacencies();
+    }
 
-	buildPatchInfo();
-	updatePointGhostExchangeInfo();
+    getPatch()->partition(partition,false,true);
+
+    buildPatchInfo();
+    updatePointGhostExchangeInfo();
 
 }
 
@@ -3618,6 +3901,167 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 			result.insert(target, distance);
 
 			livector1D neighs = getPatch()->findCellNeighs(target, 1); //only face neighs.
+			for(long id: neighs){
+				if(visited.count(id) < 1){
+					visited.insert(id);
+					stackNeighs.push_back(id);
+				}
+			}
+		}
+	}
+	return result;
+	//TODO need to find a cooking recipe here in case of PARALLEL computing of the narrow band.
+
+};
+
+
+
+/*!
+ * Get all the vertices of the current mesh  within a prescribed
+   distance maxdist w.r.t to a target surface body.
+ * Ghost vertices are considered. See twin method getCellsNarrowBandToExtSurfaceWDist.
+ * \param[in] surface MimmoObject of type surface.
+ * \param[in] maxdist threshold distance.
+ * \param[in] seedlist (optional) list of vertices to starting narrow band search.
+              In case the current class is a point cloud, a non empty seed list is mandatory.
+
+ * \return list of vertices inside the narrow band at maxdist from target surface.
+ */
+livector1D
+MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
+	bitpit::PiercedVector<double> res = getVerticesNarrowBandToExtSurfaceWDist(surface, maxdist, seedlist);
+	return res.getIds();
+};
+
+/*!
+ * Get all the vertices of the current mesh within a prescribed distance
+   maxdist w.r.t to a target surface body.
+ * Ghost vertices are considered.
+ * \param[in] surface MimmoObject of type surface.
+ * \param[in] maxdist threshold distance.
+ * \param[in] seedlist (optional) list of vertices to starting narrow band search.
+              In case the current class is a point cloud, a non empty seed list is mandatory.
+ * \return list of vertices inside the narrow band at maxdist from target surface with their distance from it.
+ */
+bitpit::PiercedVector<double>
+MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
+
+	bitpit::PiercedVector<double> result;
+	if(surface.isEmpty() || surface.getType() != 1) return result;
+	if(isEmpty())  return result;
+
+	if(!surface.areAdjacenciesBuilt()){
+		surface.buildAdjacencies();
+	}
+
+	if (!surface.isSkdTreeSync())
+		surface.buildSkdTree();
+
+    if(!isPointConnectivitySync())    buildPointConnectivity();
+
+	//use a stack-based search on ring vertex neighbors of some prescribed seed vertex.
+	//You need at least one vertex to be near enough to surface
+
+	//First step check seed list and precalculate distance. If dist >= maxdist
+	//the seed candidate is out.
+	darray3E pp;
+	double distance, maxdistance(maxdist);
+	long idsuppsurf;
+	if(seedlist){
+		for(long id: *seedlist){
+			pp = getVertexCoords(id);
+			distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+			if(distance < maxdist){
+				result.insert(id, distance);
+			}
+		}
+	}else if(getType() != 3){
+		//find all the unconnected patches composing surfaces.
+		livector2D loops = surface.decomposeLoop();
+		//ping a seed on each subpatch
+		for(livector1D & loop : loops){
+			long idcellseed;
+			auto itsurf = loop.begin();
+			auto itsurfend = loop.end();
+			while(itsurf != itsurfend ){
+				//continue to search for a seed cell candidate, visiting all point of the target surface.
+				idcellseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
+				if(idcellseed < 0) {
+					++itsurf;
+					continue;
+				}
+                //check cell centroid first
+                pp = getPatch()->evalCellCentroid(idcellseed);
+				distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+				if(distance >= maxdist){
+					++itsurf;
+					continue;
+				}
+
+                //you found a cell inside. get the closest of its vertex and promote it to seed.
+
+                bitpit::ConstProxyVector<long> conncell = getPatch()->getCell(idcellseed).getVertexIds();
+
+                double distance_xx = maxdist;
+                long candidate;
+                for(long idv : conncell){
+                    pp = getVertexCoords(idv);
+                    distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+                    if(distance < distance_xx){
+                        candidate = idv;
+                        distance_xx = distance;
+                    }
+                }
+                result.insert(candidate, distance);
+                //finalize the search
+                itsurf = itsurfend;
+            }
+        }
+    }
+
+	// if no seed is found exit.
+	if(result.empty()){
+		//impossible to find a valid seed;
+		return result;
+	}
+
+
+
+	// create the stack of neighbours with the seed i have.
+	std::unordered_set<long> visited;
+	livector1D stackNeighs;
+	std::unordered_set<long> tt;
+	for(auto it = result.begin(); it != result.end(); ++it){
+		std::unordered_set<long> neighs = getPointConnectivity(it.getId()); //only edge connected neighbours.
+		for(long id: neighs){
+			if(!result.exists(id))  visited.insert(id);
+		}
+	}
+	stackNeighs.insert(stackNeighs.end(), visited.begin(), visited.end());
+
+	//add as visited also the id already in result;
+	{
+		livector1D temp = result.getIds();
+		visited.insert(temp.begin(), temp.end());
+	}
+
+	long target;
+	//search until the stack is empty.
+	while(!stackNeighs.empty()){
+
+		// extract the candidate
+		target = stackNeighs.back();
+
+		stackNeighs.pop_back();
+		visited.insert(target);
+		// evaluate its distance;
+		pp = getVertexCoords(target);
+		distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+
+		if(distance < maxdist){
+			result.insert(target, distance);
+
+			std::unordered_set<long> neighs = getPointConnectivity(target); //only edge connected
 			for(long id: neighs){
 				if(visited.count(id) < 1){
 					visited.insert(id);
