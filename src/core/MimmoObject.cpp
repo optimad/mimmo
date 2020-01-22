@@ -1608,25 +1608,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
 			}
 		}
 
-		// Sort the targets
-		for (auto &entry : m_pointGhostExchangeTargets) {
-			std::vector<long> &rankTargets = entry.second;
-			std::sort(rankTargets.begin(), rankTargets.end(), VertexPositionLess(*this));
-		}
-
-		// Sort the sources
-		for (auto &entry : m_pointGhostExchangeSources) {
-			std::vector<long> &rankSources = entry.second;
-			std::sort(rankSources.begin(), rankSources.end(), VertexPositionLess(*this));
-		}
-
-		// Sort the shared
-		for (auto &entry : m_pointGhostExchangeShared) {
-			std::vector<long> &rankShared = entry.second;
-			std::sort(rankShared.begin(), rankShared.end(), VertexPositionLess(*this));
-		}
-
-
 		//Correct target ghost points
 		for (auto &entry : m_pointGhostExchangeTargets) {
 			std::vector<long> &rankTargets = entry.second;
@@ -1687,12 +1668,253 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		}
 	}
 
-
 	//Start update structure if partitioned
 	if (getPatch()->isPartitioned()){
 
+		// A process can have a non-internal point in sources list. It has to push to owner process of this point that it has to communicate
+		// with its target rank. The same it has to push to target rank to add the real source rank of this shared point.
+		{
+			std::unordered_map<int, std::vector<long>> m_pointGhostSendAdditionalSources;
+			std::unordered_map<int, std::vector<int>> m_pointGhostSendRankOfAdditionalSources;
+			std::unordered_map<int, std::vector<long>> m_pointGhostSendAdditionalTargets;
+			std::unordered_map<int, std::vector<int>> m_pointGhostSendRankOfAdditionalTargets;
+
+			std::unordered_map<int, std::vector<long>> m_pointGhostRecvAdditionalSources;
+			std::unordered_map<int, std::vector<int>> m_pointGhostRecvRankOfAdditionalSources;
+			std::unordered_map<int, std::vector<long>> m_pointGhostRecvAdditionalTargets;
+			std::unordered_map<int, std::vector<int>> m_pointGhostRecvRankOfAdditionalTargets;
+
+			// Loop on ghost sources
+			for (auto &entry : m_pointGhostExchangeSources) {
+				const int rank = entry.first;
+				const std::vector<long> &list = entry.second;
+				for (const long & id : list){
+
+					// If a point is in the sources but is not interior
+					// it has to be communicated to the real source rank the other target rank
+					if (!m_isPointInterior.at(id)){
+
+						// Find the source rank
+						int realSourceRank;
+						for (auto &candidateEntry : m_pointGhostExchangeTargets){
+							const int _rank = candidateEntry.first;
+							const std::vector<long> &_list = candidateEntry.second;
+							if (std::find(_list.begin(), _list.end(), id) != _list.end()){
+								realSourceRank = _rank;
+								break;
+							}
+						}
+
+						// Fix the target rank
+						int targetRank = rank;
+
+						m_pointGhostSendAdditionalSources[realSourceRank].push_back(id);
+						m_pointGhostSendAdditionalTargets[targetRank].push_back(id);
+						m_pointGhostSendRankOfAdditionalSources[realSourceRank].push_back(targetRank);
+						m_pointGhostSendRankOfAdditionalTargets[targetRank].push_back(realSourceRank);
+
+					} // end if not interior
+
+				} // end loop on list
+
+			} // end loop on ghost sources
+
+			// Loop on shared
+			for (auto &entry : m_pointGhostExchangeShared) {
+				const int rank = entry.first;
+				const std::vector<long> &list = entry.second;
+				for (const long & id : list){
+					// If a point is in the shared and the rank is lower than current
+					// it has to be communicated to the real source rank the other target rank
+					if (rank < m_rank){
+
+						// If not interior the source rank is the rank sharing the point
+						int realSourceRank = rank;
+
+						// Find the target rank
+						int targetRank = -1;
+						for (auto &candidateEntry : m_pointGhostExchangeSources){
+							const int _rank = candidateEntry.first;
+							const std::vector<long> &_list = candidateEntry.second;
+							if (std::find(_list.begin(), _list.end(), id) != _list.end()){
+								targetRank = _rank;
+								break;
+							}
+						}
+
+						if (targetRank != -1 && targetRank > rank){
+
+							m_pointGhostSendAdditionalSources[realSourceRank].push_back(id);
+							m_pointGhostSendAdditionalTargets[targetRank].push_back(id);
+							m_pointGhostSendRankOfAdditionalSources[realSourceRank].push_back(targetRank);
+							m_pointGhostSendRankOfAdditionalTargets[targetRank].push_back(realSourceRank);
+
+						} // end if target rank found
+
+					} // end if not interior
+
+				} // end loop on list
+
+			} // end loop on ghost sources
+
+			//---
+			// Communicate additional sources ids
+			//---
+			{
+				size_t exchangeDataSize = sizeof(long) + sizeof(int);
+				std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+				dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
+
+				// Set and start the sends
+				for (const auto entry : m_pointGhostSendAdditionalSources) {
+					const int rank = entry.first;
+					auto &list = entry.second;
+					dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
+					bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+					std::size_t index = 0;
+					auto &ranklist = m_pointGhostSendRankOfAdditionalSources[rank];
+					for (long id : list) {
+						buffer << id;
+						buffer << ranklist[index];
+						index++;
+					}
+					dataCommunicator->startSend(rank);
+				}
+
+				// Discover & start all the receives
+				dataCommunicator->discoverRecvs();
+				dataCommunicator->startAllRecvs();
+
+				// Receive the consecutive ids of the ghosts
+				int nCompletedRecvs = 0;
+
+				while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+					int rank = dataCommunicator->waitAnyRecv();
+					const auto &list = m_pointGhostRecvAdditionalSources[rank];
+					bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+					std::size_t bufferSize = buffer.getSize() / exchangeDataSize;
+
+					for (std::size_t index=0; index<bufferSize; index++) {
+						long id;
+						int rankTarget;
+						buffer >> id;
+						buffer >> rankTarget;
+						m_pointGhostRecvAdditionalSources[rank].push_back(id);
+						m_pointGhostRecvRankOfAdditionalSources[rank].push_back(rankTarget);
+					}
+					++nCompletedRecvs;
+				}
+				// Wait for the sends to finish
+				dataCommunicator->waitAllSends();
+
+			} //End communicate additional sources ids
+
+			//---
+			// Communicate additional targets ids
+			//---
+			{
+				size_t exchangeDataSize = sizeof(long) + sizeof(int);
+				std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+				dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
+
+				// Set and start the sends
+				for (const auto entry : m_pointGhostSendAdditionalTargets) {
+					const int rank = entry.first;
+					auto &list = entry.second;
+					dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
+					bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+					std::size_t index = 0;
+					auto &ranklist = m_pointGhostSendRankOfAdditionalTargets[rank];
+					for (long id : list) {
+						buffer << id;
+						buffer << ranklist[index];
+						index++;
+					}
+					dataCommunicator->startSend(rank);
+				}
+
+				// Discover & start all the receives
+				dataCommunicator->discoverRecvs();
+				dataCommunicator->startAllRecvs();
+
+				// Receive the consecutive ids of the ghosts
+				int nCompletedRecvs = 0;
+				while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+					int rank = dataCommunicator->waitAnyRecv();
+					const auto &list = m_pointGhostRecvAdditionalTargets[rank];
+					bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+					std::size_t bufferSize = buffer.getSize() / exchangeDataSize;
+
+					for (std::size_t index=0; index<bufferSize; index++) {
+						long id;
+						int rankSource;
+						buffer >> id;
+						buffer >> rankSource;
+						m_pointGhostRecvAdditionalTargets[rank].push_back(id);
+						m_pointGhostRecvRankOfAdditionalTargets[rank].push_back(rankSource);
+					}
+					++nCompletedRecvs;
+				}
+				// Wait for the sends to finish
+				dataCommunicator->waitAllSends();
+
+			} //End communicate additional targets ids
+
+
+			// Add received additional source/target ids+rank
+			for (const auto entry : m_pointGhostRecvAdditionalSources) {
+				const int fromRank = entry.first;
+				auto &list = entry.second;
+				std::size_t index = 0;
+				auto &ranklist = m_pointGhostRecvRankOfAdditionalSources[fromRank];
+				for (long id : list) {
+					int rankTarget = ranklist[index];
+					// Add to sources
+					if (std::find(m_pointGhostExchangeSources[rankTarget].begin(), m_pointGhostExchangeSources[rankTarget].end(), id) == m_pointGhostExchangeSources[rankTarget].end())
+						m_pointGhostExchangeSources[rankTarget].push_back(id);
+					index++;
+				}
+			}
+			for (const auto entry : m_pointGhostRecvAdditionalTargets) {
+				const int fromRank = entry.first;
+				auto &list = entry.second;
+				std::size_t index = 0;
+				auto &ranklist = m_pointGhostRecvRankOfAdditionalTargets[fromRank];
+				for (long id : list) {
+					int rankSource = ranklist[index];
+					// Add to targets
+					if (std::find(m_pointGhostExchangeTargets[rankSource].begin(), m_pointGhostExchangeTargets[rankSource].end(), id) == m_pointGhostExchangeTargets[rankSource].end())
+						m_pointGhostExchangeTargets[rankSource].push_back(id);
+					index++;
+				}
+			}
+
+		} // end scope of additional sources/targets adding
+
+		//Note. One process can receive the data on a point from multiple processes.
+		// It will save the data received by the lowest process that communicate the data on this node.
+
+		// Sort the targets
+		for (auto &entry : m_pointGhostExchangeTargets) {
+			std::vector<long> &rankTargets = entry.second;
+			std::sort(rankTargets.begin(), rankTargets.end(), VertexPositionLess(*this));
+		}
+
+		// Sort the sources
+		for (auto &entry : m_pointGhostExchangeSources) {
+			std::vector<long> &rankSources = entry.second;
+			std::sort(rankSources.begin(), rankSources.end(), VertexPositionLess(*this));
+		}
+
+		// Sort the shared
+		for (auto &entry : m_pointGhostExchangeShared) {
+			std::vector<long> &rankShared = entry.second;
+			std::sort(rankShared.begin(), rankShared.end(), VertexPositionLess(*this));
+		}
+
+
 		//Perform twice the communication to guarantee the propagation
-		//TODO OPTIMIZE THIS ASPECT
+		//TODO OPTIMIZE THIS
 		//TODO USE HALOSIZE(?)
 		for (int istep=0; istep<2; istep++){
 
