@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_geohandlers.hpp"
+#include <bitpit_common.hpp>
 
 // =================================================================================== //
 /*!
@@ -62,7 +63,7 @@ void test00001() {
 
     mimmo::SelectionByCylinder * sel3 = new mimmo::SelectionByCylinder();
     sel3->setOrigin({{0.5, 0.0, 0.0}});
-    sel3->setSpan({{0.75, 2.0*M_PI, 0.4}});
+    sel3->setSpan({{0.75, 2.0*BITPIT_PI, 0.4}});
     sel3->setInfLimits({{0.25, 0.0, 0.0}});
     sel3->setRefSystem({{0,1,0}}, {{0,0,1}}, {{1,0,0}});
     sel3->setPlotInExecution(true);

@@ -25,6 +25,7 @@
 #include "Lattice.hpp"
 #include "customOperators.hpp"
 #include <bitpit_operators.hpp>
+#include <bitpit_common.hpp>
 
 namespace mimmo{
 
@@ -495,14 +496,14 @@ Lattice::reduceDimToDOF(int nx, int ny, int nz, bvector1D & info){
                 nz--;
                 delta += nx;
             }
-            if((dval + getLocalSpan()[2]) == M_PI){
+            if((dval + getLocalSpan()[2]) == BITPIT_PI){
                 nz--;
                 delta += nx;
             }
 
             info.push_back(getCoordType(1) == CoordType::PERIODIC);
             info.push_back(dval==0.0);
-            info.push_back((dval + getLocalSpan()[2]) == M_PI);
+            info.push_back((dval + getLocalSpan()[2]) == BITPIT_PI);
             break;
 
         default:

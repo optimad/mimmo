@@ -25,6 +25,7 @@
 #include "BasicMeshes.hpp"
 #include "customOperators.hpp"
 #include <Operators.hpp>
+#include <bitpit_common.hpp>
 
 namespace mimmo{
 
@@ -727,8 +728,8 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
 		darray3E origin{{0,0,0}};
 		dmatrix33E spanMat;
 		spanMat[0].fill(1);	spanMat[2].fill(1);	spanMat[2].fill(1);
-		spanMat[1][1] = spanMat[2][1] = 2*M_PI;
-		spanMat[2][2] = M_PI;
+		spanMat[1][1] = spanMat[2][1] = 2*BITPIT_PI;
+		spanMat[2][2] = BITPIT_PI;
 
 		if(m_setorigin){origin = m_origin_temp; m_setorigin= false;}
 		if(m_setspan){

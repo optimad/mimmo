@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include <MeshChecker.hpp>
+#include <bitpit_common.hpp>
 
 namespace mimmo{
 
@@ -342,10 +343,10 @@ MeshChecker::checkMeshQuality()
 #endif
 	if (m_maxSkewnessBoundary > m_maxSkewnessBoundaryTol){
         check = CMeshOutput::BOUNDARYSKEWNESS;
-		(*m_log)<<m_name<<" : FAILED boundary skewness, found value [deg] : "<< m_maxSkewnessBoundary / M_PI * 180. << std::endl;
+		(*m_log)<<m_name<<" : FAILED boundary skewness, found value [deg] : "<< m_maxSkewnessBoundary / BITPIT_PI * 180. << std::endl;
 	}
 	else{
-		(*m_log)<<m_name<<" : boundary skewness PASSED with value [deg] : "<< m_maxSkewnessBoundary / M_PI * 180. << std::endl;
+		(*m_log)<<m_name<<" : boundary skewness PASSED with value [deg] : "<< m_maxSkewnessBoundary / BITPIT_PI * 180. << std::endl;
 	}
 
 #if MIMMO_ENABLE_MPI
