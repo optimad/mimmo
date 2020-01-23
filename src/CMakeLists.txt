@@ -81,7 +81,19 @@ set_target_properties(${MIMMO_LIBRARY} PROPERTIES POSITION_INDEPENDENT_CODE ${PI
 set_target_properties(${MIMMO_LIBRARY} PROPERTIES VERSION "${MIMMO_VERSION}"
                                                  SOVERSION  "${MIMMO_MAJOR_VERSION}")
 
-install(TARGETS ${MIMMO_LIBRARY} DESTINATION lib)
+# Windows shared libraries have to be linked against their dependencies.
+if (MINGW AND BUILD_SHARED_LIBS)
+	target_link_libraries(${MIMMO_LIBRARY} ${MIMMO_EXTERNAL_LIBRARIES})
+endif()
+
+# Install target
+#
+# On Windows, shared libraries have to be installed in the binary directory.
+if (WIN32)
+ 	install(TARGETS ${MIMMO_LIBRARY} ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin)
+else()
+ 	install(TARGETS ${MIMMO_LIBRARY} DESTINATION lib)
+endif()
 
 # Definitions
 set(MIMMO_DEFINITIONS ${MODULE_DEFINITIONS} CACHE INTERNAL "Pre-processor definitions needed by the Base Library" FORCE)
