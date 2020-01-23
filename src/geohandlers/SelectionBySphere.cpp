@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "MeshSelection.hpp"
+#include <bitpit_common.hpp>
 
 namespace mimmo{
 
@@ -186,7 +187,7 @@ SelectionBySphere::absorbSectionXML(const bitpit::Config::Section & slotXML, std
     if(slotXML.hasOption("Span")){
         std::string input = slotXML.get("Span");
         input = bitpit::utils::string::trim(input);
-        darray3E temp = {{1.0,2.0*M_PI,M_PI}};
+        darray3E temp = {{1.0,2.0*BITPIT_PI,BITPIT_PI}};
         if(!input.empty()){
             std::stringstream ss(input);
             ss>>temp[0]>>temp[1]>>temp[2];

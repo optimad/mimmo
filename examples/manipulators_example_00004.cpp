@@ -24,6 +24,7 @@
 
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
+#include <bitpit_common.hpp>
 #include <random>
 
 // =================================================================================== //
@@ -66,8 +67,8 @@ void test00004() {
     darray3E origin = {0.0, 0.0,0.0};
     darray3E span;
     span[0]= 3.01;
-    span[1]= 2*M_PI;
-    span[2]= M_PI;
+    span[1]= 2*BITPIT_PI;
+    span[2]= BITPIT_PI;
 
     /* Set number of nodes of the mesh (dim) and degree of nurbs functions (deg).
      */
@@ -108,10 +109,10 @@ void test00004() {
         int l1,l2,l3;
         int index = lattice->accessGridFromDOF(i);
         lattice->accessPointIndex(index,l1,l2,l3);
-        if(l1 > 0 && lattice->getLocalPoint(l1,l2,l3)[1] < M_PI){
+        if(l1 > 0 && lattice->getLocalPoint(l1,l2,l3)[1] < BITPIT_PI){
             displ[i][0] = 1.0*( double( rgen() - rgen.min() ) / distRand );
         }
-        if( (l1 > 0 && lattice->getLocalPoint(l1,l2,l3)[1] >= M_PI)
+        if( (l1 > 0 && lattice->getLocalPoint(l1,l2,l3)[1] >= BITPIT_PI)
                 || lattice->getLocalPoint(l1,l2,l3)[1] == 0){
             displ[i][0] = 1.25;
         }

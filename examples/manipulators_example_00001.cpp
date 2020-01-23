@@ -24,6 +24,7 @@
 
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
+#include <bitpit_common.hpp>
 
 // =================================================================================== //
 /*!
@@ -105,7 +106,7 @@ void test00001() {
      */
     mimmo::TwistGeometry* twist = new mimmo::TwistGeometry();
     twist->setDirection(darray3E{1.0, 0.0, 0.0});
-    twist->setTwist((M_PI/3));
+    twist->setTwist((BITPIT_PI/3));
     twist->setMaxDistance(1.0);
 
     /* Creation of applier block for twisting.
@@ -137,7 +138,7 @@ void test00001() {
      */
     mimmo::RotationGeometry* rotation = new mimmo::RotationGeometry();
     rotation->setDirection(darray3E{0.25,0.25,0.75});
-    rotation->setRotation((M_PI/4));
+    rotation->setRotation((BITPIT_PI/4));
 
     /* Creation of applier block for rotation.
      */

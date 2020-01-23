@@ -24,6 +24,7 @@
 #include "BasicShapes.hpp"
 #include "customOperators.hpp"
 #include <CG.hpp>
+#include <bitpit_common.hpp>
 #include <algorithm>
 
 namespace mimmo{
@@ -1064,7 +1065,7 @@ bool Cube::intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax){
  */
 Cylinder::Cylinder():BasicShape(){
 	m_shape=ShapeType::CYLINDER;
-	m_span = {{1.0, 2*M_PI, 1.0}};
+	m_span = {{1.0, 2*BITPIT_PI, 1.0}};
 	setCoordinateType(CoordType::PERIODIC, 1);
 };
 
@@ -1138,10 +1139,10 @@ darray3E	Cylinder::toLocalCoord(const darray3E &point){
 	else{
 		work[0] = pow(work2[0]*work2[0] + work2[1]*work2[1],0.5);
 		double pdum = std::atan2(work2[1],work2[0]);
-		work[1] = pdum - (getSign(pdum)-1.0)*M_PI;
+		work[1] = pdum - (getSign(pdum)-1.0)*BITPIT_PI;
 	}
 	//get to the correct m_thetaOrigin mark
-	double param = 2*M_PI;
+	double param = 2*BITPIT_PI;
 	work[1] = work[1] - m_infLimits[1];
 	if(work[1] < 0) 		work[1] = param + work[1];
 	if(work[1] > param) 	work[1] = work[1] - param;
@@ -1216,7 +1217,7 @@ void 		Cylinder::checkSpan(double &s0, double &s1, double &s2){
  * \return true, if valid new value is set.
  */
 bool 	Cylinder::checkInfLimits(double &orig, int &dir){
-	double thetalim = 2.0*M_PI;
+	double thetalim = 2.0*BITPIT_PI;
     bool check = false;
 	switch(dir){
         case 0:
@@ -1326,7 +1327,7 @@ bool Cylinder::intersectShapeAABBox(const darray3E &bMin, const darray3E &bMax){
  */
 Sphere::Sphere():BasicShape(){
 	m_shape=ShapeType::SPHERE;
-	m_span = {{1.0, 2*M_PI, M_PI}};
+	m_span = {{1.0, 2*BITPIT_PI, BITPIT_PI}};
 	setCoordinateType(CoordType::PERIODIC, 1);
 	setCoordinateType(CoordType::CLAMPED, 2);
 };
@@ -1406,10 +1407,10 @@ darray3E	Sphere::toLocalCoord(const darray3E &point){
 			work[1] = 0.0;
 		}else{
 			double pdum = std::atan2(work2[1],work2[0]);
-			work[1] = pdum - (getSign(pdum)-1.0)*M_PI;
+			work[1] = pdum - (getSign(pdum)-1.0)*BITPIT_PI;
 		}
 		//get to the correct m_thetaOrigin mark
-		double param = 2.0*M_PI;
+		double param = 2.0*BITPIT_PI;
 		work[1] = work[1] - m_infLimits[1];
 		if(work[1] < 0) 		work[1] = param + work[1];
 		if(work[1] > param) 	work[1] = work[1] - param;
@@ -1474,7 +1475,7 @@ void 		Sphere::checkSpan( double &s0,  double &s1, double &s2){
 	s1 = std::abs(s1);
 	s2 = std::abs(s2);
 
-	double thetalim = 2.0*M_PI;
+	double thetalim = 2.0*BITPIT_PI;
 	s1 = std::min(s1, thetalim);
 
 	double maxS2 = 0.5*thetalim - m_infLimits[2];
@@ -1495,7 +1496,7 @@ void 		Sphere::checkSpan( double &s0,  double &s1, double &s2){
  */
 bool 		Sphere::checkInfLimits( double &orig,  int &dir){
 
-	double thetalim = 2.0*M_PI;
+	double thetalim = 2.0*BITPIT_PI;
 	double tol = 1.e-12;
 	bool check = false;
 	switch(dir){

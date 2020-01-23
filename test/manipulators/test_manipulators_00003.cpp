@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_manipulators.hpp"
+#include <bitpit_common.hpp>
 
 // =================================================================================== //
 /*!
@@ -58,7 +59,7 @@ int test3() {
     for(auto & val : span){
         if (val<1.e-18) val = 2.E-03;
     }
-    double zdispl = 0.5*span[0]*std::tan(M_PI/3.0);
+    double zdispl = 0.5*span[0]*std::tan(BITPIT_PI/3.0);
 
     dvecarr3E displ(8,{{0.0,0.0,0.0}});
 
@@ -90,7 +91,7 @@ int test3() {
     darray3E normal2 = (static_cast<bitpit::SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
 
     //check phase
-    bool check =( (std::abs(std::acos(dotProduct(normal2,normal))) - M_PI/3.0) <= 1.E-18);
+    bool check =( (std::abs(std::acos(dotProduct(normal2,normal))) - BITPIT_PI/3.0) <= 1.E-18);
 
     delete mesh;
     delete latt;

@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_geohandlers.hpp"
+#include <bitpit_common.hpp>
 
 // =================================================================================== //
 /*!
@@ -77,7 +78,7 @@ void test00001() {
      */
 	mimmo::SelectionBySphere * sphSel = new mimmo::SelectionBySphere();
 	sphSel->setOrigin({{-0.5, 0.5,0.2}});
-	sphSel->setSpan(0.34, 2*M_PI, M_PI);
+	sphSel->setSpan(0.34, 2*BITPIT_PI, BITPIT_PI);
 
     /* Instantiation of a Refine Geometry block.
      * Setup refining.
