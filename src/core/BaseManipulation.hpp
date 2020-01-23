@@ -42,6 +42,10 @@
     #include <mpi.h>
 #endif
 
+#if defined(_WIN32)
+    #define uint unsigned int
+#endif
+
 namespace mimmo{
 
 /*!
