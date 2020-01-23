@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_geohandlers.hpp"
+#include <bitpit_common.hpp>
 
 /*!
  * Creating surface triangular mesh and return it in a MimmoObject.
@@ -125,7 +126,7 @@ int test2() {
 	mimmo::Lattice * latt1 = new mimmo::Lattice();
 	latt1->setShape(mimmo::ShapeType::SPHERE);
 	latt1->setOrigin({{1.5,0.5,0.0}});
-	latt1->setSpan({{0.6,2.0*M_PI, M_PI}});
+	latt1->setSpan({{0.6,2.0*BITPIT_PI, BITPIT_PI}});
 	latt1->setGeometry(clip->getClippedPatch());
 	iarray3E dim = {{2,31,15}};
 	latt1->setDimension(dim);
@@ -134,7 +135,7 @@ int test2() {
 
 	mimmo::SelectionBySphere * sel1 = new mimmo::SelectionBySphere();
 	sel1->setOrigin({{1.5,0.5,0.0}});
-	sel1->setSpan({{0.6,2.0*M_PI, M_PI}});
+	sel1->setSpan({{0.6,2.0*BITPIT_PI, BITPIT_PI}});
 	sel1->setDual(false);
 	sel1->setGeometry(clip->getClippedPatch());
 	sel1->setPlotInExecution(false);
@@ -142,7 +143,7 @@ int test2() {
 
 	mimmo::SelectionBySphere * sel2 = new mimmo::SelectionBySphere();
 	sel2->setOrigin({{1.5,0.5,0.0}});
-	sel2->setSpan({{0.6,2.0*M_PI, M_PI}});
+	sel2->setSpan({{0.6,2.0*BITPIT_PI, BITPIT_PI}});
 	sel2->setGeometry(clip->getClippedPatch());
 	sel2->setDual(true);
 	sel2->setPlotInExecution(false);

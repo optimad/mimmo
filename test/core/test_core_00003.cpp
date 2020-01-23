@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_core.hpp"
+#include <bitpit_common.hpp>
 
 /*
  * Test 00003
@@ -158,8 +159,8 @@ int test3() {
 
 	mimmo::Cylinder * shape = new mimmo::Cylinder();
 	shape->setOrigin({{-0.00001, 0.5,0.0}});
-	shape->setSpan({{0.51, M_PI, 1.2}});
-	shape->setInfLimits({{0.0,-0.5*M_PI, 0.0}});
+	shape->setSpan({{0.51, BITPIT_PI, 1.2}});
+	shape->setInfLimits({{0.0,-0.5*BITPIT_PI, 0.0}});
 	shape->setRefSystem(2, {{0.0,1.0,0.0}});
 
 	list.reserve(16);

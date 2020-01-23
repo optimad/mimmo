@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_manipulators.hpp"
+#include <bitpit_common.hpp>
 
 // =================================================================================== //
 /*!
@@ -57,7 +58,7 @@ int test1() {
     mimmo::RotationGeometry * rot = new mimmo::RotationGeometry();
     rot->setGeometry(mesh);
     rot->setAxis({{0.0,0.0,0.0}},{{1.0,0.0,0.0}});
-    rot->setRotation(M_PI/3.);
+    rot->setRotation(BITPIT_PI/3.);
     rot->exec();
 
     mimmo::ScaleGeometry * scale = new mimmo::ScaleGeometry();
@@ -83,7 +84,7 @@ int test1() {
     //check phase
     bool check = true;
 
-    check = check && ( (std::abs(std::acos(dotProduct(normal2,normal))) - M_PI/3.0) <= 1.e-18);
+    check = check && ( (std::abs(std::acos(dotProduct(normal2,normal))) - BITPIT_PI/3.0) <= 1.e-18);
     check = check && ( (std::abs(area/area2) - 4.0) <= 1.e-18);
 
     delete mesh;

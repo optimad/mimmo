@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "Lattice.hpp"
+#include <bitpit_common.hpp>
 
 // =================================================================================== //
 /*!
@@ -45,7 +46,7 @@ void test00002() {
     mimmo::Lattice * latt3 = new mimmo::Lattice();
     latt3->setShape(mimmo::ShapeType::CYLINDER);
     latt3->setOrigin({{0.5, 0.0, 0.0}});
-    latt3->setSpan({{0.75, 2.0*M_PI, 0.4}});
+    latt3->setSpan({{0.75, 2.0*BITPIT_PI, 0.4}});
     latt3->setInfLimits({{0.25, 0.0, 0.0}});
     latt3->setRefSystem({{0,1,0}}, {{0,0,1}}, {{1,0,0}});
     latt3->setDimension(iarray3E({{2, 35, 2}}));

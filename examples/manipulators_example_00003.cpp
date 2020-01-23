@@ -24,6 +24,7 @@
 
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
+#include <bitpit_common.hpp>
 
 // =================================================================================== //
 /*!
@@ -65,7 +66,7 @@ void test00003() {
     darray3E origin = {-1537.5, -500.0, 3352.5};
     darray3E span;
     span[0]= 100.0;
-    span[1]= 2*M_PI;
+    span[1]= 2*BITPIT_PI;
     span[2]= 1000.0;
 
     /* Set number of nodes of the mesh (dim) and degree of nurbs functions (deg).
