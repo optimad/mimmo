@@ -741,7 +741,7 @@ void   IOWavefrontOBJ::execute(){
 */
 void IOWavefrontOBJ::read(const std::string & filename){
 
-    std::ifstream in(filename);
+    std::ifstream in(filename, std::ios::binary);
     if(in.is_open()){
 
         //search and store the material file fullpath.
@@ -842,7 +842,7 @@ void IOWavefrontOBJ::write(const std::string & filename){
         return;
     }
 
-    std::ofstream out(filename);
+    std::ofstream out(filename, std::ios::binary);
     if(out.is_open()){
 
         out<<"# Optimad's mimmo : "<<m_name<<" OBJ file"<<std::endl;
