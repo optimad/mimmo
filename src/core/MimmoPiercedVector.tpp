@@ -829,6 +829,7 @@ MimmoPiercedVector<mpv_t>::squeezeOutExcept(const std::vector<long int> & list, 
         // erase elements in the list then squeeze the piercedvector.
         std::unordered_set<long> maplist(list.begin(), list.end());
         MimmoPiercedVector<mpv_t> result (m_geometry, m_loc);
+        result.setName(m_name);
         result.reserve(maplist.size());
         for(auto it = this->begin(); it != this->end(); ++it){
             if(maplist.count(it.getId()) > 0){
@@ -839,6 +840,7 @@ MimmoPiercedVector<mpv_t>::squeezeOutExcept(const std::vector<long int> & list, 
     }else{
         // if the order does not matter, create a new mpv and swap with the current
         MimmoPiercedVector<mpv_t> result (m_geometry, m_loc);
+        result.setName(m_name);
         for(long id: list){
             if(this->exists(id)){
                 result.insert(id, this->at(id));
