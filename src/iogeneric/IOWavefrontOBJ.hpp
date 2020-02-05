@@ -1,54 +1,157 @@
-/*
-    Get a License Header here- Temporary POC for Click-Ins
-*/
+/*---------------------------------------------------------------------------*\
+ *
+ *  mimmo
+ *
+ *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *
+ *  -------------------------------------------------------------------------
+ *  License
+ *  This file is part of mimmo.
+ *
+ *  mimmo is free software: you can redistribute it and/or modify it
+ *  under the terms of the GNU Lesser General Public License v3 (LGPL)
+ *  as published by the Free Software Foundation.
+ *
+ *  mimmo is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+ *  License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
+ *
+\*---------------------------------------------------------------------------*/
 
 #ifndef __IOWAVEFRONTOBJ__HPP__
 #define __IOWAVEFRONTOBJ__HPP__
 
 #include <BaseManipulation.hpp>
 
-//data definition
-#define XD_WOBJDATA_ "XD_WOBJDATA_"     /**< pointer to Wavefront OBJ data structure */
-
-//port definition
-#define X_WDATA         "X_WDATA"          /**< port to pass a XD_WOBJDATA_ data (pointer to WavefrontObjData)*/
-
 namespace mimmo{
 
 /*!
-    \class WavefrontObjData
+    \class WavefrontOBJData
     \ingroup iogeneric
     \brief struct for storing cell data attached to Wavefront OBJ polygonal mesh
 */
-class WavefrontObjData{
+class WavefrontOBJData{
 
     friend class IOWavefrontOBJ;
 
 public:
 
+    //data
     MimmoPiercedVector<std::string> materials; /**< label identifying material group which a cell can possibly belong to */
     MimmoPiercedVector<long> smoothids; /**< marker identifying smooth group which a cell can possibly belong to */
 
+    std::unique_ptr<MimmoObject> textures; /**< MimmoObject container for texture properties*/
+    std::unique_ptr<MimmoObject> normals; /**<MimmoObject container for vnormals properties*/
+
+    //list
     std::unordered_map<std::string, long> materialsList; /**< list of all materials inside the class, argument marks long id */
-    std::unordered_set<long> smoothidsList; /**< list of all smoothing group ids inside the class */
+    std::unordered_map<std::string, long> smoothidsList; /**< list of all smoothing group ids inside the class, arguments marks long id */
 
+    std::unordered_map<long, std::string> inv_materialsList; /**< inverse of materialList*/
+    std::unordered_map<long, std::string> inv_smoothidsList; /**< inverse of smoothidslist*/
+
+
+    // accessory info
     std::string materialfile; /**< path to materials file associated to the obj file */
+    MimmoObject * refGeometry; /**<reference geometry which the class belongs to */
 
-    MimmoPiercedVector<std::array<double,3>> vertexTexture; /**< replaced vertex normals of the object */
-    MimmoPiercedVector<std::array<double,3>> vertexNormal; /**< replaced vertex normals of the object */
-
-    WavefrontObjData();
+    WavefrontOBJData();
     /*! destructor */
-    virtual ~WavefrontObjData(){};
+    virtual ~WavefrontOBJData(){};
 
-    void swap(WavefrontObjData &x) noexcept;
+    void swap(WavefrontOBJData &x) noexcept;
     void syncListsOnData();
+    void autoCompleteCellFields();
 
 protected:
 
     void dump(std::ostream & out);
     void restore(std::istream & out);
 
+};
+
+/*!
+\class ManipulateWFOBJData
+\ingroup iogeneric
+\brief Executable block manipulating optional data of WavefrontOBJ mesh
+
+The class performs manipulation of Wavefront mesh optional data such as
+- cell annotation (annotating a group of cells throughout the sub-objects of the mesh)
+- compute moved normals (NOT YET AVAILABLE)
+
+\n
+Ports available in ManipulateWFOBJData Class :
+
+========================================================
+
+|Port Input | | |
+|-|-|-|
+| <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+| M_WAVEFRONTDATA   | setData                   | (MC_SCALAR, MD_WOBJDATA_) |
+| M_LONGFIELD       | addAnnotation             | (MC_SCALAR, MD_MPVECLONG_)
+| M_GDISPLS         | setGeometryDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
+
+|Port Output | | |
+|-|-|-|
+| <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
+| M_WAVEFRONTDATA     | getData              | (MC_SCALAR, MD_WOBJDATA_) |
+
+=========================================================
+    \n
+
+     The xml available parameters, sections and subsections are the following :
+
+     Inherited from BaseManipulation:
+     - <B>ClassName</B>: name of the class as <tt>mimmo.IOWavefrontOBJ</tt>;
+     - <B>Priority</B>: uint marking priority in multi-chain execution;
+
+     Proper of the class:
+     - <B>CheckNormalsMagnitude</B>: 0/1 boolean, if 1, check and force Wavefront Data to have normals magnitude equal to 1. If no normals are available in wavefront data it does nothing.
+
+     Data and additional input fields have to be mandatorily passed through ports.
+*/
+class ManipulateWFOBJData: public mimmo::BaseManipulation{
+
+public:
+    ManipulateWFOBJData();
+    virtual ~ManipulateWFOBJData();
+    ManipulateWFOBJData(const bitpit::Config::Section & rootXML);
+
+    WavefrontOBJData*                       getData();
+
+    void    setGeometryDisplacements(MimmoPiercedVector<std::array<double,3>>* displacements);
+    void    setData(WavefrontOBJData* data);
+    void    addAnnotation(MimmoPiercedVector<long>* annotation);
+
+    void    setCheckNormalsMagnitude(bool flag);
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+
+    void    execute();
+
+protected:
+    void swap(ManipulateWFOBJData & x) noexcept;
+    void buildPorts();
+
+    void computeAnnotations();
+    void computeMovedNormals();
+    void checkNormalsMagnitude();
+
+private:
+
+    WavefrontOBJData * m_extData; /**< externally linked data*/
+    MimmoPiercedVector<std::array<double,3>> m_displacements; /**< Geometry vertex displacements. If filled is used to interpolate new normals during write.*/
+    std::vector<MimmoPiercedVector<long> > m_annotations; /**< list of annotations*/
+    bool m_checkNormalsMag; /**< boolean to set check on normals magnitude */
+
+    //make useless base class methods private;
+    MimmoObject * getGeometry(){return nullptr;};
+    void setGeometry(MimmoObject* geo){BITPIT_UNUSED(geo);};
 };
 
 /*!
@@ -60,7 +163,7 @@ IOWavefrontOBJ manages reading/writing of surface mesh from/to WaveFront ASCII o
 MimmoObject surface mesh container (type=1).
 More information at https://en.wikipedia.org/wiki/Wavefront_.obj_file
 The class does not cover all the features supported by the format, but is restricted to
-description of 3D surface tesselleted meshes. Points and Lines cell elements are not supported
+description of 3D surface tessellated meshes. Points and Lines cell elements are not supported
 in the current class.
 
 Materials file *.mtl attached to the inner *.obj file is not needed by the current class.
@@ -69,20 +172,25 @@ Thus, the obj file must have:
 - Polygonal geometry statement only, No free form statement features (NURBS-CAD) are supported.
 - Polygonal cells (only facets, no lines or vertex cells)
 
-Mesh Object names/parts are absorbed/flushed through PID/PIDNames mechanism
-of MimmoObject surface mesh cells.
+Mesh Object sub-parts are absorbed/flushed through PID/PIDNames mechanism
+of MimmoObject surface mesh cells. The class identifies as parts only sub-objects defined
+with o key entry (grouping with g key entry is ignored.)
 
-Textures information (if any) are managed as a vector field attached to vertices. During writing,
-the same values (or with a difference less than a threshold) are written once.
+Mesh accessory data are stored in a WaveFrontObjData class, containing:
 
-Materials assigned on cells and smoothing group ids are managed as special
+- Textures and Normals properties (if any) are managed in independent MimmoObjects
+(their node coordinates list and their own connectivities).The link is that cell-ids
+are the same in all 3 objects (reference mesh, textures and normals).
+
+ - Materials assigned on cells and smoothing group ids are managed as special
 fields attached to the MimmoObject mesh cells-ids.
 
-Normals (if any) are managed as a vector field attached to vertices. During writing,
-if a geometry displacement field is passed as input, the normals are recomputed on moved vertices
-by using the vertex normals of of the geometry.
 
-Group naming (g key entry) is ignored and not supported in the current class;
+WARNING: for reading/writing of v,vt,vn data chunks, the class supposes that the three of them
+are organized in the file in blocks of consecutive entries, i.e. after 'o' sub-object declaration
+all the v's of the object are written, then the vt's if any, and finally the vn's if any.
+This may be not true for the general Wavefront format(in which declarations can be random and not organized at all),
+but meet quite well with the practice of well known OBJ file exporter like the Blender's one.
 
 \n
 Ports available in IOWaveFrontOBJ Class :
@@ -92,25 +200,19 @@ Ports available in IOWaveFrontOBJ Class :
 |Port Input | | |
 |-|-|-|
 | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-| M_GEOM       | setGeometry          | (MC_SCALAR, MD_MIMMO_)          |
-| X_WDATA      | setData              | (MC_SCALAR, XD_WOBJDATA_) |
-| M_STRINGFIELD      | setMaterials              | (MC_SCALAR, MD_MPVECSTRING_) |
-| M_LONGFIELD      | setSmoothIds              | (MC_SCALAR, MD_MPVECLONG_) |
-| M_VECTORFIELD      | setNormals              | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
-| M_VECTORFIELD2    | setTexture           | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
-| M_GDISPLS      | setGeometryDisplacements              | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
-| M_NAME      | setMaterialFile              | (MC_SCALAR, MD_STRING) |
+| M_GEOM            | setGeometry               | (MC_SCALAR, MD_MIMMO_)          |
+| M_WAVEFRONTDATA   | setData                   | (MC_SCALAR, MD_WOBJDATA_) |
 
 |Port Output | | |
 |-|-|-|
 | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-| M_GEOM       | getGeometry          | (MC_SCALAR,MD_MIMMO_)      |
-| X_WDATA      | getData              | (MC_SCALAR, XD_WOBJDATA_) |
-| M_STRINGFIELD      | getMaterials              | (MC_SCALAR, MD_MPVECSTRING_) |
-| M_LONGFIELD      | getSmoothIds              | (MC_SCALAR, MD_MPVECLONG_) |
-| M_VECTORFIELD      | getNormals              | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
-| M_VECTORFIELD2    | getTexture           | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
-| M_NAME      | getMaterialFile              | (MC_SCALAR, MD_STRING) |
+| M_GEOM              | getGeometry          | (MC_SCALAR,MD_MIMMO_)     |
+| M_WAVEFRONTDATA     | getData              | (MC_SCALAR, MD_WOBJDATA_) |
+| M_STRINGFIELD       | getMaterials         | (MC_SCALAR, MD_MPVECSTRING_) |
+| M_LONGFIELD         | getSmoothIds         | (MC_SCALAR, MD_MPVECLONG_) |
+| M_GEOM2             | getTextures          | (MC_SCALAR,MD_MIMMO_)     |
+| M_GEOM3             | getNormals           | (MC_SCALAR,MD_MIMMO_)     |
+| M_NAME              | getMaterialFile      | (MC_SCALAR, MD_STRING) |
 
 =========================================================
     \n
@@ -125,9 +227,9 @@ Ports available in IOWaveFrontOBJ Class :
      - <B>IOMode</B>: 0-read from obj file, 1-restore from class dump file, 2- write to obj file, 3-write class dump file.
      - <B>Dir</B> directory path to read from/write to
      - <B>Filename</B> name of the file to be read/written (without tag .obj)
-     - <B>GeomTolerance</B> (float) geometric tolerance for double nodes collapsing.
-     - <B>TextureTolerance</B> (float) texture geometric tolerance for double nodes collapsing.
-     - <B>SkipTexture</B>: 0/1 if 1, force to skip reading/writing of any texture associated to mesh.
+     - <B>GeomTolerance</B> (float) geometric tolerance for repeated mesh vertices.
+     - <B>CleanDoubleMeshVertices</B>: for Reading Mode only, boolean 0/1 if 1, force mesh vertices collapsing after reading with GeomTolerance.
+     - <B>TextureUVMode</B>: for Writing Mode only, boolean 0/1 if 1, force writing textures with first 2 components only.
      - <B>PrintResumeFile</B>: 0/1 print a resume file of the mesh contents after execution.
 
      Geometry and additional fields have to be mandatorily passed through ports.
@@ -135,6 +237,7 @@ Ports available in IOWaveFrontOBJ Class :
 class IOWavefrontOBJ: public mimmo::BaseManipulation{
 
 public:
+    typedef std::map<long, std::vector<long>> MaterialGroups;
     /*!
         \ingroup iogeneric
         \brief Working mode for class IOWavefrontOBJ
@@ -153,36 +256,31 @@ public:
     IOMode         whichMode();
     int            whichModeInt();
 
-    MimmoObject*                          	getGeometry();
-    std::string								getMaterialFile();
-    WavefrontObjData*                     	getData();
-    std::unordered_map<long, std::string>	getSubParts();
+    WavefrontOBJData*                       getData();
+    std::unordered_map<long, std::string>   getSubParts();
+    MimmoObject*                            getGeometry();
+    std::string                             getMaterialFile();
 
-    MimmoPiercedVector<std::string>*			getMaterials();
-    MimmoPiercedVector<long>*					getSmoothIds();
-    MimmoPiercedVector<std::array<double,3>>*	getNormals();
-    MimmoPiercedVector<std::array<double,3>>*	getTexture();
+    MimmoPiercedVector<std::string>*        getMaterials();
+    MimmoPiercedVector<long>*               getSmoothIds();
 
-    void	setGeometry(MimmoObject * geo);
+    MimmoObject *                           getNormals();
+    MimmoObject *                           getTextures();
+
+    void    setGeometry(MimmoObject * geo);
+    void    setData(WavefrontOBJData* data);
     void    setMaterialFile(std::string materialfile);
-    void	setData(WavefrontObjData* data);
-
-    void	setMaterials(MimmoPiercedVector<std::string>* materials);
-    void	setSmoothIds(MimmoPiercedVector<long>* smoothids);
-    void	setNormals(MimmoPiercedVector<std::array<double,3>>* normals);
-    void	setTexture(MimmoPiercedVector<std::array<double,3>>* texture);
-    void	setGeometryDisplacements(MimmoPiercedVector<std::array<double,3>>* displacements);
-
-    void	setDir(const std::string & pathdir);
+    void    setDir(const std::string & pathdir);
     void    setFilename(const std::string & name);
     void    setGeometryTolerance(double tolerance);
-    void    setTextureTolerance(double tolerance);
+    void    setCleanDoubleMeshVertices(bool clean);
+    void    setTextureUVMode(bool UVmode);
     void    printResumeFile(bool print);
-
-    void    execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
+
+    void    execute();
 
 protected:
     void swap(IOWavefrontOBJ & x) noexcept;
@@ -199,45 +297,50 @@ protected:
     void searchObjectPosition(std::ifstream & in,
                               std::vector<std::streampos> & mapPos,
                               std::vector<std::string>& mapNames,
-                              long &nVertTot, long &nCellTot);
+                              std::vector<std::array<long,3>>& mapVCountObject,
+                              std::array<long,3>& mapVCountTotal,
+                              long &nCellTot);
 
     void readObjectData(std::ifstream & in, const std::streampos &begObjectStream, const long &PID,
-                        long &vOffset, long &vnOffset, long &vTxtOffset, long &cOffset);
+                        const std::array<long,3> & vCounter, long &vOffset, long &vnOffset, long &vTxtOffset, long &cOffset);
 
-    void writeObjectData(WavefrontObjData* objData, std::ofstream & out, const livector1D &vertList, const livector1D &txtVertList, const livector1D & vnVertList,
-                         const livector1D & cellList, long & vOffset, long & vnOffset, long & vTxtOffset, long& cOffset);
+    void writeObjectData(WavefrontOBJData* objData, std::ofstream & out,
+                         const std::array<std::vector<long>,3> & vertexLists,
+                         const std::vector<long> & cellList,
+                         std::array<long,3> &vOffsets,
+                         long &cOffset,
+                         std::array<std::unordered_map<long,long>,3> & vinsertion_maps,
+                         long & activeMaterial, long &activeSmoothId);
 
-    std::unordered_map<std::string, std::vector<long>> regroupCellsByMaterials(const WavefrontObjData* objData, const livector1D & cellList);
+    MaterialGroups regroupCells(const WavefrontOBJData* objData, const livector1D & cellList);
 
-    void computeMovedNormals();
 
 private:
 
     IOMode m_mode;      /**< working mode */
     std::unique_ptr<MimmoObject> m_intPatch; /**< internal mesh  */
-    std::unique_ptr<WavefrontObjData> m_intData; /**< internal data  */
-    WavefrontObjData * m_extData; /**< externally linked data*/
+    std::unique_ptr<WavefrontOBJData> m_intData; /**< internal data  */
+    WavefrontOBJData * m_extData; /**< externally linked data*/
 
     std::string m_dir; /**< io directory path  */
     std::string m_filename; /**< io name of the file  */
     bool m_resume; /**< boolean to print resume file */
-    double m_tol; /**< geometric tolerance for duplicate vertex collapsing */
-    double m_texturetol; /**< texture tolerance for duplicate vertex collapsing */
+    double m_tol; /**< geometric tolerance for duplicate mesh vertex/ vnormals collapsing */
+    bool m_cleanDoubleVertices; /**< valid for read mode only, clean repeated mesh vertices if required */
+    bool m_textureUVMode;  /**< true to force writing textures in UV mode (first two components only) */
 
-    std::size_t m_totalVertexCount;
-    std::size_t m_totalCellCount;
-
-    MimmoPiercedVector<std::array<double,3>> m_displacements; /**< Geometry vertex displacements. If filled is used to interpolate new normals during write.*/
-
-    int convertKeyEntryToInt(const std::string & key);
+    //INTERNAL METHODS
+    int convertKeyEntryToInt(char key);
+    long pushCell(MimmoObject * geo, std::vector<long> &conn, long PID, long id, int rank = -1 );
+    int checkFacetDefinition(const std::string & str);
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __IOWAVEFRONTOBJ__HPP__)
-REGISTER_PORT(X_WDATA, MC_SCALAR, XD_WOBJDATA_, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_WAVEFRONTDATA, MC_SCALAR, MD_WOBJDATA_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_STRINGFIELD, MC_SCALAR, MD_MPVECSTRING_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_LONGFIELD, MC_SCALAR, MD_MPVECLONG_, __IOWAVEFRONTOBJ__HPP__)
-REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOWAVEFRONTOBJ__HPP__)
-REGISTER_PORT(M_VECTORFIELD2, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_GEOM3, MC_SCALAR, MD_MIMMO_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_NAME, MC_SCALAR, MD_STRING, __IOWAVEFRONTOBJ__HPP__)
 
