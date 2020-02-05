@@ -58,6 +58,7 @@
 #define M_VECTORFIELD     "M_VECTORFIELD"       /**< Port dedicated to communication of a generic vector field [ POINTER to MimmoPiercedvector < array< double,3> > ] */
 #define M_VECTORFIELD2    "M_VECTORFIELD2"      /**< Port dedicated to communication of a generic vector field [ POINTER to MimmoPiercedvector < array< double,3> > ] */
 #define M_STRINGFIELD     "M_STRINGFIELD"       /**< Port dedicated to communication of a generic string field [ POINTER to MimmoPiercedvector < std::string > ] */
+#define M_STRINGFIELD2    "M_STRINGFIELD2"      /**< Port dedicated to communication of a generic string field [ POINTER to MimmoPiercedvector < std::string > ] */
 #define M_LONGFIELD       "M_LONGFIELD"         /**< Port dedicated to communication of a generic long field [ POINTER to MimmoPiercedvector < long > ] */
 #define M_VECSCALARFIELDS "M_VECSCALARFIELDS"   /**< Port dedicated to communication of a std::vector of pointers to generic scalar fields [ std::vector< MimmoPiercedvector < double > * >] */
 #define M_VECVECTORFIELDS "M_VECVECTORFIELDS"   /**< Port dedicated to communication of a std::vector of pointers to generic vector fields [ std::vector< MimmoPiercedvector < array< double,3> > * >] */
@@ -89,10 +90,10 @@
 #define M_VALUEB2         "M_VALUEB2"           /**< Port dedicated to communication of a single scalar value [bool] */
 #define M_VALUEI2         "M_VALUEI2"           /**< Port dedicated to communication of a single scalar value [int] */
 #define M_POLYDATA_       "M_POLYDATA_"         /**< Port dedicated to communicate a pointer to a vtk polydata mesh [vtkPolyData *] */
-#define M_UMAPIDS      	  "M_UMAPIDS"           /**< Port dedicated to communicate a map between IDs [std::unordered_map<long, long> *] */
-#define M_UMAPI      	  "M_UMAPI"             /**< Port dedicated to communicate a map between IDs and int [std::unordered_map<long, int> *] */
+#define M_UMAPIDS         "M_UMAPIDS"           /**< Port dedicated to communicate a map between IDs [std::unordered_map<long, long> *] */
+#define M_UMAPI           "M_UMAPI"             /**< Port dedicated to communicate a map between IDs and int [std::unordered_map<long, int> *] */
 #define M_NAME            "M_NAME"              /**< Port dedicated to communication of a name [std::string]*/
-
+#define M_WAVEFRONTDATA   "M_WAVEFRONTDATA"    /**< port to pass a MD_WOBJDATA_ data (pointer to WavefrontObjData)*/
 /*!
  * \}
  */
@@ -141,6 +142,7 @@
 #define  MD_STRING                  "MD_STRING"                  /**< string data identifier*/
 #define  MD_MPVECSTRING_            "MD_MPVECSTRING_"            /**< pointer to MimmoPiercedVector<std::string> data structure*/
 #define  MD_MPVECLONG_              "MD_MPVECLONG_"              /**< pointer to MimmoPiercedVector<std::long> data structure*/
+#define  MD_WOBJDATA_               "MD_WOBJDATA_"               /**< pointer to Wavefront OBJ data structure */
 
 
 /*!
