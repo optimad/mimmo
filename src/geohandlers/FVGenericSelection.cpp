@@ -239,6 +239,7 @@ FVGenericSelection::execute(){
     std::unique_ptr<MimmoObject> tempVol(new MimmoObject(topovol));
     std::unique_ptr<MimmoObject> tempBnd(new MimmoObject(topobnd));
 
+    //VOLUME PART
     {
         livector1D vertExtracted = m_geometry->getVertexFromCellList(extractedVol);
         for(const auto & idV : vertExtracted){
@@ -256,8 +257,9 @@ FVGenericSelection::execute(){
         }
     }
 
+    //BOUNDARY PART
     {
-        livector1D vertExtracted = m_geometry->getVertexFromCellList(extractedBnd);
+        livector1D vertExtracted = m_bndgeometry->getVertexFromCellList(extractedBnd);
         for(const auto & idV : vertExtracted){
             tempBnd->addVertex(m_bndgeometry->getVertexCoords(idV), idV);
         }
