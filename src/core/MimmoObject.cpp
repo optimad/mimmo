@@ -2707,25 +2707,24 @@ MimmoObject::cleanGeometry(){
  *\return the list of bitpit::PatchKernel ids of involved vertices.
  */
 livector1D MimmoObject::getVertexFromCellList(const livector1D &cellList){
-	if(isEmpty() || getType() == 3)   return livector1D(0);
+    if(isEmpty() || getType() == 3)   return livector1D(0);
 
-	livector1D result;
-	std::unordered_set<long int> ordV;
-	auto patch = getPatch();
-	bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
-	ordV.reserve(patch->getVertexCount());
-	//get conn from each cell of the list
-	for(const auto id : cellList){
-		if(cells.exists(id)){
-			bitpit::ConstProxyVector<long> ids = cells.at(id).getVertexIds();
-			for(const auto & val: ids){
-				ordV.insert(val);
-			}
-		}
-	}
-	result.reserve(ordV.size());
-	result.insert(result.end(), ordV.begin(), ordV.end());
-	return  result;
+    livector1D result;
+    std::unordered_set<long int> ordV;
+    bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
+    ordV.reserve(getPatch()->getVertexCount());
+    //get conn from each cell of the list
+    for(const long & id : cellList){
+        if(cells.exists(id)){
+            bitpit::ConstProxyVector<long> ids = cells.at(id).getVertexIds();
+            for(const long & val: ids){
+                ordV.insert(val);
+            }
+        }
+    }
+    result.reserve(ordV.size());
+    result.insert(result.end(), ordV.begin(), ordV.end());
+    return  result;
 }
 
 /*!
@@ -3055,6 +3054,35 @@ livector1D	MimmoObject::extractPIDCells(livector1D flag, bool squeeze){
 		result.shrink_to_fit();
 	return(result);
 };
+
+/*!
+ * Extract all cells ids rearranged according to PID subdivision.
+    \return  map with PID key and list of cells belonging to PID as argument
+ */
+std::map<long, livector1D>
+MimmoObject::extractPIDSubdivision(){
+
+    std::map<long, livector1D> result;
+    if (m_pidsType.empty()){
+        return result;
+    }
+    int totCells = getNCells();
+    int reserveSize = int(totCells*1.3)/int(m_pidsType.size()); //euristic to not overestimate the reserve on vectors.
+    for(const long & entry: m_pidsType) {
+        result[entry].reserve(reserveSize);
+    }
+
+    for(bitpit::PatchKernel::CellIterator it = getPatch()->cellBegin(); it!= getPatch()->cellEnd(); ++it){
+        result[it->getPID()].push_back(it.getId());
+    }
+    for(std::pair<const long, livector1D> & entry: result){
+        entry.second.shrink_to_fit();
+    }
+
+    return  result;
+};
+
+
 
 /*!
  * Check if a given connectivity list is coherent with a bitpit::ElementType type.

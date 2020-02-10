@@ -270,6 +270,8 @@ public:
     livector1D  extractPIDCells(long, bool squeeze = true);
     livector1D  extractPIDCells(livector1D, bool squeeze = true);
 
+    std::map<long, livector1D> extractPIDSubdivision();
+
     liimap      getMapData(bool withghosts=false);
     liimap      getMapDataInv(bool withghosts=true);
     liimap	    getMapCell(bool withghosts=true);
