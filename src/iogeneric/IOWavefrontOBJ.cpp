@@ -1617,11 +1617,14 @@ void IOWavefrontOBJ::readObjectData(std::ifstream & in, const std::streampos &be
                 }
                 ss.clear();
                 break;
+            case 99: // o entry
+                //DO NOTHING.
+                break;
             case 2: //g cellgroup string labels
-            case 4: //line conn l
-            case 5: //p conn l
+            case 4: //l conn line
+            case 5: //p conn point
             default: //unsupported flag
-                *(m_log)<<"WARNING "<<m_name<<" : unsupported flag declaration while reading obj file. Ignoring..."<<std::endl;
+                *(m_log)<<"WARNING "<<m_name<<" : unsupported flag "<<key<<" declaration while reading obj file. Ignoring..."<<std::endl;
                 break;
         }
 
@@ -1679,7 +1682,7 @@ void IOWavefrontOBJ::writeObjectData(WavefrontOBJData* objData, std::ofstream & 
 
         bitpit::Vertex &point = objData->textures->getVertices().at(id);
         out<<"vt "<<std::fixed<<std::setprecision(6)<<point[0]<<" "<<point[1]<<" ";
-        if(!m_textureUVMode)    out<<"vt "<<std::fixed<<std::setprecision(6)<<point[2];
+        if(!m_textureUVMode)    out<<std::fixed<<std::setprecision(6)<<point[2];
         out<<'\n';
         vinsertion_maps[1].insert({{id, vOffsets[1]}});
         ++vOffsets[1];
@@ -1813,7 +1816,7 @@ int IOWavefrontOBJ::convertKeyEntryToInt(char key){
     if(key == 's')  res=3;
     if(key == 'l')  res=4;
     if(key == 'p')  res=5;
-
+    if(key == 'o')  res=99;
     return res;
 }
 
