@@ -156,17 +156,16 @@ MimmoPiercedVector<mpv_t>::getName() const{
 template<typename mpv_t>
 std::vector<mpv_t>
 MimmoPiercedVector<mpv_t>::getDataAsVector(bool ordered){
-	if(getGeometry() == NULL) return std::vector<mpv_t>(0);
+	if(getGeometry() == nullptr) return std::vector<mpv_t>();
 	livector1D ids = getGeometryIds(ordered);
-	std::vector<mpv_t> result(this->size());
-	int counter= 0;
-	for(const auto val: ids){
-		if(this->exists(val)){
-			result[counter] = (*this)[val];
-			++counter;
+	std::vector<mpv_t> result;
+    result.reserve(this->size());
+	for(long id : ids){
+		if(this->exists(id)){
+            result.push_back(this->at(id));
 		}
 	}
-
+    result.shrink_to_fit();
 	return result;
 }
 
@@ -293,8 +292,9 @@ void
 MimmoPiercedVector<mpv_t>::setData(std::vector<mpv_t>& data){
 	bitpit::PiercedVector<mpv_t, long int>::clear();
 	long int  id = 0;
+    this->reserve(data.size());
 	for(const auto val: data){
-		this->insert( id, val);
+		this->insert(id, val);
 		id++;
 	}
 }
