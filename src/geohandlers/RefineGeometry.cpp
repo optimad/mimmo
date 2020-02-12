@@ -350,9 +350,9 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, MimmoObje
 		for (const long & cellId : toDelete){
 			getGeometry()->getPatch()->deleteCell(cellId);
 		}
-		getGeometry()->cleanGeometry();
-		if (coarsepatch != nullptr)
-			coarsepatch->cleanGeometry();
+//		getGeometry()->cleanGeometry();
+//		if (coarsepatch != nullptr)
+//			coarsepatch->cleanGeometry();
 
 		// Force build adjacencies
 		getGeometry()->buildAdjacencies();
@@ -371,7 +371,7 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, MimmoObje
 			}
 		}
 		// Clean refine patch
-		refinepatch->cleanGeometry();
+//		refinepatch->cleanGeometry();
 		refinepatch->buildAdjacencies();
 	}
 
