@@ -33,6 +33,12 @@ namespace mimmo{
     \class WavefrontOBJData
     \ingroup iogeneric
     \brief struct for storing cell data attached to Wavefront OBJ polygonal mesh
+
+    BEWARE MimmoPiercedVector for cellgroups, materials and smoothids must be referred to
+    Mesh linked in refGeometry. Textures and Normals are treated as indipendent MimmoObject w.r.t.
+    Mesh MimmoObject( each one has its own set of nodes, and local connectivities), but they must always share
+    the same number and cell-id labels for element/simplex cross referencing between the three MimmoObjects.
+
 */
 class WavefrontOBJData{
 
@@ -81,9 +87,17 @@ protected:
 \ingroup iogeneric
 \brief Executable block manipulating optional data of WavefrontOBJ mesh
 
-The class performs manipulation of Wavefront mesh optional data such as
-- cell annotation (annotating a group of cells throughout the sub-objects of the mesh)
-- compute moved normals (NOT YET AVAILABLE)
+The class performs manipulation of Wavefront mesh optional data such as:
+
+- cell annotation (annotating a group of cells throughout the sub-objects of the mesh).
+  Different strategies for multiple annotations on a single cell are available.
+  See OverlapAnnotationMode enum. OverlapAnnotationMode::HARD is class default.
+
+- recompute vertex normals on nodes of a list of candidate cells of the mesh. Once a list of
+  mesh cell-ids is provided data on normals (stored in WavefrontOBJData) are recomputed
+  according to NormalsComputeMode enum. NormalsComputeMode::FLAT_BITPIT is the default.
+  Please note that recomputing normals will modify MimmoObject internal structures,
+  so its properties (kdtrees, adjacencies etc..) will be invalidated.
 
 \n
 Ports available in ManipulateWFOBJData Class :
@@ -95,7 +109,7 @@ Ports available in ManipulateWFOBJData Class :
 | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
 | M_WAVEFRONTDATA   | setData                   | (MC_SCALAR, MD_WOBJDATA_) |
 | M_LONGFIELD       | addAnnotation             | (MC_SCALAR, MD_MPVECLONG_)
-| M_GDISPLS         | setGeometryDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
+| M_LONGFIELD2      | setRecomputeNormalsCells  | (MC_SCALAR, MD_MPVECLONG_) |
 
 |Port Output | | |
 |-|-|-|
@@ -114,6 +128,7 @@ Ports available in ManipulateWFOBJData Class :
      Proper of the class:
      - <B>CheckNormalsMagnitude</B>: 0/1 boolean, if 1, check and force Wavefront Data to have normals magnitude equal to 1. If no normals are available in wavefront data it does nothing.
      - <B>MultipleAnnotationStrategy</B>: 0/1/2 choose strategy to deal with multiple annotations concurring into a target cell. see enum OverlapAnnotationMode. Default is 0 - FAWIN.
+     - <B>NormalsComputeStrategy<B>: 0/1/2 choose strategy to recompute normals on candidate cells, see NormalsComputeMode enum.
 
      Data and additional input fields have to be mandatorily passed through ports.
 */
@@ -125,10 +140,20 @@ public:
         \brief Strategy Mode to deal with Multiple Annotations on a target cell in ManipulateWFOBJData
     */
     enum class OverlapAnnotationMode{
-        SOFT = 0,  /**< Cell is marked with an annotation value, if and only if no other
+        HARD = 0,  /**< Cell is continuously marked by annotations which refer to it. The last annotation in the list wins.*/
+        SOFT = 1,  /**< Cell is marked with an annotation value, if and only if no other
                         annotations are present. Successive referring annotations in the list are ignored */
-        HARD = 1,  /**< Cell is continuously marked by annotations which refer to it. The last annotation in the list wins.*/
         GETALL = 2    /**< Multiple annotations values on a cell are chained toghether to form a new unique marker */
+    };
+
+    /*!
+        \ingroup iogeneric
+        \brief Strategy Mode to recompute Wavefront vertex normals on a set of candidate cells
+    */
+    enum class NormalsComputeMode{
+        FLAT_BITPIT = 0,  /**< vertex normals recomputed on cell nodes as standard average of 1-Ring facet cells */
+        AREA_WEIGHTED = 1,  /**< vertex normals recomputed on cell nodes as area-weighted average of 1-Ring facet cells */
+        ANGLE_WEIGHTED = 2  /**< vertex normals recomputed on cell nodes as incident edges angle-weighted average of 1-Ring facet cells */
     };
 
     ManipulateWFOBJData();
@@ -138,13 +163,19 @@ public:
     WavefrontOBJData*       getData();
     bool                    getCheckNormalsMagnitude();
     OverlapAnnotationMode   getMultipleAnnotationStrategy();
+    NormalsComputeMode      getNormalsComputeStrategy();
 
-    void    setGeometryDisplacements(MimmoPiercedVector<std::array<double,3>>* displacements);
+    void    setRecomputeNormalsCells(MimmoPiercedVector<long>* cellList);
     void    setData(WavefrontOBJData* data);
     void    addAnnotation(MimmoPiercedVector<long>* annotation);
 
     void    setCheckNormalsMagnitude(bool flag);
     void    setMultipleAnnotationStrategy(OverlapAnnotationMode mode);
+    void    setNormalsComputeStrategy(NormalsComputeMode mode);
+
+    void clearAnnotations();
+    void clearRecomputeNormalsCells();
+    void clear();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
@@ -156,16 +187,19 @@ protected:
     void buildPorts();
 
     void computeAnnotations();
-    void computeMovedNormals();
+    void computeNormals();
     void checkNormalsMagnitude();
+
+    std::array<double,3> evalVNormal(bitpit::SurfaceKernel * mesh, long idCell, int locVertex);
 
 private:
 
     WavefrontOBJData * m_extData; /**< externally linked data*/
-    MimmoPiercedVector<std::array<double,3>> m_displacements; /**< Geometry vertex displacements. If filled is used to interpolate new normals during write.*/
+    MimmoPiercedVector<long> m_normalsCells; /**< candidate cell list for normals recomputation.*/
     std::vector<MimmoPiercedVector<long> > m_annotations; /**< list of annotations*/
     bool m_checkNormalsMag; /**< boolean to set check on normals magnitude */
     OverlapAnnotationMode m_annMode; /**< mode to deal with multiple concurrent annotations on a cell*/
+    NormalsComputeMode m_normalsMode; /**< mode to deal with normals recompute on a list of candidate cells*/
 
     bool checkEntry(const std::string& entry, const std::string& root);
     //make useless base class methods private;
