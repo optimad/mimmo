@@ -60,6 +60,7 @@
 #define M_STRINGFIELD     "M_STRINGFIELD"       /**< Port dedicated to communication of a generic string field [ POINTER to MimmoPiercedvector < std::string > ] */
 #define M_STRINGFIELD2    "M_STRINGFIELD2"      /**< Port dedicated to communication of a generic string field [ POINTER to MimmoPiercedvector < std::string > ] */
 #define M_LONGFIELD       "M_LONGFIELD"         /**< Port dedicated to communication of a generic long field [ POINTER to MimmoPiercedvector < long > ] */
+#define M_LONGFIELD2      "M_LONGFIELD2"        /**< Port dedicated to communication of a generic long field [ POINTER to MimmoPiercedvector < long > ] */
 #define M_VECSCALARFIELDS "M_VECSCALARFIELDS"   /**< Port dedicated to communication of a std::vector of pointers to generic scalar fields [ std::vector< MimmoPiercedvector < double > * >] */
 #define M_VECVECTORFIELDS "M_VECVECTORFIELDS"   /**< Port dedicated to communication of a std::vector of pointers to generic vector fields [ std::vector< MimmoPiercedvector < array< double,3> > * >] */
 #define M_VECSTRINGFIELDS "M_VECSTRINGFIELDS"   /**< Port dedicated to communication of a std::vector of pointers to generic vector fields [ std::vector< MimmoPiercedvector < string > * >] */
