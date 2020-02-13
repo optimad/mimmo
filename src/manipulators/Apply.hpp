@@ -55,7 +55,9 @@ namespace mimmo{
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>  |
-     | M_GEOM   | getGeometry       | (MC_SCALAR,MD_MIMMO_) |
+     | M_GEOM          | getGeometry              | (MC_SCALAR,MD_MIMMO_) |
+     | M_LONGFIELD     | getAnnotatedVertices     | (MC_SCALAR,MD_MPVECLONG_) |
+     | M_LONGFIELD2    | getAnnotatedCells        | (MC_SCALAR,MD_MPVECLONG_) |
 
  *    =========================================================
  * \n
@@ -65,16 +67,18 @@ namespace mimmo{
  * - <B>ClassName</B> : name of the class as <tt>mimmo.Apply</tt>;
  * - <B>Priority</B>  : uint marking priority in multi-chain execution;
  *
+ * Proper of the class:
+   - <B>Annotation</B>             : 0/1 boolean, if 1 provide list of cell/vertices into deformation as annotation list;
+ * - <B>CellsAnnotationName</B>    : (string) define label to mark annotated cells (list of cell-ids involved into deformation);
+ * - <B>VerticesAnnotationName</B> : (string) define label to mark annotated vertices (list of vertex-ids involved into deformation);
+ *
+
  * Geometry and one of the Inputs have to be mandatorily passed through port.
  *
  */
 class Apply: public BaseManipulation{
-public:
 
-    dmpvecarr3E    m_input; /**< storing vector fields of floats */
-    dmpvector1D    m_scalarinput; /**< storing scalar fields of floats */
-    double		   m_factor; /**< scaling factor of deformation field. */
-    dmpvecarr3E    m_output; /**< storing vector fields of floats for output (input modified with filter and factor)*/
+public:
 
     Apply();
     Apply(const bitpit::Config::Section & rootXML);
@@ -90,13 +94,34 @@ public:
 
     void setScaling(double alpha);
 
+    void setAnnotation(bool activate);
+    void setCellsAnnotationName(const std::string & label);
+    void setVerticesAnnotationName(const std::string & label);
+
     void execute();
 
     dmpvecarr3E * getOutput();
+    MimmoPiercedVector<long> * getAnnotatedVertices();
+    MimmoPiercedVector<long> * getAnnotatedCells();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
 protected:
+
+    dmpvecarr3E    m_input; /**< storing vector fields of floats */
+    dmpvector1D    m_scalarinput; /**< storing scalar fields of floats */
+    double		   m_factor; /**< scaling factor of deformation field. */
+    dmpvecarr3E    m_output; /**< storing vector fields of floats for output (input modified with filter and factor)*/
+
+    bool m_annotation; /**< boolean to activate annotation providing*/
+    std::string m_annCellLabel; /**< label marking cell annotation*/
+    std::string m_annVertexLabel; /**< label marking cell annotation*/
+
+    MimmoPiercedVector<long> m_cellAnnotation; /**< structure to store the list of cells involved into deformation*/
+    MimmoPiercedVector<long> m_vertexAnnotation; /**< structure to store the list of vertices involved into deformation*/
+
+
     void swap(Apply & x) noexcept;
     void    checkInput();
 
@@ -105,6 +130,8 @@ protected:
 REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_, __APPLYDEFORMATION_HPP__)
 REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_, __APPLYDEFORMATION_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __APPLYDEFORMATION_HPP__)
+REGISTER_PORT(M_LONGFIELD, MC_SCALAR, MD_MPVECLONG_, __APPLYDEFORMATION_HPP__)
+REGISTER_PORT(M_LONGFIELD2, MC_SCALAR, MD_MPVECLONG_, __APPLYDEFORMATION_HPP__)
 
 REGISTER(BaseManipulation, Apply, "mimmo.Apply")
 

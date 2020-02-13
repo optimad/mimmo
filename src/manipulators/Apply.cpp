@@ -30,10 +30,13 @@ namespace mimmo{
  * Default constructor of Apply
  */
 Apply::Apply():BaseManipulation(){
-	m_name = "mimmo.Apply";
-	m_input.clear();
-	m_scalarinput.clear();
-	m_factor = 1.;
+    m_name = "mimmo.Apply";
+    m_input.clear();
+    m_scalarinput.clear();
+    m_factor = 1.;
+    m_annotation = false;
+    m_annCellLabel = "DeformedCells";
+    m_annVertexLabel = "DeformedVertices";
 };
 
 /*!
@@ -44,6 +47,9 @@ Apply::Apply(const bitpit::Config::Section & rootXML){
 
 	m_name = "mimmo.Apply";
 	m_factor = 1.;
+    m_annotation = false;
+    m_annCellLabel = "DeformedCells";
+    m_annVertexLabel = "DeformedVertices";
 
 	std::string fallback_name = "ClassNONE";
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -59,12 +65,17 @@ Apply::Apply(const bitpit::Config::Section & rootXML){
  */
 Apply::~Apply(){};
 
-/*!Copy constructor of Apply.
+/*!
+    Copy constructor of Apply.
  */
 Apply::Apply(const Apply & other):BaseManipulation(other){
 	m_input = other.m_input;
 	m_scalarinput = other.m_scalarinput;
 	m_factor = other.m_factor;
+    m_annotation = other.m_annotation;
+    m_annCellLabel = other.m_annCellLabel;
+    m_annVertexLabel = other.m_annVertexLabel;
+    //annotation structures are not copied, they are filled each time in execution if m_annotation is true.
 };
 
 /*!
@@ -77,6 +88,13 @@ void Apply::swap(Apply & x) noexcept
 	m_input.swap(x.m_input);
 	m_scalarinput.swap(x.m_scalarinput);
 	std::swap(m_factor, x.m_factor);
+    std::swap(m_annotation, x.m_annotation);
+    std::swap(m_annCellLabel, x.m_annCellLabel);
+    std::swap(m_annVertexLabel, x.m_annVertexLabel);
+
+    m_cellAnnotation.swap(x.m_cellAnnotation);
+    m_vertexAnnotation.swap(x.m_vertexAnnotation);
+
 	BaseManipulation::swap(x);
 }
 
@@ -88,8 +106,12 @@ Apply::buildPorts(){
 	built = (built && createPortIn<dmpvecarr3E*, Apply>(this, &Apply::setInput, M_GDISPLS, true, 1));
 	built = (built && createPortIn<dmpvector1D*, Apply>(this, &Apply::setScalarInput, M_SCALARFIELD, true, 1));
 	built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, true));
+
 	built = (built && createPortOut<MimmoObject*, Apply>(this, &BaseManipulation::getGeometry, M_GEOM));
 	built = (built && createPortOut<dmpvecarr3E*, Apply>(this, &Apply::getOutput, M_GDISPLS));
+    built = (built && createPortOut<MimmoPiercedVector<long>*, Apply>(this, &Apply::getAnnotatedVertices, M_LONGFIELD));
+    built = (built && createPortOut<MimmoPiercedVector<long>*, Apply>(this, &Apply::getAnnotatedCells, M_LONGFIELD2));
+
 	m_arePortsBuilt = built;
 };
 
@@ -122,6 +144,46 @@ Apply::setScaling(double alpha){
 	m_factor = alpha;
 };
 
+/*!
+   If true, annotate vertices and cells involved into mesh
+   deformation and store it into the class. Annotations are acessible through
+   methods getAnnotatedVertices/getAnnotatedCells.
+ * \param[in] activate  true/false to enable annotation creation.
+ */
+void
+Apply::setAnnotation(bool activate){
+    m_annotation = activate;
+}
+
+/*!
+   Provide the string label to uniquely name the deformed cells annotation.
+   Class default label is DeformedCells.
+ * \param[in] label cells annotation name.
+ */
+void
+Apply::setCellsAnnotationName(const std::string & label){
+    if(label.empty()){
+        m_annCellLabel = "DeformedCells";
+    }else{
+        m_annCellLabel = label;
+    }
+}
+
+/*!
+   Provide the string label to uniquely name the deformed vertices annotation.
+   Class default label is DeformedVertices.
+ * \param[in] label vertices annotation name.
+ */
+void
+Apply::setVerticesAnnotationName(const std::string & label){
+    if(label.empty()){
+        m_annVertexLabel = "DeformedVertices";
+    }else{
+        m_annVertexLabel = label;
+    }
+
+}
+
 /*!It get the displacements output.
  * \return Output displacements of the geometry vertices.
  */
@@ -129,6 +191,26 @@ dmpvecarr3E*
 Apply::getOutput(){
     return	&m_output;
 };
+
+/*!
+    Return annotation structure for deformed vertices.
+    The structure is filled during class execution and if and only Annotation
+    is active (see setAnnotation method).
+    \return vertex annotation structure
+*/
+MimmoPiercedVector<long> * Apply::getAnnotatedVertices(){
+    return &m_vertexAnnotation;
+}
+/*!
+    Return annotation structure for deformed cells.
+    The structure is filled during class execution and if and only Annotation
+    is active (see setAnnotation method).
+    \return cell annotation structure
+*/
+MimmoPiercedVector<long> * Apply::getAnnotatedCells(){
+    return &m_cellAnnotation;
+}
+
 /*!Execution command.
  * It applies the deformation stored in the input of base class (casting the input
  * for apply object to dvecarr3E) to the linked geometry.
@@ -164,6 +246,39 @@ Apply::execute(){
 		getGeometry()->modifyVertex(vertexcoords, ID);
 	}
 
+    //step 2: produce annotations.
+    if(m_annotation){
+        //-->get the list of vertices involved, whose deformation norm is greater
+        //   then default tolerance of 1.E-18;
+        double tol = 1.0E-18;
+        m_vertexAnnotation.clear();
+        m_vertexAnnotation.setGeometry(getGeometry());
+        m_vertexAnnotation.setDataLocation(MPVLocation::POINT);
+        m_vertexAnnotation.setName(m_annVertexLabel);
+        m_vertexAnnotation.reserve(m_output.size());
+
+        for(auto it = m_output.begin(); it!= m_output.end(); ++it){
+            if(norm2(*it) < tol) continue;
+            m_vertexAnnotation.insert(it.getId(),it.getId());
+        }
+
+        m_vertexAnnotation.shrinkToFit();
+
+        //cell round
+        livector1D celllist = getGeometry()->getCellFromVertexList(m_vertexAnnotation.getIds(), false); //false! any cell sharing a moved vertex
+        m_cellAnnotation.clear();
+        m_cellAnnotation.setGeometry(getGeometry());
+        m_cellAnnotation.setDataLocation(MPVLocation::CELL);
+        m_cellAnnotation.setName(m_annCellLabel);
+        m_cellAnnotation.reserve(celllist.size());
+
+        for (long id: celllist){
+            m_cellAnnotation.insert(id,id);
+        }
+        //no need to shrink cellAnnotation.
+    }
+
+
 #if MIMMO_ENABLE_MPI
 	getGeometry()->updatePointGhostExchangeInfo();
 #endif
@@ -193,6 +308,30 @@ Apply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string nam
         setScaling(val);
     }
 
+    if(slotXML.hasOption("Annotation")){
+        std::string input = slotXML.get("Annotation");
+        input = bitpit::utils::string::trim(input);
+        bool val = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>val;
+        }
+        setAnnotation(val);
+    }
+
+    if(slotXML.hasOption("CellsAnnotationName")){
+        std::string input = slotXML.get("CellsAnnotationName");
+        input = bitpit::utils::string::trim(input);
+        setCellsAnnotationName(input);
+    }
+
+    if(slotXML.hasOption("VerticesAnnotationName")){
+        std::string input = slotXML.get("VerticesAnnotationName");
+        input = bitpit::utils::string::trim(input);
+        setVerticesAnnotationName(input);
+    }
+
+
 };
 
 /*!
@@ -207,7 +346,9 @@ Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	BaseManipulation::flushSectionXML(slotXML, name);
 
     slotXML.set("Scaling", std::to_string(m_factor));
-
+    slotXML.set("Annotation", std::to_string(m_annotation));
+    slotXML.set("CellsAnnotationName", m_annCellLabel);
+    slotXML.set("VerticesAnnotationName", m_annVertexLabel);
 };
 
 /*!
