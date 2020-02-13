@@ -308,6 +308,7 @@ ManipulateWFOBJData::ManipulateWFOBJData(){
     m_extData = nullptr;
     m_checkNormalsMag = false;
     m_annMode = OverlapAnnotationMode::HARD;
+    m_normalsMode = NormalsComputeMode::FLAT_BITPIT;
 }
 
 /*!
@@ -319,6 +320,7 @@ ManipulateWFOBJData::ManipulateWFOBJData(const bitpit::Config::Section & rootXML
     m_extData = nullptr;
     m_checkNormalsMag = false;
     m_annMode = OverlapAnnotationMode::HARD;
+    m_normalsMode = NormalsComputeMode::FLAT_BITPIT;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -343,10 +345,11 @@ ManipulateWFOBJData::~ManipulateWFOBJData(){};
 */
 void ManipulateWFOBJData::swap(ManipulateWFOBJData & x) noexcept{
     std::swap(m_extData, x.m_extData);
-    m_displacements.swap(x.m_displacements);
+    m_normalsCells.swap(x.m_normalsCells);
     std::swap(m_annotations, x.m_annotations);
     std::swap(m_checkNormalsMag, x.m_checkNormalsMag);
     std::swap(m_annMode, x.m_annMode);
+    std::swap(m_normalsMode, x.m_normalsMode);
 
     BaseManipulation::swap(x);
 }
@@ -358,7 +361,7 @@ void ManipulateWFOBJData::buildPorts(){
     bool built = true;
     built = (built && createPortIn<WavefrontOBJData*, ManipulateWFOBJData>(this, &ManipulateWFOBJData::setData, M_WAVEFRONTDATA, true));
     built = (built && createPortIn<MimmoPiercedVector<long>*, ManipulateWFOBJData>(this, &ManipulateWFOBJData::addAnnotation, M_LONGFIELD));
-    built = (built && createPortIn<MimmoPiercedVector<std::array<double,3>>*, ManipulateWFOBJData>(this, &ManipulateWFOBJData::setGeometryDisplacements, M_VECTORFIELD));
+    built = (built && createPortIn<MimmoPiercedVector<long>*, ManipulateWFOBJData>(this, &ManipulateWFOBJData::setRecomputeNormalsCells, M_LONGFIELD2));
 
     built = (built && createPortOut<WavefrontOBJData*, ManipulateWFOBJData>(this, &ManipulateWFOBJData::getData, M_WAVEFRONTDATA));
     m_arePortsBuilt = built;
@@ -381,7 +384,7 @@ bool    ManipulateWFOBJData::getCheckNormalsMagnitude(){
 }
 
 /*!
-    \return strategy mode for multiple annotations handling on a sigle cell.
+    \return active strategy mode for multiple annotations handling on a sigle cell.
     see setMultipleAnnotationStrategy method
 */
 ManipulateWFOBJData::OverlapAnnotationMode
@@ -390,12 +393,23 @@ ManipulateWFOBJData::getMultipleAnnotationStrategy(){
 }
 
 /*!
-    Set the vertex displacements of the geometry. If filled, the vertex normals of the
-    object sub-parts are recomputed.
+    \return active strategy mode for vertex normals computation on a list of candidate cells nodes.
+    see setNormalsComputeStrategy method
 */
-void    ManipulateWFOBJData::setGeometryDisplacements(MimmoPiercedVector<std::array<double, 3>>* data){
-    if(!data)  return;
-    m_displacements = *data;
+ManipulateWFOBJData::NormalsComputeMode
+ManipulateWFOBJData::getNormalsComputeStrategy(){
+    return m_normalsMode;
+}
+
+/*!
+    Set the list of candidate mesh cells on which vertex normals
+    (stored in WavefrontOBJData::normals) must be recomputed.
+    The class perform recomputation only if a valid cellList is linked, otherwise it does nothing.
+*/
+void    ManipulateWFOBJData::setRecomputeNormalsCells(MimmoPiercedVector<long>* cellList){
+    m_normalsCells.clear();
+    if(!cellList)  return;
+    m_normalsCells = *cellList;
 };
 
 /*!
@@ -448,6 +462,43 @@ void    ManipulateWFOBJData::setMultipleAnnotationStrategy(ManipulateWFOBJData::
 };
 
 /*!
+    Set the strategy mode to handle vertex normals recomputation on nodes of mesh cells candidates.
+    Available methods are summed up in ManipulateWFOBJData::NormalsComputeMode enum.
+    Class default method is NormalsComputeMode::FLAT_BITPIT method.
+    \param[in] mode vertex normals computing strategy.
+*/
+
+void    ManipulateWFOBJData::setNormalsComputeStrategy(ManipulateWFOBJData::NormalsComputeMode mode){
+    m_normalsMode = mode;
+};
+
+
+/*!
+    Empty the list of annotations
+*/
+void    ManipulateWFOBJData::clearAnnotations(){
+    m_annotations.clear();
+}
+/*!
+    Empty the list of cells for normals re-computation
+*/
+void    ManipulateWFOBJData::clearRecomputeNormalsCells(){
+    m_normalsCells.clear();
+}
+/*!
+    Clear all class data and reset to defaults.
+*/
+void    ManipulateWFOBJData::clear(){
+    BaseManipulation::clear();
+    clearAnnotations();
+    clearRecomputeNormalsCells();
+    m_extData = nullptr;
+    m_checkNormalsMag = false;
+    m_annMode = OverlapAnnotationMode::HARD;
+    m_normalsMode = NormalsComputeMode::FLAT_BITPIT;
+}
+
+/*!
     Absorb class parameters from a section xml
     \param[in] slotXML xml section
     \param[in] name unused string
@@ -481,6 +532,17 @@ void    ManipulateWFOBJData::absorbSectionXML(const bitpit::Config::Section & sl
         setMultipleAnnotationStrategy(static_cast<OverlapAnnotationMode>(value));
     };
 
+    if(slotXML.hasOption("NormalsComputeStrategy")){
+        input = slotXML.get("NormalsComputeStrategy");
+        int value = 0;
+        if(!input.empty()){
+            input = bitpit::utils::string::trim(input);
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        value = std::min(2, std::max(0, value));
+        setNormalsComputeStrategy(static_cast<NormalsComputeMode>(value));
+    };
 
 }
 
@@ -495,6 +557,7 @@ void    ManipulateWFOBJData::flushSectionXML(bitpit::Config::Section & slotXML, 
     BaseManipulation::flushSectionXML(slotXML, name);
     slotXML.set("CheckNormalsMagnitude", std::to_string(m_checkNormalsMag));
     slotXML.set("MultipleAnnotationStrategy", std::to_string(static_cast<int>(m_annMode)));
+    slotXML.set("NormalsComputeStrategy", std::to_string(static_cast<int>(m_normalsMode)));
 }
 
 /*!
@@ -507,13 +570,9 @@ void   ManipulateWFOBJData::execute(){
         throw std::runtime_error("Error in ManipulateWOBJData::execute() : no valid WavefrontOBJData linked");
     }
 
-    if(m_extData->normals.get() && m_checkNormalsMag){
-        checkNormalsMagnitude();
-    }
-
+    checkNormalsMagnitude();
     computeAnnotations();
-
-    computeMovedNormals();
+    computeNormals();
 
 }
 
@@ -523,7 +582,7 @@ void   ManipulateWFOBJData::execute(){
     no check is perfomed internally.
 */
 void ManipulateWFOBJData::checkNormalsMagnitude(){
-
+    if(!m_extData->normals.get() || !m_checkNormalsMag) return;
     std::array<double,3> temp;
     double norm_temp;
     for(auto it = m_extData->normals->getPatch()->vertexBegin(); it!=m_extData->normals->getPatch()->vertexEnd(); ++it){
@@ -591,12 +650,184 @@ void ManipulateWFOBJData::computeAnnotations(){
 }
 
 /*!
-    Computing normals for mesh with a displacement attached.
-    DO NOTHING FOR NOW>
+    Computing vertex normals on candidates of a mesh cell list a store it in
+    WavefrontOBJData::normals structure;
 */
-void ManipulateWFOBJData::computeMovedNormals(){
-    //do nothing
+void ManipulateWFOBJData::computeNormals(){
+    if(m_normalsCells.empty())   return;
+
+    MimmoObject * vnormals = m_extData->normals.get();
+    MimmoObject * mother = m_extData->refGeometry;
+    if(!vnormals){
+        *(m_log)<<"WARNING in "<<m_name<<" : WavefrontOBJData::normals is nullptr. No normals to recompute..."<<std::endl;
+        return;
+    }
+    if(!mother){
+        *(m_log)<<"WARNING in "<<m_name<<" : WavefrontOBJData::refGeometry is null. Cannot recompute normals."<<std::endl;
+        return;
+    }
+
+    //track if i'm forcing the mother to build adjacencies.
+    bool deleteMotherAdjacency=false;
+    if(!mother->areAdjacenciesBuilt()){
+        mother->buildAdjacencies();
+        deleteMotherAdjacency = true;
+    }
+
+
+    livector1D geoCellsIds = mother->getCells().getIds();
+    //clean up ids not in the current geo.
+    m_normalsCells.squeezeOutExcept(geoCellsIds, false);
+
+    bitpit::PiercedVector<bitpit::Cell> & motherCells = m_extData->refGeometry->getCells();
+    bitpit::PiercedVector<bitpit::Cell> & normalsCells = vnormals->getCells();
+    std::array<double,3> candidateNormal;
+
+    livector1D candidateCells = m_normalsCells.getIds();
+
+    //first step erase candidate cells form vnormals -> you are about to recompute brand new vn
+    // properties for them.
+    std::size_t targetCellSize = vnormals->getNCells();
+    vnormals->getPatch()->deleteCells(candidateCells);
+    vnormals->getPatch()->squeezeCells();
+    vnormals->getPatch()->reserveCells(targetCellSize);
+
+    //Step 2 evaluate how many new normals we need to push in the normals structure.
+    long newNverts(0);
+    for(long idCell : candidateCells){
+        newNverts += motherCells.at(idCell).getVertexCount();
+    }
+    // and reserve vnormals vertices
+    vnormals->getPatch()->reserveVertices(vnormals->getNVertices() + newNverts);
+
+    //Step 3 ready to calculate new vn from mother mesh, and push new properties in vnormals.
+    bitpit::ConstProxyVector<long> mother_vids;
+    std::vector<long> conn_normals;
+    std::vector<long> motherRing;
+    std::size_t locsize;
+    long newID;
+    int rank;
+
+    bitpit::SurfaceKernel * motherSK = static_cast<bitpit::SurfaceKernel*>(mother->getPatch());
+
+    // loop on candidate cells
+    for (long idCell : candidateCells){
+
+        bitpit::Cell & motherCell = motherCells.at(idCell);
+        mother_vids = motherCell.getVertexIds();
+        locsize = mother_vids.size();
+        //resize  future connectivity for vnormals cell
+        conn_normals.resize(locsize);
+
+        // for each local vertices find the 1Ring, calculate the new normals, and
+        // fill the local connectivity ready to be pushed in vnormals as the new cell with id=idCell.
+        for(int i=0; i<locsize; ++i){
+            candidateNormal = evalVNormal(motherSK, idCell, motherCell.findVertex(mother_vids[i]));
+
+            conn_normals[i] = vnormals->addVertex(candidateNormal, bitpit::Vertex::NULL_ID);
+            assert(conn_normals[i] >= 0 && "ManipulateWFOBJData::computeNormals cannot insert new vertex normal into WavefrontOBJData::normals. Data can be compromised");
+        }
+
+        //push the new cell
+        rank = -1;
+#if MIMMO_ENABLE_MPI
+        rank = mother->getPatch()->getCellRank(idcell);
+#endif
+        vnormals->addConnectedCell(conn_normals, motherCell.getType(), long(motherCell.getPID()), idCell, rank);
+    }
+
+    // delete vnormals "vertex" entries not connected. They are no more  useful.
+    vnormals->getPatch()->deleteOrphanVertices();
+
+    //try to shrink the pool of vnormals to decrease their size.
+    //(collapsing repeated data)
+    //assign a default tolerance of 1.E-12;
+    double oldTol = vnormals->getTolerance();
+    vnormals->setTolerance(1.0E-12);
+    vnormals->cleanGeometry();
+    vnormals->setTolerance(oldTol);
+
+    //recover modifications if any to the mother mesh.
+    if(deleteMotherAdjacency){
+        mother->resetAdjacencies();
+    }
+
 }
+/*!
+    Given a physical mesh, the target vertex id and its ring of cells compute the
+    average normal on vertex id according to the strategy selected in m_normalsMode member.
+    the target vertex is recognized through the cell id and local position in cell connectivity.
+    \param[in] mesh pointer to the mesh
+    \param[in] idCell id of the reference cell
+    \param[in] locVertex local index of the target vertex w.r.t cell connectivity chunk
+*/
+std::array<double,3>
+ManipulateWFOBJData::evalVNormal(bitpit::SurfaceKernel * mesh, long idCell, int locVertex){
+
+    std::array<double,3> result;
+    switch(m_normalsMode){
+
+        case NormalsComputeMode::AREA_WEIGHTED :
+            {
+                std::vector<long> ring = mesh->findCellVertexOneRing(idCell, locVertex);
+                result.fill(0.0);
+                double areaTot = 0.0, area;
+                for(long id_r : ring){
+                    area = mesh->evalCellArea(id_r);
+                    result += area * mesh->evalFacetNormal(id_r);
+                    areaTot += area;
+                }
+                result /= areaTot;
+            }
+            break;
+        case NormalsComputeMode::ANGLE_WEIGHTED :
+            {
+                std::vector<long> ring = mesh->findCellVertexOneRing(idCell, locVertex);
+                result.fill(0.0);
+                double wwTot = 0.0, ww;
+
+                long targetVID = mesh->getCell(idCell).getVertexId(locVertex);
+                darray3E targetCoords = mesh->getVertexCoords(targetVID);
+
+                std::size_t size, loc, loc_left, loc_right;
+                double l0, l1;
+                darray3E e0,e1;
+                bitpit::ConstProxyVector<long> vlist;
+                // loop on ring.
+                for(long id_r : ring){
+                    bitpit::Cell & cell = mesh->getCell(id_r);
+                    vlist = cell.getVertexIds();
+                    size = vlist.size();
+                    loc = cell.findVertex(targetVID);
+                    //MWA - modified with cosine version;
+                    loc_left = (loc - 1 + size)%size;
+                    loc_right = (loc + 1)%size;
+                    e0 = mesh->getVertexCoords(vlist[loc_left]) - targetCoords;
+                    e1 = mesh->getVertexCoords(vlist[loc_right]) - targetCoords;
+                    l0 = norm2(e0);
+                    l1 = norm2(e1);
+
+                    l0 = std::max(std::numeric_limits<double>::min(), l0);
+                    l1 = std::max(std::numeric_limits<double>::min(), l1);
+
+                    // MWA method
+                    ww = std::acos(std::min(1.0, std::max(-1.0, dotProduct(e0,e1)/(l0*l1))));
+
+                    result += ww * mesh->evalFacetNormal(id_r);
+                    wwTot += ww;
+                }
+                result /= wwTot;
+            }
+            break;
+        case NormalsComputeMode::FLAT_BITPIT:
+        default:
+            result = mesh->evalVertexNormal(idCell,locVertex);
+            break;
+    }
+    return result;
+}
+
+
 
 /*!
     Check if entry string is contained in a root string. Comparison is
