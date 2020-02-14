@@ -33,9 +33,11 @@ namespace mimmo{
  * \brief Methods available for refining globally a (surface) geometry.
  */
 enum class RefineType{
-    TERNARY = 0 /**< One vertex for cell is added located on the barycenter of each cell.
+    TERNARY = 0, /**< One vertex for cell is added located on the barycenter of each cell.
     			    Then each cell is replaced by n-triangles built by using the n-edge of the cell.
      	 	 	     Note: all the elements must be convex. */
+    		REDGREEN = 1 /**< Red-green method.
+    	     	 	 	     Note: all the elements must be triangles. */
 };
 
 /*!
@@ -89,7 +91,7 @@ enum class RefineType{
 class RefineGeometry: public BaseManipulation{
 
 protected:
-	RefineType	m_type;		/**< Refine mode. Default 0 - Ternary*/
+	RefineType	m_type;		/**< Refine mode. Default 1 - RedGreen*/
 	int			m_refinements; /**< Number of refinements. Default 1*/
 	int			m_steps;	/**< Smoothing steps after the refinement. */
 
@@ -123,6 +125,9 @@ protected:
 
     void ternaryRefine(std::unordered_map<long,long> * mapping = nullptr, MimmoObject* coarsepatch = nullptr, MimmoObject* refinepatch = nullptr);
     std::vector<long> ternaryRefineCell(const long & cellId, const std::vector<bitpit::Vertex> & vertices, const std::array<double,3> & center);
+    void redgreen(std::unordered_map<long,long> * mapping = nullptr, MimmoObject* coarsepatch = nullptr, MimmoObject* refinepatch = nullptr);
+    std::vector<long> redRefineCell(const long & cellId, const std::vector<long> & newVertexIds);
+    std::vector<long> greenRefineCell(const long & cellId, const long newVertexId, int iface);
     void smoothing(std::set<long> * constrainedVertices = nullptr);
 };
 
