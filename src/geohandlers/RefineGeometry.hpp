@@ -125,7 +125,7 @@ protected:
 
     void ternaryRefine(std::unordered_map<long,long> * mapping = nullptr, MimmoObject* coarsepatch = nullptr, MimmoObject* refinepatch = nullptr);
     std::vector<long> ternaryRefineCell(const long & cellId, const std::vector<bitpit::Vertex> & vertices, const std::array<double,3> & center);
-    void redgreen(std::unordered_map<long,long> * mapping = nullptr, MimmoObject* coarsepatch = nullptr, MimmoObject* refinepatch = nullptr);
+    void redgreenRefine(std::unordered_map<long,long> * mapping = nullptr, MimmoObject* coarsepatch = nullptr, MimmoObject* refinepatch = nullptr);
     std::vector<long> redRefineCell(const long & cellId, const std::vector<long> & newVertexIds);
     std::vector<long> greenRefineCell(const long & cellId, const long newVertexId, int iface);
     void smoothing(std::set<long> * constrainedVertices = nullptr);

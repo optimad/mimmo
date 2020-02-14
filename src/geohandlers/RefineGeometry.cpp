@@ -194,7 +194,7 @@ RefineGeometry::execute(){
 	}
 	else if (m_type == RefineType::REDGREEN){
 		for (int i=0; i<m_refinements; i++)
-			redgreen();
+			redgreenRefine();
 	}
 
 	if (m_steps>0)
@@ -425,7 +425,7 @@ RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit:
  * only one edge is splitted in case of green refinement (boundary cells).
  */
 void
-RefineGeometry::redgreen(std::unordered_map<long,long> * mapping, MimmoObject* coarsepatch, MimmoObject* refinepatch)
+RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, MimmoObject* coarsepatch, MimmoObject* refinepatch)
 {
 	//REDGREEN REFINEMENT
 
