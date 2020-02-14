@@ -576,15 +576,6 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, MimmoObj
 		long newVertexId = geometry->addVertex(newCoordinates);
 		edgeVertexId[interfaceId] = newVertexId;
 	}
-	// Add vertices to refine patch
-	if (refinepatch != nullptr){
-		for (auto tuple : edgeVertexId){
-			long newVertexId = tuple.second;
-			bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(newVertexId);
-			refinepatch->addVertex(vertex, newVertexId);
-		}
-	}
-
 
 	// Refine red and green cells
 	for (auto tupletag : refinementTag){
@@ -657,13 +648,33 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, MimmoObj
 
 	}
 
-	// Add cells to refine patch
+	// Add vertices and cells to refine patch
 	if (refinepatch != nullptr){
 		for (long newcellId : newCells){
 			bitpit::Cell cell = getGeometry()->getPatch()->getCell(newcellId);
 			refinepatch->addCell(cell, newcellId);
+			for (long vertexId : cell.getVertexIds()){
+				bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
+				refinepatch->addVertex(vertex, vertexId);
+			}
 		}
-		// Force build adjacencies
+		// Clean refine patch
+//		refinepatch->cleanGeometry();
+		refinepatch->buildAdjacencies();
+	}
+
+	// Add vertices and cells to refine patch
+	if (refinepatch != nullptr){
+		for (long newcellId : newCells){
+			bitpit::Cell cell = getGeometry()->getPatch()->getCell(newcellId);
+			refinepatch->addCell(cell, newcellId);
+			for (long vertexId : cell.getVertexIds()){
+				bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
+				refinepatch->addVertex(vertex, vertexId);
+			}
+		}
+		// Clean refine patch
+//		refinepatch->cleanGeometry();
 		refinepatch->buildAdjacencies();
 	}
 
