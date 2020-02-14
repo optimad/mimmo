@@ -2434,7 +2434,7 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 #endif
 
 	//	if (conn.empty() || !m_skdTreeSupported) return false;
-	if (conn.empty()) return false;
+	if (conn.empty()) return bitpit::Cell::NULL_ID;
 	if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return bitpit::Cell::NULL_ID;
 
 	if(!checkCellConnCoherence(type, conn))  return bitpit::Cell::NULL_ID;
