@@ -99,6 +99,9 @@ The class performs manipulation of Wavefront mesh optional data such as:
   Please note that recomputing normals will modify MimmoObject internal structures,
   so its properties (kdtrees, adjacencies etc..) will be invalidated.
 
+- recover list of cell-ids referring to target Wavefront data cell properties such as
+  materials, cellgroups, smoothids (f.e. extract all mesh cell-ids with material
+  property "body").
 \n
 Ports available in ManipulateWFOBJData Class :
 
@@ -113,8 +116,13 @@ Ports available in ManipulateWFOBJData Class :
 
 |Port Output | | |
 |-|-|-|
-| <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-| M_WAVEFRONTDATA     | getData              | (MC_SCALAR, MD_WOBJDATA_) |
+| <B>PortType</B> | <B>variable/function</B>  |<B>DataType</B>|
+| M_WAVEFRONTDATA     | getData               | (MC_SCALAR, MD_WOBJDATA_) |
+| M_VECTORLI          | getPinnedMaterialGroup| (MC_VECTOR, MD_LONG) |
+| M_VECTORLI2         | getPinnedCellGroup    | (MC_VECTOR, MD_LONG) |
+| M_VECTORLI3         | getPinnedSmoothGroup  | (MC_VECTOR, MD_LONG) |
+| M_VECTORLI4         | getPinnedObjectGroup  | (MC_VECTOR, MD_LONG) |
+
 
 =========================================================
     \n
@@ -129,6 +137,15 @@ Ports available in ManipulateWFOBJData Class :
      - <B>CheckNormalsMagnitude</B>: 0/1 boolean, if 1, check and force Wavefront Data to have normals magnitude equal to 1. If no normals are available in wavefront data it does nothing.
      - <B>MultipleAnnotationStrategy</B>: 0/1/2 choose strategy to deal with multiple annotations concurring into a target cell. see enum OverlapAnnotationMode. Default is 0 - FAWIN.
      - <B>NormalsComputeStrategy<B>: 0/1/2 choose strategy to recompute normals on candidate cells, see NormalsComputeMode enum.
+     - <B>PinObjects</B> list of objects/subparts names (blank separated) to pin mesh cells belonging to them.
+                           Cells-ids will be available with method getPinnedObjectGroup method/M_VECTORLI4 port.
+
+     - <B>PinMaterials</B> list of materials names (blank separated) to pin mesh cells owning these properties.
+                           Cells-ids will be available with method getPinnedMaterialGroup method/M_VECTORLI port.
+     - <B>PinCellGroups</B> list of cellgroups names (blank separated) to pin mesh cells owning these properties.
+                           Cells-ids will be available with method getPinnedCellGroup method/M_VECTORLI2 port.
+     - <B>PinSmoothIds</B> list of smooth-ids int (blank separated) to pin mesh cells owning these properties.
+                           Cells-ids will be available with method getPinnedSmoothGroup method/M_VECTORLI3 port.
 
      Data and additional input fields have to be mandatorily passed through ports.
 */
@@ -165,6 +182,11 @@ public:
     OverlapAnnotationMode   getMultipleAnnotationStrategy();
     NormalsComputeMode      getNormalsComputeStrategy();
 
+    std::vector<long>      getPinnedObjectGroup();
+    std::vector<long>      getPinnedMaterialGroup();
+    std::vector<long>      getPinnedCellGroup();
+    std::vector<long>      getPinnedSmoothGroup();
+
     void    setRecomputeNormalsCells(MimmoPiercedVector<long>* cellList);
     void    setData(WavefrontOBJData* data);
     void    addAnnotation(MimmoPiercedVector<long>* annotation);
@@ -173,8 +195,14 @@ public:
     void    setMultipleAnnotationStrategy(OverlapAnnotationMode mode);
     void    setNormalsComputeStrategy(NormalsComputeMode mode);
 
+    void    setPinObjects(const std::vector<std::string> & objectsList);
+    void    setPinMaterials(const std::vector<std::string> & materialsList);
+    void    setPinCellGroups(const std::vector<std::string> & cellgroupsList);
+    void    setPinSmoothIds(const std::vector<int> & smoothidsList);
+
     void clearAnnotations();
     void clearRecomputeNormalsCells();
+    void clearPinLists();
     void clear();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
@@ -189,6 +217,7 @@ protected:
     void computeAnnotations();
     void computeNormals();
     void checkNormalsMagnitude();
+    void extractPinnedLists();
 
     std::array<double,3> evalVNormal(bitpit::SurfaceKernel * mesh, long idCell, int locVertex);
 
@@ -200,6 +229,13 @@ private:
     bool m_checkNormalsMag; /**< boolean to set check on normals magnitude */
     OverlapAnnotationMode m_annMode; /**< mode to deal with multiple concurrent annotations on a cell*/
     NormalsComputeMode m_normalsMode; /**< mode to deal with normals recompute on a list of candidate cells*/
+
+    std::unordered_set<std::string> m_pinObjects; /**< list of object/parts names for cell list pinning*/
+    std::unordered_set<std::string> m_pinMaterials; /**< list of material names for cell list pinning*/
+    std::unordered_set<std::string> m_pinCellGroups; /**< list of cellgroup names for cell list pinning*/
+    std::unordered_set<int> m_pinSmoothIds; /**< list of smooth-ids int entries for cell list pinning*/
+
+    std::array<std::vector<long>, 4> m_pinnedCellLists; /**< list of cell pinned 0-material, 1-cellgroups, 2-smoothids, 3-objects/subparts */
 
     bool checkEntry(const std::string& entry, const std::string& root);
     //make useless base class methods private;
@@ -403,12 +439,19 @@ REGISTER_PORT(M_WAVEFRONTDATA, MC_SCALAR, MD_WOBJDATA_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_STRINGFIELD, MC_SCALAR, MD_MPVECSTRING_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_STRINGFIELD2, MC_SCALAR, MD_MPVECSTRING_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_LONGFIELD, MC_SCALAR, MD_MPVECLONG_, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_LONGFIELD2, MC_SCALAR, MD_MPVECLONG_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_GEOM3, MC_SCALAR, MD_MIMMO_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_, __IOWAVEFRONTOBJ__HPP__)
 REGISTER_PORT(M_NAME, MC_SCALAR, MD_STRING, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_VECTORLI, MC_VECTOR, MD_LONG, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_VECTORLI2, MC_VECTOR, MD_LONG, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_VECTORLI3, MC_VECTOR, MD_LONG, __IOWAVEFRONTOBJ__HPP__)
+REGISTER_PORT(M_VECTORLI4, MC_VECTOR, MD_LONG, __IOWAVEFRONTOBJ__HPP__)
+
 
 REGISTER(BaseManipulation, IOWavefrontOBJ, "mimmo.IOWaveFrontOBJ")
+REGISTER(BaseManipulation, ManipulateWFOBJData, "mimmo.ManipulateWFOBJData")
 
 }
 

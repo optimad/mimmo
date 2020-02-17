@@ -96,6 +96,8 @@
 #define M_UMAPI           "M_UMAPI"             /**< Port dedicated to communicate a map between IDs and int [std::unordered_map<long, int> *] */
 #define M_NAME            "M_NAME"              /**< Port dedicated to communication of a name [std::string]*/
 #define M_WAVEFRONTDATA   "M_WAVEFRONTDATA"    /**< port to pass a MD_WOBJDATA_ data (pointer to WavefrontObjData)*/
+#define M_VECTORLI4       "M_VECTORLI4"        /**< Port dedicated to communication of a generic list of long integers [ vector < long int > ] */
+
 /*!
  * \}
  */
