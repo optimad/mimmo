@@ -350,6 +350,11 @@ void ManipulateWFOBJData::swap(ManipulateWFOBJData & x) noexcept{
     std::swap(m_checkNormalsMag, x.m_checkNormalsMag);
     std::swap(m_annMode, x.m_annMode);
     std::swap(m_normalsMode, x.m_normalsMode);
+    std::swap(m_pinMaterials, x.m_pinMaterials);
+    std::swap(m_pinCellGroups, x.m_pinCellGroups);
+    std::swap(m_pinSmoothIds, x.m_pinSmoothIds);
+    std::swap(m_pinObjects, x.m_pinObjects);
+    std::swap(m_pinnedCellLists, x.m_pinnedCellLists);
 
     BaseManipulation::swap(x);
 }
@@ -364,6 +369,11 @@ void ManipulateWFOBJData::buildPorts(){
     built = (built && createPortIn<MimmoPiercedVector<long>*, ManipulateWFOBJData>(this, &ManipulateWFOBJData::setRecomputeNormalsCells, M_LONGFIELD2));
 
     built = (built && createPortOut<WavefrontOBJData*, ManipulateWFOBJData>(this, &ManipulateWFOBJData::getData, M_WAVEFRONTDATA));
+    built = (built && createPortOut<std::vector<long>, ManipulateWFOBJData>(this, &ManipulateWFOBJData::getPinnedMaterialGroup, M_VECTORLI));
+    built = (built && createPortOut<std::vector<long>, ManipulateWFOBJData>(this, &ManipulateWFOBJData::getPinnedCellGroup, M_VECTORLI2));
+    built = (built && createPortOut<std::vector<long>, ManipulateWFOBJData>(this, &ManipulateWFOBJData::getPinnedSmoothGroup, M_VECTORLI3));
+    built = (built && createPortOut<std::vector<long>, ManipulateWFOBJData>(this, &ManipulateWFOBJData::getPinnedObjectGroup, M_VECTORLI4));
+
     m_arePortsBuilt = built;
 }
 
@@ -401,6 +411,40 @@ ManipulateWFOBJData::getNormalsComputeStrategy(){
     return m_normalsMode;
 }
 
+/*!
+    \return cell list pinned by material names specified with setPinMaterials method.
+    Return Empty list if materials are not present in Wavefront data linked to the class.
+*/
+std::vector<long>
+ManipulateWFOBJData::getPinnedMaterialGroup(){
+    return m_pinnedCellLists[0];
+}
+/*!
+    \return cell list pinned by cellgroup names specified with setPinCellGroups method.
+    Return Empty list if cellgroup are not present in Wavefront data linked to the class.
+*/
+std::vector<long>
+ManipulateWFOBJData::getPinnedCellGroup(){
+    return m_pinnedCellLists[1];
+}
+
+/*!
+    \return cell list pinned by smoothids int entries specified with setPinSmoothIds method.
+    Return Empty list if smooth ids are not present in Wavefront data linked to the class.
+*/
+std::vector<long>
+ManipulateWFOBJData::getPinnedSmoothGroup(){
+    return m_pinnedCellLists[2];
+}
+
+/*!
+    \return cell list pinned by object/subpart names specified with setPinObjects method.
+    Return Empty list if object subdivision is not present in Wavefront data linked to the class (pid of refGeometry member).
+*/
+std::vector<long>
+ManipulateWFOBJData::getPinnedObjectGroup(){
+    return m_pinnedCellLists[3];
+}
 /*!
     Set the list of candidate mesh cells on which vertex normals
     (stored in WavefrontOBJData::normals) must be recomputed.
@@ -471,6 +515,49 @@ void    ManipulateWFOBJData::setMultipleAnnotationStrategy(ManipulateWFOBJData::
 void    ManipulateWFOBJData::setNormalsComputeStrategy(ManipulateWFOBJData::NormalsComputeMode mode){
     m_normalsMode = mode;
 };
+/*!
+    Specify a list of material names to extract mesh cells owning those material properties.
+    List will be available after class execution, through method getPinnedMaterialGroup().
+    \param[in] list of materials passed as their name(string)
+*/
+void
+ManipulateWFOBJData::setPinMaterials(const std::vector<std::string> & materialsList){
+    m_pinMaterials.clear();
+    m_pinMaterials.insert(materialsList.begin(), materialsList.end());
+}
+
+/*!
+    Specify a list of cellgroup names to extract mesh cells belonging to these groups.
+    List will be available after class execution, through method getPinnedCellGroup().
+    \param[in] list of cellgroups passed as their name(string)
+*/
+void
+ManipulateWFOBJData::setPinCellGroups(const std::vector<std::string> & cellgroupsList){
+    m_pinCellGroups.clear();
+    m_pinCellGroups.insert(cellgroupsList.begin(), cellgroupsList.end());
+}
+
+/*!
+    Specify a list of smoothids entries to extract mesh cells belonging to these smooth groups.
+    List will be available after class execution, through method getPinnedSmoothGroup().
+    \param[in] list of smoothids passed as their integer signature
+*/
+void
+ManipulateWFOBJData::setPinSmoothIds(const std::vector<int> & smoothidsList){
+    m_pinSmoothIds.clear();
+    m_pinSmoothIds.insert(smoothidsList.begin(), smoothidsList.end());
+}
+
+/*!
+    Specify a list of object/subparts names to extract mesh cells belonging to them.
+    List will be available after class execution, through method getPinnedObjectGroup().
+    \param[in] list of subparts/objects passed as their name(string)
+*/
+void
+ManipulateWFOBJData::setPinObjects(const std::vector<std::string> & objectsList){
+    m_pinObjects.clear();
+    m_pinObjects.insert(objectsList.begin(), objectsList.end());
+}
 
 
 /*!
@@ -486,12 +573,26 @@ void    ManipulateWFOBJData::clearRecomputeNormalsCells(){
     m_normalsCells.clear();
 }
 /*!
+    Empty the pinLists
+*/
+void    ManipulateWFOBJData::clearPinLists(){
+    m_pinMaterials.clear();
+    m_pinCellGroups.clear();
+    m_pinSmoothIds.clear();
+    m_pinObjects.clear();
+    for(std::vector<long> & list: m_pinnedCellLists){
+        list.clear();
+    }
+}
+
+/*!
     Clear all class data and reset to defaults.
 */
 void    ManipulateWFOBJData::clear(){
     BaseManipulation::clear();
     clearAnnotations();
     clearRecomputeNormalsCells();
+    clearPinLists();
     m_extData = nullptr;
     m_checkNormalsMag = false;
     m_annMode = OverlapAnnotationMode::HARD;
@@ -544,6 +645,61 @@ void    ManipulateWFOBJData::absorbSectionXML(const bitpit::Config::Section & sl
         setNormalsComputeStrategy(static_cast<NormalsComputeMode>(value));
     };
 
+    if(slotXML.hasOption("PinMaterials")){
+        input = slotXML.get("PinMaterials");
+        std::vector<std::string> value;
+        input = bitpit::utils::string::trim(input);
+        std::stringstream ss(input);
+        std::string entry;
+        while(ss.good()){
+            ss >> entry;
+            entry = bitpit::utils::string::trim(entry);
+            if(!entry.empty())  value.push_back(entry);
+        }
+        setPinMaterials(value);
+    };
+
+    if(slotXML.hasOption("PinCellGroups")){
+        input = slotXML.get("PinCellGroups");
+        std::vector<std::string> value;
+        input = bitpit::utils::string::trim(input);
+        std::stringstream ss(input);
+        std::string entry;
+        while(ss.good()){
+            ss >> entry;
+            entry = bitpit::utils::string::trim(entry);
+            if(!entry.empty())  value.push_back(entry);
+        }
+        setPinCellGroups(value);
+    };
+
+    if(slotXML.hasOption("PinSmoothIds")){
+        input = slotXML.get("PinSmoothIds");
+        std::vector<int> value;
+        input = bitpit::utils::string::trim(input);
+        std::stringstream ss(input);
+        int entry;
+        while(ss.good()){
+            ss >> entry;
+            value.push_back(entry);
+        }
+        setPinSmoothIds(value);
+    };
+
+    if(slotXML.hasOption("PinObjects")){
+        input = slotXML.get("PinObjects");
+        std::vector<std::string> value;
+        input = bitpit::utils::string::trim(input);
+        std::stringstream ss(input);
+        std::string entry;
+        while(ss.good()){
+            ss >> entry;
+            entry = bitpit::utils::string::trim(entry);
+            if(!entry.empty())  value.push_back(entry);
+        }
+        setPinObjects(value);
+    };
+
 }
 
 /*!
@@ -558,6 +714,30 @@ void    ManipulateWFOBJData::flushSectionXML(bitpit::Config::Section & slotXML, 
     slotXML.set("CheckNormalsMagnitude", std::to_string(m_checkNormalsMag));
     slotXML.set("MultipleAnnotationStrategy", std::to_string(static_cast<int>(m_annMode)));
     slotXML.set("NormalsComputeStrategy", std::to_string(static_cast<int>(m_normalsMode)));
+
+    std::string towrite;
+    for(const std::string & val : m_pinMaterials){
+        towrite += val + " ";
+    }
+    slotXML.set("PinMaterials", towrite);
+
+    towrite = "";
+    for(const std::string & val : m_pinCellGroups){
+        towrite += val + " ";
+    }
+    slotXML.set("PinCellGroups", towrite);
+
+    towrite = "";
+    for(const int & val : m_pinSmoothIds){
+        towrite += std::to_string(val) + " ";
+    }
+    slotXML.set("PinSmoothIds", towrite);
+
+    towrite = "";
+    for(const std::string & val : m_pinObjects){
+        towrite += val + " ";
+    }
+    slotXML.set("PinObjects", towrite);
 }
 
 /*!
@@ -573,6 +753,7 @@ void   ManipulateWFOBJData::execute(){
     checkNormalsMagnitude();
     computeAnnotations();
     computeNormals();
+    extractPinnedLists();
 
 }
 
@@ -753,6 +934,81 @@ void ManipulateWFOBJData::computeNormals(){
     }
 
 }
+
+/*!
+    Extract pinned cell lists;
+*/
+void ManipulateWFOBJData::extractPinnedLists(){
+
+    MimmoObject * geo = m_extData->refGeometry;
+    if(!geo){
+        *(m_log)<<"WARNING in "<<m_name<<" : WavefrontOBJData::refGeometry is null. Cannot extract pinned lists..."<<std::endl;
+    }
+
+    //START WITH MATERIALS.
+    m_pinnedCellLists[0].clear();
+    m_pinnedCellLists[0].reserve(geo->getNCells());
+
+    for(auto it=m_extData->materials.begin(); it!= m_extData->materials.end(); ++it){
+        if(m_pinMaterials.count(*it)> 0){
+            m_pinnedCellLists[0].push_back(it.getId());
+        }
+    }
+    m_pinnedCellLists[0].shrink_to_fit();
+
+    // NOW CELLGROUPS
+    m_pinnedCellLists[1].clear();
+    std::unordered_set<long> idcontainer;
+    std::string root;
+    for(auto it=m_extData->cellgroups.begin(); it!= m_extData->cellgroups.end(); ++it){
+        root = *it;
+        if(m_pinCellGroups.count(root) > 0){
+            idcontainer.insert(it.getId());
+        }else{
+            //you need to check if m_pinCellGroups entry is a subpart of the cellgroups[id] entry
+            std::unordered_set<std::string>::iterator itinput = m_pinCellGroups.begin();
+            bool found = false;
+            while(itinput != m_pinCellGroups.end() && found){
+                found = checkEntry(*itinput, root);
+                ++itinput;
+            }
+            if(found)   idcontainer.insert(it.getId());
+        }
+    }
+    m_pinnedCellLists[1].reserve(idcontainer.size());
+    m_pinnedCellLists[1].insert(m_pinnedCellLists[1].end(), idcontainer.begin(), idcontainer.end());
+    idcontainer.clear();
+
+
+    //NOW WITH SMOOTHIDS.
+    m_pinnedCellLists[2].clear();
+    m_pinnedCellLists[2].reserve(geo->getNCells());
+
+    for(auto it=m_extData->smoothids.begin(); it!= m_extData->smoothids.end(); ++it){
+        if(m_pinSmoothIds.count(*it)> 0){
+            m_pinnedCellLists[2].push_back(it.getId());
+        }
+    }
+    m_pinnedCellLists[2].shrink_to_fit();
+
+    //END WITH OBJECTS.
+    m_pinnedCellLists[3].clear();
+
+    std::vector<long> pids;
+    {
+        std::unordered_map<std::string, long> map;
+        for(auto & val: geo->getPIDTypeListWNames()){
+            map.insert({{val.second, val.first}});
+        }
+        pids.reserve(map.size());
+        for(const std::string & entry: m_pinObjects){
+            if(map.count(entry) > 0)    pids.push_back(map[entry]);
+        }
+    }
+    m_pinnedCellLists[3] = geo->extractPIDCells(pids, true);
+}
+
+
 /*!
     Given a physical mesh, the target vertex id and its ring of cells compute the
     average normal on vertex id according to the strategy selected in m_normalsMode member.
