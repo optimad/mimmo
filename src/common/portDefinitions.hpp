@@ -53,6 +53,7 @@
 #define M_VECTORSI        "M_VECTORSI"          /**< Port dedicated to communication of a generic list of short integers [ vector < short int > ] */
 #define M_VECTORLI        "M_VECTORLI"          /**< Port dedicated to communication of a generic list of long integers [ vector < long int > ] */
 #define M_VECTORLI2       "M_VECTORLI2"         /**< Port dedicated to communication of a generic list of long integers [ vector < long int > ] */
+#define M_VECTORLI3       "M_VECTORLI3"         /**< Port dedicated to communication of a generic list of long integers [ vector < long int > ] */
 #define M_SCALARFIELD     "M_SCALARFIELD"       /**< Port dedicated to communication of a generic scalar field [ POINTER to MimmoPiercedvector < double > ] */
 #define M_SCALARFIELD2    "M_SCALARFIELD2"      /**< Port dedicated to communication of a generic scalar field [ POINTER to MimmoPiercedvector < double > ] */
 #define M_VECTORFIELD     "M_VECTORFIELD"       /**< Port dedicated to communication of a generic vector field [ POINTER to MimmoPiercedvector < array< double,3> > ] */
