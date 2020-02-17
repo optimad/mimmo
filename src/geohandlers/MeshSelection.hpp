@@ -706,10 +706,104 @@ protected:
 
 };
 
+/*!
+ * \class SelectionByElementList
+ * \ingroup geohandlers
+ * \brief Selection through list of cells/vertices of the target mesh.
+ *
+ * Select a subpart of the original mesh providing a list of:
+  - mesh cell ids
+  - mesh vertex ids (in that case all cells described by those vertices will be extracted)
+ *
+ * Ports available in SelectionByElementList Class :
+ *
+ *    =========================================================
+
+     |                   Port Input  ||                                       |
+     |----------------|---------------------|-----------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_LONGFIELD      | addAnnotatedVertexList | (MC_SCALAR, MD_MPVECLONG_)       |
+     | M_LONGFIELD2       | addAnnotatedCellList   | (MC_SCALAR, MD_MPVECLONG_)       |
+     | M_VECTORLI2       | addRawVertexList       | (MC_VECTOR, MD_LONG)             |
+     | M_VECTORLI3        | addRawCellList         | (MC_VECTOR, MD_LONG)             |
+
+
+     |             Port Output        ||                                      |
+     |----------------|---------------------|-----------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+
+
+     Inherited from GenericSelection
+
+     |                   Port Input   ||                                   |
+     |----------------|----------------------|-------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_VALUEB       | setDual              | (MC_SCALAR, MD_BOOL)    |
+     | M_GEOM         | setGeometry          | (MC_SCALAR, MD_MIMMO_)  |
+
+
+     |             Port Output          ||                                 |
+     |----------------|---------------------|--------------------|
+     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
+     | M_VECTORLI     | constrainedBoundary | (MC_VECTOR, MD_LONG)     |
+     | M_GEOM         | getPatch            | (MC_SCALAR, MD_MIMMO_)   |
+
+ *    ===============================================================================
+ *
+ * The xml available parameters, sections and subsections are the following :
+ *
+ * Inherited from BaseManipulation:
+ * - <B>ClassName</B>: name of the class as <tt>mimmo.SelectionByBox</tt>;
+ * - <B>Priority</B>: uint marking priority in multi-chain execution;
+ * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
+ * - <B>OutputPlot</B>: target directory for optional results writing.
+ *
+ * Proper of the class:
+
+ * - <B>Dual</B>: boolean to get straight what given by selection method or its exact dual;
+
+ * Geometry has to be mandatorily passed through port.
+ *
+ */
+class SelectionByElementList: public GenericSelection {
+
+public:
+    SelectionByElementList();
+    SelectionByElementList(const bitpit::Config::Section & rootXML);
+    virtual ~SelectionByElementList();
+
+    void buildPorts();
+    void addAnnotatedCellList(MimmoPiercedVector<long> * celldata);
+    void addAnnotatedVertexList(MimmoPiercedVector<long> * vertexdata);
+    void addRawCellList(std::vector<long> celldata);
+    void addRawVertexList(std::vector<long> vertexdata);
+
+    void clear();
+
+    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="" );
+    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
+
+protected:
+
+    std::vector<MimmoPiercedVector<long> *> m_annotatedcells;
+    std::vector<MimmoPiercedVector<long> *> m_annotatedvertices;
+    std::vector<std::vector<long>> m_rawcells;
+    std::vector<std::vector<long>> m_rawvertices;
+
+    livector1D extractSelection();
+    void swap(SelectionByElementList &) noexcept;
+};
+
+
+
+
+
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_VALUEB, MC_SCALAR, MD_BOOL, __MESHSELECTION_HPP__)
+REGISTER_PORT(M_VECTORLI, MC_VECTOR, MD_LONG, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_VECTORLI2, MC_VECTOR, MD_LONG, __MESHSELECTION_HPP__)
+REGISTER_PORT(M_VECTORLI3, MC_VECTOR, MD_LONG, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT, __MESHSELECTION_HPP__)
@@ -717,6 +811,8 @@ REGISTER_PORT(M_INFLIMITS, MC_ARRAY3, MD_FLOAT, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_VALUELI, MC_SCALAR, MD_LONG, __MESHSELECTION_HPP__)
 REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_, __MESHSELECTION_HPP__)
+REGISTER_PORT(M_LONGFIELD, MC_SCALAR, MD_MPVECLONG_, __MESHSELECTION_HPP__)
+REGISTER_PORT(M_LONGFIELD2, MC_SCALAR, MD_MPVECLONG_, __MESHSELECTION_HPP__)
 
 
 REGISTER(BaseManipulation, SelectionByBox,"mimmo.SelectionByBox")
@@ -725,6 +821,8 @@ REGISTER(BaseManipulation, SelectionBySphere,"mimmo.SelectionBySphere")
 REGISTER(BaseManipulation, SelectionByMapping, "mimmo.SelectionByMapping")
 REGISTER(BaseManipulation, SelectionByPID, "mimmo.SelectionByPID")
 REGISTER(BaseManipulation, SelectionByBoxWithScalar, "mimmo.SelectionByBoxWithScalar")
+REGISTER(BaseManipulation, SelectionByElementList, "mimmo.SelectionByElementList")
+
 };
 
 
