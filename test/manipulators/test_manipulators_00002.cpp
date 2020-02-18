@@ -61,7 +61,7 @@ int test2() {
     mrbf->setGeometry(mesh);
     mrbf->setNode(rbfpoints);
     mrbf->setDisplacements(rbfdispls);
-    mrbf->setSupportRadiusValue(0.3);
+    mrbf->setSupportRadiusReal(0.3);
     mrbf->exec();
 
     mimmo::Apply * applier = new mimmo::Apply();

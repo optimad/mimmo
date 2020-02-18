@@ -111,7 +111,7 @@ void test00003() {
     */
     mimmo::MRBF * manip = new mimmo::MRBF();
     manip->setName("RBFManipulator");
-    manip->setSupportRadiusValue(suppR);
+    manip->setSupportRadiusReal(suppR);
 
     /*
         Reconstruct the deformation field on the whole body
