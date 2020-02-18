@@ -112,16 +112,14 @@ void test00003() {
      * Set rbf points and displacements defined above.
      * Plot Optional results during execution active for MRBF block.
      */
-    mimmo::MRBF* mrbf1 = new mimmo::MRBF();
-    mrbf1->setMode(mimmo::MRBFSol::NONE);
-    mrbf1->setSupportRadius(0.4);
+    mimmo::MRBF* mrbf1 = new mimmo::MRBF(mimmo::MRBFSol::NONE);
+    mrbf1->setSupportRadiusLocal(0.4);
     mrbf1->setPlotInExecution(true);
     mrbf1->setNode(rbfNodes1);
     mrbf1->setDisplacements(displ1);
 
-    mimmo::MRBF* mrbf2 = new mimmo::MRBF();
-    mrbf2->setMode(mimmo::MRBFSol::NONE);
-    mrbf2->setSupportRadius(0.4);
+    mimmo::MRBF* mrbf2 = new mimmo::MRBF(mimmo::MRBFSol::NONE);
+    mrbf2->setSupportRadiusLocal(0.4);
     mrbf2->setPlotInExecution(true);
     mrbf2->setNode(rbfNodes2);
     mrbf2->setDisplacements(displ2);
