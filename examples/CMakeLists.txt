@@ -92,13 +92,14 @@ if(BUILD_EXAMPLES)
     #4
     if (MODULE_UTILS_ENABLED)
         list(APPEND EXAMPLE_LIST "manipulators_example_00006")
+        list(APPEND EXAMPLE_LIST "manipulators_example_00007")
         list(APPEND EXAMPLE_LIST "utils_example_00001")
         list(APPEND EXAMPLE_LIST "utils_example_00002")
         list(APPEND EXAMPLE_LIST "utils_example_00004")
         list(APPEND EXAMPLE_LIST "utils_example_00005")
         if(MODULE_GEOHANDLERS_ENABLED)
             list(APPEND EXAMPLE_LIST "utils_example_00003")
-        endif()    
+        endif()
 
     endif ()
 
@@ -179,6 +180,14 @@ if(BUILD_EXAMPLES)
     if ( ${_index} GREATER -1)
         add_custom_command(
             TARGET "manipulators_example_00006" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+        )
+    endif()
+
+    list(FIND EXAMPLE_LIST "manipulators_example_00007" _index)
+    if ( ${_index} GREATER -1)
+        add_custom_command(
+            TARGET "manipulators_example_00007" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
         )
     endif()

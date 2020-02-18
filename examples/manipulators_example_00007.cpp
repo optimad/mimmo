@@ -29,19 +29,20 @@
 
 // =================================================================================== //
 /*!
-	\example manipulators_example_00006.cpp
+	\example manipulators_example_00007.cpp
 
-	\brief Example of usage of radial basis function block to manipulate an input geometry.
+	\brief Example of usage of radial basis function block/ with variable support radius
+     to manipulate an input geometry.
 
     Geometry deformation block used: MRBF.
     Utils block used: ProjectCloud.
 
-	<b>To run</b>: ./manipulators_example_00006 \n
+	<b>To run</b>: ./manipulators_example_00007 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
-void test00006() {
+void test00007() {
 
     /* Creation of mimmo containers.
      * Input and output MimmoGeometry are instantiated
@@ -53,23 +54,30 @@ void test00006() {
     mimmo0->setReadFilename("sphere2");
     mimmo0->setWriteDir(".");
     mimmo0->setWriteFileType(FileType::STL);
-    mimmo0->setWriteFilename("manipulators_output_00006.0000");
+    mimmo0->setWriteFilename("manipulators_output_00007.0000");
 
     mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
-    mimmo1->setWriteFilename("manipulators_output_00006.0001");
+    mimmo1->setWriteFilename("manipulators_output_00007.0001");
 
     /* Creation of a random distribution of 10 points with coordinates between [-0.5, 0.5]
+       and a random distribution of 10 support radii between [0.05, 0.35]
      */
     int np = 10;
     dvecarr3E rbfNodes(10);
-    std::minstd_rand rgen;
+    dvector1D supportRadii(10);
+    std::minstd_rand rgen, sgen;
     rgen.seed(160);
+    sgen.seed(333);
     double dist = (rgen.max()-rgen.min());
+    double dist2 = (sgen.max()-sgen.min());
+
     for (int i=0; i<np; i++){
-        for (int j=0; j<3; j++)
+        for (int j=0; j<3; j++){
             rbfNodes[i][j] = 1.0*( double(rgen() - rgen.min() ) / dist ) - 0.5;
+        }
+        supportRadii[i] = 0.3 * ( double(sgen() - sgen.min() ) / dist2 ) + 0.05;
     }
 
     /* Set Generic input block with the
@@ -92,7 +100,6 @@ void test00006() {
      */
     mimmo::MRBF* mrbf = new mimmo::MRBF(mimmo::MRBFSol::NONE);
     mrbf->setFunction(bitpit::RBFBasisFunction::WENDLANDC2);
-    mrbf->setSupportRadiusLocal(0.05);
     mrbf->setPlotInExecution(true);
 
 
@@ -113,19 +120,12 @@ void test00006() {
     mimmo::GenericInput* input = new mimmo::GenericInput();
     input->setInput(displ);
 
-    /* Set Generic output block to write the
-     * nodes defined above.
+    /* Set Generic input block with the
+     * supportRadii defined above.
      */
-    mimmo::GenericOutput * outputn = new mimmo::GenericOutput();
-    outputn->setFilename("manipulators_output_00006n.csv");
-    outputn->setCSV(true);
+    mimmo::GenericInput* inputSR = new mimmo::GenericInput();
+    inputSR->setInput(supportRadii);
 
-    /* Set Generic output block to write the
-     * displacements defined above.
-     */
-    mimmo::GenericOutput * outputd = new mimmo::GenericOutput();
-    outputd->setFilename("manipulators_output_00006d.csv");
-    outputd->setCSV(true);
 
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
@@ -139,9 +139,8 @@ void test00006() {
     mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
     mimmo::pin::addPin(inputn, proj, M_COORDS, M_COORDS);
     mimmo::pin::addPin(proj, mrbf, M_COORDS, M_COORDS);
-    mimmo::pin::addPin(proj, outputn, M_COORDS, M_COORDS);
     mimmo::pin::addPin(input, mrbf, M_DISPLS, M_DISPLS);
-    mimmo::pin::addPin(input, outputd, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(inputSR, mrbf, M_DATAFIELD, M_DATAFIELD);
     mimmo::pin::addPin(mrbf, applier, M_GDISPLS, M_GDISPLS);
     mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
@@ -153,8 +152,7 @@ void test00006() {
     mimmo::Chain ch0;
     ch0.addObject(input);
     ch0.addObject(inputn);
-    ch0.addObject(outputn);
-    ch0.addObject(outputd);
+    ch0.addObject(inputSR);
     ch0.addObject(mimmo0);
     ch0.addObject(proj);
     ch0.addObject(applier);
@@ -172,8 +170,7 @@ void test00006() {
     delete proj;
     delete applier;
     delete input;
-    delete outputn;
-    delete outputd;
+    delete inputSR;
     delete mimmo0;
     delete mimmo1;
 
@@ -181,8 +178,7 @@ void test00006() {
     mrbf    = NULL;
     applier = NULL;
     input   = NULL;
-    outputn = NULL;
-    outputd = NULL;
+    inputSR = NULL;
     mimmo0  = NULL;
     mimmo1  = NULL;
 
@@ -199,10 +195,10 @@ int	main( int argc, char *argv[] ) {
 #endif
         try{
             /**<Calling mimmo Test routine*/
-            test00006() ;
+            test00007() ;
         }
         catch(std::exception & e){
-            std::cout<<"manipulators_example_00006 exited with an error of type : "<<e.what()<<std::endl;
+            std::cout<<"manipulators_example_00007 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
 #if MIMMO_ENABLE_MPI

@@ -60,12 +60,24 @@ enum class MRBFSol{
  * This class is derived from BaseManipulation class of mimmo and from RBF class
  * of bitpit library.
  * It evaluates the result of RBF functions built over a set of control point
-   given externally or stored in a PointCloud MimmoObject container.
+   given externally or stored in a MimmoObject container.
    Displacements (DOFs) for RBF nodes are provided externally.
    Default solver in execution is MRBFSol::NONE for direct parameterization.
    Use MRBFSol::GREEDY or MRBFSol::WHOLE to activate interpolation features.
  * See bitpit::RBF docs for further information.
- *
+
+    Support radii of RBF Nodes can be set in 3 different ways:
+    - setting x as Local support radius : the effective support radius will be
+      calculated as x * bbox_diag, where the last is the diagonal of the RBF set
+      of nodes bounding box. This value will be equal for all RBF nodes.(setSupportRadiusLocal)
+ * - setting x as Real support radius: the value of x will be used as effective support
+     radius, equal for all RBF nodes (setSupportRadiusReal)
+   - setting variable Support Radii: provide a list of support radius values, one for
+     each RBF node in the set. This option is available only in MRBFSol::NONE mode
+    (setVariableSupportRadii)
+
+     In case all three methods are connected through ports, priority list will be:
+     setVariableSupportRadii, setSupportRadiusReal, setSupportRadiusLocal
  * \n
  * Ports available in MRBF Class :
  *
@@ -74,18 +86,17 @@ enum class MRBFSol{
      |Port Input | | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_COORDS  | setNode               | (MC_VECARR3, MD_FLOAT)      |
-     | M_DISPLS  | setDisplacements      | (MC_VECARR3, MD_FLOAT)      |
-     | M_FILTER  | setFilter             | (MC_SCALAR, MD_MPVECFLOAT_)       |
-     | M_VALUED  | setSupportRadius      | (MC_SCALAR, MD_FLOAT)       |
-     | M_VALUED2 | setSupportRadiusValue | (MC_SCALAR, MD_FLOAT)       |
-     | M_GEOM    | setGeometry            | (MC_SCALAR, MD_MIMMO_)      |
+     | M_COORDS   | setNode                | (MC_VECARR3, MD_FLOAT)      |
+     | M_DISPLS   | setDisplacements       | (MC_VECARR3, MD_FLOAT)      |
+     | M_FILTER   | setFilter              | (MC_SCALAR, MD_MPVECFLOAT_) |
+     | M_DATAFIELD| setVariableSupportRadii| (MC_VECTOR, MD_FLOAT)       |
+     | M_GEOM     | setGeometry            | (MC_SCALAR, MD_MIMMO_)      |
 
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | M_GDISPLS      | getDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_)             |
-     | M_GEOM   | getGeometry       | (MC_SCALAR, MD_MIMMO_) |
+     | M_GDISPLS       | getDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_)             |
+     | M_GEOM          | getGeometry       | (MC_SCALAR, MD_MIMMO_) |
 
  *    =========================================================
  * \n
@@ -98,13 +109,20 @@ enum class MRBFSol{
  * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
  *
  * Proper of the class:
- * - <B>Mode</B>: mode of usage of the class see MRBFSol enum;
- * - <B>SupportRadius</B>: local radius of RBF function for each nodes, expressed as ratio of local geometry bounding box;
- * - <B>SupportRadiusReal</B>: local effective radius of RBF function common to each RBF node;
+ * - <B>Mode</B>: 0/1/2 mode of usage of the class see MRBFSol enum;
+ * - <B>SupportRadiusLocal</B>: local homogeneous radius of RBF function for each nodes,
+                                expressed as ratio of local geometry bounding box;
+                                see setSupportRadiusLocal method documentation.
+ * - <B>SupportRadiusReal</B>: homogeneous real radius of RBF function common to each RBF node;
+                                see setSupportRadiusReal method documentation.
  * - <B>RBFShape</B>: shape of RBF function see MRBFBasisFunction and bitpit::RBFBasisFunction enums;
  * - <B>Tolerance</B>: greedy engine tolerance (meaningful for Mode 2 only);
  *
+    if set, SupportRadiusReal parameter bypass SupportRadiusLocal one.
+
  * Geometry, filter field, RBF nodes and displacements have to be mandatorily passed through port.
+ * Please not if class is in MRBFSol::NONE mode and a port to setVariableSupportRadii is linked,
+   SupportRadiusLocal/Real parameters are bypassed.
  *
  */
 //TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
@@ -115,13 +133,15 @@ private:
     MRBFSol      m_solver;       /**<Type of solver specified for the class as default in execution*/
     dmpvector1D  m_filter;       /**<Filter field for displacements modulation */
     bool         m_bfilter;      /**<boolean to recognize if a filter field is applied */
-    double       m_SRRatio;      /**<support Radius ratio */
-    dmpvecarr3E  m_displ;        /**<Resulting displacements of geometry vertex.*/
-    bool         m_supRIsValue;  /**<True if support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
+    double       m_supportRadiusValue; /**<local bounding box binded homogeneous support radius */
+    bool         m_srIsReal;  /**<True if homogeneous support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
+    dvector1D    m_supportRadii; /**< list of variable supportRadii for each RBF node.*/
     int          m_functype;     /**< Function type handler. If -1 refer to RBF getFunctionType method */
+    dmpvecarr3E  m_displ;        /**<Resulting displacements of geometry vertex.*/
 
+    dvector1D    m_effectiveSR; /**< INTERNAL USE list of support radii effectively used for each RBF */
 public:
-    MRBF();
+    MRBF(MRBFSol mode = MRBFSol::NONE);
     MRBF(const bitpit::Config::Section & rootXML);
 
     virtual ~MRBF();
@@ -135,20 +155,17 @@ public:
     dvecarr3E*      getNodes();
 
     MRBFSol         getMode();
-    void            setMode(MRBFSol);
-    void            setMode(int);
     dmpvector1D*    getFilter();
-    double          getSupportRadius();
-    double          getSupportRadiusValue();
-    bool            getIsSupportRadiusValue();
+
+    bool            isSupportRadiusReal();
+    bool            isVariableSupportRadiusSet();
+    dvector1D &     getEffectivelyUsedSupportRadii();
 
     int             getFunctionType();
-
-    dmpvecarr3E*     getDisplacements();
+    dmpvecarr3E*    getDisplacements();
 
     int             addNode(darray3E);
     ivector1D       addNode(dvecarr3E);
-    ivector1D       addNode(MimmoObject* geometry);
 
     void            setNode(darray3E);
     void            setNode(dvecarr3E);
@@ -158,8 +175,13 @@ public:
     ivector1D       checkDuplicatedNodes(double tol=1.0E-12);
     bool            removeDuplicatedNodes(ivector1D * list=NULL);
 
-    void            setSupportRadius(double suppR_);
-    void            setSupportRadiusValue(double suppR_);
+    void            setSupportRadiusLocal(double suppR_);
+    void            setSupportRadiusReal(double suppR_);
+    void            setVariableSupportRadii(dvector1D sradii);
+
+BITPIT_DEPRECATED(
+    void            setSupportRadiusValue(double suppR_));
+
     void            setTol(double tol);
     void            setDisplacements(dvecarr3E displ);
 
@@ -176,11 +198,40 @@ public:
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
 protected:
+    void            swap(MRBF & x) noexcept;
+    void            checkFilter();
     void            setWeight(dvector2D value);
     void            plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed);
     virtual void    plotOptionalResults();
-    void            swap(MRBF & x) noexcept;
-    void            checkFilter();
+
+    void            computeEffectiveSupportRadiusList();
+
+    //reimplemented from RBFKernel
+    void            setMode(MRBFSol solver);
+    std::array<double,3> evalRBF(const std::array<double,3> & val);
+
+private:
+
+    // redeclared to be private in the current class:
+    // they behave exactly as in the base class but they are not accessible in MRBF.
+
+    void  setSupportRadius(double val){bitpit::RBFKernel::setSupportRadius(val);};
+    double getSupportRadius(){return bitpit::RBFKernel::getSupportRadius();};
+    void  setMode(bitpit::RBFMode mode){bitpit::RBFKernel::setMode(mode);};
+
+    void  setDataToNode (int n, const std::vector<double> &data){bitpit::RBFKernel::setDataToNode(n,data);};
+    void  setDataToAllNodes(int n , const std::vector<double> & data){bitpit::RBFKernel::setDataToAllNodes(n,data);};
+
+    int   addData(){return bitpit::RBFKernel::addData();};
+    int   addData(const std::vector<double> & data){return bitpit::RBFKernel::addData(data);};
+    bool  removeData(int n){return bitpit::RBFKernel::removeData(n);};
+    bool  removeData(std::vector<int> &nn){return bitpit::RBFKernel::removeData(nn);};
+    void  removeAllData(){bitpit::RBFKernel::removeAllData();};
+
+    std::vector<double>     evalRBF(int jnode){return bitpit::RBFKernel::evalRBF(jnode);};
+    
+    int                     solve(){return bitpit::RBFKernel::solve();};
+    int                     greedy(double tol){return bitpit::RBFKernel::greedy(tol);};
 
 };
 
@@ -192,8 +243,6 @@ double	heaviside1000( double dist );
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_ ,__MRBF_HPP__)
-REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT ,__MRBF_HPP__)
-REGISTER_PORT(M_VALUED2, MC_SCALAR, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_ ,__MRBF_HPP__)
 REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_ ,__MRBF_HPP__)
 

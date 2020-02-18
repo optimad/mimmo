@@ -67,7 +67,7 @@ void test00004() {
     */
     mimmo::MRBF * rbf = new mimmo::MRBF();
     rbf->setFunction(bitpit::RBFBasisFunction::C1C1);
-    rbf->setSupportRadiusValue(0.6);
+    rbf->setSupportRadiusReal(0.6);
     rbf->setApply(true);
 
     /* Setup pin connections.
