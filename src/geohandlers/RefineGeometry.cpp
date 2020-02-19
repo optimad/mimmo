@@ -440,10 +440,10 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, MimmoObj
 
 	// For Now this method works only in SERIAL mode.
 #if MIMMO_ENABLE_MPI
-	if (m_nprocs > 1){
+//	if (m_nprocs > 1){
 		//TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
 		(*m_log)<< "WARNING " <<m_name <<" : is not available yet in parallel process."<<std::endl;
-	}
+//	}
 #else
 
 	MimmoObject * geometry = getGeometry();
