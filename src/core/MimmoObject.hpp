@@ -336,6 +336,8 @@ public:
 
     void						triangulate();
 
+    void                        degradeDegenerateElements();
+
 protected:
     void    reset(int type);
 

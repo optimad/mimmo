@@ -4475,4 +4475,90 @@ MimmoObject::triangulate(){
 
 }
 
+
+/*!
+ * Check the correctness elements of the geometry. Find degenerate elements in terms of vertices, i.e. an element is considered degenerate
+ * if at least two vertices are equal. If a degenerate element is found, it is degraded to a valid inferior element, e.g a degenerate
+ * QUAD, if only one vertex is repeated, is degraded to a TRIANGLE.
+ * If a degraded element is invalid (e.g. a QUAD in a threedimensional mesh) the cell is deleted.
+ */
+void
+MimmoObject::degradeDegenerateElements(){
+
+    std::vector<long> toDelete;
+    std::vector<bitpit::Cell> toInsert;
+
+    std::unordered_map<long,long> vertexMap;
+
+    for (bitpit::Cell & cell : getCells()){
+
+        long cellId = cell.getId();
+        bitpit::ElementType cellType = cell.getType();
+        bitpit::ConstProxyVector<long> cellVertexIds = cell.getVertexIds();
+        std::vector<long> cellConnectivity;
+        std::vector<bitpit::Vertex> cellVertices;
+        // Unique vertices cell connectivity
+        for (long vertexId : cellVertexIds){
+            bitpit::Vertex candidateVertex = getPatch()->getVertex(vertexId);
+            std::vector<bitpit::Vertex>::iterator it = std::find(cellVertices.begin(), cellVertices.end(), candidateVertex);
+            if (it == cellVertices.end()){
+                cellConnectivity.push_back(vertexId);
+                cellVertices.push_back(candidateVertex);
+            }
+            else{
+                //Collapse vertices
+                vertexMap.insert({vertexId, it->getId()});
+            }
+        }
+
+        bitpit::ElementType desumedType = desumeElement(cellConnectivity);
+
+        if (desumedType != cellType){
+            // If degenerate delete from geometry
+            toDelete.push_back(cellId);
+            if (desumedType != bitpit::ElementType::UNDEFINED){
+                // If it can be degraded do it
+                std::unique_ptr<long[]> connectStorage = std::unique_ptr<long[]>(new long[cellConnectivity.size()]);
+                std::copy(cellConnectivity.begin(), cellConnectivity.end(), connectStorage.get());
+                bitpit::Cell newCell(cellId, desumedType, std::move(connectStorage));
+                newCell.setPID(cell.getPID());
+                toInsert.push_back(newCell);
+            }
+        }
+
+    } // end loop on cells
+
+    // Delete degenerate cells
+    getPatch()->deleteCells(toDelete);
+
+    // Insert new degraded cells
+    for (bitpit::Cell & cell : toInsert){
+        addCell(cell, cell.getId());
+    }
+
+
+    // Collapse vertices
+    if (!vertexMap.empty()) {
+        // Renumber cell vertices
+        for (bitpit::Cell &cell : getCells()) {
+            cell.renumberVertices(vertexMap);
+        }
+    }
+
+    // Reset info sync (needed?)
+    m_AdjBuilt = false;
+    m_IntBuilt = false;
+    m_skdTreeSync = false;
+    m_kdTreeSync = false;
+    m_patchInfo.reset();
+    m_infoSync = false;
+#if MIMMO_ENABLE_MPI
+    m_pointGhostExchangeInfoSync = false;
+#endif
+    m_pointConnectivitySync = false;
+
+
+}
+
+
 }
