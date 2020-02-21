@@ -296,6 +296,11 @@ protected:
     template<typename mpv_t>
     void		    write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>> & data);
 
+    template<typename mpv_t, typename... Args>
+    void            write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>*> & data, Args ... args);
+
+    template<typename mpv_t>
+    void            write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>*> & data);
 
 };
 
