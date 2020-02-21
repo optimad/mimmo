@@ -451,4 +451,174 @@ BaseManipulation::write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mp
 
 }
 
+
+
+/*!
+ * Write an input geometry given as MimmoObject pointer with a series of input data field (vector of data fields).
+ * Input geometry and the geometry linked in the MimmoPiercedVectors of data have to be consistent, otherwise the data
+ * that doesn't satisfy the coherence is skipped.
+ * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
+ * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
+ * \param[in] geometry MimmoObject pointer to target geometry
+ * \param[in] data vector of pointer to MimmoPiercedVectors with data fields to write
+ */
+template<typename mpv_t>
+void
+BaseManipulation::write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>*> & vdata)
+{
+    // Instantiate fields as vector structure
+    std::vector<std::vector<mpv_t>> fields(vdata.size());
+
+    //Deduce data type and add data to vtk object
+    bitpit::VTKFieldType fieldtype;
+    if (std::is_integral<mpv_t>::value == true || std::is_floating_point<mpv_t>::value == true){
+        fieldtype = bitpit::VTKFieldType::SCALAR;
+    }
+    else if (std::is_same<mpv_t, std::array<double,3>>::value == true){
+        fieldtype = bitpit::VTKFieldType::VECTOR;
+    }
+    else{
+        (*m_log) << " Warning: data type to write not allowed in " << m_name << "; exit" << std::endl;
+        return;
+    }
+
+    //Loop on all input data
+    std::size_t ifield = 0;
+    for (MimmoPiercedVector<mpv_t>* data : vdata)
+    {
+
+        //Check data and geometry linked
+        if (data->size() == 0 || data->getGeometry() == nullptr){
+            (*m_log) << " Warning: data to write not consistent with geometry in " << m_name << "; skip data" << std::endl;
+            continue;
+        }
+        if (geometry == nullptr){
+            (*m_log) << " Warning: geometry null during writing " << m_name << std::endl;
+            return;
+        }
+
+        bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
+        switch(data->getDataLocation()){
+        case MPVLocation::POINT :
+            loc = bitpit::VTKLocation::POINT;
+            break;
+        case MPVLocation::CELL :
+            loc = bitpit::VTKLocation::CELL;
+            break;
+        default:
+            (*m_log)<<" Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
+            (*m_log)<<" Interface or Undefined locations are not supported in VTU writing." <<std::endl;
+            return;
+            break;
+        }
+
+        //check size of field and adjust missing values to zero for writing purposes only.
+        if(!data->completeMissingData(mpv_t())){
+            (*m_log) << " Warning: error during complete missing data to write in " << m_name << "; skip data" << std::endl;
+            continue;
+        }
+
+        fields[ifield] = data->getDataAsVector();
+
+        geometry->getPatch()->getVTK().addData(data->getName(), fieldtype, loc, fields[ifield]);
+
+        ifield++;
+
+    } // End loop on data fields
+
+    write(geometry);
+
+    //Loop on all input data to remove fields from vtk object
+    for (MimmoPiercedVector<mpv_t> * data : vdata)
+    {
+        geometry->getPatch()->getVTK().removeData(data->getName());
+    }
+
+}
+
+/*!
+ * Write an input geometry given as MimmoObject pointer with a series of vectors of input data fields (template variadic function).
+ * Input geometry and the geometry linked in the MimmoPiercedVectors of data have to be consistent, otherwise the data
+ * that doesn't satisfy the coherence is skipped.
+ * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
+ * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
+ * \param[in] geometry MimmoObject pointer to target geometry
+ * \param[in] data vector of Pointer of MimmoPiercedVector with data fields to write
+ * \param[in] ... Pointer to MimmoPiercedVector series with vector of data fields to write (template variadic function)
+ */
+template<typename mpv_t, typename... Args>
+void
+BaseManipulation::write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>*> & vdata, Args ... args)
+{
+    // Instantiate fields as vector structure
+    std::vector<std::vector<mpv_t>> fields(vdata.size());
+
+    //Deduce data type and add data to vtk object
+    bitpit::VTKFieldType fieldtype;
+    if (std::is_integral<mpv_t>::value == true || std::is_floating_point<mpv_t>::value == true){
+        fieldtype = bitpit::VTKFieldType::SCALAR;
+    }
+    else if (std::is_same<mpv_t, std::array<double,3>>::value == true){
+        fieldtype = bitpit::VTKFieldType::VECTOR;
+    }
+    else{
+        (*m_log) << " Warning: data type to write not allowed in " << m_name << "; skip vector of data fields" << std::endl;
+        write(geometry, args...);
+        return;
+    }
+
+    //Loop on all input data
+    std::size_t ifield = 0;
+    for (MimmoPiercedVector<mpv_t> * data : vdata)
+    {
+
+        //Check data and geometry linked
+        if (data->size() == 0 || data->getGeometry() == nullptr){
+            (*m_log) << " Warning: data to write not consistent with geometry in " << m_name << "; skip data" << std::endl;
+            continue;
+        }
+        if (geometry == nullptr){
+            (*m_log) << " Warning: geometry null during writing " << m_name << std::endl;
+            return;
+        }
+
+        bitpit::VTKLocation loc = bitpit::VTKLocation::UNDEFINED;
+        switch(data->getDataLocation()){
+        case MPVLocation::POINT :
+            loc = bitpit::VTKLocation::POINT;
+            break;
+        case MPVLocation::CELL :
+            loc = bitpit::VTKLocation::CELL;
+            break;
+        default:
+            (*m_log)<<" Warning: Undefined Reference Location in plotOptionalResults of "<<m_name<<std::endl;
+            (*m_log)<<" Interface or Undefined locations are not supported in VTU writing." <<std::endl;
+            return;
+            break;
+        }
+
+        //check size of field and adjust missing values to zero for writing purposes only.
+        if(!data->completeMissingData(mpv_t())){
+            (*m_log) << " Warning: error during complete missing data to write in " << m_name << "; skip data" << std::endl;
+            continue;
+        }
+
+        fields[ifield] = data->getDataAsVector();
+
+        geometry->getPatch()->getVTK().addData(data->getName(), fieldtype, loc, fields[ifield]);
+
+        ifield++;
+
+    } // End loop on data fields
+
+    write(geometry, args...);
+
+    //Loop on all input data to remove fields from vtk object
+    for (MimmoPiercedVector<mpv_t> * data : vdata)
+    {
+        geometry->getPatch()->getVTK().removeData(data->getName());
+    }
+
+}
+
 };
