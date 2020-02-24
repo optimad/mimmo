@@ -39,7 +39,8 @@ enum class MRBFBasisFunction {
     HEAVISIDE10    = 101,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 10 */
     HEAVISIDE50    = 102,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 50 */
 	HEAVISIDE100    = 103,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 100 */
-	HEAVISIDE1000    = 104,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 1000 */
+    HEAVISIDE1000    = 104,  /**< Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 1000 */
+    DSIGMOID    = 105,  /**< Non compact sharp sigmoid derivative */
 };
 
 /*!
@@ -238,7 +239,8 @@ private:
 double	heaviside10( double dist );
 double	heaviside50( double dist );
 double	heaviside100( double dist );
-double	heaviside1000( double dist );
+double  heaviside1000( double dist );
+double  dsigmoid( double dist );
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)

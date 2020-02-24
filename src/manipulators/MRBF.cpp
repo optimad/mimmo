@@ -445,6 +445,11 @@ MRBF::setFunction( const MRBFBasisFunction &bfunc )
             m_functype = static_cast<int>(MRBFBasisFunction::HEAVISIDE1000);
             break;
 
+    case( MRBFBasisFunction::DSIGMOID):
+            RBF::setFunction(dsigmoid);
+            m_functype = static_cast<int>(MRBFBasisFunction::DSIGMOID);
+            break;
+
 	default:
             bitpit::RBF::setFunction(bitpit::RBFBasisFunction::WENDLANDC2);
             m_functype = -1;
@@ -940,6 +945,15 @@ heaviside1000( double dist )
 	return 1./(1.+std::exp(-1000.*(1.-dist)));
 }
 
-
+/*!
+ * Non compact sigmoid derivative e^(-x) / (1.+ e^(-x))^2
+ * @param[in] dist distance normalized with respect to support radius
+ * @return rbf value
+ */
+double
+dsigmoid( double dist )
+{
+    return std::exp(-dist)/std::pow((1.+std::exp(-dist)),int(2));
+}
 
 }

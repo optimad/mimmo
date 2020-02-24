@@ -77,7 +77,7 @@ void test00007() {
         for (int j=0; j<3; j++){
             rbfNodes[i][j] = 1.0*( double(rgen() - rgen.min() ) / dist ) - 0.5;
         }
-        supportRadii[i] = 0.3 * ( double(sgen() - sgen.min() ) / dist2 ) + 0.05;
+        supportRadii[i] = 0.03 * ( double(sgen() - sgen.min() ) / dist2 ) + 0.05;
     }
 
     /* Set Generic input block with the
@@ -99,7 +99,8 @@ void test00007() {
      * Plot Optional results during execution active for MRBF block.
      */
     mimmo::MRBF* mrbf = new mimmo::MRBF(mimmo::MRBFSol::NONE);
-    mrbf->setFunction(bitpit::RBFBasisFunction::WENDLANDC2);
+//    mrbf->setFunction(bitpit::RBFBasisFunction::WENDLANDC2);
+    mrbf->setFunction(mimmo::MRBFBasisFunction::DSIGMOID);
     mrbf->setPlotInExecution(true);
 
 
