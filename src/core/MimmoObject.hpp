@@ -336,7 +336,7 @@ public:
 
     void						triangulate();
 
-    void                        degradeDegenerateElements();
+    void                        degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degradedDeletedCells = nullptr, bitpit::PiercedVector<bitpit::Vertex>* collapsedVertices = nullptr);
 
 protected:
     void    reset(int type);
