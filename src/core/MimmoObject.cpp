@@ -4477,18 +4477,38 @@ MimmoObject::triangulate(){
 
 
 /*!
- * Check the correctness elements of the geometry. Find degenerate elements in terms of vertices, i.e. an element is considered degenerate
- * if at least two vertices are equal. If a degenerate element is found, it is degraded to a valid inferior element, e.g a degenerate
- * QUAD, if only one vertex is repeated, is degraded to a TRIANGLE.
- * If a degraded element is invalid (e.g. a QUAD in a threedimensional mesh) the cell is deleted.
+ * Check the correctness elements of the geometry. Find degenerate elements in terms
+  of vertices, i.e. an element is considered degenerate if at least two vertices
+  are equal. If a degenerate element is found, it is degraded to a valid inferior
+  element preserving the same cell id, e.g a degenerate QUAD is degraded to a TRIANGLE,
+  if only one vertex is repeated.
+  If a degraded element is invalid (e.g. a QUAD in a threedimensional mesh)
+  the cell is deleted.
+ * \param[out] degradedDeletedCells If not a null pointer the pointed vector is
+               filled with the original deleted or degraded cells
+ * \param[out] collapsedVertices If not a null pointer the pointed vector is filled
+               with the original collapsed (i.e. deleted) vertices
  */
 void
-MimmoObject::degradeDegenerateElements(){
-
+MimmoObject::degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degradedDeletedCells,
+                                       bitpit::PiercedVector<bitpit::Vertex>* collapsedVertices)
+{
     std::vector<long> toDelete;
     std::vector<bitpit::Cell> toInsert;
 
     std::unordered_map<long,long> vertexMap;
+
+    bool fillCells = false;
+    if (degradedDeletedCells){
+        fillCells = true;
+        degradedDeletedCells->clear();
+    }
+
+    bool fillVertices = false;
+    if (collapsedVertices){
+        fillVertices = true;
+        collapsedVertices->clear();
+    }
 
     for (bitpit::Cell & cell : getCells()){
 
@@ -4508,6 +4528,9 @@ MimmoObject::degradeDegenerateElements(){
             else{
                 //Collapse vertices
                 vertexMap.insert({vertexId, it->getId()});
+                if (fillVertices){
+                    collapsedVertices->insert(vertexId, candidateVertex);
+                }
             }
         }
 
@@ -4523,6 +4546,9 @@ MimmoObject::degradeDegenerateElements(){
                 bitpit::Cell newCell(cellId, desumedType, std::move(connectStorage));
                 newCell.setPID(cell.getPID());
                 toInsert.push_back(newCell);
+            }
+            if (fillCells){
+                degradedDeletedCells->insert(cellId, cell);
             }
         }
 
@@ -4556,8 +4582,6 @@ MimmoObject::degradeDegenerateElements(){
     m_pointGhostExchangeInfoSync = false;
 #endif
     m_pointConnectivitySync = false;
-
-
 }
 
 
