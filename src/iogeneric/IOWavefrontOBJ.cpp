@@ -1716,6 +1716,130 @@ void IOWavefrontOBJ::read(const std::string & filename){
         m_intPatch->getPatch()->deleteCoincidentVertices();
     }
 
+    // check for fuzzy or degenerate cells into your tessellation.
+    bitpit::PiercedVector<bitpit::Cell>degenerateElements;
+    // erase or degrade it.
+    m_intPatch->degradeDegenerateElements(&degenerateElements, nullptr);
+
+    // the real mesh is ok, we need to check textures, normals, and other cell data.
+    if(degenerateElements.size() > 0){
+
+        bitpit::PiercedVector<bitpit::Cell> &patchCells = m_intPatch->getCells();
+        MimmoObject * textures = m_intData->textures.get();
+        MimmoObject * normals = m_intData->normals.get();
+        long idd;
+        //loop on degenerate cells
+        for(bitpit::Cell & degenerateCell : degenerateElements){
+            idd = degenerateCell.getId();
+
+            if(!patchCells.exists(idd)){
+                //this cell is erased from the actual mesh
+                // so erase it also from wavedata
+
+                //celldata are safe. They are always filled with all cell ids.
+                m_intData->materials.erase(idd);
+                m_intData->smoothids.erase(idd);
+                m_intData->cellgroups.erase(idd);
+
+                if(textures)    textures->getPatch()->deleteCell(idd);
+                if(normals)     normals->getPatch()->deleteCell(idd);
+
+            }else{
+                //this cell is degradated. Do not touch cell data,
+                // but you need to check the new connectivity for textures and normals if any
+                if(!textures && ! normals)  continue;
+                bitpit::Cell & sanitizedCell = patchCells[idd];
+
+                bitpit::ConstProxyVector<long> oldConn = degenerateCell.getVertexIds();
+                bitpit::ConstProxyVector<long> newConn = sanitizedCell.getVertexIds();
+
+                //evaluate the local entry map
+                std::vector<int> locmap;
+                locmap.reserve(newConn.size());
+
+                bitpit::ConstProxyVector<long>::iterator itold = oldConn.begin();
+                bitpit::ConstProxyVector<long>::iterator itnew = newConn.begin();
+                int counter(0);
+                while(itold != oldConn.end() && itnew != newConn.end()){
+                    if( (*itold) == (*itnew) ){
+                        locmap.push_back(counter);
+                        ++itnew;
+                    }
+                    ++itold;
+                    ++counter;
+                }
+
+                // change cell connectivity to textures
+                if(textures){
+                    //backup copy the texture cell
+                    bitpit::Cell txtCell = textures->getPatch()->getCell(idd);
+                    //delete it from the slot
+                    textures->getPatch()->deleteCell(idd);
+                    // use localmap to get the new connectivity from the old one.
+                    bitpit::ConstProxyVector<long> txtoldc = txtCell.getVertexIds();
+                    std::vector<long> txtnewc(locmap.size());
+                    int count(0);
+                    for(long & val: txtnewc){
+                        val = txtoldc[locmap[count]];
+                        ++count;
+                    }
+                    //readd the new cell.
+                    if(sanitizedCell.getType() == bitpit::ElementType::POLYGON){
+                        std::vector<long> temp;
+                        temp.reserve(txtnewc.size()+1);
+                        temp.push_back(txtnewc.size());
+                        temp.insert(temp.end(), txtnewc.begin(), txtnewc.end());
+                        std::swap(temp, txtnewc);
+                    }
+                    textures->addConnectedCell(txtnewc, sanitizedCell.getType(), sanitizedCell.getPID(), idd, int(-1));
+                }
+
+                // change cell connectivity to normals
+                if(normals){
+                    //copy the cell
+                    bitpit::Cell normalCell = normals->getPatch()->getCell(idd);
+                    //delete it from the slot
+                    normals->getPatch()->deleteCell(idd);
+                    // use localmap to get the new connectivity from the old one.
+                    bitpit::ConstProxyVector<long> normaloldc = normalCell.getVertexIds();
+                    std::vector<long> normalnewc(locmap.size());
+                    int count(0);
+                    for(long & val: normalnewc){
+                        val = normaloldc[locmap[count]];
+                        ++count;
+                    }
+                    //readd the new cell.
+                    if(sanitizedCell.getType() == bitpit::ElementType::POLYGON){
+                        std::vector<long> temp;
+                        temp.reserve(normalnewc.size()+1);
+                        temp.push_back(normalnewc.size());
+                        temp.insert(temp.end(), normalnewc.begin(), normalnewc.end());
+                        std::swap(temp, normalnewc);
+                    }
+                    normals->addConnectedCell(normalnewc, sanitizedCell.getType(), sanitizedCell.getPID(), idd, int(-1));
+                }
+            } //end of idd existence if;
+        } //end of for cycle
+
+        //perform squeeze on cells and shrinkToFit on data.
+        if(textures){
+            textures->getPatch()->squeezeCells();
+            textures->getPatch()->deleteOrphanVertices();
+            textures->getPatch()->squeezeVertices();
+        }
+        if(normals){
+            normals->getPatch()->squeezeCells();
+            normals->getPatch()->deleteOrphanVertices();
+            normals->getPatch()->squeezeVertices();
+        }
+
+        m_intData->materials.shrinkToFit();
+        m_intData->smoothids.shrinkToFit();
+        m_intData->cellgroups.shrinkToFit();
+
+    } //end of check for the degenerateElements.
+
+    //all good ready to return;
 }
 
 /*!
