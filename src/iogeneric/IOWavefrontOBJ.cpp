@@ -523,7 +523,13 @@ void    ManipulateWFOBJData::setNormalsComputeStrategy(ManipulateWFOBJData::Norm
 void
 ManipulateWFOBJData::setPinMaterials(const std::vector<std::string> & materialsList){
     m_pinMaterials.clear();
-    m_pinMaterials.insert(materialsList.begin(), materialsList.end());
+    std::string temp;
+    for(const std::string & val : materialsList){
+        temp = val;
+        temp = bitpit::utils::string::trim(temp);
+        m_pinMaterials.insert(temp);
+    }
+
 }
 
 /*!
@@ -534,7 +540,12 @@ ManipulateWFOBJData::setPinMaterials(const std::vector<std::string> & materialsL
 void
 ManipulateWFOBJData::setPinCellGroups(const std::vector<std::string> & cellgroupsList){
     m_pinCellGroups.clear();
-    m_pinCellGroups.insert(cellgroupsList.begin(), cellgroupsList.end());
+    std::string temp;
+    for(const std::string & val : cellgroupsList){
+        temp = val;
+        temp = bitpit::utils::string::trim(temp);
+        m_pinCellGroups.insert(temp);
+    }
 }
 
 /*!
@@ -556,7 +567,12 @@ ManipulateWFOBJData::setPinSmoothIds(const std::vector<int> & smoothidsList){
 void
 ManipulateWFOBJData::setPinObjects(const std::vector<std::string> & objectsList){
     m_pinObjects.clear();
-    m_pinObjects.insert(objectsList.begin(), objectsList.end());
+    std::string temp;
+    for(const std::string & val : objectsList){
+        temp = val;
+        temp = bitpit::utils::string::trim(temp);
+        m_pinObjects.insert(temp);
+    }
 }
 
 
@@ -2125,7 +2141,9 @@ void IOWavefrontOBJ::searchObjectPosition(std::ifstream & in,
         key = line.at(0);
         if(key == 'o'){
             mapPos.push_back(in.tellg());
-            mapNames.push_back(line.substr(1));
+            std::string nameobject = line.substr(1);
+            nameobject = bitpit::utils::string::trim(nameobject);
+            mapNames.push_back(nameobject);
             workingCounter.push_back(vCounter);
             vCounter.fill(0);
         }
@@ -2370,6 +2388,7 @@ void IOWavefrontOBJ::readObjectData(std::ifstream & in, const std::streampos &be
             case 1: //usemtl material name
                 ss.str(line);
                 ss>>dummy>> activeMaterial;
+                activeMaterial = bitpit::utils::string::trim(activeMaterial);
                 ss.clear();
                 break;
             case 2: //g cellgroup string labels
