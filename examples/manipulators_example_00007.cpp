@@ -77,7 +77,7 @@ void test00007() {
         for (int j=0; j<3; j++){
             rbfNodes[i][j] = 1.0*( double(rgen() - rgen.min() ) / dist ) - 0.5;
         }
-        supportRadii[i] = 0.03 * ( double(sgen() - sgen.min() ) / dist2 ) + 0.05;
+        supportRadii[i] = 0.1 * ( double(sgen() - sgen.min() ) / dist2 ) + 0.05;
     }
 
     /* Set Generic input block with the
@@ -111,7 +111,7 @@ void test00007() {
     darray3E center({0.0, 0.0, 0.0});
     for (int i=0; i<np; i++){
         displ[i] = rbfNodes[i] - center;
-        displ[i] /= 2.0*norm2(displ[i]);
+        displ[i] /= -20.0*norm2(displ[i]);
     }
 
 
