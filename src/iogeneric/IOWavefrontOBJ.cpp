@@ -928,7 +928,7 @@ void ManipulateWFOBJData::computeNormals(){
         //push the new cell
         rank = -1;
 #if MIMMO_ENABLE_MPI
-        rank = mother->getPatch()->getCellRank(idcell);
+        rank = mother->getPatch()->getCellRank(idCell);
 #endif
         vnormals->addConnectedCell(conn_normals, motherCell.getType(), long(motherCell.getPID()), idCell, rank);
     }
