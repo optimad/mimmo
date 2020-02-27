@@ -530,43 +530,49 @@ MRBF::execute(){
 		}
 	}
 
-    //compute the support radius in m_effectiveSR
-    //and push homogeneous support radius info to the base class,
-    //in case of Mode WHOLE/GREEDY
-    computeEffectiveSupportRadiusList();
+	//compute the support radius in m_effectiveSR
+	//and push homogeneous support radius info to the base class,
+	//in case of Mode WHOLE/GREEDY
+	computeEffectiveSupportRadiusList();
 
-    //calculate weights for interpolation modes. This is not required
-    // in parameterization mode MRBFSol::NONE.
+	//calculate weights for interpolation modes. This is not required
+	// in parameterization mode MRBFSol::NONE.
 	if (m_solver == MRBFSol::WHOLE)    solve();
 	if (m_solver == MRBFSol::GREEDY)    greedy(m_tol);
 
 
-    //get subset of vertices interested by rbfs
-    std::unordered_set<long> activeMeshVertices;
-    livector1D cellList, vList;
-    bitpit::PatchSkdTree * tree = getGeometry()->getSkdTree();
-    for(int i=0; i<m_nodes;++i){
-        cellList = searchSphereMatches(*tree, m_node[i], m_effectiveSR[i]);
-        vList = getGeometry()->getVertexFromCellList(cellList);
-        activeMeshVertices.insert(vList.begin(), vList.end());
-    }
+	// Prepare the list of vertices included in rbf radii
+	std::unordered_set<long> activeMeshVertices;
 
-     // get deformation using own class evalRBF.
-     for(const long &id: activeMeshVertices){
-         bitpit::Vertex & vertex = container->getPatch()->getVertex(id);
-         m_displ.insert(id, evalRBF(vertex.getCoords()));
-     }
+	if(!(container->isKdTreeSync()))
+	    container->buildKdTree();
+
+	int nnodes = getTotalNodesCount();
+	std::vector<long> ids;
+	bitpit::KdTree<3,bitpit::Vertex,long>* tree = container->getKdTree();
+	for(int i=0; i<nnodes; ++i){
+	    bitpit::Vertex vertexNode(bitpit::Vertex::NULL_ID, m_node[i]);
+	    tree->hNeighbors(&vertexNode, m_effectiveSR[i], &ids, nullptr);
+	    activeMeshVertices.insert(ids.begin(), ids.end());
+	}
 
 
-    //apply m_filter if it's active;
-    if(m_bfilter){
-        checkFilter();
-        for (auto it=m_displ.begin(); it!=m_displ.end(); ++it){
-            (*it) *= m_filter.at(it.getId());
-        }
-    }
+	// get deformation using own class evalRBF.
+	for(const long &id: activeMeshVertices){
+	    bitpit::Vertex & vertex = container->getPatch()->getVertex(id);
+	    m_displ.insert(id, evalRBF(vertex.getCoords()));
+	}
 
-    m_displ.completeMissingData({{0.0,0.0,0.0}});
+
+	//apply m_filter if it's active;
+	if(m_bfilter){
+	    checkFilter();
+	    for (auto it=m_displ.begin(); it!=m_displ.end(); ++it){
+	        (*it) *= m_filter.at(it.getId());
+	    }
+	}
+
+	m_displ.completeMissingData({{0.0,0.0,0.0}});
 
 };
 
