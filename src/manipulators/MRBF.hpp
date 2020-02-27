@@ -108,7 +108,9 @@ enum class MRBFSol{
  * - <B>ClassName</B>: name of the class as <tt>mimmo.MRBF</tt>;
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
- *
+ * - <B>PlotInExecution</B> : plot optional results in execution;
+ * - <B>OutputPlot</B> : path to store optional results.
+
  * Proper of the class:
  * - <B>Mode</B>: 0/1/2 mode of usage of the class see MRBFSol enum;
  * - <B>SupportRadiusLocal</B>: local homogeneous radius of RBF function for each nodes,
@@ -129,7 +131,7 @@ enum class MRBFSol{
 //TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
 class MRBF: public BaseManipulation, public bitpit::RBF {
 
-private:
+protected:
     double       m_tol;          /**< Tolerance for greedy algorithm.*/
     MRBFSol      m_solver;       /**<Type of solver specified for the class as default in execution*/
     dmpvector1D  m_filter;       /**<Filter field for displacements modulation */
@@ -141,6 +143,7 @@ private:
     dmpvecarr3E  m_displ;        /**<Resulting displacements of geometry vertex.*/
 
     dvector1D    m_effectiveSR; /**< INTERNAL USE list of support radii effectively used for each RBF */
+
 public:
     MRBF(MRBFSol mode = MRBFSol::NONE);
     MRBF(const bitpit::Config::Section & rootXML);
@@ -207,6 +210,9 @@ protected:
 
     void            computeEffectiveSupportRadiusList();
 
+    livector1D searchSphereMatches(bitpit::PatchSkdTree & tree, const std::array<double,3>& sphere_center, double sphere_radius);
+    bool       intersectSphereAABBox(const darray3E & center, double radius, const darray3E &bMin, const darray3E &bMax);
+
     //reimplemented from RBFKernel
     void            setMode(MRBFSol solver);
     std::array<double,3> evalRBF(const std::array<double,3> & val);
@@ -247,6 +253,7 @@ REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_ ,__MRBF_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_ ,__MRBF_HPP__)
 REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_ ,__MRBF_HPP__)
+REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT, __MRBF_HPP_)
 
 REGISTER(BaseManipulation, MRBF, "mimmo.MRBF")
 
