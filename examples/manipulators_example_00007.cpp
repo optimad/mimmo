@@ -99,8 +99,7 @@ void test00007() {
      * Plot Optional results during execution active for MRBF block.
      */
     mimmo::MRBF* mrbf = new mimmo::MRBF(mimmo::MRBFSol::NONE);
-//    mrbf->setFunction(bitpit::RBFBasisFunction::WENDLANDC2);
-    mrbf->setFunction(mimmo::MRBFBasisFunction::DSIGMOID);
+    mrbf->setFunction(mimmo::MRBFBasisFunction::DSIGMOID, true);
     mrbf->setPlotInExecution(true);
 
 
