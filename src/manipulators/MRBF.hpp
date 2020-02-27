@@ -143,6 +143,7 @@ protected:
     dmpvecarr3E  m_displ;        /**<Resulting displacements of geometry vertex.*/
 
     dvector1D    m_effectiveSR; /**< INTERNAL USE list of support radii effectively used for each RBF */
+    bool         m_isCompact;   /**< If true the basis function is used with compact support, i.e. it is supposed different from 0 and evaluated only inside the support radius.*/
 
 public:
     MRBF(MRBFSol mode = MRBFSol::NONE);
@@ -168,6 +169,8 @@ public:
     int             getFunctionType();
     dmpvecarr3E*    getDisplacements();
 
+    bool            isCompact();
+
     int             addNode(darray3E);
     ivector1D       addNode(dvecarr3E);
 
@@ -189,8 +192,9 @@ BITPIT_DEPRECATED(
     void            setTol(double tol);
     void            setDisplacements(dvecarr3E displ);
 
-    void            setFunction(const MRBFBasisFunction & funct);
-    void            setFunction(const bitpit::RBFBasisFunction & funct);
+    void            setFunction(const MRBFBasisFunction & funct, bool isCompact = false);
+    void            setFunction(const bitpit::RBFBasisFunction & funct, bool isCompact = false);
+    void            setCompactSupport(bool isCompact = true);
 
     void            clear();
     void            clearFilter();

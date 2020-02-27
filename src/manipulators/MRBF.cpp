@@ -37,6 +37,7 @@ MRBF::MRBF(MRBFSol mode){
     m_supportRadiusValue = -1.0;
     m_srIsReal = false;
     m_functype = -1;
+    m_isCompact = false;
 };
 
 /*!
@@ -52,6 +53,7 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
     m_supportRadiusValue = -1.0;
     m_srIsReal = false;
     m_functype = -1;
+    m_isCompact = false;
 
     setMode(MRBFSol::NONE);
 
@@ -85,6 +87,7 @@ MRBF::MRBF(const MRBF & other):BaseManipulation(other), bitpit::RBF(other){
 	m_srIsReal = other.m_srIsReal;
     m_supportRadii = other.m_supportRadii;
     m_functype = other.m_functype;
+    m_isCompact = other.m_isCompact;
 	if(m_bfilter)    m_filter = other.m_filter;
 };
 
@@ -110,6 +113,7 @@ void MRBF::swap(MRBF & x) noexcept
 	std::swap(m_srIsReal, x.m_srIsReal);
     std::swap(m_supportRadii, x.m_supportRadii);
     std::swap(m_functype, x.m_functype);
+    std::swap(m_isCompact, x.m_isCompact);
 	m_displ.swap(x.m_displ);
     std::swap(m_effectiveSR, x.m_effectiveSR);
 
@@ -214,6 +218,14 @@ MRBF::getDisplacements(){
 	return &m_displ;
 };
 
+/*!
+ * Return true if the rbf has to be evaluated on a compact support defined by the support radius.
+ * \return boolean true/false
+ */
+bool
+MRBF::isCompact(){
+    return m_isCompact;
+}
 
 /*!Adds a RBF point to the total control node list and activate it.
  * Reimplemented from RBF::addNode of bitpit;
@@ -419,9 +431,10 @@ MRBF::setDisplacements(dvecarr3E displ){
 /*!
  * Sets the rbf function to be used. Supported in both modes. (Overloading for mimmo rbf functions)
  * @param[in] bfunc basis function to be used
+ * @param[in] isCompact is the basis function to be used on a compact support? (default = false)
  */
 void
-MRBF::setFunction( const MRBFBasisFunction &bfunc )
+MRBF::setFunction( const MRBFBasisFunction &bfunc, bool isCompact )
 {
 	switch(bfunc){
 
@@ -455,20 +468,32 @@ MRBF::setFunction( const MRBFBasisFunction &bfunc )
             m_functype = -1;
             break;
 	}
+
+	m_isCompact = isCompact;
 }
 
 /*!
  * Sets the rbf function to be used. Supported in both modes. (Base method)
  * @param[in] bfunc basis function to be used
+ * @param[in] isCompact is the basis function to be used on a compact support? (default = false)
  */
 void
-MRBF::setFunction( const bitpit::RBFBasisFunction &bfunc )
+MRBF::setFunction( const bitpit::RBFBasisFunction &bfunc, bool isCompact)
 {
 	bitpit::RBF::setFunction(bfunc);
     m_functype = -1;
+    m_isCompact = isCompact;
 }
 
-
+/*!
+ * Sets if the rbf function has to be used on a compact support.
+ * @param[in] isCompact is the basis function to be used on a compact support? (default = true)
+ */
+void
+MRBF::setCompactSupport(bool isCompact)
+{
+    m_isCompact = isCompact;
+}
 
 /*!Clean all except nodal RBF and its displacements. Use apposite methods RemoveAll*** */
 void
@@ -541,28 +566,34 @@ MRBF::execute(){
 	if (m_solver == MRBFSol::GREEDY)    greedy(m_tol);
 
 
-	// Prepare the list of vertices included in rbf radii
+	// Prepare the list of vertices to be used during rbf evaluations
 	std::unordered_set<long> activeMeshVertices;
 
-	if(!(container->isKdTreeSync()))
-	    container->buildKdTree();
-
-	int nnodes = getTotalNodesCount();
-	std::vector<long> ids;
-	bitpit::KdTree<3,bitpit::Vertex,long>* tree = container->getKdTree();
-	for(int i=0; i<nnodes; ++i){
-	    bitpit::Vertex vertexNode(bitpit::Vertex::NULL_ID, m_node[i]);
-	    tree->hNeighbors(&vertexNode, m_effectiveSR[i], &ids, nullptr);
-	    activeMeshVertices.insert(ids.begin(), ids.end());
+	if (isCompact()){
+	    // Fill the list of vertices with them included in rbf radii
+	    if(!(container->isKdTreeSync())){
+	        container->buildKdTree();
+	    }
+	    int nnodes = getTotalNodesCount();
+	    std::vector<long> ids;
+	    bitpit::KdTree<3,bitpit::Vertex,long>* tree = container->getKdTree();
+	    for(int i=0; i<nnodes; ++i){
+	        bitpit::Vertex vertexNode(bitpit::Vertex::NULL_ID, m_node[i]);
+	        tree->hNeighbors(&vertexNode, m_effectiveSR[i], &ids, nullptr);
+	        activeMeshVertices.insert(ids.begin(), ids.end());
+	    }
 	}
-
+	else{
+	    // Use all the geometry vertices
+	    std::vector<long> ids = container->getVerticesIds();
+        activeMeshVertices.insert(ids.begin(), ids.end());
+	}
 
 	// get deformation using own class evalRBF.
 	for(const long &id: activeMeshVertices){
 	    bitpit::Vertex & vertex = container->getPatch()->getVertex(id);
 	    m_displ.insert(id, evalRBF(vertex.getCoords()));
 	}
-
 
 	//apply m_filter if it's active;
 	if(m_bfilter){
@@ -663,6 +694,18 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
 			setSupportRadiusReal(value);
 		}
 	};
+
+    if(slotXML.hasOption("Compact")){
+        std::string input = slotXML.get("Compact");
+        input = bitpit::utils::string::trim(input);
+        bool value = false;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setCompactSupport(value);
+    }
+
 }
 
 /*!
@@ -698,6 +741,11 @@ MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
             slotXML.set("SupportRadiusLocal", ss.str());
         }
     }
+
+    if(isCompact()){
+        slotXML.set("Compact", std::to_string(1));
+    }
+
 }
 
 /*!
