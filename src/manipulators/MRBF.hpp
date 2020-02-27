@@ -210,9 +210,6 @@ protected:
 
     void            computeEffectiveSupportRadiusList();
 
-    livector1D searchSphereMatches(bitpit::PatchSkdTree & tree, const std::array<double,3>& sphere_center, double sphere_radius);
-    bool       intersectSphereAABBox(const darray3E & center, double radius, const darray3E &bMin, const darray3E &bMax);
-
     //reimplemented from RBFKernel
     void            setMode(MRBFSol solver);
     std::array<double,3> evalRBF(const std::array<double,3> & val);
