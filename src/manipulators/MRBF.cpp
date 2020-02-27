@@ -1053,14 +1053,18 @@ heaviside1000( double dist )
 }
 
 /*!
- * Non compact sigmoid derivative e^(-10.*x) / (1.+ e^(-10.*x))^2
+ * Non compact sigmoid derivative 4.*(e^(-10.*x) / (1.+ e^(-10.*x))^2).
+ * The factor 4.0 that multiplies the sigmoid derivative function is placed in order to
+ * have the maximum of the function equal to 1.
+ * The factor 10.0 inside the exp is fixed to have the support radius placed at distance
+ * equal to 10.0 adimensional units from the center of the function.
  * @param[in] dist distance normalized with respect to support radius
  * @return rbf value
  */
 double
 dsigmoid( double dist )
 {
-    return std::exp(-10.*dist)/std::pow((1.+std::exp(-10.*dist)),int(2));
+    return 4.*(std::exp(-10.*dist)/std::pow((1.+std::exp(-10.*dist)),int(2)));
 }
 
 }
