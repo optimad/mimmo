@@ -540,10 +540,23 @@ MRBF::execute(){
 	if (m_solver == MRBFSol::WHOLE)    solve();
 	if (m_solver == MRBFSol::GREEDY)    greedy(m_tol);
 
-    // get deformation using own class evalRBF.
-    for(const auto & vertex : container->getVertices()){
-        m_displ.insert(vertex.getId(), evalRBF(vertex.getCoords()));
+
+    //get subset of vertices interested by rbfs
+    std::unordered_set<long> activeMeshVertices;
+    livector1D cellList, vList;
+    bitpit::PatchSkdTree * tree = getGeometry()->getSkdTree();
+    for(int i=0; i<m_nodes;++i){
+        cellList = searchSphereMatches(*tree, m_node[i], m_effectiveSR[i]);
+        vList = getGeometry()->getVertexFromCellList(cellList);
+        activeMeshVertices.insert(vList.begin(), vList.end());
     }
+
+     // get deformation using own class evalRBF.
+     for(const long &id: activeMeshVertices){
+         bitpit::Vertex & vertex = container->getPatch()->getVertex(id);
+         m_displ.insert(id, evalRBF(vertex.getCoords()));
+     }
+
 
     //apply m_filter if it's active;
     if(m_bfilter){
@@ -552,6 +565,8 @@ MRBF::execute(){
             (*it) *= m_filter.at(it.getId());
         }
     }
+
+    m_displ.completeMissingData({{0.0,0.0,0.0}});
 
 };
 
@@ -598,8 +613,8 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
 		}
 		value = std::max(1, value);
 		if(value > 100){
-			if (value > 104){
-				value = 104;
+			if (value > 105){
+				value = 105;
 			}
 			MRBFBasisFunction shapetype = static_cast<MRBFBasisFunction>(value);
 			setFunction(shapetype);
@@ -900,6 +915,92 @@ MRBF::setMode(MRBFSol solver){
 	if (m_solver == MRBFSol::NONE)    RBF::setMode(bitpit::RBFMode::PARAM);
 	else                            RBF::setMode(bitpit::RBFMode::INTERP);
 };
+
+
+
+/*!
+ * Visit SkdTree relative to a PatchKernel structure and extract all possible
+  cell candidates whose AABB intersect the target sphere.
+ * Identifiers of extracted matches are collected in result structure
+ *\param[in] tree           SkdTree of the target mesh.
+ *\param[in] sphere_center  sphere_center
+ *\param[in] sphere_radius radius of the sphere.
+ *\return list of cell-ids touched by sphere.
+ *
+ */
+livector1D
+MRBF::searchSphereMatches(bitpit::PatchSkdTree & tree, const std::array<double,3>& sphere_center, double sphere_radius){
+
+    std::size_t rootId = 0;
+
+    std::vector<std::size_t> toBeCandidates;
+    toBeCandidates.reserve(tree.getPatch().getCellCount());
+
+    std::vector<size_t> nodeStack;
+    nodeStack.push_back(rootId);
+    while(!nodeStack.empty()){
+        std::size_t nodeId = nodeStack.back();
+        const bitpit::SkdNode & node  = tree.getNode(nodeId);
+        nodeStack.pop_back();
+
+        //second step: if the current node AABB does not intersect or does not completely contains the Shape, then thrown it away and continue.
+        if(!intersectSphereAABBox(sphere_center, sphere_radius, node.getBoxMin(), node.getBoxMax()) ){
+            continue;
+        }
+
+        //now the only option is to visit node's children. If node is not leaf, add children to the stack,
+        //otherwise add current node as a possible candidate in shape inclusion.
+        bool isLeaf = true;
+        for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {
+            bitpit::SkdNode::ChildLocation childLocation = static_cast<bitpit::SkdNode::ChildLocation>(i);
+            std::size_t childId = node.getChildId(childLocation);
+            if (childId != bitpit::SkdNode::NULL_ID) {
+                isLeaf = false;
+                nodeStack.push_back(childId);
+            }
+        }
+        if (isLeaf) {
+            toBeCandidates.push_back(nodeId);
+        }
+    }
+
+    livector1D result;
+    result.reserve(toBeCandidates.size());
+    std::vector<long> cellids;
+    for (const auto & idCand : toBeCandidates){
+        const bitpit::SkdNode &node = tree.getNode(idCand);
+        cellids = node.getCells();
+        result.insert(result.end(), cellids.begin(), cellids.end());
+    }
+    result.shrink_to_fit();
+    return result;
+};
+
+/*!
+ * Return true if a sphere contains, is contained by or intersects a target AABB; return false otherwise
+ * \param[in]   center  of the sphere
+ * \param[in]   radius  of the sphere
+ * \param[in]   bMin    inferior extremal point of the AABB
+ * \param[in]   bMax    superior extremal point of the AABB
+ * \return true/false if intersects or not
+ */
+bool
+MRBF::intersectSphereAABBox(const darray3E & center, double radius, const darray3E &bMin, const darray3E &bMax){
+
+    //get first the min distance between AABB and sphere center.
+    // if center is inside AABB this distance is always
+    std::array<double,3> pp;
+    for(int i=0; i<3; ++i){
+        pp[i] = std::max(bMin[i], std::min(center[i], bMax[i]));
+    }
+    pp += -1.0*center;
+    //return if this distance is lesser equal than radius.
+    return (norm2(pp) <= radius);
+
+};
+
+
+
 
 /*!
  * Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 10
