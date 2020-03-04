@@ -130,7 +130,7 @@ Ports available in ManipulateWFOBJData Class :
      The xml available parameters, sections and subsections are the following :
 
      Inherited from BaseManipulation:
-     - <B>ClassName</B>: name of the class as <tt>mimmo.IOWavefrontOBJ</tt>;
+     - <B>ClassName</B>: name of the class as <tt>mimmo.ManipulateWFOBJData</tt>;
      - <B>Priority</B>: uint marking priority in multi-chain execution;
 
      Proper of the class:
