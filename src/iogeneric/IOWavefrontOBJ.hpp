@@ -221,8 +221,6 @@ protected:
 
     std::array<double,3> evalVNormal(bitpit::SurfaceKernel * mesh, long idCell, int locVertex);
 
-private:
-
     WavefrontOBJData * m_extData; /**< externally linked data*/
     MimmoPiercedVector<long> m_normalsCells; /**< candidate cell list for normals recomputation.*/
     std::vector<MimmoPiercedVector<long> > m_annotations; /**< list of annotations*/
@@ -238,6 +236,8 @@ private:
     std::array<std::vector<long>, 4> m_pinnedCellLists; /**< list of cell pinned 0-material, 1-cellgroups, 2-smoothids, 3-objects/subparts */
 
     bool checkEntry(const std::string& entry, const std::string& root);
+
+private:
     //make useless base class methods private;
     MimmoObject * getGeometry(){return nullptr;};
     void setGeometry(MimmoObject* geo){BITPIT_UNUSED(geo);};
