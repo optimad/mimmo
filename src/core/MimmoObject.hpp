@@ -180,7 +180,7 @@ public:
     long                                            getPointGlobalCountOffset();
 #endif
     dvecarr3E                                       getVerticesCoords(liimap* mapDataInv = NULL);
-    darray3E                                        getVertexCoords(long i) const;
+    const darray3E &                                getVertexCoords(long i) const;
     bitpit::PiercedVector<bitpit::Vertex> &         getVertices();
     const bitpit::PiercedVector<bitpit::Vertex> &   getVertices() const ;
 
