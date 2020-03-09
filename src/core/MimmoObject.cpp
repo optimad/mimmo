@@ -938,14 +938,11 @@ MimmoObject::getVerticesCoords(liimap* mapDataInv){
  * \param[in] i bitpit::PatchKernel id of the vertex in the mesh.
  * \return Coordinates of the i-th vertex of geometry mesh.
  */
-darray3E
+const darray3E &
 MimmoObject::getVertexCoords(long i) const
 {
-	if(!(getVertices().exists(i))){
-		double ff = std::numeric_limits<double>::max();
-		return darray3E({{ff,ff,ff}});
-	}
-	return 	getPatch()->getVertexCoords(i);
+    assert(getVertices().exists(i));
+    return 	getPatch()->getVertexCoords(i);
 };
 
 /*!
