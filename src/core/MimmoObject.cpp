@@ -3449,10 +3449,10 @@ bitpit::ElementType	MimmoObject::desumeElement(const livector1D & locConn){
 		}
 		break;
 	case    3:
-		result = bitpit::ElementType::VERTEX;
+		if(sizeConn == 1) result = bitpit::ElementType::VERTEX;
 		break;
 	case    4:
-		result = bitpit::ElementType::LINE;
+		if(sizeConn == 2) result = bitpit::ElementType::LINE;
 		break;
 	default :
 		assert(false && "reached uncovered case");
