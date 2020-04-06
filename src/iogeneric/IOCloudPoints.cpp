@@ -36,6 +36,8 @@ IOCloudPoints::IOCloudPoints(bool readMode){
     m_template     = false;
     m_dir       = ".";
     m_filename     = m_name+"_source.dat";
+    m_isInternal = true;
+    m_intgeo.reset(nullptr);
 };
 
 /*!
@@ -65,6 +67,10 @@ IOCloudPoints::IOCloudPoints(const bitpit::Config::Section & rootXML){
     }else{
         warningXML(m_log, m_name);
     };
+
+    m_isInternal = true;
+    m_intgeo.reset(nullptr);
+
 }
 
 
@@ -78,6 +84,11 @@ IOCloudPoints::IOCloudPoints(const IOCloudPoints & other):BaseManipulation(other
     m_dir       = other.m_dir;
     m_filename     = other.m_filename;
     m_template = other.m_template;
+
+    if(other.m_isInternal){
+        m_geometry = other.m_intgeo.get();
+    }
+    m_isInternal = false;
 
 };
 
@@ -102,6 +113,10 @@ void IOCloudPoints::swap(IOCloudPoints & x) noexcept
     std::swap(m_points      , x.m_points);
     std::swap(m_scalarfield , x.m_scalarfield);
     std::swap(m_vectorfield , x.m_vectorfield);
+    m_scalarfield.swap(x.m_scalarfield);
+    m_vectorfield.swap(x.m_vectorfield);
+    std::swap(m_isInternal, x.m_isInternal);
+    std::swap(m_intgeo, x.m_intgeo);
     BaseManipulation::swap(x);
 }
 
@@ -112,59 +127,44 @@ void
 IOCloudPoints::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setPoints, M_COORDS,!m_read));
-    built = (built && createPortIn<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::setVectorField, M_DISPLS));
-    built = (built && createPortIn<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setScalarField, M_DATAFIELD));
-    built = (built && createPortIn<livector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::setLabels, M_VECTORLI));
+    built = (built && createPortIn<dmpvector1D*, IOCloudPoints>(this, &mimmo::IOCloudPoints::setScalarField, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvecarr3E*, IOCloudPoints>(this, &mimmo::IOCloudPoints::setVectorField, M_VECTORFIELD));
+    built = (built && createPortIn<MimmoObject*, IOCloudPoints>(this, &mimmo::IOCloudPoints::setGeometry, M_GEOM));
 
-    built = (built && createPortOut<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::getPoints, M_COORDS));
-    built = (built && createPortOut<dvecarr3E, IOCloudPoints>(this, &mimmo::IOCloudPoints::getVectorField, M_DISPLS));
-    built = (built && createPortOut<dvector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::getScalarField, M_DATAFIELD));
-    built = (built && createPortOut<livector1D, IOCloudPoints>(this, &mimmo::IOCloudPoints::getLabels, M_VECTORLI));
+    built = (built && createPortOut<MimmoObject*, IOCloudPoints>(this, &mimmo::IOCloudPoints::getGeometry, M_GEOM));
+    built = (built && createPortOut<dmpvector1D*, IOCloudPoints>(this, &mimmo::IOCloudPoints::getScalarField, M_SCALARFIELD));
+    built = (built && createPortOut<dmpvecarr3E*, IOCloudPoints>(this, &mimmo::IOCloudPoints::getVectorField, M_VECTORFIELD));
 
     m_arePortsBuilt = built;
 }
 
 /*!
- * Return the points coordinates stored in the class
- * \return the points coordinates
+ * It gets the point cloud as a linked MimmoObject.
+ * \return Pointer to point cloud geometry.
  */
-dvecarr3E
-IOCloudPoints::getPoints(){
-    return m_points;
+MimmoObject*
+IOCloudPoints::getGeometry(){
+    // Return internal geometry
+    if (m_isInternal) return m_intgeo.get();
+    return m_geometry;
 };
 
 /*!
- * Return the vector field stored in the class. Field size is always checked and automatically
- * fit to point list during the class execution
- * \return vector field stored in the class
- *
- */
-dvecarr3E
-IOCloudPoints::getVectorField(){
-    return m_vectorfield;
-};
-
-/*!
- * Return the scalar field stored in the class. Field size is always checked and automatically
- * fit to point list during the class execution
+ * Return the scalar field stored in the class as pointer to MimmoPiercedVector object.
  * \return scalar field stored in the class
- *
  */
-dvector1D
+dmpvector1D*
 IOCloudPoints::getScalarField(){
-    return m_scalarfield;
+    return &m_scalarfield;
 };
 
-
 /*!
- * Return the labels attached to displacements actually stored into the class.
- * Labels are always checked and automatically fit to point list during the class execution
- * \return labels of displacements
+ * Return the vector field stored in the class as pointer to MimmoPiercedVector object.
+ * \return vector field stored in the class
  */
-livector1D
-IOCloudPoints::getLabels(){
-    return m_labels;
+dmpvecarr3E*
+IOCloudPoints::getVectorField(){
+    return &m_vectorfield;
 };
 
 /*!
@@ -207,6 +207,23 @@ IOCloudPoints::setWriteDir(std::string dir){
 };
 
 /*!
+ * It sets the point cloud as a linked MimmoObject.
+ * \param[in] geometry Pointer to point cloud geometry.
+ */
+void
+IOCloudPoints::setGeometry(MimmoObject* geometry){
+
+    // Check if external geometry is a point cloud
+    if (geometry->getType() != 3) return;
+
+    // Set external geometry
+    m_isInternal = false;
+    m_intgeo.reset(nullptr);
+    m_geometry = geometry;
+
+};
+
+/*!
  * It sets the name of the output file. Active only in write mode.
  * \param[in] filename filename with tag extension included.
  */
@@ -217,48 +234,27 @@ IOCloudPoints::setWriteFilename(std::string filename){
 };
 
 /*!
- * Set the point list into the class
+ * It sets the scalar field associated to point.
  * The method is not active in Read mode.
- * \param[in] points list of 3D point
+ * \param[in] scalarfield pointer to scalar field
  */
 void
-IOCloudPoints::setPoints(dvecarr3E points){
+IOCloudPoints::setScalarField(dmpvector1D* scalarfield){
     if(m_read) return;
-    m_points = points;
-};
-
-/*!
- * It sets the labels attached to each point.
- * The method is not active in Read mode.
- * \param[in] labels list of label ids
- */
-void
-IOCloudPoints::setLabels(livector1D labels){
-    if(m_read) return;
-    m_labels = labels;
+    m_scalarfield = *scalarfield;
 };
 
 /*!
  * It sets the vector field associated to point.
  * The method is not active in Read mode.
- * \param[in] vectorfield vector field
+ * \param[in] vectorfield pointer to vector field
  */
 void
-IOCloudPoints::setVectorField(dvecarr3E vectorfield){
+IOCloudPoints::setVectorField(dmpvecarr3E* vectorfield){
     if(m_read) return;
-    m_vectorfield = vectorfield;
+    m_vectorfield = *vectorfield;
 };
 
-/*!
- * It sets the scalar field associated to point.
- * The method is not active in Read mode.
- * \param[in] scalarfield scalar field
- */
-void
-IOCloudPoints::setScalarField(dvector1D scalarfield){
-    if(m_read) return;
-    m_scalarfield = scalarfield;
-};
 
 /*!
  * Enables the template writing mode. The method is not active in Read mode.
@@ -277,10 +273,11 @@ void
 IOCloudPoints::clear(){
     m_vectorfield.clear();
     m_scalarfield.clear();
-    m_points.clear();
-    m_labels.clear();
     m_template     = false;
     m_filename     = m_name+"_source.dat";
+    m_isInternal      = true;
+    m_intgeo.reset(nullptr);
+    BaseManipulation::clear();
 }
 
 /*!
@@ -289,7 +286,6 @@ IOCloudPoints::clear(){
  */
 void
 IOCloudPoints::execute(){
-
     if(m_read){
         read();
     }else{
@@ -398,28 +394,14 @@ IOCloudPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
 void
 IOCloudPoints::plotOptionalResults(){
 
-    std::string path = m_outputPlot;
-    std::string name = m_name +".Cloud_" + std::to_string(getId());
-    bitpit::VTKUnstructuredGrid output( path, name, bitpit::VTKElementType::VERTEX);
+    //Assessing data;
+    if (!m_scalarfield.getGeometry()) m_scalarfield.setGeometry(getGeometry());
+    if (!m_vectorfield.getGeometry()) m_vectorfield.setGeometry(getGeometry());
+    m_scalarfield.completeMissingData(0.0);
+    m_vectorfield.completeMissingData({{0.0,0.0,0.0}});
 
-    int size = m_points.size();
-    ivector1D conn(size);
-    for(int i=0; i<size; ++i)    conn[i] = i;
-    output.setGeomData(bitpit::VTKUnstructuredField::POINTS, m_points);
-    output.setGeomData(bitpit::VTKUnstructuredField::CONNECTIVITY, conn);
-    output.setDimensions(size, size);
-
-    std::string sfield = "scalarfield";
-    dvector1D scafield = m_scalarfield;
-    scafield.resize(size, 0.0);
-
-    std::string vfield = "vectorfield";
-    dvecarr3E vecfield = m_vectorfield;
-    vecfield.resize(size, {{0.0,0.0,0.0}});
-
-    output.addData( sfield, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, scafield ) ;
-    output.addData( vfield, bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, vecfield ) ;
-    output.write() ;
+    //Write
+    BaseManipulation::write(getGeometry(), m_scalarfield, m_vectorfield);
 }
 
 /*!
@@ -470,8 +452,8 @@ IOCloudPoints::read(){
             ++counter;
         }
 
-        m_scalarfield.resize(m_points.size(),0.0);
-        m_vectorfield.resize(m_points.size(),{{0.0,0.0,0.0}});
+        m_scalarfield.reserve(m_points.size());
+        m_vectorfield.reserve(m_points.size());
 
         reading.clear();
         reading.seekg(0, std::ios::beg);
@@ -487,13 +469,13 @@ IOCloudPoints::read(){
             if(keyword == "$SCALARF")    {
 
                 ss>>label>>temp;
-                m_scalarfield[mapP[label]] = temp;
+                m_scalarfield.insert(mapP[label],temp);
             }
             if(keyword == "$VECTORF")    {
 
                 dtrial.fill(0.0);
                 ss>>label>>dtrial[0]>>dtrial[1]>>dtrial[2];
-                m_vectorfield[mapP[label]] = dtrial;
+                m_vectorfield.insert(mapP[label],dtrial);
             }
 
         }while(!reading.eof());
@@ -504,6 +486,40 @@ IOCloudPoints::read(){
     }
 
     reading.close();
+
+
+    // Fill geometry
+
+    // Force external geometry pointer to null pointer
+    m_geometry = nullptr;
+
+    // Instantiate a new MimmoObject of type point cloud and fill it
+    m_isInternal = true;
+    m_intgeo.reset(nullptr);
+    std::unique_ptr<MimmoObject> dum(new MimmoObject(3));
+    m_intgeo = std::move(dum);
+
+    // Fill geometry with point cloud list
+    std::size_t ind = 0;
+    for (darray3E & coords : m_points){
+            long label = m_labels[ind];
+            m_intgeo->addVertex(coords, label);
+            m_intgeo->addConnectedCell(livector1D(1,label), bitpit::ElementType::VERTEX, label);
+            ind++;
+    }
+
+    // Clear points and label structure
+    dvecarr3E().swap(m_points);
+    livector1D().swap(m_labels);
+
+    // Set the mimmo pierced vectors
+    m_scalarfield.setGeometry(m_intgeo.get());
+    m_scalarfield.setDataLocation(MPVLocation::POINT);
+    m_scalarfield.setName("scalarfield");
+    m_vectorfield.setGeometry(m_intgeo.get());
+    m_vectorfield.setDataLocation(MPVLocation::POINT);
+    m_vectorfield.setName("vectorfield");
+
 };
 
 /*!
@@ -513,24 +529,10 @@ void
 IOCloudPoints::write(){
 
     //assessing data;
-    int sizelabels = m_labels.size();
-    long maxlabel = 0;
-    for(auto & val: m_labels){
-        maxlabel = std::max(maxlabel,val);
-    }
-
-    int sizedispl = m_points.size();
-
-    m_labels.resize(m_points.size(), -1);
-    if(sizelabels < sizedispl){
-        for(int i = sizelabels; i<sizedispl; ++i){
-            m_labels[i] = maxlabel+1;
-            ++maxlabel;
-        }
-    }
-
-    m_scalarfield.resize(m_points.size(), 0.0);
-    m_vectorfield.resize(m_points.size(), {{0.0,0.0,0.0}});
+    if (!m_scalarfield.getGeometry()) m_scalarfield.setGeometry(getGeometry());
+    if (!m_vectorfield.getGeometry()) m_vectorfield.setGeometry(getGeometry());
+    m_scalarfield.completeMissingData(0.0);
+    m_vectorfield.completeMissingData({{0.0,0.0,0.0}});
 
     std::string filename;
     if(m_template){
@@ -545,37 +547,35 @@ IOCloudPoints::write(){
     std::string keyT1 = "{", keyT2 = "}";
     if(writing.is_open()){
 
-        int counter = 0;
-        for(auto & dd : m_points){
-            writing<<"$POINT"<<'\t'<<m_labels[counter]<<'\t'<<dd[0]<<'\t'<<dd[1]<<'\t'<<dd[2]<<std::endl;
-            ++counter;
+        MimmoObject* geometry = getGeometry();
+        darray3E coords;
+        for(const long & label : geometry->getVerticesIds()){
+            coords = geometry->getVertexCoords(label);
+            writing<<"$POINT"<<'\t'<<label<<'\t'<<coords[0]<<'\t'<<coords[1]<<'\t'<<coords[2]<<std::endl;
         }
         writing<<""<<std::endl;
 
-        counter = 0;
-        for(auto & dd : m_scalarfield){
+        for(const long & label : geometry->getVerticesIds()){
             if(m_template){
-                std::string str1 = keyT1+"s"+std::to_string(m_labels[counter])+keyT2;
-                writing<<"$SCALARF"<<'\t'<<m_labels[counter]<<'\t'<<str1<<std::endl;
+                std::string str1 = keyT1+"s"+std::to_string(label)+keyT2;
+                writing<<"$SCALARF"<<'\t'<<label<<'\t'<<str1<<std::endl;
             }else{
-                writing<<"$SCALARF"<<'\t'<<m_labels[counter]<<'\t'<<dd<<std::endl;
+                writing<<"$SCALARF"<<'\t'<<label<<'\t'<<m_scalarfield[label]<<std::endl;
             }
-            ++counter;
         }
         writing<<""<<std::endl;
 
-        counter = 0;
-        for(auto & dd : m_vectorfield){
+        for(const long & label : geometry->getVerticesIds()){
             if(m_template){
-                std::string str1 = keyT1+"x"+std::to_string(m_labels[counter])+keyT2;
-                std::string str2 = keyT1+"y"+std::to_string(m_labels[counter])+keyT2;
-                std::string str3 = keyT1+"z"+std::to_string(m_labels[counter])+keyT2;
+                std::string str1 = keyT1+"x"+std::to_string(label)+keyT2;
+                std::string str2 = keyT1+"y"+std::to_string(label)+keyT2;
+                std::string str3 = keyT1+"z"+std::to_string(label)+keyT2;
 
-                writing<<"$VECTORF"<<'\t'<<m_labels[counter]<<'\t'<<str1<<'\t'<<str2<<'\t'<<str3<<std::endl;
+                writing<<"$VECTORF"<<'\t'<<label<<'\t'<<str1<<'\t'<<str2<<'\t'<<str3<<std::endl;
             }else{
-                writing<<"$VECTORF"<<'\t'<<m_labels[counter]<<'\t'<<dd[0]<<'\t'<<dd[1]<<'\t'<<dd[2]<<std::endl;
+                auto & val = m_vectorfield[label];
+                writing<<"$VECTORF"<<'\t'<<label<<'\t'<<val[0]<<'\t'<<val[1]<<'\t'<<val[2]<<std::endl;
             }
-            ++counter;
         }
         writing<<""<<std::endl;
     }else{
