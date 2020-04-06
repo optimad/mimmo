@@ -73,8 +73,8 @@ void test00004() {
     /* Setup pin connections.
      */
     mimmo::pin::addPin(read, rbf, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(iocp, rbf, M_COORDS, M_COORDS);
-    mimmo::pin::addPin(iocp, rbf, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(iocp, rbf, M_GEOM, M_GEOM2);
+    mimmo::pin::addPin(iocp, rbf, M_VECTORFIELD, M_VECTORFIELD);
 
     /* Setup execution chain.
      */
@@ -93,6 +93,7 @@ void test00004() {
         print the deformed geometry
     */
     read->getGeometry()->getPatch()->write("./genericinput_output_00004.0002");
+
 
     /* Clean up & exit;
      */
