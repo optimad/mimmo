@@ -79,7 +79,11 @@ namespace mimmo{
  * <B>...</B>
  * </tt>
  *
- * where {xxx} uniquely naming the component of displacement
+ * where {xxx} uniquely naming the component of displacement.
+ *
+ * The point cloud is provided as a MimmoObject point cloud.
+ * The geometry can be stored internally or given by an external block by set Geometry method/port.
+ *
  *
  * \n
  * Ports available in IOCloudPoints Class :
@@ -89,19 +93,17 @@ namespace mimmo{
      |                 Port Input   ||                                     |
      |---------------|-------------------|-----------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_COORDS      | setPoints         | (MC_VECARR3, MD_FLOAT)      |
-     | M_DISPLS      | setVectorField    | (MC_VECARR3, MD_FLOAT)      |
-     | M_VECTORLI    | setLabels         | (MC_VECTOR, MD_LONG)        |
-     | M_DATAFIELD   | setScalarField    | (MC_VECTOR, MD_FLOAT)       |
+     | M_GEOM        | setGeometry       | (MC_SCALAR,MD_MIMMO_)     |
+     | M_SCALARFIELD | setMPVScalarField | (MC_SCALAR,MD_MPVECFLOAT_)     |
+     | M_VECTORFIELD | setMPVVectorField | (MC_SCALAR,MD_MPVECARR3FLOAT_) |
 
 
      |              Port Output  ||                                        |
      |---------------|-------------------|-----------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_COORDS      | getPoints         | (MC_VECARR3, MD_FLOAT)      |
-     | M_DISPLS      | getVectorField    | (MC_VECARR3, MD_FLOAT)      |
-     | M_VECTORLI    | getLabels         | (MC_VECTOR, MD_LONG)        |
-     | M_DATAFIELD   | getScalarField    | (MC_VECTOR, MD_FLOAT)       |
+     | M_GEOM        | getGeometry       | (MC_SCALAR,MD_MIMMO_)     |
+     | M_SCALARFIELD | getMPVScalarField | (MC_SCALAR,MD_MPVECFLOAT_)     |
+     | M_VECTORFIELD | getMPVVectorField | (MC_SCALAR,MD_MPVECARR3FLOAT_) |
 
  *    =========================================================
  * \n
@@ -126,14 +128,19 @@ namespace mimmo{
 class IOCloudPoints: public BaseManipulation{
 protected:
     //members
-    bool            m_read;        /**<True if in Read mode, False if in Write mode.*/
-    std::string     m_dir;      /**<Directory path for I/O*/
-    std::string        m_filename;    /**<I/O filename with extension tag*/
-    livector1D        m_labels;   /**<Labels associated to displacement */
-    dvecarr3E        m_points;   /**<cloud points list*/
-    dvector1D         m_scalarfield;  /**<scalar field attached*/
-    dvecarr3E        m_vectorfield;  /**<vector field attached*/
-    bool            m_template; /**<True/False enable the writing template mode */
+    bool            m_read;         /**<True if in Read mode, False if in Write mode.*/
+    std::string     m_dir;          /**<Directory path for I/O*/
+    std::string     m_filename;     /**<I/O filename with extension tag*/
+    bool            m_template;     /**<True/False enable the writing template mode */
+
+    dmpvector1D     m_scalarfield;  /**< MimmoPiercedVector scalar field */
+    dmpvecarr3E     m_vectorfield;  /**< MimmoPiercedVector vector field */
+
+    bool                            m_isInternal;   /**< Flag for internal instantiated MimmoObject */
+    std::unique_ptr<MimmoObject>    m_intgeo;       /**< Pointer to internal allocated geometry, if any */
+
+    livector1D      m_labels;   /**< Labels associated to displacement, for internal use. */
+    dvecarr3E       m_points;   /**< Cloud points list, for internal use. */
 
 public:
     IOCloudPoints(bool readMode = true);
@@ -144,23 +151,23 @@ public:
 
     void buildPorts();
 
-    dvecarr3E        getPoints();
-    dvector1D        getScalarField();
-    dvecarr3E         getVectorField();
-    livector1D        getLabels();
     bool            isTemplate();
+
+    MimmoObject* getGeometry();
+    dmpvector1D* getScalarField();
+    dmpvecarr3E* getVectorField();
 
     void setReadDir(std::string dir);
     void setReadFilename(std::string filename);
     void setWriteDir(std::string dir);
     void setWriteFilename(std::string filename);
-    void setPoints(dvecarr3E points);
-    void setLabels(livector1D labels);
-    void setScalarField(dvector1D vecfield);
-    void setVectorField(dvecarr3E vecfield);
     void setTemplate(bool flag);
 
-    void    clear();
+    void setGeometry(MimmoObject* geometry);
+    void setScalarField(dmpvector1D* scalarfield);
+    void setVectorField(dmpvecarr3E* vectorfield);
+
+    void clear();
 
     void execute();
 
@@ -176,13 +183,11 @@ private:
     virtual void write();
 };
 
-REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__IOCLOUDPOINTS_HPP__)
-REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__IOCLOUDPOINTS_HPP__)
-REGISTER_PORT(M_VECTORLI, MC_VECTOR, MD_LONG,__IOCLOUDPOINTS_HPP__)
-REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT,__IOCLOUDPOINTS_HPP__)
-
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_,__IOCLOUDPOINTS_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_,__IOCLOUDPOINTS_HPP__)
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_ ,__IOCLOUDPOINTS_HPP__)
 
 REGISTER(BaseManipulation, IOCloudPoints, "mimmo.IOCloudPoints")
 }
 
-#endif /* __GENERICDISPLS_HPP__ */
+#endif /* __IOCLOUDPOINTS_HPP__ */
