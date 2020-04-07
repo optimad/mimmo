@@ -129,9 +129,11 @@ MRBF::buildPorts(){
 	bool built = true;
     built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, M_GEOM, true));
     built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, M_COORDS));
-	built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, M_DISPLS));
+    built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, M_DISPLS));
 	built = (built && createPortIn<dmpvector1D*, MRBF>(this, &mimmo::MRBF::setFilter, M_FILTER));
     built = (built && createPortIn<std::vector<double>, MRBF>(this, &mimmo::MRBF::setVariableSupportRadii, M_DATAFIELD));
+    built = (built && createPortIn<MimmoObject*, MRBF>(this, &mimmo::MRBF::setNode, M_GEOM2));
+    built = (built && createPortIn<dmpvecarr3E*, MRBF>(this, &mimmo::MRBF::setDisplacements, M_VECTORFIELD));
 
 	built = (built && createPortOut<dmpvecarr3E*, MRBF>(this, &mimmo::MRBF::getDisplacements, M_GDISPLS));
 	built = (built && createPortOut<MimmoObject*, MRBF>(this, &BaseManipulation::getGeometry, M_GEOM));
@@ -277,7 +279,6 @@ MRBF::setNode(MimmoObject* geometry){
 	removeAllNodes();
 	dvecarr3E vertex = geometry->getVerticesCoords();
 	RBF::addNode(vertex);
-
 };
 
 /*! Sets filter field. Note: filter field is defined on nodes of the current linked geometry.
@@ -427,6 +428,36 @@ MRBF::setDisplacements(dvecarr3E displ){
 	}
 }
 
+/*!
+ * Set a field  of 3D displacements on your RBF Nodes. According to MRBFSol mode
+ * active in the class set: displacements as direct RBF weights coefficients in MRBFSol::NONE mode,
+ * or interpolate displacements to get the best fit weights in other modes MRBFSol::GREEDY/WHOLE
+ * Displacements size may not match the actual number of RBF nodes stored in the class.
+ * To ensure consistency call fitDataToNodes() method inherited from RBF class.
+ *
+ * \param[in] displ pointer to mimmo pierced vector of nodal displacements
+ */
+void
+MRBF::setDisplacements(dmpvecarr3E* displ){
+    removeAllData();
+
+    // If not linked geometry skip
+    if (!(displ->getGeometry())){
+        return;
+    }
+
+    int size = displ->size();
+    dvector1D temp(size);
+    for(int loc=0; loc<3; ++loc){
+        std::size_t i = 0;
+        // Loop on geometry vertex ids
+        for(long id : displ->getGeometry()->getVerticesIds()){
+            temp[i] = displ->at(id)[loc];
+            i++;
+        }
+        addData(temp);
+    }
+}
 
 /*!
  * Sets the rbf function to be used. Supported in both modes. (Overloading for mimmo rbf functions)
@@ -944,7 +975,6 @@ MRBF::evalRBF( const std::array<double,3> &point){
     double              dist, basis;
 
     for( i=0; i<m_nodes; ++i ){
-
         if( m_activeNodes[i] ) {
 
             dist = norm2(point - m_node[i]) / m_effectiveSR[i];
