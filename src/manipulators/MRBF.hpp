@@ -92,6 +92,8 @@ enum class MRBFSol{
      | M_FILTER   | setFilter              | (MC_SCALAR, MD_MPVECFLOAT_) |
      | M_DATAFIELD| setVariableSupportRadii| (MC_VECTOR, MD_FLOAT)       |
      | M_GEOM     | setGeometry            | (MC_SCALAR, MD_MIMMO_)      |
+     | M_GEOM2    | setNode                | (MC_SCALAR, MD_MIMMO_)      |
+     | M_VECTORFIELD    | setDisplacements | (MC_SCALAR, MD_MPVECARR3FLOAT_)      |
 
      |Port Output | | |
      |-|-|-|
@@ -191,6 +193,7 @@ BITPIT_DEPRECATED(
 
     void            setTol(double tol);
     void            setDisplacements(dvecarr3E displ);
+    void            setDisplacements(dmpvecarr3E* displ);
 
     void            setFunction(const MRBFBasisFunction & funct, bool isCompact = false);
     void            setFunction(const bitpit::RBFBasisFunction & funct, bool isCompact = false);
@@ -255,6 +258,8 @@ REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_ ,__MRBF_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_ ,__MRBF_HPP__)
 REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_ ,__MRBF_HPP__)
 REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT, __MRBF_HPP_)
+REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_ ,__MRBF_HPP_)
+REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_ ,__MRBF_HPP_)
 
 REGISTER(BaseManipulation, MRBF, "mimmo.MRBF")
 
