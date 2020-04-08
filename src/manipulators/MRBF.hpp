@@ -220,6 +220,8 @@ protected:
 
     void            computeEffectiveSupportRadiusList();
 
+    bool             initRBFwGeometry();
+
     //reimplemented from RBFKernel
     void            setMode(MRBFSol solver);
     std::array<double,3> evalRBF(const std::array<double,3> & val);
@@ -243,11 +245,9 @@ private:
     void  removeAllData(){bitpit::RBFKernel::removeAllData();};
 
     std::vector<double> evalRBF(int jnode){return bitpit::RBFKernel::evalRBF(jnode);};
-    
+
     int solve(){return bitpit::RBFKernel::solve();};
     int greedy(double tol){return bitpit::RBFKernel::greedy(tol);};
-
-    bool    initRBFwGeometry();
 };
 
 double	heaviside10( double dist );
