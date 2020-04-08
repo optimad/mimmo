@@ -1736,6 +1736,7 @@ void IOWavefrontOBJ::read(const std::string & filename){
     bitpit::PiercedVector<bitpit::Cell>degenerateElements;
     // erase or degrade it.
     m_intPatch->degradeDegenerateElements(&degenerateElements, nullptr);
+    m_intPatch->getPatch()->deleteOrphanVertices();
 
     // the real mesh is ok, we need to check textures, normals, and other cell data.
     if(degenerateElements.size() > 0){
@@ -1940,7 +1941,7 @@ void IOWavefrontOBJ::write(const std::string & filename){
             }
 
             //force writing g defaultGroup for each new object.
-            activeGroup = -99999999999;
+            activeGroup = -1000;
             writeObjectData(objData, out, vertexLists, cellList, vOffsets,
                             cOffset, vinsertion_maps, defaultGroup, activeGroup,
                             activeMaterial, activeSmoothId);
