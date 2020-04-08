@@ -38,6 +38,8 @@ MRBF::MRBF(MRBFSol mode){
     m_srIsReal = false;
     m_functype = -1;
     m_isCompact = false;
+    m_rbfgeometry = nullptr;
+    m_rbfdispl = nullptr;
 };
 
 /*!
@@ -54,6 +56,8 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
     m_srIsReal = false;
     m_functype = -1;
     m_isCompact = false;
+    m_rbfgeometry = nullptr;
+    m_rbfdispl = nullptr;
 
     setMode(MRBFSol::NONE);
 
@@ -89,6 +93,8 @@ MRBF::MRBF(const MRBF & other):BaseManipulation(other), bitpit::RBF(other){
     m_functype = other.m_functype;
     m_isCompact = other.m_isCompact;
 	if(m_bfilter)    m_filter = other.m_filter;
+    m_rbfgeometry = other.m_rbfgeometry;
+    m_rbfdispl = other.m_rbfdispl;
 };
 
 /*! Assignment operator. Result geometry displacement are not copied.
@@ -116,6 +122,8 @@ void MRBF::swap(MRBF & x) noexcept
     std::swap(m_isCompact, x.m_isCompact);
 	m_displ.swap(x.m_displ);
     std::swap(m_effectiveSR, x.m_effectiveSR);
+    std::swap(m_rbfgeometry, x.m_rbfgeometry);
+    std::swap(m_rbfdispl, x.m_rbfdispl);
 
     RBF::swap(x);
 
@@ -157,8 +165,6 @@ MRBFSol
 MRBF::getMode(){
 	return m_solver;
 };
-
-
 
 /*! It gets current set filter field. See MRBF::setFilter
  * \return filter field.
@@ -249,7 +255,6 @@ MRBF::addNode(dvecarr3E nodes){
 	return(RBF::addNode(nodes));
 };
 
-
 /*!Set a RBF point as unique control node and activate it.
  * \param[in] node coordinates of control point.
  */
@@ -257,7 +262,7 @@ void
 MRBF::setNode(darray3E node){
 	removeAllNodes();
 	RBF::addNode(node);
-
+    m_rbfgeometry = nullptr;
 };
 
 /*!Set a list of RBF points as control nodes and activate it.
@@ -267,6 +272,7 @@ void
 MRBF::setNode(dvecarr3E nodes){
 	removeAllNodes();
 	RBF::addNode(nodes);
+    m_rbfgeometry = nullptr;
 };
 
 /*!Set the RBF points as control nodes extracting
@@ -276,9 +282,7 @@ MRBF::setNode(dvecarr3E nodes){
 void
 MRBF::setNode(MimmoObject* geometry){
 	if(!geometry)    return ;
-	removeAllNodes();
-	dvecarr3E vertex = geometry->getVerticesCoords();
-	RBF::addNode(vertex);
+	m_rbfgeometry = geometry;
 };
 
 /*! Sets filter field. Note: filter field is defined on nodes of the current linked geometry.
@@ -292,7 +296,6 @@ MRBF::setFilter(dmpvector1D * filter){
 	m_bfilter = !(filter->empty());
 	m_filter = *filter;
 };
-
 
 /*! Find all possible duplicated nodes within a prescribed distance tolerance.
  * Default tolerance value is 1.0E-12;
@@ -426,6 +429,8 @@ MRBF::setDisplacements(dvecarr3E displ){
 		}
 		addData(temp);
 	}
+
+    m_rbfdispl = nullptr;
 }
 
 /*!
@@ -439,24 +444,8 @@ MRBF::setDisplacements(dvecarr3E displ){
  */
 void
 MRBF::setDisplacements(dmpvecarr3E* displ){
-    removeAllData();
-
-    // If not linked geometry skip
-    if (!(displ->getGeometry())){
-        return;
-    }
-
-    int size = displ->size();
-    dvector1D temp(size);
-    for(int loc=0; loc<3; ++loc){
-        std::size_t i = 0;
-        // Loop on geometry vertex ids
-        for(long id : displ->getGeometry()->getVerticesIds()){
-            temp[i] = displ->at(id)[loc];
-            i++;
-        }
-        addData(temp);
-    }
+    if (!displ) return;
+    m_rbfdispl = displ;
 }
 
 /*!
@@ -562,6 +551,15 @@ MRBF::execute(){
 
     if(container->isEmpty()){
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
+    }
+
+    // If RBF nodes passed by MimmoObject initialize RBFs
+    if (m_rbfgeometry){
+        if (!initRBFwGeometry())
+        {
+            // Initialization not valid (log message written in method). Skip execution.
+            return;
+        }
     }
 
     //prepare m_displs;
@@ -956,7 +954,6 @@ MRBF::computeEffectiveSupportRadiusList(){
     }
 }
 
-
 /*!
  * Evaluates the displacements value with RBF . Supported in all modes.
  * Use weights, RBF node positions and m_effectiveSR (support radius structure) of each RBF node
@@ -1000,6 +997,51 @@ MRBF::setMode(MRBFSol solver){
 	if (m_solver == MRBFSol::NONE)    RBF::setMode(bitpit::RBFMode::PARAM);
 	else                            RBF::setMode(bitpit::RBFMode::INTERP);
 };
+
+/*!
+ * Initialize RBF nodes and displacements with the related MimmoObject geometry.
+ * \return Valid intialization flag; false if displacements fields and geometry are not coherent
+ */
+bool
+MRBF::initRBFwGeometry(){
+
+    // Insert rbf nodes by rbf geometry
+    removeAllNodes();
+
+    if (m_rbfgeometry->isEmpty()){
+        (*m_log)<<m_name + " : empty rbf geometry found. Skip object."<<std::endl;
+        return false;
+    }
+    dvecarr3E vertex = m_rbfgeometry->getVerticesCoords();
+    RBF::addNode(vertex);
+
+    // Init rbf nodes displacements
+    removeAllData();
+
+    // If not linked geometry skip
+    if (!m_rbfdispl->getGeometry()){
+        (*m_log)<<m_name + " : null RBF geometry linked by displacements vector. Skip object."<<std::endl;
+        return false;
+    }
+    else if (m_rbfdispl->getGeometry() != m_rbfgeometry){
+        (*m_log)<<m_name + " : RBF displacements not linked to RBF geometry. Skip object."<<std::endl;
+        return false;
+    }
+    int size = m_rbfdispl->size();
+    dvector1D temp(size);
+    for(int loc=0; loc<3; ++loc){
+        std::size_t i = 0;
+        // Loop on geometry vertex ids
+        for(long id : m_rbfgeometry->getVerticesIds()){
+            temp[i] = m_rbfdispl->at(id)[loc];
+            i++;
+        }
+        addData(temp);
+    }
+
+    // Return valid initialization
+    return true;
+}
 
 /*!
  * Non compact sharp heaviside 0.5*(1.+tanh(k*x)) with k = 10

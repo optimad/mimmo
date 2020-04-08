@@ -147,6 +147,9 @@ protected:
     dvector1D    m_effectiveSR; /**< INTERNAL USE list of support radii effectively used for each RBF */
     bool         m_isCompact;   /**< If true the basis function is used with compact support, i.e. it is supposed different from 0 and evaluated only inside the support radius.*/
 
+    MimmoObject* m_rbfgeometry; /**< RBF geometry. The vertices of this object are used as RBF nodes.*/
+    dmpvecarr3E* m_rbfdispl;    /**<RBF nodes displacements related to RBF geometry vertex.*/
+
 public:
     MRBF(MRBFSol mode = MRBFSol::NONE);
     MRBF(const bitpit::Config::Section & rootXML);
@@ -239,11 +242,12 @@ private:
     bool  removeData(std::vector<int> &nn){return bitpit::RBFKernel::removeData(nn);};
     void  removeAllData(){bitpit::RBFKernel::removeAllData();};
 
-    std::vector<double>     evalRBF(int jnode){return bitpit::RBFKernel::evalRBF(jnode);};
+    std::vector<double> evalRBF(int jnode){return bitpit::RBFKernel::evalRBF(jnode);};
     
-    int                     solve(){return bitpit::RBFKernel::solve();};
-    int                     greedy(double tol){return bitpit::RBFKernel::greedy(tol);};
+    int solve(){return bitpit::RBFKernel::solve();};
+    int greedy(double tol){return bitpit::RBFKernel::greedy(tol);};
 
+    bool    initRBFwGeometry();
 };
 
 double	heaviside10( double dist );
