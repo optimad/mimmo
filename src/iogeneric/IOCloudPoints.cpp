@@ -394,14 +394,29 @@ IOCloudPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
 void
 IOCloudPoints::plotOptionalResults(){
 
+    if (getGeometry() == nullptr) return;
     //Assessing data;
-    if (!m_scalarfield.getGeometry()) m_scalarfield.setGeometry(getGeometry());
-    if (!m_vectorfield.getGeometry()) m_vectorfield.setGeometry(getGeometry());
-    m_scalarfield.completeMissingData(0.0);
-    m_vectorfield.completeMissingData({{0.0,0.0,0.0}});
+    MimmoPiercedVector<double> f1 = m_scalarfield;
+    MimmoPiercedVector<std::array<double,3>> f2 = m_vectorfield;
 
+    if (!f1.getGeometry()) f1.setGeometry(getGeometry());
+    if (!f2.getGeometry()) f2.setGeometry(getGeometry());
+    //force both data to have location on POINT, otherwise all these class is pointless
+    f1.setDataLocation(MPVLocation::POINT);
+    f2.setDataLocation(MPVLocation::POINT);
+    f1.completeMissingData(0.0);
+    f2.completeMissingData({{0.0,0.0,0.0}});
+
+    if(f1.getName() == f2.getName()){
+        std::string temp = f1.getName();
+        f1.setName(temp+"_scalar");
+
+        temp = f2.getName();
+        f2.setName(temp+"_vector");
+
+    }
     //Write
-    BaseManipulation::write(getGeometry(), m_scalarfield, m_vectorfield);
+    BaseManipulation::write(getGeometry(), f1, f2);
 }
 
 /*!
@@ -531,8 +546,12 @@ IOCloudPoints::write(){
     //assessing data;
     if (!m_scalarfield.getGeometry()) m_scalarfield.setGeometry(getGeometry());
     if (!m_vectorfield.getGeometry()) m_vectorfield.setGeometry(getGeometry());
-    m_scalarfield.completeMissingData(0.0);
-    m_vectorfield.completeMissingData({{0.0,0.0,0.0}});
+    //force both data to have location on POINT, otherwise all these class is pointless
+    m_scalarfield.setDataLocation(MPVLocation::POINT);
+    m_vectorfield.setDataLocation(MPVLocation::POINT);
+
+    if(!m_scalarfield.empty())  m_scalarfield.completeMissingData(0.0);
+    if(!m_vectorfield.empty()) m_vectorfield.completeMissingData({{0.0,0.0,0.0}});
 
     std::string filename;
     if(m_template){
@@ -560,7 +579,9 @@ IOCloudPoints::write(){
                 std::string str1 = keyT1+"s"+std::to_string(label)+keyT2;
                 writing<<"$SCALARF"<<'\t'<<label<<'\t'<<str1<<std::endl;
             }else{
-                writing<<"$SCALARF"<<'\t'<<label<<'\t'<<m_scalarfield[label]<<std::endl;
+                if(!m_scalarfield.exists(label)) continue;
+                double val = m_scalarfield[label];
+                writing<<"$SCALARF"<<'\t'<<label<<'\t'<<val<<std::endl;
             }
         }
         writing<<""<<std::endl;
@@ -573,7 +594,8 @@ IOCloudPoints::write(){
 
                 writing<<"$VECTORF"<<'\t'<<label<<'\t'<<str1<<'\t'<<str2<<'\t'<<str3<<std::endl;
             }else{
-                auto & val = m_vectorfield[label];
+                if(!m_vectorfield.exists(label))    continue;
+                std::array<double,3> val = m_vectorfield[label];
                 writing<<"$VECTORF"<<'\t'<<label<<'\t'<<val[0]<<'\t'<<val[1]<<'\t'<<val[2]<<std::endl;
             }
         }
