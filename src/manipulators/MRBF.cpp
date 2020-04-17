@@ -40,6 +40,7 @@ MRBF::MRBF(MRBFSol mode){
     m_isCompact = false;
     m_rbfgeometry = nullptr;
     m_rbfdispl = nullptr;
+    m_diagonalFactor = 1.;
 };
 
 /*!
@@ -58,6 +59,7 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
     m_isCompact = false;
     m_rbfgeometry = nullptr;
     m_rbfdispl = nullptr;
+    m_diagonalFactor = 1.;
 
     setMode(MRBFSol::NONE);
 
@@ -95,6 +97,7 @@ MRBF::MRBF(const MRBF & other):BaseManipulation(other), bitpit::RBF(other){
 	if(m_bfilter)    m_filter = other.m_filter;
     m_rbfgeometry = other.m_rbfgeometry;
     m_rbfdispl = other.m_rbfdispl;
+    m_diagonalFactor = other.m_diagonalFactor;
 };
 
 /*! Assignment operator. Result geometry displacement are not copied.
@@ -124,6 +127,7 @@ void MRBF::swap(MRBF & x) noexcept
     std::swap(m_effectiveSR, x.m_effectiveSR);
     std::swap(m_rbfgeometry, x.m_rbfgeometry);
     std::swap(m_rbfdispl, x.m_rbfdispl);
+    std::swap(m_diagonalFactor, x.m_diagonalFactor);
 
     RBF::swap(x);
 
@@ -203,6 +207,16 @@ MRBF::isVariableSupportRadiusSet(){
 dvector1D &
 MRBF::getEffectivelyUsedSupportRadii(){
 	return m_effectiveSR;
+}
+
+/*!
+ * Return the factor, applied to the diagonal length of the bounding box of the geometry, used
+ * to define the threshold, compared to the support radii, to impose the kdtree filtering.
+ * \return diagonal factor
+ */
+double
+MRBF::getDiagonalFactor(){
+    return m_diagonalFactor;
 }
 
 /*!
@@ -396,6 +410,16 @@ MRBF::setVariableSupportRadii(dvector1D sradii){
     m_supportRadii = sradii;
     m_supportRadiusValue = -1.0;
     m_srIsReal = false;
+}
+
+/*!
+ * Set the factor, applied to the diagonal length of the bounding box of the geometry, used
+ * to define the threshold, compared to the support radii, to impose the kdtree filtering.
+ * \parameter[in] diagonalFactor diagonal factor (value in [0.,1.])
+ */
+void
+MRBF::setDiagonalFactor(double diagonalFactor){
+    m_diagonalFactor = std::min(std::max(diagonalFactor, 0.), 1.);
 }
 
 /*!It sets the tolerance for GREEDY mode - interpolation algorithm.
@@ -598,7 +622,27 @@ MRBF::execute(){
 	// Prepare the list of vertices to be used during rbf evaluations
 	std::unordered_set<long> activeMeshVertices;
 
-	if (isCompact()){
+	// Use bounding box to decide if use the whole geometry or filter the vertices
+	std::array<double,3> boxmin, boxmax;
+	container->getBoundingBox(boxmin, boxmax);
+	// Use diagonal length vs. maximum support radius
+	double dlength = norm2(boxmax-boxmin);
+	double maximumRadius = 0.;
+	for (double radius : getEffectivelyUsedSupportRadii())
+	{
+	    if (radius > maximumRadius){
+	        maximumRadius = radius;
+	    }
+	}
+	bool useWholeGeometry = false;
+	// Use the whole geometry if maximum radius is greater than the diagonal of bounding box multiplied for a custom factor
+	if (maximumRadius > (m_diagonalFactor*dlength))
+	{
+	    useWholeGeometry = true;
+	}
+
+	// Set the active vertices of target geometry
+	if (isCompact() && useWholeGeometry){
 	    // Fill the list of vertices with them included in rbf radii
 	    if(!(container->isKdTreeSync())){
 	        container->buildKdTree();
@@ -735,6 +779,18 @@ MRBF::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name
         setCompactSupport(value);
     }
 
+    m_diagonalFactor = 1.0;
+    if(slotXML.hasOption("DiagonalFactor")){
+        input = slotXML.get("DiagonalFactor");
+        input = bitpit::utils::string::trim(input);
+        double value = m_diagonalFactor;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::string::trim(input));
+            ss >> value;
+            if(value >= 0.0 && value <=1.0)    setDiagonalFactor(value);
+        }
+    };
+
 }
 
 /*!
@@ -773,6 +829,12 @@ MRBF::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     if(isCompact()){
         slotXML.set("Compact", std::to_string(1));
+    }
+
+    if(m_diagonalFactor != 1.0){
+        std::stringstream ss;
+        ss<<std::scientific<<m_diagonalFactor;
+        slotXML.set("DiagonalFactor", ss.str());
     }
 
 }
