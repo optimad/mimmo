@@ -122,6 +122,7 @@ enum class MRBFSol{
                                 see setSupportRadiusReal method documentation.
  * - <B>RBFShape</B>: shape of RBF function see MRBFBasisFunction and bitpit::RBFBasisFunction enums;
  * - <B>Tolerance</B>: greedy engine tolerance (meaningful for Mode 2 only);
+ * - <B>DiagonalFactor</B>: factor used to define a threshold to filter geometry vertices (default 1.0);
  *
     if set, SupportRadiusReal parameter bypass SupportRadiusLocal one.
 
@@ -141,6 +142,9 @@ protected:
     double       m_supportRadiusValue; /**<local bounding box binded homogeneous support radius */
     bool         m_srIsReal;  /**<True if homogeneous support radius is defined as absolute value, false if is ratio of bounding box diagonal.*/
     dvector1D    m_supportRadii; /**< list of variable supportRadii for each RBF node.*/
+    double       m_diagonalFactor; /**< Factor used to define a threshold to filter geometry vertices to be deformed or not. The condition to use
+                                     the whole geometry instead of filtering by a kdtree binary search is :
+                                     maximum value of <support radii values> > m_diagonalFactor*<diagonal of boundix box of geometry> */
     int          m_functype;     /**< Function type handler. If -1 refer to RBF getFunctionType method */
     dmpvecarr3E  m_displ;        /**<Resulting displacements of geometry vertex.*/
 
@@ -170,6 +174,7 @@ public:
     bool            isSupportRadiusReal();
     bool            isVariableSupportRadiusSet();
     dvector1D &     getEffectivelyUsedSupportRadii();
+    double          getDiagonalFactor();
 
     int             getFunctionType();
     dmpvecarr3E*    getDisplacements();
@@ -190,6 +195,7 @@ public:
     void            setSupportRadiusLocal(double suppR_);
     void            setSupportRadiusReal(double suppR_);
     void            setVariableSupportRadii(dvector1D sradii);
+    void            setDiagonalFactor(double diagonalFactor);
 
 BITPIT_DEPRECATED(
     void            setSupportRadiusValue(double suppR_));
