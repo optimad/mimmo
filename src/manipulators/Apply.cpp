@@ -35,6 +35,7 @@ Apply::Apply():BaseManipulation(){
     m_scalarinput.clear();
     m_factor = 1.;
     m_annotation = false;
+    m_annotationThres = 1.0E-18;
     m_annCellLabel = "DeformedCells";
     m_annVertexLabel = "DeformedVertices";
 };
@@ -48,6 +49,7 @@ Apply::Apply(const bitpit::Config::Section & rootXML){
 	m_name = "mimmo.Apply";
 	m_factor = 1.;
     m_annotation = false;
+    m_annotationThres = 1.0E-18;
     m_annCellLabel = "DeformedCells";
     m_annVertexLabel = "DeformedVertices";
 
@@ -73,6 +75,7 @@ Apply::Apply(const Apply & other):BaseManipulation(other){
 	m_scalarinput = other.m_scalarinput;
 	m_factor = other.m_factor;
     m_annotation = other.m_annotation;
+    m_annotationThres = other.m_annotationThres;
     m_annCellLabel = other.m_annCellLabel;
     m_annVertexLabel = other.m_annVertexLabel;
     //annotation structures are not copied, they are filled each time in execution if m_annotation is true.
@@ -89,6 +92,7 @@ void Apply::swap(Apply & x) noexcept
 	m_scalarinput.swap(x.m_scalarinput);
 	std::swap(m_factor, x.m_factor);
     std::swap(m_annotation, x.m_annotation);
+    std::swap(m_annotationThres, x.m_annotationThres);
     std::swap(m_annCellLabel, x.m_annCellLabel);
     std::swap(m_annVertexLabel, x.m_annVertexLabel);
 
@@ -153,6 +157,16 @@ Apply::setScaling(double alpha){
 void
 Apply::setAnnotation(bool activate){
     m_annotation = activate;
+}
+
+/*!
+   Set threshold for deformation field norm, over which a cell/vertex interested by it is
+   eligible for annotation.
+ * \param[in] threshold value (double, >0.0)
+ */
+void
+Apply::setAnnotationThreshold(double threshold){
+    m_annotationThres = std::max(1.0E-18, threshold);
 }
 
 /*!
@@ -249,8 +263,8 @@ Apply::execute(){
     //step 2: produce annotations.
     if(m_annotation){
         //-->get the list of vertices involved, whose deformation norm is greater
-        //   then default tolerance of 1.E-18;
-        double tol = 1.0E-18;
+        //   then prescribed tolerance;
+        double tol = m_annotationThres;
         m_vertexAnnotation.clear();
         m_vertexAnnotation.setGeometry(getGeometry());
         m_vertexAnnotation.setDataLocation(MPVLocation::POINT);
@@ -319,6 +333,17 @@ Apply::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string nam
         setAnnotation(val);
     }
 
+    if(slotXML.hasOption("AnnotationThreshold")){
+        std::string input = slotXML.get("AnnotationThreshold");
+        input = bitpit::utils::string::trim(input);
+        double val = 1.0E-18;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss>>val;
+        }
+        setAnnotationThreshold(val);
+    }
+
     if(slotXML.hasOption("CellsAnnotationName")){
         std::string input = slotXML.get("CellsAnnotationName");
         input = bitpit::utils::string::trim(input);
@@ -347,6 +372,7 @@ Apply::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
     slotXML.set("Scaling", std::to_string(m_factor));
     slotXML.set("Annotation", std::to_string(m_annotation));
+    slotXML.set("AnnotationThreshold", std::to_string(m_annotationThres));
     slotXML.set("CellsAnnotationName", m_annCellLabel);
     slotXML.set("VerticesAnnotationName", m_annVertexLabel);
 };
