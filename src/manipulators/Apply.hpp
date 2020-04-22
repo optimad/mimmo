@@ -71,6 +71,8 @@ namespace mimmo{
    - <B>Annotation</B>             : 0/1 boolean, if 1 provide list of cell/vertices into deformation as annotation list;
  * - <B>CellsAnnotationName</B>    : (string) define label to mark annotated cells (list of cell-ids involved into deformation);
  * - <B>VerticesAnnotationName</B> : (string) define label to mark annotated vertices (list of vertex-ids involved into deformation);
+   - <B>AnnotationThreshold</B>    : double val >0, threshold over which all mesh elements with deformation field over it are annotated;
+
  *
 
  * Geometry and one of the Inputs have to be mandatorily passed through port.
@@ -97,6 +99,7 @@ public:
     void setAnnotation(bool activate);
     void setCellsAnnotationName(const std::string & label);
     void setVerticesAnnotationName(const std::string & label);
+    void setAnnotationThreshold(double threshold);
 
     void execute();
 
@@ -117,7 +120,7 @@ protected:
     bool m_annotation; /**< boolean to activate annotation providing*/
     std::string m_annCellLabel; /**< label marking cell annotation*/
     std::string m_annVertexLabel; /**< label marking cell annotation*/
-
+    double m_annotationThres; /**< annotation threshold*/
     MimmoPiercedVector<long> m_cellAnnotation; /**< structure to store the list of cells involved into deformation*/
     MimmoPiercedVector<long> m_vertexAnnotation; /**< structure to store the list of vertices involved into deformation*/
 
