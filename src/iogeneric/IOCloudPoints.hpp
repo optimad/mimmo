@@ -94,16 +94,16 @@ namespace mimmo{
      |---------------|-------------------|-----------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM        | setGeometry       | (MC_SCALAR,MD_MIMMO_)     |
-     | M_SCALARFIELD | setMPVScalarField | (MC_SCALAR,MD_MPVECFLOAT_)     |
-     | M_VECTORFIELD | setMPVVectorField | (MC_SCALAR,MD_MPVECARR3FLOAT_) |
+     | M_SCALARFIELD | setScalarField | (MC_SCALAR,MD_MPVECFLOAT_)     |
+     | M_VECTORFIELD | setVectorField | (MC_SCALAR,MD_MPVECARR3FLOAT_) |
 
 
      |              Port Output  ||                                        |
      |---------------|-------------------|-----------------------|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM        | getGeometry       | (MC_SCALAR,MD_MIMMO_)     |
-     | M_SCALARFIELD | getMPVScalarField | (MC_SCALAR,MD_MPVECFLOAT_)     |
-     | M_VECTORFIELD | getMPVVectorField | (MC_SCALAR,MD_MPVECARR3FLOAT_) |
+     | M_SCALARFIELD | getScalarField | (MC_SCALAR,MD_MPVECFLOAT_)     |
+     | M_VECTORFIELD | getVectorField | (MC_SCALAR,MD_MPVECARR3FLOAT_) |
 
  *    =========================================================
  * \n
