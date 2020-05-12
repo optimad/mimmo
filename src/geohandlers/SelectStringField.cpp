@@ -130,7 +130,7 @@ SelectStringField::setFields(std::vector<MimmoPiercedVector<std::string>*> field
 	m_fields.reserve(fields.size());
 	for(MimmoPiercedVector<std::string> * ff : fields){
 		if(!ff) continue;
-		if(ff->getDataLocation() == m_loc && ff->getGeometry()!= NULL){
+		if(ff->getDataLocation() == m_loc && ff->getGeometry()!= nullptr){
 			m_fields.push_back(*ff);
 		}
 	}
@@ -144,7 +144,7 @@ SelectStringField::setFields(std::vector<MimmoPiercedVector<std::string>*> field
 void
 SelectStringField::addField(MimmoPiercedVector<std::string> *field){
 	if(!field) return;
-	if(field->getDataLocation() == m_loc && field->getGeometry() != NULL){
+	if(field->getDataLocation() == m_loc && field->getGeometry() != nullptr){
 		m_fields.push_back(*field);
 	}
 

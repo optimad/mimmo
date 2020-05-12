@@ -76,11 +76,11 @@ class FVGenericSelection: public mimmo::BaseManipulation {
 protected:
 
     FVSelectionType                 m_type;      /**< Type of enum class SelectionType for selection method */
-    std::unique_ptr<MimmoObject>    m_volpatch;  /**< Pointer to result volume sub-patch */
-    std::unique_ptr<MimmoObject>    m_bndpatch;  /**< Pointer to result boundary sub-patch */
+    mimmo::MimmoSharedPointer<MimmoObject>    m_volpatch;  /**< Pointer to result volume sub-patch */
+    mimmo::MimmoSharedPointer<MimmoObject>    m_bndpatch;  /**< Pointer to result boundary sub-patch */
     int                             m_topo;      /**< 1 = volume (default value), 2 = surface */
     bool                            m_dual;      /**< False selects w/ current set up, true gets its "negative". False is default. */
-    MimmoObject *                   m_bndgeometry; /**<target boundary geometry */
+    mimmo::MimmoSharedPointer<MimmoObject>    m_bndgeometry; /**<target boundary geometry */
 
 public:
 
@@ -92,18 +92,18 @@ public:
     void    buildPorts();
 
     FVSelectionType    whichMethod();
-    void               setGeometry(MimmoObject *);
-    void               setBoundaryGeometry(MimmoObject *);
+    void               setGeometry(mimmo::MimmoSharedPointer<MimmoObject>);
+    void               setBoundaryGeometry(mimmo::MimmoSharedPointer<MimmoObject>);
     void               setDual(bool flag=false);
 
-    const MimmoObject*    getVolumePatch()const;
-    const MimmoObject*    getBoundaryPatch()const;
-    MimmoObject    *        getVolumePatch();
-    MimmoObject    *        getBoundaryPatch();
+    const mimmo::MimmoSharedPointer<MimmoObject>    getVolumePatch()const;
+    const mimmo::MimmoSharedPointer<MimmoObject>    getBoundaryPatch()const;
+    mimmo::MimmoSharedPointer<MimmoObject>          getVolumePatch();
+    mimmo::MimmoSharedPointer<MimmoObject>          getBoundaryPatch();
 
-    bool                isDual();
+    bool    isDual();
 
-    void        execute();
+    void    execute();
 
     virtual void plotOptionalResults();
     bool checkCoherenceBulkBoundary();

@@ -62,7 +62,7 @@ SelectionByCylinder::SelectionByCylinder(const bitpit::Config::Section & rootXML
  * \param[in] mainAxis    Orientation of the cylinder height axis
  * \param[in] target    Pointer to MimmoObject target geometry
  */
-SelectionByCylinder::SelectionByCylinder(darray3E origin, darray3E span, double infLimTheta, darray3E mainAxis, MimmoObject * target){
+SelectionByCylinder::SelectionByCylinder(darray3E origin, darray3E span, double infLimTheta, darray3E mainAxis, mimmo::MimmoSharedPointer<MimmoObject> target){
     m_name = "mimmo.SelectionByCylinder";
     m_type = SelectionType::CYLINDER;
     setGeometry(target);
@@ -125,7 +125,7 @@ SelectionByCylinder::buildPorts(){
  */
 void
 SelectionByCylinder::clear(){
-    m_subpatch.reset(nullptr);
+    m_subpatch.reset();
     BaseManipulation::clear();
 };
 

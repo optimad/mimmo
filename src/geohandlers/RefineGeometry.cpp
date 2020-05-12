@@ -102,8 +102,8 @@ void RefineGeometry::swap(RefineGeometry & x ) noexcept
 void
 RefineGeometry::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<MimmoObject*, RefineGeometry>(this, &BaseManipulation::setGeometry, M_GEOM, true));
-	built = (built && createPortOut<MimmoObject*, RefineGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
+	built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, RefineGeometry>(this, &BaseManipulation::setGeometry, M_GEOM, true));
+	built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, RefineGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
 	m_arePortsBuilt = built;
 }
 
@@ -288,7 +288,7 @@ RefineGeometry::plotOptionalResults(){
  * One triangle for each edge is added for every cell.
  */
 void
-RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, MimmoObject* coarsepatch, MimmoObject* refinepatch)
+RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::MimmoSharedPointer<MimmoObject> coarsepatch, mimmo::MimmoSharedPointer<MimmoObject> refinepatch)
 {
 	//TERNARY REFINEMENT
 
@@ -303,7 +303,7 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, MimmoObje
 	}
 #else
 
-	MimmoObject * geometry = getGeometry();
+	mimmo::MimmoSharedPointer<MimmoObject> geometry = getGeometry();
 	std::unordered_set<long> newCells;
 	std::unordered_set<long> toDelete;
 
@@ -425,7 +425,7 @@ RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit:
  * only one edge is splitted in case of green refinement (boundary cells).
  */
 void
-RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, MimmoObject* coarsepatch, MimmoObject* refinepatch)
+RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::MimmoSharedPointer<MimmoObject> coarsepatch, mimmo::MimmoSharedPointer<MimmoObject> refinepatch)
 {
 	//REDGREEN REFINEMENT
 
@@ -446,7 +446,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, MimmoObj
 //	}
 #else
 
-	MimmoObject * geometry = getGeometry();
+	mimmo::MimmoSharedPointer<MimmoObject> geometry = getGeometry();
 	std::unordered_set<long> newCells;
 	std::unordered_set<long> toDelete;
 
@@ -785,7 +785,7 @@ RefineGeometry::greenRefineCell(const long & cellId, const long newVertexId, int
 void
 RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 {
-	MimmoObject * geometry = getGeometry();
+    mimmo::MimmoSharedPointer<MimmoObject> geometry = getGeometry();
 	if (!(geometry->areAdjacenciesBuilt()))
 		geometry->buildAdjacencies();
 

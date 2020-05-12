@@ -83,7 +83,7 @@ StitchGeometry::StitchGeometry(const StitchGeometry & other):BaseManipulation(ot
     m_topo = other.m_topo;
     m_extgeo = other.m_extgeo;
     m_geocount = other.m_geocount;
-    m_patch.reset(nullptr);
+    m_patch.reset();
     m_repid = other.m_repid;
 };
 
@@ -117,9 +117,9 @@ void
 StitchGeometry::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::addGeometry, M_GEOM, true));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, StitchGeometry>(this, &mimmo::StitchGeometry::addGeometry, M_GEOM, true));
 
-    built = (built && createPortOut<MimmoObject*, StitchGeometry>(this, &mimmo::StitchGeometry::getGeometry, M_GEOM));
+    built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, StitchGeometry>(this, &mimmo::StitchGeometry::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 }
 
@@ -136,9 +136,9 @@ StitchGeometry::getTopology(){
  * Get current stitched geometry pointer. Reimplementation of BaseManipulation::getGeometry,
  * \return Pointer to stitched geometry.
  */
-MimmoObject *
+mimmo::MimmoSharedPointer<MimmoObject>
 StitchGeometry::getGeometry(){
-    return m_patch.get();
+    return m_patch;
 }
 
 /*!
@@ -147,8 +147,8 @@ StitchGeometry::getGeometry(){
  * \param[in] geo  Pointer to MimmoObject
  */
 void
-StitchGeometry::addGeometry(MimmoObject* geo){
-    if(geo == NULL) return;
+StitchGeometry::addGeometry(mimmo::MimmoSharedPointer<MimmoObject> geo){
+    if(geo == nullptr) return;
     if(geo->getType() != m_topo)    return;
     if(m_extgeo.count(geo)    > 0)    return;
 
@@ -172,7 +172,7 @@ void
 StitchGeometry::clear(){
     m_extgeo.clear();
     m_geocount = 0;
-    m_patch.reset(nullptr);
+    m_patch.reset();
     BaseManipulation::clear();
 };
 
@@ -194,7 +194,7 @@ StitchGeometry::execute(){
         (*m_log)<<m_name + " : no source geometries to stich were found"<<std::endl;
     }
 
-    std::unique_ptr<MimmoObject> dum(new MimmoObject(m_topo));
+    mimmo::MimmoSharedPointer<MimmoObject> dum(new MimmoObject(m_topo));
 #if MIMMO_ENABLE_MPI
     if(m_nprocs > 1){
         //TODO you need a strategy to stitch together partioned mesh, keeping a unique id
@@ -202,7 +202,7 @@ StitchGeometry::execute(){
         //(or min/max ids) of each patch to all communicators, and using them to organize offsets
         //for safe inserting elements.
         (*m_log)<<"WARNING "<< m_name<<" : stitching not available yet for MPI version with procs > 1"<<std::endl;
-        m_patch = std::move(dum);
+        m_patch = dum;
         return;
     }
 #endif
@@ -221,7 +221,7 @@ StitchGeometry::execute(){
 
     long cV = 0, cC = 0;
 
-    std::unordered_map<MimmoObject*,long>    map_pidstart;
+    std::unordered_map<mimmo::MimmoSharedPointer<MimmoObject>,long>    map_pidstart;
     //initialize map
     for(auto & obj : m_extgeo){
         map_pidstart[obj.first] = 0;
@@ -309,7 +309,7 @@ StitchGeometry::execute(){
         }
     }//scope for optional vars;
 
-    m_patch = std::move(dum);
+    m_patch = dum;
     m_patch->cleanGeometry();
 }
 

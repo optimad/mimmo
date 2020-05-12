@@ -138,10 +138,10 @@ FVSelectionBySphere::buildPorts(){
  * Clear content of the class
  */
 void FVSelectionBySphere::clear(){
-    m_volpatch.reset(nullptr);
-    m_bndpatch.reset(nullptr);
+    m_volpatch.reset();
+    m_bndpatch.reset();
     m_dual = false;
-    m_bndgeometry = NULL;
+    m_bndgeometry.reset();
     BaseManipulation::clear();
 };
 

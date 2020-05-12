@@ -142,7 +142,7 @@ SelectionByElementList::addRawVertexList(std::vector<long> vertexdata){
  */
 void
 SelectionByElementList::clear(){
-    m_subpatch.reset(nullptr);
+    m_subpatch.reset();
     BaseManipulation::clear();
     m_annotatedcells.clear();
     m_annotatedvertices.clear();
@@ -160,7 +160,7 @@ SelectionByElementList::clear(){
 livector1D
 SelectionByElementList::extractSelection(){
 
-    MimmoObject * geo = getGeometry();
+    mimmo::MimmoSharedPointer<MimmoObject> geo = getGeometry();
     std::unordered_set<long> setstruct;
     //fill a non repeated list of vertices ids
     for(MimmoPiercedVector<long> * ptr : m_annotatedvertices){

@@ -130,7 +130,7 @@ SelectScalarField::setFields(std::vector<dmpvector1D*> fields){
 	m_fields.reserve(fields.size());
 	for(dmpvector1D * ff : fields){
 		if(!ff) continue;
-		if(ff->getDataLocation() == m_loc && ff->getGeometry()!= NULL){
+		if(ff->getDataLocation() == m_loc && ff->getGeometry()!= nullptr){
 			m_fields.push_back(*ff);
 		}
 	}
@@ -144,7 +144,7 @@ SelectScalarField::setFields(std::vector<dmpvector1D*> fields){
 void
 SelectScalarField::addField(dmpvector1D *field){
 	if(!field) return;
-	if(field->getDataLocation() == m_loc && field->getGeometry() != NULL){
+	if(field->getDataLocation() == m_loc && field->getGeometry() != nullptr){
 		m_fields.push_back(*field);
 	}
 

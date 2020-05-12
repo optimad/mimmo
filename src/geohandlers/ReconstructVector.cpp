@@ -178,7 +178,7 @@ ReconstructVector::setOverlapCriterium( int funct){
 void
 ReconstructVector::addData(dmpvecarr3E *field){
     if(!field) return;
-    if(field->getGeometry()== NULL && field->getDataLocation() != m_loc) return;
+    if(field->getGeometry()== nullptr && field->getDataLocation() != m_loc) return;
     if(field->getGeometry()->getType()==3 && m_loc==MPVLocation::CELL){
         (*m_log)<<"warning in "<<m_name<<" : trying to add field referred to a Point Cloud, while Class has Data Location referred to CELLS. Do Nothing."<<std::endl;
         return;
@@ -191,7 +191,7 @@ ReconstructVector::addData(dmpvecarr3E *field){
  * \param[in] patch Pointer to sub-patch to be removed.
  */
 void
-ReconstructVector::removeData(MimmoObject * patch){
+ReconstructVector::removeData(mimmo::MimmoSharedPointer<MimmoObject> patch){
     //in m_subpatch remove progressively all pierced vector elements in last position
     //which links towards a geometry of type patch.
     while(m_subpatch.back().getGeometry() == patch){
@@ -268,9 +268,9 @@ ReconstructVector::plotSubData(int i){
 void
 ReconstructVector::execute(){
 
-	if(getGeometry() == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error("Error in "+m_name + " : NULL pointer to linked geometry found");
+	if(getGeometry() == nullptr){
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error("Error in "+m_name + " : nullptr pointer to linked geometry found");
     }
 
     if(getGeometry()->isEmpty()){
@@ -412,18 +412,15 @@ ReconstructVector::buildPorts(){
     bool built = true;
 
     //input
-    built = (built && createPortIn<MimmoObject *, ReconstructVector>(&m_geometry, M_GEOM, true));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, ReconstructVector>(&m_geometry, M_GEOM, true));
     built = (built && createPortIn<dmpvecarr3E*, ReconstructVector>(this, &mimmo::ReconstructVector::addData, M_VECTORFIELD, true));
 
     //output
     built = (built && createPortOut<dmpvecarr3E*, ReconstructVector>(this, &ReconstructVector::getResultField, M_VECTORFIELD));
-    built = (built && createPortOut<MimmoObject *, ReconstructVector>(&m_geometry, M_GEOM));
+    built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, ReconstructVector>(&m_geometry, M_GEOM));
     built = (built && createPortOut<std::vector<dmpvecarr3E*>, ReconstructVector>(this, &mimmo::ReconstructVector::getResultFields, M_VECVECTORFIELDS));
     m_arePortsBuilt = built;
 };
-
-
-
 
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
@@ -488,7 +485,7 @@ void ReconstructVector::flushSectionXML(bitpit::Config::Section & slotXML, std::
  *\param[in] geo valid pointer to a MimmoObject geometry
  *\return list of ids relative to vertices or cells according to class m_loc.
  */
-livector1D ReconstructVector::idsGeoDataLocation(MimmoObject * geo){
+livector1D ReconstructVector::idsGeoDataLocation(mimmo::MimmoSharedPointer<MimmoObject> geo){
 
     if (m_loc == MPVLocation::POINT) return geo->getVertices().getIds();
     if (m_loc == MPVLocation::CELL)  return geo->getCells().getIds();
