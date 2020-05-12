@@ -76,7 +76,7 @@ protected:
 
 public:
     IOOFOAM_Kernel(bool writemode = false);
-    IOOFOAM_Kernel(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, bool writemode);
+    IOOFOAM_Kernel(MimmoSharedPointer<MimmoObject> bulk, MimmoSharedPointer<MimmoObject> boundary, bool writemode);
     IOOFOAM_Kernel(const IOOFOAM_Kernel & other);
     virtual ~IOOFOAM_Kernel();
 
@@ -85,8 +85,8 @@ public:
 
 
     void            setDir(const std::string &dir);
-    void            setGeometry(MimmoObject * bulk);
-    void            setBoundaryGeometry(MimmoObject * boundary);
+    void            setGeometry(MimmoSharedPointer<MimmoObject> bulk);
+    void            setBoundaryGeometry(MimmoSharedPointer<MimmoObject> boundary);
     void            setFacesMap(std::unordered_map<long,long> mapFaces);
     void            setFieldName(const std::string & fieldname);
 
@@ -161,7 +161,7 @@ protected:
 
 public:
    IOOFOAM(bool writemode = false);
-   IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary);
+   IOOFOAM(MimmoSharedPointer<MimmoObject> bulk, MimmoSharedPointer<MimmoObject> boundary);
    IOOFOAM(const bitpit::Config::Section & rootXML);
    virtual ~IOOFOAM();
 

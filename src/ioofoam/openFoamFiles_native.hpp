@@ -25,7 +25,7 @@
 #ifndef FOAM_FILES_NATIVE_H
 #define FOAM_FILES_NATIVE_H
 
-#include "InOut.hpp"
+#include "MimmoPiercedVector.hpp"
 #include <bitpit_patchkernel.hpp>
 #include <array>
 #include <vector>
