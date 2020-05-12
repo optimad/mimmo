@@ -103,7 +103,7 @@ ControlDeformExtSurface::buildPorts(){
     bool built = true;
 
     built = (built && createPortIn<dmpvecarr3E*, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::setDefField, M_GDISPLS));
-    built = (built && createPortIn<MimmoObject*, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::setGeometry, M_GEOM, true));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<mimmo::MimmoObject>, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::setGeometry, M_GEOM, true));
 
     built = (built && createPortOut<double, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolation, M_VALUED));
     built = (built && createPortOut<dmpvector1D*, ControlDeformExtSurface>(this, &mimmo::ControlDeformExtSurface::getViolationField, M_SCALARFIELD));
@@ -182,8 +182,8 @@ ControlDeformExtSurface::setDefField(dmpvecarr3E *field){
  * \param[in] target pointer to target geometry
  */
 void
-ControlDeformExtSurface::setGeometry( MimmoObject * target){
-    if(target == NULL)       return;
+ControlDeformExtSurface::setGeometry( mimmo::MimmoSharedPointer<mimmo::MimmoObject> target){
+    if(target == nullptr)       return;
     if(target->isEmpty())    return;
 
     if(target->getType() != 1){
@@ -289,10 +289,10 @@ ControlDeformExtSurface::clear(){
 void
 ControlDeformExtSurface::execute(){
 
-    MimmoObject * geo = getGeometry();
-    if(geo == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+    MimmoSharedPointer<MimmoObject> geo = getGeometry();
+    if(geo == nullptr){
+        (*m_log)<<m_name + " : null_ptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error(m_name + "null_ptr pointer to linked geometry found");
 
     }
     if(geo->isEmpty()){
@@ -390,7 +390,7 @@ ControlDeformExtSurface::execute(){
     for(const auto &gg : extgeo){
 
         //check constraints properties ******************************
-        MimmoObject * local = gg->getGeometry();
+        MimmoSharedPointer<MimmoObject> local = gg->getGeometry();
         if(!(local->isSkdTreeSync()))    local->buildSkdTree();
         bool checkOpen = local->isClosedLoop();
 
@@ -445,14 +445,14 @@ ControlDeformExtSurface::execute(){
             if(checkOpen){
                 count = 0;
                 for(auto &p : pointsOR){
-                    dist = evaluateSignedDistance(p, local, id, normal, radius);
+                    dist = evaluateSignedDistance(p, local.get(), id, normal, radius);
                     if(radius < 1.0E-12)    radius = radius_old;
                     else                     radius_old = radius;
                     if(dist < 0.0)    refsigns[count] = -1.0;
                     count++;
                 }
             }else{
-                dist = evaluateSignedDistance(geoBary, local, id, normal, radius);
+                dist = evaluateSignedDistance(geoBary, local.get(), id, normal, radius);
 
                 if(dist < 0.0) refsigns *= -1.0;
                 if(radius <1.0E-12)    radius = radius_old;
@@ -461,7 +461,7 @@ ControlDeformExtSurface::execute(){
             //evaluate distance of the deformation cloud w.r.t. constraints
             count = 0;
             for(auto &p : points){
-                dist = evaluateSignedDistance(p, local, id, normal, radius);
+                dist = evaluateSignedDistance(p, local.get(), id, normal, radius);
                 if(radius < 1.0E-12)    radius = radius_old;
                 else                     radius_old = radius;
                 violationField[count] = -1.0*refsigns[count]*dist;
@@ -489,7 +489,7 @@ ControlDeformExtSurface::execute(){
             radius_old = radius;
             count = 0;
             for(auto &p : background_points){
-                dist = evaluateSignedDistance(p, local, id, normal, radius);
+                dist = evaluateSignedDistance(p, local.get(), id, normal, radius);
                 if(radius < 1.0E-12)    radius = radius_old;
                 else                     radius_old = radius;
                 background_LS[count] = dist;
@@ -516,7 +516,7 @@ ControlDeformExtSurface::execute(){
                     ++count;
                 }
             }else{
-                dist = evaluateSignedDistance(geoBary, local, id, normal, radius);
+                dist = evaluateSignedDistance(geoBary, local.get(), id, normal, radius);
                 if(dist< 0)    refsigns *= -1.0;
                 if(radius < 1.0E-12)    radius = radius_old;
             }
@@ -539,7 +539,7 @@ ControlDeformExtSurface::execute(){
 
             }
             delete mesh;
-            mesh = NULL;
+            mesh = nullptr;
         }//end if else
 
         int ii = 0;

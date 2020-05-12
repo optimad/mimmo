@@ -95,7 +95,7 @@ namespace mimmo{
 class ProjPatchOnSurface: public ProjPrimitivesOnSurfaces{
 
 protected:
-    MimmoObject*             m_cobj;        /**<object to deal with patch */
+    MimmoSharedPointer<MimmoObject>             m_cobj;        /**<object to deal with patch */
 
 public:
     ProjPatchOnSurface();
@@ -107,7 +107,7 @@ public:
 
     void         clear();
 
-    void         setPatch(MimmoObject * geo);
+    void         setPatch(MimmoSharedPointer<MimmoObject> geo);
 
     void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");

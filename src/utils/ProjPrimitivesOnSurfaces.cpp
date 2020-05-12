@@ -95,9 +95,9 @@ void ProjPrimitivesOnSurfaces::swap(ProjPrimitivesOnSurfaces & x)   noexcept
 void
 ProjPrimitivesOnSurfaces::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, ProjPrimitivesOnSurfaces>(this, &mimmo::ProjPrimitivesOnSurfaces::setGeometry,M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, ProjPrimitivesOnSurfaces>(this, &mimmo::ProjPrimitivesOnSurfaces::setGeometry,M_GEOM, true));
 
-    built = (built && createPortOut<MimmoObject*, ProjPrimitivesOnSurfaces>(this, &mimmo::ProjPrimitivesOnSurfaces::getProjectedElement, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, ProjPrimitivesOnSurfaces>(this, &mimmo::ProjPrimitivesOnSurfaces::getProjectedElement, M_GEOM));
     m_arePortsBuilt = built;
 }
 
@@ -125,9 +125,9 @@ ProjPrimitivesOnSurfaces::getProjElementTargetNCells(){
  * Get your current projected primitive as a 3D mesh
  * \return pointer to projected primitive as MimmoObject
  */
-MimmoObject *
+MimmoSharedPointer<MimmoObject>
 ProjPrimitivesOnSurfaces::getProjectedElement(){
-    return m_patch.get();
+    return m_patch;
 }
 
 
@@ -139,8 +139,8 @@ ProjPrimitivesOnSurfaces::getProjectedElement(){
  * \param[in] geo  pointer to MimmoObject
  */
 void
-ProjPrimitivesOnSurfaces::setGeometry(MimmoObject* geo){
-    if(geo == NULL) return;
+ProjPrimitivesOnSurfaces::setGeometry(MimmoSharedPointer<MimmoObject> geo){
+    if(geo == nullptr) return;
     if(geo->isEmpty()) return;
     if(geo->getType() != 1)    return;
     m_geometry = geo;
@@ -180,7 +180,7 @@ ProjPrimitivesOnSurfaces::setProjElementTargetNCells(int nC){
  */
 bool
 ProjPrimitivesOnSurfaces::isEmpty(){
-    if(m_patch.get() == NULL) return true;
+    if(m_patch == nullptr) return true;
     return  m_patch->isEmpty();
 }
 
@@ -201,8 +201,8 @@ ProjPrimitivesOnSurfaces::clear(){
 void
 ProjPrimitivesOnSurfaces::execute(){
 
-    if (m_geometry == NULL){
-        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    if (m_geometry == nullptr){
+        throw std::runtime_error (m_name + " : nullptr pointer to linked geometry");
     }
 
     projection();
@@ -221,7 +221,7 @@ ProjPrimitivesOnSurfaces::execute(){
 void
 ProjPrimitivesOnSurfaces::plotOptionalResults(){
 
-	write(m_patch.get());
+	write(m_patch);
 
 };
 

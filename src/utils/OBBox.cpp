@@ -106,8 +106,8 @@ void
 OBBox::buildPorts(){
 
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, OBBox>(this, &mimmo::OBBox::setGeometry, M_GEOM,true,1));
-    built = (built && createPortIn<std::vector<MimmoObject*>, OBBox>(this, &mimmo::OBBox::setGeometries, M_VECGEOM, true,1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, OBBox>(this, &mimmo::OBBox::setGeometry, M_GEOM,true,1));
+    built = (built && createPortIn<std::vector<MimmoSharedPointer<MimmoObject> >, OBBox>(this, &mimmo::OBBox::setGeometries, M_VECGEOM, true,1));
     built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getOrigin, M_POINT));
     built = (built && createPortOut<dmatrix33E, OBBox>(this, &mimmo::OBBox::getAxes, M_AXES));
     built = (built && createPortOut<darray3E, OBBox>(this, &mimmo::OBBox::getSpan, M_SPAN));
@@ -164,9 +164,9 @@ OBBox::getAxes(){
 /*!
  * \return current list of linnked geoemtry for obbox calculation
  */
-std::vector<MimmoObject*>
+std::vector<MimmoSharedPointer<MimmoObject> >
 OBBox::getGeometries(){
-    std::vector<MimmoObject*> result;
+    std::vector<MimmoSharedPointer<MimmoObject> > result;
     result.reserve(m_listgeo.size());
     for(auto pp: m_listgeo)
         result.push_back(pp.first);
@@ -187,7 +187,7 @@ OBBox::isForcedAABB(){
  * \param[in] listgeo list of pointers to target geometries
  */
 void
-OBBox::setGeometries(std::vector<MimmoObject *> listgeo){
+OBBox::setGeometries(std::vector<MimmoSharedPointer<MimmoObject> > listgeo){
     m_listgeo.clear();
     for( auto val : listgeo){
         setGeometry(val);
@@ -200,9 +200,9 @@ OBBox::setGeometries(std::vector<MimmoObject *> listgeo){
  * \param[in] geo pointer to target geometry
  */
 void
-OBBox::setGeometry(MimmoObject * geo){
+OBBox::setGeometry(MimmoSharedPointer<MimmoObject> geo){
 
-    if (geo == NULL)    {
+    if (geo == nullptr)    {
         (*m_log)<<"warning: "<<m_name<<" not valid Geometry pointer. Doing nothing"<<std::endl;
         return;
     }
@@ -314,7 +314,7 @@ OBBox::execute(){
         return;
     };
 
-    std::unordered_map<MimmoObject*, int>::iterator itB = m_listgeo.begin();
+    std::unordered_map<MimmoSharedPointer<MimmoObject>, int>::iterator itB = m_listgeo.begin();
     //if one geometry at least is a cloud point, solve all them as cloud points.
     bool allCloud = false;
     while(itB != m_listgeo.end() && !allCloud){
@@ -454,7 +454,7 @@ OBBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
  * \return covariance matrix;
  */
 dmatrix33E
-OBBox::evaluatePointsCovarianceMatrix(std::vector<MimmoObject*> list){
+OBBox::evaluatePointsCovarianceMatrix(std::vector<MimmoSharedPointer<MimmoObject> > list){
 
     //evaluate the mass center first;
     darray3E masscenter = {{0.0,0.0,0.0}};
@@ -514,7 +514,7 @@ OBBox::evaluatePointsCovarianceMatrix(std::vector<MimmoObject*> list){
  * \return covariance matrix;
  */
 dmatrix33E
-OBBox::evaluateElementsCovarianceMatrix(std::vector<MimmoObject*> list){
+OBBox::evaluateElementsCovarianceMatrix(std::vector<MimmoSharedPointer<MimmoObject> > list){
 
     //You need to evaluate the mass center and the 3x3 matrix of the total moments
     //obtained as the sum of each element moments.
@@ -617,8 +617,8 @@ OBBox::eigenVectors( dmatrix33E & matrix, darray3E & eigenvalues){
     std::swap(eigenvalues[0], eigenvalues[2]);
 
     // clean allocations.
-    delete [] a; a = NULL;
-    delete [] s; s = NULL;
+    delete [] a; a = nullptr;
+    delete [] s; s = nullptr;
 
     return result;
 }
@@ -734,7 +734,7 @@ dmatrix33E OBBox::inverse(const dmatrix33E & mat){
     \param[in] geo pointer to reference geometry (must be always of mimmoObject type 1)
     \return ids of vertices composing the representative triangle.Return -1,-1,-1 for unsupported cell elements
 */
-std::array<long,3> OBBox::get3RepPoints(long cellID, MimmoObject * geo){
+std::array<long,3> OBBox::get3RepPoints(long cellID, MimmoSharedPointer<MimmoObject> geo){
     if(!geo) return{{-1,-1,-1}};
     bitpit::Cell & cell = geo->getCells().at(cellID);
     std::array<long,3> result;

@@ -102,7 +102,7 @@ public:
 
     void    setDefField(dmpvecarr3E *field);
     void    setLimitDistance(double dist);
-    void    setGeometry(MimmoObject * geo);
+    void    setGeometry(MimmoSharedPointer<MimmoObject> geo);
 
     void     execute();
 

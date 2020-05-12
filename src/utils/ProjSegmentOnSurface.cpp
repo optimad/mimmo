@@ -243,7 +243,7 @@ void
 ProjSegmentOnSurface::projection(){
 
     int counter = 0;
-    std::unique_ptr<MimmoObject> dum(new MimmoObject(4));
+    MimmoSharedPointer<MimmoObject> dum(new MimmoObject(4));
     //reserving memory
     dum->getPatch()->reserveVertices(m_nC+1);
     dum->getPatch()->reserveCells(m_nC);
@@ -288,7 +288,7 @@ ProjSegmentOnSurface::projection(){
     }
 
     dum->cleanGeometry();
-    m_patch = std::move(dum);
+    m_patch = dum;
 
 };
 

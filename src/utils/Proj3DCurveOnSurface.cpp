@@ -45,7 +45,7 @@ Proj3DCurveOnSurface::Proj3DCurveOnSurface(){
     m_name         = "mimmo.Proj3DCurveOnSurface";
     m_topo     = 1;
     m_closed = false;
-    m_cobj = NULL;
+    m_cobj = nullptr;
 };
 
 /*!
@@ -57,7 +57,7 @@ Proj3DCurveOnSurface::Proj3DCurveOnSurface(const bitpit::Config::Section & rootX
     m_name         = "mimmo.Proj3DCurveOnSurface";
     m_topo     = 1;
     m_closed = false;
-    m_cobj = NULL;
+    m_cobj = nullptr;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -112,7 +112,7 @@ void
 Proj3DCurveOnSurface::clear(){
     ProjPrimitivesOnSurfaces::clear();
     m_cpoints.clear();
-    m_cobj = NULL;
+    m_cobj = nullptr;
 }
 
 /*!
@@ -125,7 +125,7 @@ Proj3DCurveOnSurface::clear(){
 void
 Proj3DCurveOnSurface::addPoint(darray3E point){
     m_cpoints.push_back(point);
-    m_cobj = NULL;
+    m_cobj = nullptr;
 }
 
 /*!
@@ -139,7 +139,7 @@ void
 Proj3DCurveOnSurface::setPoints(dvecarr3E points){
     m_cpoints.clear();
     m_cpoints = points;
-    m_cobj = NULL;
+    m_cobj = nullptr;
 }
 
 /*!
@@ -149,9 +149,9 @@ Proj3DCurveOnSurface::setPoints(dvecarr3E points){
  * \param[in] geo pointer to geometry container
  */
 void
-Proj3DCurveOnSurface::setConnectedPoints(MimmoObject * geo){
+Proj3DCurveOnSurface::setConnectedPoints(MimmoSharedPointer<MimmoObject> geo){
 
-    if(geo == NULL)    return;
+    if(geo == nullptr)    return;
     if(geo->isEmpty()) return;
     auto type = geo->getType();
     if(type != 3 && type != 4)    return;
@@ -170,7 +170,7 @@ Proj3DCurveOnSurface::setConnectedPoints(MimmoObject * geo){
  */
 bool
 Proj3DCurveOnSurface::isClosedLoop(){
-    if(m_cobj != NULL && m_cobj->getType() == 4)    return m_cobj->isClosedLoop();
+    if(m_cobj != nullptr && m_cobj->getType() == 4)    return m_cobj->isClosedLoop();
     return m_closed;
 }
 
@@ -182,7 +182,7 @@ Proj3DCurveOnSurface::isClosedLoop(){
  */
 void
 Proj3DCurveOnSurface::setClosedLoop(bool flag){
-    if(m_cobj != NULL && m_cobj->getType() == 4) m_closed = m_cobj->isClosedLoop();
+    if(m_cobj != nullptr && m_cobj->getType() == 4) m_closed = m_cobj->isClosedLoop();
     m_closed = flag;
 }
 
@@ -285,7 +285,7 @@ Proj3DCurveOnSurface::buildPorts(){
 
     built = (built && createPortIn<dvecarr3E, Proj3DCurveOnSurface>(this, &mimmo::Proj3DCurveOnSurface::setPoints, M_COORDS, true,1));
     built = (built && createPortIn<darray3E, Proj3DCurveOnSurface>(this, &mimmo::Proj3DCurveOnSurface::addPoint, M_POINT,true, 1));
-    built = (built && createPortIn<MimmoObject*, Proj3DCurveOnSurface>(this, &mimmo::Proj3DCurveOnSurface::setConnectedPoints, M_GEOM2, true, 1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, Proj3DCurveOnSurface>(this, &mimmo::Proj3DCurveOnSurface::setConnectedPoints, M_GEOM2, true, 1));
     m_arePortsBuilt = built;
 
 }
@@ -297,7 +297,7 @@ Proj3DCurveOnSurface::buildPorts(){
 void
 Proj3DCurveOnSurface::projection(){
 
-    std::unique_ptr<MimmoObject> dum(new MimmoObject(4));
+    MimmoSharedPointer<MimmoObject> dum(new MimmoObject(4));
 
     dvecarr3E points;
     std::unordered_map<long, std::array<long,2> > connectivity;
@@ -335,7 +335,7 @@ Proj3DCurveOnSurface::projection(){
     }
 
     dum->cleanGeometry();
-    m_patch = std::move(dum);
+    m_patch = dum;
 };
 
 
