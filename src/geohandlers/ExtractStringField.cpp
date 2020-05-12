@@ -164,7 +164,7 @@ ExtractStringField::plotOptionalResults(){
 bool
 ExtractStringField::extract(){
 
-    if (getGeometry() == NULL || m_field.getGeometry() == NULL) return false;
+    if (getGeometry() == nullptr || m_field.getGeometry() == nullptr) return false;
     //checking internal ids coherence of the field.
     if(!m_field.checkDataIdsCoherence()) return false;
 

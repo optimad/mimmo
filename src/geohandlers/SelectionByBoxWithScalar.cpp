@@ -58,7 +58,7 @@ SelectionByBoxWithScalar::SelectionByBoxWithScalar(const bitpit::Config::Section
  * \param[in] span     Span of the box, width/height/depth.
  * \param[in] target    Pointer to MimmoObject target geometry.
  */
-SelectionByBoxWithScalar::SelectionByBoxWithScalar(darray3E origin, darray3E span, MimmoObject * target){
+SelectionByBoxWithScalar::SelectionByBoxWithScalar(darray3E origin, darray3E span, mimmo::MimmoSharedPointer<MimmoObject> target){
 	m_name = "mimmo.SelectionByBoxWithScalar";
 	m_type = SelectionType::BOX;
 	setGeometry(target);

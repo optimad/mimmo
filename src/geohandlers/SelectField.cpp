@@ -67,24 +67,12 @@ void SelectField::swap(SelectField & x) noexcept
 void
 SelectField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, SelectField>(this, &mimmo::SelectField::setGeometry, M_GEOM));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, SelectField>(this, &mimmo::SelectField::setGeometry, M_GEOM));
     built = (built && createPortIn<std::string, SelectField>(this, &mimmo::SelectField::setFieldName, M_NAME));
     built = (built && createPortOut<std::string, SelectField>(this, &mimmo::SelectField::getFieldName, M_NAME));
-    built = (built && createPortOut<MimmoObject*, SelectField>(this, &mimmo::BaseManipulation::getGeometry, M_GEOM));
+    built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, SelectField>(this, &mimmo::BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 }
-
-
-/*!
- * Set the target geometry where your target Selected field is defined.
- * \param[in] geo  Pointer to MimmoObject
- */
-void
-SelectField::setGeometry(MimmoObject* geo){
-    if(geo == NULL)     return;
-    if(geo->isEmpty()) return;
-    m_geometry = geo;
-};
 
 /*!
  * Set the name of your target Selected field.

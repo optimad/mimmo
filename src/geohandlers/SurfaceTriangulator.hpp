@@ -76,7 +76,7 @@ class SurfaceTriangulator: public mimmo::BaseManipulation {
 private:
 
     bool m_workOnTarget;                      /**< true apply on target, false create an indipendent copy */
-    std::unique_ptr<MimmoObject> m_intPatch;     /**< internal patch */
+    mimmo::MimmoSharedPointer<MimmoObject> m_intPatch;     /**< internal patch */
 
 public:
 
@@ -89,10 +89,10 @@ public:
     void    buildPorts();
 
     //get-set methods
-    MimmoObject *   getGeometry();
-    bool            isWorkingOnTarget();
+    mimmo::MimmoSharedPointer<MimmoObject>    getGeometry();
+    bool                            isWorkingOnTarget();
 
-    void            setGeometry(MimmoObject * geo);
+    void            setGeometry(mimmo::MimmoSharedPointer<MimmoObject> geo);
     void            setWorkOnTarget(bool flag = false);
 
     //execute

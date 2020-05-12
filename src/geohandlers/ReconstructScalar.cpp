@@ -179,7 +179,7 @@ ReconstructScalar::setOverlapCriterium( int funct){
 void
 ReconstructScalar::addData( dmpvector1D  * field){
     if(!field)  return;
-    if(field->getGeometry()== NULL && field->getDataLocation() != m_loc) return;
+    if(field->getGeometry()== nullptr && field->getDataLocation() != m_loc) return;
     if(field->getGeometry()->getType()==3 && m_loc==MPVLocation::CELL){
         (*m_log)<<"warning in "<<m_name<<" : trying to add field referred to a Point Cloud, while Class has Data Location referred to CELLS. Do Nothing."<<std::endl;
         return;
@@ -193,7 +193,7 @@ ReconstructScalar::addData( dmpvector1D  * field){
  * \param[in] patch Pointer to sub-patch to be removed.
  */
 void
-ReconstructScalar::removeData(MimmoObject * patch){
+ReconstructScalar::removeData(mimmo::MimmoSharedPointer<MimmoObject> patch){
     //in m_subpatch remove progressively all pierced vector elements in last position
     //which links towards a geometry of type patch.
     while(m_subpatch.back().getGeometry() == patch){
@@ -270,9 +270,9 @@ ReconstructScalar::plotSubData(int i){
 void
 ReconstructScalar::execute(){
 
-    if(getGeometry() == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error("Error in "+m_name + " : NULL pointer to linked geometry found");
+    if(getGeometry() == nullptr){
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error("Error in "+m_name + " : nullptr pointer to linked geometry found");
     }
 
     if(getGeometry()->isEmpty()){
@@ -403,12 +403,12 @@ ReconstructScalar::buildPorts(){
     bool built = true;
 
     //input
-    built = (built && createPortIn<MimmoObject *, ReconstructScalar>(&m_geometry, M_GEOM, true));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, ReconstructScalar>(&m_geometry, M_GEOM, true));
     built = (built && createPortIn<dmpvector1D*, ReconstructScalar>(this, &mimmo::ReconstructScalar::addData, M_SCALARFIELD, true));
 
     //output
     built = (built && createPortOut<dmpvector1D*, ReconstructScalar>(this, &ReconstructScalar::getResultField, M_SCALARFIELD));
-    built = (built && createPortOut<MimmoObject *, ReconstructScalar>(&m_geometry, M_GEOM));
+    built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, ReconstructScalar>(&m_geometry, M_GEOM));
     built = (built && createPortOut<std::vector<dmpvector1D*>, ReconstructScalar>(this, &mimmo::ReconstructScalar::getResultFields, M_VECSCALARFIELDS));
     m_arePortsBuilt = built;
 };
@@ -477,7 +477,7 @@ ReconstructScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::strin
  *\param[in] geo valid pointer to a MimmoObject geometry
  *\return list of ids relative to vertices or cells according to class m_loc.
  */
-livector1D ReconstructScalar::idsGeoDataLocation(MimmoObject * geo){
+livector1D ReconstructScalar::idsGeoDataLocation(mimmo::MimmoSharedPointer<MimmoObject> geo){
 
     if (m_loc == MPVLocation::POINT) return geo->getVertices().getIds();
     if (m_loc == MPVLocation::CELL)  return geo->getCells().getIds();

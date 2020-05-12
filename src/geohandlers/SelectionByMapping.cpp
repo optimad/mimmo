@@ -123,7 +123,7 @@ SelectionByMapping::SelectionByMapping(const bitpit::Config::Section & rootXML){
  * \param[in]    target    Pointer to target geometry
  * \param[in]    tolerance    Proximity criterium tolerance
  */
-SelectionByMapping::SelectionByMapping(std::unordered_map<std::string, int> & geolist, MimmoObject * target, double tolerance){
+SelectionByMapping::SelectionByMapping(std::unordered_map<std::string, int> & geolist, mimmo::MimmoSharedPointer<MimmoObject> target, double tolerance){
     m_name = "mimmo.SelectionByMapping";
     m_type = SelectionType::MAPPING;
     m_tolerance = 1.E-08;
@@ -149,7 +149,7 @@ SelectionByMapping::SelectionByMapping(std::unordered_map<std::string, int> & ge
 
     m_allowedTopology[4].insert(4);
 
-    if(target == NULL) return;
+    if(target == nullptr) return;
 
     m_topo = target->getType();
     m_topo = std::min(1, m_topo);
@@ -210,7 +210,7 @@ SelectionByMapping::buildPorts(){
     GenericSelection::buildPorts();
     bool built = m_arePortsBuilt;
 
-    built = (built && createPortIn<MimmoObject *, SelectionByMapping>(this, &SelectionByMapping::addMappingGeometry,M_GEOM2));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, SelectionByMapping>(this, &SelectionByMapping::addMappingGeometry,M_GEOM2));
 
     m_arePortsBuilt = built;
 };
@@ -243,9 +243,9 @@ SelectionByMapping::setTolerance(double tol){
  * \param[in] target Pointer to target geometry.
  */
 void
-SelectionByMapping::setGeometry( MimmoObject * target){
+SelectionByMapping::setGeometry( mimmo::MimmoSharedPointer<MimmoObject> target){
 
-    if(target == NULL){
+    if(target == nullptr){
         (*m_log)<< m_name << " attempt to link null target geometry. Do nothing." << std::endl;
         return;
     }
@@ -303,7 +303,7 @@ SelectionByMapping::addFile(std::pair<std::string, int> file){
  * \param[in] obj Pointer to MimmoObject of external geometry
  */
 void
-SelectionByMapping::addMappingGeometry(MimmoObject* obj){
+SelectionByMapping::addMappingGeometry(mimmo::MimmoSharedPointer<MimmoObject> obj){
     if(m_allowedTopology[m_topo].count(obj->getType()) > 0){
         m_mimmolist.insert(obj);
     }
@@ -339,7 +339,7 @@ SelectionByMapping::removeMappingGeometries(){
  */
 void
 SelectionByMapping::clear(){
-    m_subpatch.reset(nullptr);
+    m_subpatch.reset();
     removeFiles();
     removeMappingGeometries();
     BaseManipulation::clear();
@@ -418,7 +418,7 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
     }
     livector1D result = mimmo::skdTreeUtils::selectByPatch(geo->getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);
     delete geo;
-    geo=NULL;
+    geo=nullptr;
 
     return    result;
 };
@@ -428,7 +428,7 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
  * \param[in] obj Pointer to external geometry to be compared.
  */
 livector1D
-SelectionByMapping::getProximity(MimmoObject* obj){
+SelectionByMapping::getProximity(mimmo::MimmoSharedPointer<MimmoObject> obj){
 
     if(obj->getNVertices() == 0 || obj->getNCells() == 0){
         m_log->setPriority(bitpit::log::NORMAL);

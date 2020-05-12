@@ -39,7 +39,7 @@ FVGenericSelection::FVGenericSelection(int topo){
     m_type = FVSelectionType::UNDEFINED;
     m_topo = std::min(2, std::max(1, topo)); /*default to volume bulk-surface boundary geometry*/
     m_dual = false; /*default to exact selection*/
-    m_bndgeometry = NULL;
+    m_bndgeometry.reset();
 };
 
 /*!
@@ -92,12 +92,12 @@ FVGenericSelection::buildPorts(){
 
     bool built = true;
 
-    built = (built && createPortIn<MimmoObject *, FVGenericSelection>(this, &FVGenericSelection::setGeometry, M_GEOM, true));
-    built = (built && createPortIn<MimmoObject *, FVGenericSelection>(this, &FVGenericSelection::setBoundaryGeometry, M_GEOM2, true));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, FVGenericSelection>(this, &FVGenericSelection::setGeometry, M_GEOM, true));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, FVGenericSelection>(this, &FVGenericSelection::setBoundaryGeometry, M_GEOM2, true));
     built = (built && createPortIn<bool, FVGenericSelection>(this, &FVGenericSelection::setDual,M_VALUEB));
 
-    built = (built && createPortOut<MimmoObject *, FVGenericSelection>(this, &FVGenericSelection::getVolumePatch, M_GEOM));
-    built = (built && createPortOut<MimmoObject *, FVGenericSelection>(this, &FVGenericSelection::getBoundaryPatch, M_GEOM2));
+    built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, FVGenericSelection>(this, &FVGenericSelection::getVolumePatch, M_GEOM));
+    built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, FVGenericSelection>(this, &FVGenericSelection::getBoundaryPatch, M_GEOM2));
     m_arePortsBuilt = built;
 };
 
@@ -116,36 +116,36 @@ FVGenericSelection::whichMethod(){
  * Return pointer-by-copy to bulk sub-patch extracted by the class
  * \return pointer to Bulk Mesh MimmoObject extracted sub-patch
  */
-MimmoObject*
+mimmo::MimmoSharedPointer<MimmoObject>
 FVGenericSelection::getVolumePatch(){
-    return    m_volpatch.get();
+    return    m_volpatch;
 };
 
 /*!
  * Return pointer-by-copy to boundary sub-patch extracted by the class
  * \return pointer to Boundary MimmoObject extracted sub-patch
  */
-MimmoObject*
+mimmo::MimmoSharedPointer<MimmoObject>
 FVGenericSelection::getBoundaryPatch(){
-    return    m_bndpatch.get();
+    return    m_bndpatch;
 };
 
 /*!
  * Return pointer-by-copy to bulk sub-patch extracted by the class
  * \return pointer to Bulk Mesh MimmoObject extracted sub-patch
  */
-const MimmoObject*
+const mimmo::MimmoSharedPointer<MimmoObject>
 FVGenericSelection::getVolumePatch() const{
-    return    m_volpatch.get();
+    return    m_volpatch;
 };
 
 /*!
  * Return pointer-by-copy to boundary sub-patch extracted by the class
  * \return pointer to Boundary MimmoObject extracted sub-patch
  */
-const MimmoObject*
+const mimmo::MimmoSharedPointer<MimmoObject>
 FVGenericSelection::getBoundaryPatch() const{
-    return    m_bndpatch.get();
+    return    m_bndpatch;
 };
 
 /*!
@@ -154,8 +154,8 @@ FVGenericSelection::getBoundaryPatch() const{
  *  \param[in] target Pointer to MimmoObject with bulk target geometry.
  */
 void
-FVGenericSelection::setGeometry( MimmoObject * target){
-    if(target == NULL)  return;
+FVGenericSelection::setGeometry( mimmo::MimmoSharedPointer<MimmoObject> target){
+    if(target == nullptr)  return;
     int type = target->getType();
     if(m_topo == 1 && type != 2) return;
     if(m_topo == 2 && type != 1) return;
@@ -167,8 +167,8 @@ FVGenericSelection::setGeometry( MimmoObject * target){
  *  \param[in] target Pointer to MimmoObject with boundary target geometry.
  */
 void
-FVGenericSelection::setBoundaryGeometry( MimmoObject * target){
-    if(target == NULL)  return;
+FVGenericSelection::setBoundaryGeometry( mimmo::MimmoSharedPointer<MimmoObject> target){
+    if(target == nullptr)  return;
     int type = target->getType();
     if(m_topo == 1 && type != 1) return;
     if(m_topo == 2 && type != 4) return;
@@ -204,9 +204,9 @@ FVGenericSelection::isDual(){
  */
 void
 FVGenericSelection::execute(){
-    if(m_geometry == NULL || m_bndgeometry == NULL) {
-        (*m_log)<<m_name + " : NULL pointer to target bulk/boundary geometry found or both"<<std::endl;
-        throw std::runtime_error (m_name + " : NULL pointer to target bulk/boundary geometry found or both");
+    if(m_geometry == nullptr || m_bndgeometry == nullptr) {
+        (*m_log)<<m_name + " : nullptr pointer to target bulk/boundary geometry found or both"<<std::endl;
+        throw std::runtime_error (m_name + " : nullptr pointer to target bulk/boundary geometry found or both");
         return;
     }
     if(m_geometry->isEmpty() || m_bndgeometry->isEmpty() ){
@@ -217,8 +217,8 @@ FVGenericSelection::execute(){
         (*m_log)<<m_name + " : id-vertex uncoherent bulk/boundary geometry linked"<<std::endl;
     }
 
-    m_volpatch.reset(nullptr);
-    m_bndpatch.reset(nullptr);
+    m_volpatch.reset();
+    m_bndpatch.reset();
 
     livector1D extractedVol;
     livector1D extractedBnd;
@@ -236,8 +236,8 @@ FVGenericSelection::execute(){
         topobnd = 4;
     }
 
-    std::unique_ptr<MimmoObject> tempVol(new MimmoObject(topovol));
-    std::unique_ptr<MimmoObject> tempBnd(new MimmoObject(topobnd));
+    mimmo::MimmoSharedPointer<MimmoObject> tempVol(new MimmoObject(topovol));
+    mimmo::MimmoSharedPointer<MimmoObject> tempBnd(new MimmoObject(topobnd));
 
     //VOLUME PART
     {
@@ -275,8 +275,8 @@ FVGenericSelection::execute(){
         }
     }
 
-    m_volpatch = std::move(tempVol);
-    m_bndpatch = std::move(tempBnd);
+    m_volpatch = tempVol;
+    m_bndpatch = tempBnd;
 
 // TODO For now adjusting ghosts only for the volume patch. Later you will need
 // to adjust stuffs also for  the boundary

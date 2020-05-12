@@ -86,7 +86,7 @@ class ClipGeometry: public BaseManipulation{
 private:
     darray4E                        m_plane;        /**<Coefficients of implicit plane a*x +b*y+c*z + d =0.*/
     bool                            m_insideout;    /**<set direction of clipping, false along current plane normal, true the opposite*/
-    std::unique_ptr<MimmoObject>    m_patch;        /**<Resulting Clipped Patch.*/
+    MimmoSharedPointer<MimmoObject> m_patch;        /**<Resulting Clipped Patch.*/
     darray3E                        m_origin;       /**<Origin of plane. */
     darray3E                        m_normal;       /**<Normal of plane. */
     bool                            m_implicit;     /**<True if an implicit definition of plane is set. */
@@ -101,7 +101,7 @@ public:
     void    buildPorts();
 
     bool             isInsideOut();
-    MimmoObject *     getClippedPatch();
+    MimmoSharedPointer<MimmoObject>    getClippedPatch();
     darray4E         getClipPlane();
 
     void    setClipPlane(darray4E plane);
@@ -109,6 +109,7 @@ public:
     void    setOrigin(darray3E origin);
     void    setNormal(darray3E normal);
     void    setInsideOut(bool flag);
+    using BaseManipulation::setGeometry;
 
     void     execute();
 

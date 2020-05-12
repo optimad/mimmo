@@ -129,7 +129,7 @@ SelectVectorField::setFields(std::vector<dmpvecarr3E*> fields){
     m_fields.reserve(fields.size());
     for(dmpvecarr3E * ff : fields){
         if(!ff) continue;
-        if(ff->getDataLocation() == m_loc && ff->getGeometry()!= NULL){
+        if(ff->getDataLocation() == m_loc && ff->getGeometry()!= nullptr){
             m_fields.push_back(*ff);
         }
     }
@@ -143,7 +143,7 @@ SelectVectorField::setFields(std::vector<dmpvecarr3E*> fields){
 void
 SelectVectorField::addField(dmpvecarr3E *field){
     if(!field) return;
-    if(field->getDataLocation() == m_loc && field->getGeometry() != NULL){
+    if(field->getDataLocation() == m_loc && field->getGeometry() != nullptr){
         m_fields.push_back(*field);
     }
 }

@@ -32,7 +32,7 @@
 int test3_1() {
 
 	mimmo::ExtractScalarField *sca = new mimmo::ExtractScalarField();
-	mimmo::MimmoObject * obj = new mimmo::MimmoObject();
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> obj(new mimmo::MimmoObject());
 	dvecarr3E pp(3,{{0,0,0}});
 	pp[0][0] =1;
 	pp[1][1] =1;
@@ -80,7 +80,6 @@ int test3_1() {
 		delete sca;
 		delete scaCC;
 		delete scaAO;
-		delete obj;
 		std::cout<<"Failing copy construction of geohandlers ExtractFields"<<std::endl;
 		return 1;
 	}
@@ -106,7 +105,6 @@ int test3_1() {
 		delete sca;
 		delete scaCC;
 		delete scaAO;
-		delete obj;
 		std::cout<<"Failing assignment of geohandlers ExtractFields"<<std::endl;
 		return 1;
 	}
@@ -115,7 +113,6 @@ int test3_1() {
 	delete sca;
 	delete scaCC;
 	delete scaAO;
-	delete obj;
 
 	return 0;
 }
@@ -124,7 +121,7 @@ int test3_2() {
 
 	mimmo::SelectionByBoxWithScalar * sca = new mimmo::SelectionByBoxWithScalar();
 
-	mimmo::MimmoObject * obj = new mimmo::MimmoObject();
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> obj(new mimmo::MimmoObject());
 	dvecarr3E pp(3,{{0,0,0}});
 	pp[0][0] =1;
 	pp[1][1] =1;
@@ -165,7 +162,6 @@ int test3_2() {
 		delete sca;
 		delete scaCC;
 		delete scaAO;
-		delete obj;
 		std::cout<<"Failing copy construction of geohandlers SelectionByBoxWithScalar"<<std::endl;
 		return 1;
 	}
@@ -183,7 +179,6 @@ int test3_2() {
 		delete sca;
 		delete scaCC;
 		delete scaAO;
-		delete obj;
 		std::cout<<"Failing assignment of geohandlers SelectionByBoxWithScalar"<<std::endl;
 		return 1;
 	}
@@ -192,7 +187,6 @@ int test3_2() {
 	delete sca;
 	delete scaCC;
 	delete scaAO;
-	delete obj;
 
 	return 0;
 }

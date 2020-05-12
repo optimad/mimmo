@@ -110,7 +110,6 @@ public:
 
     void buildPorts();
 
-    void        setGeometry(MimmoObject * geo);
     void        setMode(SelectType mode);
     void        setMode(int mode);
     void        setFieldName(std::string fieldname);

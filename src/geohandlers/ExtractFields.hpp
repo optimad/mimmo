@@ -106,10 +106,10 @@ public:
 
     void buildPorts();
 
-    void        setGeometry(MimmoObject * geo);
     void        setMode(ExtractMode mode);
     void        setMode(int mode);
     void        setTolerance(double tol);
+    using BaseManipulation::setGeometry;
 
     ExtractMode getMode();
     double      getTolerance();
