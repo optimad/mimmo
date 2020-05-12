@@ -45,12 +45,12 @@ IOOFOAM_Kernel::IOOFOAM_Kernel(bool writemode):MimmoFvMesh(){
  *  - bulk MimmoObject of type 1-Surface and boundary MimmoObject of type 4-3DCurve.
  *
  *
- *\param[in] bulk unique pointer to the bulk MimmoObject
- *\param[in] boundary unique pointer to the boundary MimmoObject
+ *\param[in] bulk shared pointer to the bulk MimmoObject
+ *\param[in] boundary shared pointer to the boundary MimmoObject
  *\param[in] writemode if true, put the class in write mode, otherwise in read mode.
  *
  */
-IOOFOAM_Kernel::IOOFOAM_Kernel(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary, bool writemode): MimmoFvMesh(bulk,boundary){
+IOOFOAM_Kernel::IOOFOAM_Kernel(MimmoSharedPointer<MimmoObject> bulk, MimmoSharedPointer<MimmoObject> boundary, bool writemode): MimmoFvMesh(bulk,boundary){
 	m_write = writemode;
 	setDefaults();
 }
@@ -141,7 +141,7 @@ IOOFOAM_Kernel::setDir(const std::string &dir){
  * \param[in] bulk pointer to external bulk mesh MimmoObject.
  */
 void
-IOOFOAM_Kernel::setGeometry(MimmoObject * bulk){
+IOOFOAM_Kernel::setGeometry(MimmoSharedPointer<MimmoObject> bulk){
     if(!bulk) return;
     if(!bulk->areInterfacesBuilt()) {
         *(m_log)<<"Warning IOOFOAM_Kernel:: linked MimmoObject bulk mesh cannot be coherent with an OpenFoam mesh"<<std::endl;
@@ -155,7 +155,7 @@ IOOFOAM_Kernel::setGeometry(MimmoObject * bulk){
  * \param[in] boundary pointer to external boundary mesh MimmoObject.
  */
 void
-IOOFOAM_Kernel::setBoundaryGeometry(MimmoObject * boundary){
+IOOFOAM_Kernel::setBoundaryGeometry(MimmoSharedPointer<MimmoObject> boundary){
     if(!boundary) return;
 	MimmoFvMesh::setBoundaryGeometry(boundary);
 }
@@ -243,12 +243,12 @@ IOOFOAM::IOOFOAM(bool writemode):IOOFOAM_Kernel(writemode){
  *
  * The class is meant for writing mode ONLY when built with this constructor.
  *
- *\param[in] bulk unique pointer to the bulk MimmoObject
- *\param[in] boundary unique pointer to the boundary MimmoObject
+ *\param[in] bulk shared pointer to the bulk MimmoObject
+ *\param[in] boundary shared pointer to the boundary MimmoObject
  *
  */
 
-IOOFOAM::IOOFOAM(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary):
+IOOFOAM::IOOFOAM(MimmoSharedPointer<MimmoObject> bulk, MimmoSharedPointer<MimmoObject> boundary):
          IOOFOAM_Kernel(bulk,boundary, true)
 {
     m_name = "mimmo.IOOFOAM";
@@ -341,13 +341,13 @@ IOOFOAM::buildPorts(){
     bool m_mandbndy = (m_write && getBoundaryGeometry() == nullptr);
     m_mandbndy = m_mandbndy && !m_writepointsonly; //boundary are not needed really if you write only points.
 
-    built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, m_mandbulk));
-    built = (built && createPortIn<MimmoObject*, IOOFOAM>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, m_mandbndy));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, m_mandbulk));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, m_mandbndy));
     built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAM>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
 
     // creating output ports
-    built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
-    built = (built && createPortOut<MimmoObject*, IOOFOAM>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
     built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAM>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
 
    m_arePortsBuilt = built;
@@ -479,7 +479,7 @@ IOOFOAM::read(){
 	foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh);
 
 	//prepare my bulk geometry container
-	std::unique_ptr<bitpit::PatchKernel> mesh(new mimmo::MimmoVolUnstructured(3));
+	bitpit::PatchKernel* mesh(new mimmo::MimmoVolUnstructured(3));
 	mesh->reserveVertices(std::size_t(foamMesh->nPoints()));
 	mesh->reserveCells(std::size_t(foamMesh->nCells()));
 
@@ -600,9 +600,7 @@ IOOFOAM::read(){
 	}
 
 	//finally store bulk mesh in the internal bulk member of the class (from MimmoFvMesh);
-	m_bulk = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(2, mesh)));
-	m_internalBulk = true;
-	m_bulkext = NULL;
+    m_bulk = MimmoSharedPointer<MimmoObject>(new MimmoObject(2, mesh));
 
 	//from MimmoFvMesh protected utilities, create the raw boundary mesh, storing it in m_boundary internal member.
 	//PID will be every where 0. Need to be compiled to align with patch division of foamBoundaryMesh.
@@ -734,13 +732,13 @@ IOOFOAMScalarField::buildPorts(){
 	bool built = true;
 
     //depending if the field to be read/written is bulk or boundary, you need at least bulk or boundary connected.
-    built = (built && createPortIn<MimmoObject*, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, true,1));
-    built = (built && createPortIn<MimmoObject*, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, true,1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, true,1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, true,1));
     built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
 
     // creating output ports
-    built = (built && createPortOut<MimmoObject*, IOOFOAMScalarField>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
-    built = (built && createPortOut<MimmoObject*, IOOFOAMScalarField>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
     built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
 	built = (built && createPortOut<dmpvector1D*, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getField, M_SCALARFIELD));
 	built = (built && createPortOut<dmpvector1D*, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getBoundaryField, M_SCALARFIELD2));
@@ -987,13 +985,13 @@ IOOFOAMScalarField::write(){
  IOOFOAMVectorField::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<MimmoObject*, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, true,1));
-    built = (built && createPortIn<MimmoObject*, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, true,1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, true,1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, true,1));
     built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
 
     // creating output ports
-    built = (built && createPortOut<MimmoObject*, IOOFOAMVectorField>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
-    built = (built && createPortOut<MimmoObject*, IOOFOAMVectorField>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
     built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
  	built = (built && createPortOut<dmpvecarr3E*, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getField, M_VECTORFIELD));
  	built = (built && createPortOut<dmpvecarr3E*, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getBoundaryField, M_VECTORFIELD2));
@@ -1151,12 +1149,5 @@ IOOFOAMVectorField::write(){
 
 	return true;
 }
-
-
-
-
-
-
-
 
 }
