@@ -74,7 +74,7 @@ protected:
     dvecarr3E            m_proj;     /**<Projected points coordinates.*/
     livector1D           m_labels;   /**<labels associated to 3D points in the cloud.*/
 
-    std::unique_ptr<MimmoObject> m_internalPC; /**< internal PointCloud MimmoObject for I/O purposes*/
+    MimmoSharedPointer<MimmoObject> m_internalPC; /**< internal PointCloud MimmoObject for I/O purposes*/
 
 public:
     ProjectCloud();
@@ -89,11 +89,11 @@ public:
     dvecarr3E    getOriginalCoords(livector1D * labels = nullptr);
     dvecarr3E    getProjectedCoords();
     dvecarr3E    getProjectedCoords(livector1D * labels);
-    MimmoObject* getProjectedCloud();
+    MimmoSharedPointer<MimmoObject> getProjectedCloud();
 
     void     setCoords(dvecarr3E coords);
-    void     setCoords(MimmoObject * coordsPC);
-    void     setGeometry(MimmoObject * refSurface);
+    void     setCoords(MimmoSharedPointer<MimmoObject> coordsPC);
+    void     setGeometry(MimmoSharedPointer<MimmoObject> refSurface);
     void     execute();
 
     void clear();

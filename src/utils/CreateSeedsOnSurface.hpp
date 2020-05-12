@@ -147,7 +147,7 @@ public:
     void         setEngine(int);
     void         setSeed(darray3E);
     void         setMassCenterAsSeed(bool );
-    void         setGeometry(MimmoObject *);
+    void         setGeometry(MimmoSharedPointer<MimmoObject>);
     void         setRandomFixed(bool fix);
     void         setRandomSignature(uint32_t signature);
     void         setSensitivityMap(dmpvector1D *field);
@@ -168,7 +168,7 @@ protected:
     void    checkField();
     void    normalizeField();
     bool    checkTriangulation();
-    std::unique_ptr<MimmoObject> triangulate();
+    MimmoSharedPointer<MimmoObject> triangulate();
 
 private:
 

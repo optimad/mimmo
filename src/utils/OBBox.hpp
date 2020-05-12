@@ -80,7 +80,7 @@ protected:
     darray3E    m_span;         /**< Span of the OBB. */
     dmatrix33E    m_axes;       /**< reference system of the bbox, ordered aaccording maximum shape variance */
 
-    std::unordered_map<MimmoObject*, int> m_listgeo; /**< list of geometries linked in input, according to type */
+    std::unordered_map<MimmoSharedPointer<MimmoObject>, int> m_listgeo; /**< list of geometries linked in input, according to type */
     bool m_forceAABB; /**< force class to evaluate a simple AABB, not oriented */
     bool m_writeInfo; /**< write OBB info on file */
 
@@ -98,14 +98,14 @@ public:
     void         clearOBBox();
 
     //internal methods
-    std::vector<MimmoObject*>        getGeometries();
+    std::vector<MimmoSharedPointer<MimmoObject> >   getGeometries();
     darray3E                         getOrigin();
     darray3E                         getSpan();
     dmatrix33E                       getAxes();
     bool                             isForcedAABB();
 
-    void        setGeometry(MimmoObject* geo);
-    void        setGeometries(std::vector<MimmoObject*> listgeo);
+    void        setGeometry(MimmoSharedPointer<MimmoObject> geo);
+    void        setGeometries(std::vector<MimmoSharedPointer<MimmoObject> > listgeo);
     void        setForceAABB(bool flag);
     void        setWriteInfo(bool flag);
 
@@ -126,11 +126,11 @@ protected:
     dmatrix33E inverse (const dmatrix33E & mat);
 
 private:
-    dmatrix33E      evaluatePointsCovarianceMatrix(std::vector<MimmoObject *> list);
-    dmatrix33E      evaluateElementsCovarianceMatrix(std::vector<MimmoObject *> list);
+    dmatrix33E      evaluatePointsCovarianceMatrix(std::vector<MimmoSharedPointer<MimmoObject> > list);
+    dmatrix33E      evaluateElementsCovarianceMatrix(std::vector<MimmoSharedPointer<MimmoObject> > list);
     dmatrix33E      eigenVectors( dmatrix33E &, darray3E & eigenValues);
     void            adjustBasis( dmatrix33E &, darray3E & eigenValues);
-    std::array<long,3> get3RepPoints(long cellID, MimmoObject * geo);
+    std::array<long,3> get3RepPoints(long cellID, mimmo::MimmoSharedPointer<MimmoObject> geo);
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__OBBox_HPP__)

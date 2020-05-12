@@ -96,7 +96,7 @@ ControlDeformMaxDistance::buildPorts(){
 
     built = (built && createPortIn<dmpvecarr3E*, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setDefField, M_GDISPLS));
     built = (built && createPortIn<double, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setLimitDistance, M_VALUED));
-    built = (built && createPortIn<MimmoObject*, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setGeometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::setGeometry, M_GEOM, true));
 
     built = (built && createPortOut<double, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolation, M_VALUED));
     built = (built && createPortOut<dmpvector1D*, ControlDeformMaxDistance>(this, &mimmo::ControlDeformMaxDistance::getViolationField, M_SCALARFIELD));
@@ -163,8 +163,8 @@ ControlDeformMaxDistance::setLimitDistance(double dist){
  * \param[in] geo pointer to target geometry
  */
 void
-ControlDeformMaxDistance::setGeometry(MimmoObject * geo){
-    if (geo ==NULL) return;
+ControlDeformMaxDistance::setGeometry(MimmoSharedPointer<MimmoObject> geo){
+    if (geo == nullptr) return;
     if (geo->getType() != 1 ) return;
 
     BaseManipulation::setGeometry(geo);
@@ -175,10 +175,10 @@ ControlDeformMaxDistance::setGeometry(MimmoObject * geo){
 void
 ControlDeformMaxDistance::execute(){
 
-    MimmoObject * geo = getGeometry();
-    if(geo == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+    MimmoSharedPointer<MimmoObject> geo = getGeometry();
+    if(geo == nullptr){
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
     if(geo->isEmpty()){

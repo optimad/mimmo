@@ -137,7 +137,7 @@ CreateSeedsOnSurface::buildPorts(){
     bool built = true;
 
     //input
-    built = (built && createPortIn<MimmoObject *, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setGeometry,M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setGeometry,M_GEOM, true));
     built = (built && createPortIn<darray3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSeed, M_POINT));
     built = (built && createPortIn<dmpvector1D*, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::setSensitivityMap, M_FILTER));
 
@@ -294,7 +294,7 @@ CreateSeedsOnSurface::setMassCenterAsSeed(bool flag){
  * \param[in] geo pointer to target geometry
  */
 void
-CreateSeedsOnSurface::setGeometry(MimmoObject * geo){
+CreateSeedsOnSurface::setGeometry(MimmoSharedPointer<MimmoObject> geo){
     if(geo == nullptr)    return;
     if(geo->getType() != 1)    return;
 
@@ -382,8 +382,8 @@ void
 CreateSeedsOnSurface::solve(bool debug){
 
     if(getGeometry() == nullptr){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
     if(getGeometry()->isEmpty()){
@@ -442,12 +442,12 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     m_deads.reserve(m_nPoints);
 
     //understand if the class is a pure triangulation or not
-    std::unique_ptr<MimmoObject> objTriangulated;
-    MimmoObject * workgeo;
+    MimmoSharedPointer<MimmoObject> objTriangulated;
+    MimmoSharedPointer<MimmoObject> workgeo;
     dmpvector1D worksensitivity;
     if(!checkTriangulation()){
-        objTriangulated = std::move(triangulate());
-        workgeo = objTriangulated.get();
+        objTriangulated = triangulate();
+        workgeo = objTriangulated;
         worksensitivity = m_sensitivity;
     }else{
         workgeo   = getGeometry();
@@ -665,7 +665,7 @@ CreateSeedsOnSurface::solveGrid(bool debug){
     m_points = dvecarr3E(initList.begin(), initList.end());
     m_nPoints = (int)m_points.size();
     if(debug)    (*m_log)<<m_name<<" : distribution of point successfully found w/ CartesianGrid engine "<<std::endl;
-    delete grid; grid = NULL;
+    delete grid; grid = nullptr;
 };
 
 
@@ -1413,7 +1413,7 @@ CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::st
 double
 CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
 
-    MimmoObject* geo = getGeometry();
+    MimmoSharedPointer<MimmoObject> geo = getGeometry();
     long supportCell = skdTreeUtils::locatePointOnPatch(point, *(geo->getSkdTree()));
     if(supportCell == bitpit::Cell::NULL_ID)    return 0.0;
 
@@ -1458,7 +1458,7 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
  */
 void CreateSeedsOnSurface::checkField(){
 
-    if(getGeometry() == NULL)   return;
+    if(getGeometry() == nullptr)   return;
     if(getGeometry()->isEmpty()) return;
     dmpvector1D defaultField;
     defaultField.setGeometry(getGeometry());
@@ -1547,14 +1547,14 @@ CreateSeedsOnSurface::checkTriangulation(){
  * \return a homogeneous triangulated and indipendent clone of the current target geometry linked to the class.
  * set also this new geometry to member sensitivity triangulated
  */
-std::unique_ptr<MimmoObject>
+MimmoSharedPointer<MimmoObject>
 CreateSeedsOnSurface::triangulate(){
 
-    std::unique_ptr<MimmoObject> temp = getGeometry()->clone();
+    MimmoSharedPointer<MimmoObject> temp = getGeometry()->clone();
     m_sensitivity_triangulated = m_sensitivity;
-    m_sensitivity_triangulated.setGeometry(temp.get());
+    m_sensitivity_triangulated.setGeometry(temp);
     temp->triangulate();
-    return std::move(temp);
+    return temp;
 }
 
 }

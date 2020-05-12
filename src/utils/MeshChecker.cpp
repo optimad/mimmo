@@ -147,7 +147,7 @@ void
 MeshChecker::execute()
 {
 	if (getGeometry() == nullptr){
-		throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+		throw std::runtime_error (m_name + " : nullptr pointer to linked geometry");
 	}
 	if (getGeometry()->isEmpty()){
         (*m_log)<<"WARNING: "<<m_name<< " : empty geometry found in execution"<<std::endl;
@@ -174,7 +174,7 @@ MeshChecker::execute()
 void
 MeshChecker::buildPorts(){
 	bool built = true;
-	built = (built && createPortIn<MimmoObject*, MeshChecker>(this, &MeshChecker::setGeometry, M_GEOM, true));
+	built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, MeshChecker>(this, &MeshChecker::setGeometry, M_GEOM, true));
     built = (built && createPortOut<bool, MeshChecker>(this, &mimmo::MeshChecker::isGood, M_VALUEB));
     built = (built && createPortOut<int, MeshChecker>(this, &mimmo::MeshChecker::getQualityStatusInt, M_VALUEI));
 	m_arePortsBuilt = built;
@@ -184,7 +184,7 @@ MeshChecker::buildPorts(){
     Overload BaseManipulation setGeometry
     \param[in] geo target geometry
 */
-void MeshChecker::setGeometry(MimmoObject * geo){
+void MeshChecker::setGeometry(MimmoSharedPointer<MimmoObject> geo){
     if(geo){
         BaseManipulation::setGeometry(geo);
         //Clear auxiliary variables
@@ -673,7 +673,7 @@ MeshChecker::clear(){
  */
 void
 MeshChecker::plotOptionalResults(){
-	if (getGeometry() == NULL) return;
+	if (getGeometry() == nullptr) return;
     if(m_qualityStatus == CMeshOutput::NOTRUN )  return;
 
     bool volumeEmpty = m_volume->isEmpty();

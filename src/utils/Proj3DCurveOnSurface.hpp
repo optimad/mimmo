@@ -103,9 +103,9 @@ namespace mimmo{
 class Proj3DCurveOnSurface: public ProjPrimitivesOnSurfaces{
 
 protected:
-    dvecarr3E                m_cpoints;        /**<points given by the user to define curve*/
-    bool                     m_closed;        /**<flag to identify closed open loops */
-    MimmoObject*             m_cobj;        /**<object to deal with connected points */
+    dvecarr3E                                       m_cpoints;     /**<points given by the user to define curve*/
+    bool                                            m_closed;      /**<flag to identify closed open loops */
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject>   m_cobj;        /**<object to deal with connected points */
 
 public:
     Proj3DCurveOnSurface();
@@ -119,7 +119,7 @@ public:
 
     void         addPoint(darray3E point);
     void        setPoints(dvecarr3E points);
-    void         setConnectedPoints(MimmoObject * geo);
+    void         setConnectedPoints(MimmoSharedPointer<MimmoObject> geo);
 
     bool        isClosedLoop();
     void         setClosedLoop(bool flag);

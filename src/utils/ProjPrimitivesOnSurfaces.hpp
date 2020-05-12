@@ -74,7 +74,7 @@ protected:
     int                 m_nC;           /**<Number of target elements of your 3D curve discrete projection */
     bool                m_buildSkdTree;    /**<If true build SkdTree of of the projected element mesh. */
     bool                m_buildKdTree;    /**<If true build KdTree of the projected element mesh. */
-    std::unique_ptr<MimmoObject> m_patch;            /**< resulting projected elements stored as MimmoObject */
+    MimmoSharedPointer<MimmoObject> m_patch;            /**< resulting projected elements stored as MimmoObject */
 
 
 public:
@@ -90,9 +90,9 @@ protected:
 public:
     int                             getTopology();
     virtual int                     getProjElementTargetNCells();
-    MimmoObject *                   getProjectedElement();
+    MimmoSharedPointer<MimmoObject> getProjectedElement();
 
-    void        setGeometry(MimmoObject * geo);
+    void        setGeometry(MimmoSharedPointer<MimmoObject> geo);
 
     void        setBuildSkdTree(bool build);
     void        setBuildKdTree(bool build);

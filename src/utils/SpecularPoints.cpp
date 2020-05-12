@@ -119,7 +119,7 @@ SpecularPoints::buildPorts(){
     built = (built && createPortIn<darray4E, SpecularPoints>(this, &mimmo::SpecularPoints::setPlane, M_PLANE));
     built = (built && createPortIn<darray3E, SpecularPoints>(this, &mimmo::SpecularPoints::setOrigin, M_POINT));
     built = (built && createPortIn<darray3E, SpecularPoints>(this, &mimmo::SpecularPoints::setNormal, M_AXIS));
-    built = (built && createPortIn<MimmoObject*, SpecularPoints>(this, &mimmo::SpecularPoints::setGeometry, M_GEOM));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, SpecularPoints>(this, &mimmo::SpecularPoints::setGeometry, M_GEOM));
 
     built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getMirroredCoords, M_COORDS));
     built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudVectorData, M_DISPLS));
@@ -339,7 +339,7 @@ SpecularPoints::execute(){
     }
     norm /= normPlane;
     bool project = false;
-    if (getGeometry() != NULL){
+    if (getGeometry() != nullptr){
         if (!getGeometry()->isEmpty()) project = true;
     }
 

@@ -92,11 +92,11 @@ ProjectCloud::buildPorts(){
     bool built = true;
 
     built = (built && createPortIn<dvecarr3E, ProjectCloud>(this, &mimmo::ProjectCloud::setCoords, M_COORDS, true,1));
-    built = (built && createPortIn<MimmoObject * , ProjectCloud>(this, &mimmo::ProjectCloud::setGeometry, M_GEOM, true));
-    built = (built && createPortIn<MimmoObject * , ProjectCloud>(this, &mimmo::ProjectCloud::setCoords, M_GEOM2, true,1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, ProjectCloud>(this, &mimmo::ProjectCloud::setGeometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, ProjectCloud>(this, &mimmo::ProjectCloud::setCoords, M_GEOM2, true,1));
 
     built = (built && createPortOut<dvecarr3E, ProjectCloud>(this, &mimmo::ProjectCloud::getProjectedCoords, M_COORDS));
-    built = (built && createPortOut<MimmoObject*, ProjectCloud>(this, &mimmo::ProjectCloud::getProjectedCloud, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, ProjectCloud>(this, &mimmo::ProjectCloud::getProjectedCloud, M_GEOM));
 
     m_arePortsBuilt = built;
 };
@@ -144,17 +144,17 @@ ProjectCloud::getProjectedCoords(livector1D * labels){
     in the form of a MimmoObject point cloud.
  * \return point cloud of projected point
  */
-MimmoObject *
+MimmoSharedPointer<MimmoObject>
 ProjectCloud::getProjectedCloud(){
 
-    m_internalPC = std::unique_ptr<MimmoObject>(new MimmoObject(3)); //new point cloud class
+    m_internalPC = MimmoSharedPointer<MimmoObject>(new MimmoObject(3)); //new point cloud class
     m_internalPC->getPatch()->reserveVertices(m_proj.size());
     int counter = 0;
     for(darray3E & val : m_proj){
         m_internalPC->addVertex(val, m_labels[counter]);
         ++counter;
     }
-    return  m_internalPC.get();
+    return  m_internalPC;
 };
 
 
@@ -180,7 +180,7 @@ ProjectCloud::setCoords(dvecarr3E coords){
  * \param[in] coordsPC generic MimmoObject geoemtry
  */
 void
-ProjectCloud::setCoords(MimmoObject * coordsPC){
+ProjectCloud::setCoords(MimmoSharedPointer<MimmoObject> coordsPC){
 
     m_points.clear();
     m_labels.clear();
@@ -201,7 +201,7 @@ ProjectCloud::setCoords(MimmoObject * coordsPC){
  * \param[in] refSurface reference geometry
  */
 void
-ProjectCloud::setGeometry(MimmoObject * refSurface){
+ProjectCloud::setGeometry(MimmoSharedPointer<MimmoObject> refSurface){
     if(!refSurface) return;
     if(refSurface->getType() != 1) return;
 
@@ -226,9 +226,9 @@ void ProjectCloud::clear(){
 void
 ProjectCloud::execute(){
 
-    if(getGeometry() == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+    if(getGeometry() == nullptr){
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
     if(getGeometry()->isEmpty()){
