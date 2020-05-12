@@ -133,7 +133,7 @@ public:
     const    fileListWithType &   getFiles() const;
 
     void     setDefField(dmpvecarr3E *field);
-    void     setGeometry(MimmoObject * geo);
+    void     setGeometry(MimmoSharedPointer<MimmoObject> geo);
     void     setBackgroundDetails(int nCell=50);
     void     setFiles(fileListWithType list );
     void     addFile(std::string file, double tol, int format);

@@ -111,7 +111,7 @@ public:
 	MeshChecker(const MeshChecker & other);
 	MeshChecker & operator=(MeshChecker other);
 
-    void setGeometry(MimmoObject * obj);
+    void setGeometry(MimmoSharedPointer<MimmoObject> obj);
     void setMinimumVolumeTolerance(double tol);
 	void setMaximumVolumeTolerance(double tol);
 	void setMaximumSkewnessTolerance(double tol);
@@ -170,10 +170,10 @@ protected:
 	//Temporary aux variables
 	MimmoPiercedVector<double>	m_volumes; /**<Cell volumes.*/
 
-	std::unique_ptr<MimmoObject>	m_volume; /**<Cells with poor volume.*/
-	std::unique_ptr<MimmoObject>	m_skewness; /**<Cells with poor skewness.*/
-	std::unique_ptr<MimmoObject>	m_facevalidity; /**<Cells with poor face validity.*/
-	std::unique_ptr<MimmoObject>	m_volumechange; /**<Cells with poor volume change ratio.*/
+	std::unique_ptr<MimmoObject>	m_volume; /**<INTERNAL USE Cells with poor volume.*/
+	std::unique_ptr<MimmoObject>	m_skewness; /**<INTERNAL USE Cells with poor skewness.*/
+	std::unique_ptr<MimmoObject>	m_facevalidity; /**<INTERNAL USE Cells with poor face validity.*/
+	std::unique_ptr<MimmoObject>	m_volumechange; /**<INTERNAL USE Cells with poor volume change ratio.*/
 
     bool m_printResumeFile; /**< true, print a resume file after checking */
 

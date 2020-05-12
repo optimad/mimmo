@@ -23,6 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_utils.hpp"
+#include "MimmoSharedPointer.hpp"
 #include <exception>
 using namespace std;
 using namespace bitpit;
@@ -107,9 +108,8 @@ bool createMimmoMesh(MimmoObject * mesh){
  */
 int test2() {
 
-    MimmoObject * m1 = new MimmoObject();
-    if(!createMimmoMesh(m1)) {
-        delete m1;
+    MimmoSharedPointer<MimmoObject> m1(new MimmoObject());
+    if(!createMimmoMesh(m1.get())) {
         return 1;
     }
     darray3E normal = {{0,0,1}};
@@ -135,7 +135,6 @@ int test2() {
 
     check = check && (norm2(cseed->getPoints()[1]- target) < 1.e-18);
 
-    delete m1;
     delete cseed;
     std::cout<<"test passed :" <<check<<std::endl;
     return int(!check);

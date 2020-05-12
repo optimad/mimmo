@@ -152,8 +152,8 @@ protected:
     void swap(SpecularPoints & x) noexcept;
 
 private:
-    void setCoords(MimmoObject *);
-    MimmoObject * getProjectedCloud();
+    void setCoords(MimmoSharedPointer<MimmoObject>);
+    MimmoSharedPointer<MimmoObject> getProjectedCloud();
     dvecarr3E    getProjectedCoords();
     dvecarr3E    getProjectedCoords(livector1D *);
 

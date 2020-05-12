@@ -43,7 +43,7 @@ namespace mimmo{
 ProjPatchOnSurface::ProjPatchOnSurface(){
     m_name         = "mimmo.ProjPatchOnSurface";
     m_topo     = 2;
-    m_cobj = NULL;
+    m_cobj = nullptr;
 };
 
 /*!
@@ -54,7 +54,7 @@ ProjPatchOnSurface::ProjPatchOnSurface(const bitpit::Config::Section & rootXML){
 
     m_name         = "mimmo.ProjPatchOnSurface";
     m_topo     = 2;
-    m_cobj = NULL;
+    m_cobj = nullptr;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -104,7 +104,7 @@ void ProjPatchOnSurface::swap(ProjPatchOnSurface &x) noexcept
 void
 ProjPatchOnSurface::clear(){
     ProjPrimitivesOnSurfaces::clear();
-    m_cobj = NULL;
+    m_cobj = nullptr;
 }
 
 /*!
@@ -113,9 +113,9 @@ ProjPatchOnSurface::clear(){
  * \param[in] geo pointer to geometry container
  */
 void
-ProjPatchOnSurface::setPatch(MimmoObject * geo){
+ProjPatchOnSurface::setPatch(MimmoSharedPointer<MimmoObject> geo){
 
-    if(geo == NULL)    return;
+    if(geo == nullptr)    return;
     auto type = geo->getType();
     if(type != 1 )    return;
     m_cobj = geo;
@@ -196,7 +196,7 @@ void
 ProjPatchOnSurface::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<MimmoObject*, ProjPatchOnSurface>(this, &mimmo::ProjPatchOnSurface::setPatch, M_GEOM2, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, ProjPatchOnSurface>(this, &mimmo::ProjPatchOnSurface::setPatch, M_GEOM2, true));
     m_arePortsBuilt = built;
     ProjPrimitivesOnSurfaces::buildPorts();
 }
@@ -207,7 +207,7 @@ ProjPatchOnSurface::buildPorts(){
  */
 void
 ProjPatchOnSurface::projection(){
-    std::unique_ptr<MimmoObject> dum = m_cobj->clone();
+    MimmoSharedPointer<MimmoObject> dum = m_cobj->clone();
     //...and projecting them onto target surface
     if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
     bitpit::PiercedVector<bitpit::Vertex> & verts = dum->getVertices();
@@ -217,10 +217,8 @@ ProjPatchOnSurface::projection(){
         proj = skdTreeUtils::projectPoint(&point, getGeometry()->getSkdTree());
         it->setCoords(proj);
     }
-    m_patch = std::move(dum);
+    m_patch = dum;
 };
-
-
 
 
 }
