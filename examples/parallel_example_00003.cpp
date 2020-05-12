@@ -42,7 +42,7 @@ typedef std::chrono::high_resolution_clock Clock;
 
 // =================================================================================== //
 
-std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
 
 	std::array<double,3> center({{0.0,0.0,0.0}});
 	double radiusin(2.0), radiusout(5.0);
@@ -69,7 +69,7 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<b
 	}
 
 	//create the volume mesh mimmo.
-	std::unique_ptr<mimmo::MimmoObject> mesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh(new mimmo::MimmoObject(2));
 
 	if (rank == 0){
 
@@ -135,7 +135,7 @@ int test00003() {
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 	std::vector<bitpit::Vertex> bc1list, bc2list;
-	std::unique_ptr<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
 
 	std::vector<long> bc1list_, bc2list_;
 	for (auto v : bc1list)
@@ -147,7 +147,7 @@ int test00003() {
 	livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list_, true, true);
 
 	//create the portion of boundary mesh carrying Dirichlet conditions
-	std::unique_ptr<mimmo::MimmoObject> bdirMesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> bdirMesh(new mimmo::MimmoObject(1));
 	if (rank == 0){
 		bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
 		bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
@@ -180,8 +180,8 @@ int test00003() {
 	 */
 	mimmo::Partition* partition = new mimmo::Partition();
 	partition->setPlotInExecution(true);
-	partition->setGeometry(mesh.get());
-	partition->setBoundaryGeometry(bdirMesh.get());
+	partition->setGeometry(mesh);
+	partition->setBoundaryGeometry(bdirMesh);
 	auto t1 = Clock::now();
 	if (rank ==0)
 		std::cout << "Start Partition mesh " << std::endl;
