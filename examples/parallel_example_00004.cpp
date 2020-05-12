@@ -46,7 +46,7 @@ typedef std::chrono::high_resolution_clock Clock;
 
 // =================================================================================== //
 
-std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
 
 	std::array<double,3> center({{0.0,0.0,0.0}});
 	double radiusin(2.0), radiusout(5.0);
@@ -73,7 +73,7 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<b
 	}
 
 	//create the volume mesh mimmo.
-	std::unique_ptr<mimmo::MimmoObject> mesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh(new mimmo::MimmoObject(2));
 
 	if (rank == 0){
 
@@ -139,7 +139,7 @@ int test00004() {
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 	std::vector<bitpit::Vertex> bc1list, bc2list;
-	std::unique_ptr<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
 
 	std::vector<long> bc1list_, bc2list_;
 	for (auto v : bc1list)
@@ -151,7 +151,7 @@ int test00004() {
 	livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list_, true, true);
 
 	//create the portion of boundary mesh carrying Dirichlet conditions
-	std::unique_ptr<mimmo::MimmoObject> bdirMesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> bdirMesh (new mimmo::MimmoObject(1));
 	if (rank == 0){
 		bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
 		bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
@@ -185,8 +185,8 @@ int test00004() {
 	 */
 	mimmo::Partition* partition = new mimmo::Partition();
 	partition->setPlotInExecution(true);
-	partition->setGeometry(mesh.get());
-	partition->setBoundaryGeometry(bdirMesh.get());
+	partition->setGeometry(mesh);
+	partition->setBoundaryGeometry(bdirMesh);
 	auto t1 = Clock::now();
 	if (rank == 0)
 		std::cout << "#" << rank  << " Start Partition mesh " << std::endl;
@@ -204,7 +204,7 @@ int test00004() {
 	mimmoVolumeOut->setWriteDir("./");
 	mimmoVolumeOut->setWriteFileType(FileType::MIMMO);
 	mimmoVolumeOut->setWriteFilename("parallel_example_00004.volume.partitioned");
-	mimmoVolumeOut->setGeometry(mesh.get());
+	mimmoVolumeOut->setGeometry(mesh);
 	mimmoVolumeOut->exec();
 
 	/* Creation of mimmo containers. MimmoGeometry used to restore partitioned mesh
@@ -217,15 +217,15 @@ int test00004() {
 	mimmoVolumeIn->setWriteFileType(FileType::VOLVTU);
 	mimmoVolumeIn->setWriteFilename("parallel_example_00004.volume.restored");
 	mimmoVolumeIn->exec();
-
+    
 	/* Instantiation of a Partition object with serialize partition method.
 	 * Plot Optional results during execution active for Partition block.
 	 */
 	mimmo::Partition* serialize = new mimmo::Partition();
 	serialize->setName("mimmo.Serialization");
 	serialize->setPlotInExecution(true);
-	serialize->setGeometry(mimmoVolumeIn->getGeometry());
-	serialize->setBoundaryGeometry(bdirMesh.get());
+	serialize->setGeometry(mesh);//mimmoVolumeIn->getGeometry());
+	serialize->setBoundaryGeometry(bdirMesh);
 	serialize->setPartitionMethod(mimmo::PartitionMethod::SERIALIZE);
 
 	t1 = Clock::now();

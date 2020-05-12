@@ -90,18 +90,12 @@ enum class PartitionMethod{
  */
 class Partition: public BaseManipulation{
 private:
-	std::unordered_map<long, int>	m_partition;			/**<Partition structure, i-th term is the final rank of the i-th cell after partitioning.*/
-	PartitionMethod					m_mode;					/**<Partition method. Default 1 - Cartesian Axes Subdivision*/
-    MimmoObject*        			m_boundary;     		/**<Reference to external boundary MimmoObject. */
-    std::unordered_map<long, int>	m_boundarypartition;	/**<Partition structure for boundary geometry, i-th term is the final rank of the i-th cell after partitioning.*/
+    std::unordered_map<long, int>   m_partition;            /**<Partition structure, i-th term is the final rank of the i-th cell after partitioning.*/
+    PartitionMethod                 m_mode;                 /**<Partition method. Default 1 - Cartesian Axes Subdivision*/
+    MimmoSharedPointer<MimmoObject> m_boundary;             /**<Reference to external boundary MimmoObject. */
+    std::unordered_map<long, int>   m_boundarypartition;    /**<Partition structure for boundary geometry, i-th term is the final rank of the i-th cell after partitioning.*/
 
-	bool							m_interfacesReset;
-
-    bool        					m_isInternal;         	/**< flag for internal instantiated main MimmoObject */
-    std::unique_ptr<MimmoObject> 	m_intgeo;    			/**< pointer to internal allocated geometry, if any */
-
-    bool        					m_isBoundaryInternal;   /**< flag for internal instantiated boundary MimmoObject */
-    std::unique_ptr<MimmoObject> 	m_intboundarygeo;    	/**< pointer to internal allocated geometry, if any */
+    bool                            m_interfacesReset;
 
 public:
     Partition();
@@ -112,10 +106,9 @@ public:
 
     void buildPorts();
 
-    MimmoObject* getGeometry();
-    MimmoObject* getBoundaryGeometry();
-    void setGeometry(MimmoObject* geo);
-    void setBoundaryGeometry(MimmoObject* geo);
+    MimmoSharedPointer<MimmoObject> getBoundaryGeometry();
+    void setGeometry(MimmoSharedPointer<MimmoObject> geo);
+    void setBoundaryGeometry(MimmoSharedPointer<MimmoObject> geo);
     void setPartitionMethod(PartitionMethod mode);
     void setPartitionMethod(int mode);
     void setPartition(std::unordered_map<long, int> partition);
@@ -135,7 +128,7 @@ private:
     void serialPartition();
     void updateBoundaryVerticesID();
 #if MIMMO_ENABLE_MPI
-    void serialize(MimmoObject* & geometry, bool isBoundary);
+    void serialize(MimmoSharedPointer<MimmoObject> &geometry, bool isBoundary);
 #endif
 
 
