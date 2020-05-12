@@ -134,10 +134,10 @@ template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setGeometry, M_GEOM, true));
-    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addDirichletBoundarySurface, M_GEOM2, true));
-    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addDampingBoundarySurface, M_GEOM3));
-    built = (built && createPortIn<MimmoObject*, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addNarrowBandBoundarySurface, M_GEOM7));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setGeometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addDirichletBoundarySurface, M_GEOM2, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addDampingBoundarySurface, M_GEOM3));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addNarrowBandBoundarySurface, M_GEOM7));
     m_arePortsBuilt = built;
 };
 
@@ -183,7 +183,7 @@ void PropagateField<NCOMP>::setPrint(bool print){
  */
 template <std::size_t NCOMP>
 void
-PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
+PropagateField<NCOMP>::setGeometry(MimmoSharedPointer<MimmoObject> geometry_){
 
     if (geometry_ == nullptr) return;
     if (geometry_->getType()!= 2 ) return;
@@ -193,6 +193,7 @@ PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
     if(!m_geometry->areAdjacenciesBuilt()){
         m_geometry->buildAdjacencies();
     }
+
 }
 
 /*!
@@ -203,7 +204,7 @@ PropagateField<NCOMP>::setGeometry(MimmoObject * geometry_){
  */
 template <std::size_t NCOMP>
 void
-PropagateField<NCOMP>::addDirichletBoundarySurface(MimmoObject* bsurface){
+PropagateField<NCOMP>::addDirichletBoundarySurface(MimmoSharedPointer<MimmoObject> bsurface){
     if (bsurface == nullptr)       return;
     if (bsurface->getType()!= 1 ) return;
 
@@ -229,7 +230,7 @@ PropagateField<NCOMP>::setNarrowBand(bool flag){
  */
  template <std::size_t NCOMP>
  void
- PropagateField<NCOMP>::addNarrowBandBoundarySurface(MimmoObject* surface){
+ PropagateField<NCOMP>::addNarrowBandBoundarySurface(MimmoSharedPointer<MimmoObject> surface){
 	if (surface == nullptr)      return;
 	if (surface->getType()!= 1 ) return;
 
@@ -297,7 +298,7 @@ PropagateField<NCOMP>::setDampingDecayFactor(double decay){
  */
 template <std::size_t NCOMP>
 void
-PropagateField<NCOMP>::addDampingBoundarySurface(MimmoObject* bdumping){
+PropagateField<NCOMP>::addDampingBoundarySurface(MimmoSharedPointer<MimmoObject> bdumping){
 	if (bdumping == nullptr)       return;
 	if (bdumping->getType()!= 1 ) return;
 
@@ -557,20 +558,20 @@ PropagateField<NCOMP>::checkBoundariesCoherence(){
     if(!m_geometry) return false;
 
     std::unordered_set<long> nodeList;
-    for(MimmoObject * obj : m_dirichletSurfaces){
+    for(MimmoSharedPointer<MimmoObject> obj : m_dirichletSurfaces){
         std::vector<long> temp = obj->getVerticesIds(true); //only on internals
         nodeList.insert(temp.begin(), temp.end());
     }
 
     if(m_bandActive){
-        for(MimmoObject * obj : m_bandSurfaces){
+        for(MimmoSharedPointer<MimmoObject> obj : m_bandSurfaces){
             std::vector<long> temp = obj->getVerticesIds(true); //only on internals
             nodeList.insert(temp.begin(), temp.end());
         }
     }
 
     if(m_dampingActive){
-        for(MimmoObject * obj : m_dampingSurfaces){
+        for(MimmoSharedPointer<MimmoObject> obj : m_dampingSurfaces){
             std::vector<long> temp = obj->getVerticesIds(true); //only on internals
             nodeList.insert(temp.begin(), temp.end());
         }
@@ -595,7 +596,7 @@ void
 PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
     //estimate the total number of internal nodes carrying dirichlet bc
     int ncount = 0;
-    for(MimmoObject * obj : m_dirichletSurfaces){
+    for(MimmoSharedPointer<MimmoObject> obj : m_dirichletSurfaces){
         ncount += obj->getNInternalVertices();
     }
     m_bc_dir.clear();
@@ -606,9 +607,9 @@ PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
     //starting from fields, fill in m_bc_dir and track those surfaces without a proper field;
     std::array<double,NCOMP> zeroval;
     zeroval.fill(0.0);
-    std::unordered_set<MimmoObject*> withoutField = m_dirichletSurfaces;
+    std::unordered_set<MimmoSharedPointer<MimmoObject> > withoutField = m_dirichletSurfaces;
     for(MimmoPiercedVector<std::array<double,NCOMP>> * field : m_dirichletBcs){
-        MimmoObject * ref = field->getGeometry();
+        MimmoSharedPointer<MimmoObject> ref = field->getGeometry();
         //remove it from unvisited patch list
         withoutField.erase(ref);
         std::vector<long> ids = ref->getVerticesIds(true);
@@ -622,7 +623,7 @@ PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
         }
     }
 
-    for(MimmoObject * ref : withoutField){
+    for(MimmoSharedPointer<MimmoObject> ref : withoutField){
         std::vector<long> ids = ref->getVerticesIds(true); //only internals
         for(long id : ids){
             if(m_bc_dir.exists(id)) continue;
@@ -645,7 +646,7 @@ PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
  */
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoObject*> & listSurf, std::unique_ptr<MimmoObject> & uniSurf){
+PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSharedPointer<MimmoObject> > & listSurf, MimmoSharedPointer<MimmoObject> & uniSurf){
 
     uniSurf = nullptr;
     // check if list is empty
@@ -656,8 +657,8 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoObj
     //put all surface in the list in a unique surface. For MPI version, surface
     //are most likely partitioned, so you need to have information on internals/ghosts updated.
     //reconstructed surface is made by internals element/nodes only.
-    std::unique_ptr<MimmoObject> tempSurface(new MimmoObject(1));
-    for(MimmoObject * obj : listSurf){
+    MimmoSharedPointer<MimmoObject> tempSurface(new MimmoObject(1));
+    for(MimmoSharedPointer<MimmoObject> obj : listSurf){
 #if MIMMO_ENABLE_MPI
         if(!obj->isInfoSync()) obj->buildPatchInfo();
         if(!obj->arePointGhostExchangeInfoSync()) obj->updatePointGhostExchangeInfo();
@@ -685,7 +686,7 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoObj
 // all other procs. In serial version, you are pretty ready to store tempSurface as your m_dampingUniSurface
 #if MIMMO_ENABLE_MPI
     if (getTotalProcs() > 1){
-        uniSurf = std::move(std::unique_ptr<MimmoObject>(new MimmoObject(1)));
+        uniSurf.reset(new MimmoObject(1));
 
         uniSurf->getPatch()->reserveVertices(uniSurf->getPatch()->getVertexCount() + tempSurface->getPatch()->getVertexCount());
         uniSurf->getPatch()->reserveCells(uniSurf->getPatch()->getCellCount() + tempSurface->getPatch()->getCellCount());
@@ -1157,7 +1158,7 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 {
     BITPIT_UNUSED(unused);
     //resize rhs to the number of internal cells
-    MimmoObject * geo = getGeometry();
+    MimmoSharedPointer<MimmoObject> geo = getGeometry();
     rhs.resize(geo->getNInternalVertices(), 0.0);
 
     if (!m_solver->isAssembled()) {
@@ -1199,7 +1200,7 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
         auto index = maplocals.at(it.getId());
 #if MIMMO_ENABLE_MPI
         //correct index if in parallel
-        index -= getGeometry()->getPointGlobalCountOffset();
+        index -= geo->getPointGlobalCountOffset();
 #endif
         rhs[index] -= it->getConstant();
     }
@@ -1248,7 +1249,7 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
         return;
     }
     // push result in a mpv linked to target mesh and on cell location.
-    MimmoObject * geo = getGeometry();
+    MimmoSharedPointer<MimmoObject> geo = getGeometry();
     std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvres(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::POINT));
     mpvres->reserve(geo->getNVertices());
 
@@ -1259,7 +1260,7 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liima
         if (geo->isPointInterior(id)){
             counter = pair.first;
 #if MIMMO_ENABLE_MPI
-            counter -= getGeometry()->getPointGlobalCountOffset();
+            counter -= geo->getPointGlobalCountOffset();
 #endif
             for(int i=0; i<int(NCOMP); ++i){
                 temp[i] = results[i][counter];
@@ -1350,7 +1351,7 @@ template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::communicateGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data){
     // Creating cell ghost communications for exchanging interpolated values
-    MimmoObject * geo = data->getGeometry();
+    MimmoObject * geo = data->getGeometry().get();
     if(!geo){
         throw std::runtime_error("Propagate Class ::communicateGhostData no ref Geometry in mpv data!");
     }
@@ -1387,7 +1388,7 @@ template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data){
     // Creating cell ghost communications for exchanging interpolated values
-    MimmoObject * geo = data->getGeometry();
+    MimmoObject * geo = data->getGeometry().get();
     if(!geo){
         throw std::runtime_error("Propagate Class ::communicatePointGhostData no ref Geometry in mpv data!");
     }

@@ -122,14 +122,14 @@ void computeWeightsWLS( const std::vector<std::vector<double>> &P,
  *                                   if null compute on all cells.
  *  \return a CELL data pierced vector containing the gradient stencils
  */
-MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vector<long> * updatelist){
+MPVGradientUPtr   computeFVCellGradientStencil(MimmoSharedPointer<MimmoObject> geo, const std::vector<long> * updatelist){
 
-    MPVGradientUPtr result = std::unique_ptr<MPVGradient>(new MPVGradient(&geo, MPVLocation::CELL));
-    if(geo.getType() != 2) return result; //this work only on Volume meshes
+    MPVGradientUPtr result = std::unique_ptr<MPVGradient>(new MPVGradient(geo, MPVLocation::CELL));
+    if(geo->getType() != 2) return result; //this work only on Volume meshes
 
     livector1D list;
     if(!updatelist){
-        list = geo.getCells().getIds();
+        list = geo->getCells().getIds();
     }else{
         list.insert(list.end(), updatelist->begin(), updatelist->end());
     }
@@ -138,7 +138,7 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vec
 
     result->reserve(list.size());
 
-    auto patch = geo.getPatch();
+    auto patch = geo->getPatch();
     std::vector<double>                   ww;
     std::vector< std::vector<double> >    points;
     std::vector< std::vector<double> >    gweights;
@@ -205,7 +205,7 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vec
  * \param[in] cellGradientStencil (optional) gradient stencil calculated on ALL cell centers + ghosts.
  * \return a INTERFACE data pierced vector containing the gradient stencil
  */
-MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * cellGradientStencil ){
+MPVGradientUPtr   computeFVFaceGradientStencil(MimmoSharedPointer<MimmoObject> geo, MPVGradient * cellGradientStencil ){
 
     MPVGradientUPtr calculateCellGradStencil;
 
@@ -213,7 +213,7 @@ MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * 
     if(!cellGradientStencil){
         calculateCellGradStencil = computeFVCellGradientStencil(geo);
         cgs = calculateCellGradStencil.get();
-    }else if(cellGradientStencil->getGeometry() != &geo || cellGradientStencil->getDataLocation() != MPVLocation::CELL) {//check if mpv structure is messed
+    }else if(cellGradientStencil->getGeometry() != geo || cellGradientStencil->getDataLocation() != MPVLocation::CELL) {//check if mpv structure is messed
         calculateCellGradStencil = computeFVCellGradientStencil(geo);
         cgs = calculateCellGradStencil.get();
     }else{
@@ -238,7 +238,7 @@ MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * 
  * \param[in] list of cell IDs you need to update.
  * \return a INTERFACE data pierced vector containing gradient stencils at all interfaces relative to the selected cells.
  */
-MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, const std::vector<long> & list ){
+MPVGradientUPtr   updateFVFaceGradientStencil(MimmoSharedPointer<MimmoObject> geo, const std::vector<long> & list ){
 
     MPVGradientUPtr calculateCellGradStencil = computeFVCellGradientStencil(geo, &list);
     return updateFVFaceGradientStencil(geo, *(calculateCellGradStencil.get()));
@@ -260,11 +260,11 @@ MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, const std::vect
  * \param[in] cellGradientStencil MPV of Center Cell Gradient stencils involved into update.
  * \return a INTERFACE data pierced vector containing gradient stencils at all interfaces relative to the selected cells.
  */
-MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, MPVGradient & cellGradientStencil ){
+MPVGradientUPtr   updateFVFaceGradientStencil(MimmoSharedPointer<MimmoObject> geo, MPVGradient & cellGradientStencil ){
 
-    MPVGradientUPtr result = std::unique_ptr<MPVGradient>(new MPVGradient(&geo, MPVLocation::INTERFACE));
+    MPVGradientUPtr result = std::unique_ptr<MPVGradient>(new MPVGradient(geo, MPVLocation::INTERFACE));
 
-    if(geo.getType() != 2) return result; //this work only on Volume meshes
+    if(geo->getType() != 2) return result; //this work only on Volume meshes
 
     MPVGradient * cgs = &cellGradientStencil;
     //look if you have an empty cc gradient pool
@@ -272,11 +272,11 @@ MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, MPVGradient & c
         return result;
     }
 
-    result->reserve(geo.getPatch()->getInterfaceCount());
+    result->reserve(geo->getPatch()->getInterfaceCount());
 
     //now i have the gradient stencil on cell center.
-    bitpit::PiercedVector<bitpit::Interface> & interfaces = geo.getInterfaces();
-    bitpit::PiercedVector<bitpit::Cell> & cells = geo.getCells();
+    bitpit::PiercedVector<bitpit::Interface> & interfaces = geo->getInterfaces();
+    bitpit::PiercedVector<bitpit::Cell> & cells = geo->getCells();
 
     long ownerID, neighID;
     std::array<double,3> ownerCentroid, neighCentroid, interfaceCentroid, interfaceNormal;
@@ -286,13 +286,13 @@ MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, MPVGradient & c
     bitpit::StencilVector ownerStencil, neighStencil, avgStencil;
     double minDistance;
 
-    livector1D targetlist = geo.getInterfaceFromCellList(cgs->getIds(), false);
+    livector1D targetlist = geo->getInterfaceFromCellList(cgs->getIds(), false);
 
     for(long & interfid : targetlist){
         const bitpit::Interface & interface = interfaces.at(interfid);
         ownerID = interface.getOwner();
         neighID = interface.getNeigh();
-        interfaceNormal = geo.evalInterfaceNormal(interfid);
+        interfaceNormal = geo->evalInterfaceNormal(interfid);
 
         if(neighID < 0){ //interface is a border
             if(!cells.at(ownerID).isInterior()){
@@ -317,11 +317,11 @@ MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, MPVGradient & c
 
             //evaluate the gradient stencil on interface, accounting for non-orthogonality correction.
             //get interface centroid
-            interfaceCentroid = geo.evalInterfaceCentroid(interfid);
+            interfaceCentroid = geo->evalInterfaceCentroid(interfid);
 
             // get owner and neighbor centroids
-            ownerCentroid = geo.getPatch()->evalCellCentroid(ownerID);
-            neighCentroid = geo.getPatch()->evalCellCentroid(neighID);
+            ownerCentroid = geo->getPatch()->evalCellCentroid(ownerID);
+            neighCentroid = geo->getPatch()->evalCellCentroid(neighID);
 
             ownerStencil = cgs->at(ownerID);
             neighStencil = cgs->at(neighID);
@@ -503,7 +503,7 @@ MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil, 
 
 	BITPIT_UNUSED(tolerance);
 
-    MimmoObject * geo = faceGradientStencil.getGeometry();
+	MimmoSharedPointer<MimmoObject> geo = faceGradientStencil.getGeometry();
     // prepare and allocate the result list for laplacian stencils.
     MPVDivergenceUPtr result = MPVDivergenceUPtr(new MPVDivergence(geo, MPVLocation::CELL));
     if(geo->getType() != 2) return result; //only for Volume Meshes
@@ -595,48 +595,48 @@ namespace GraphLaplStencil{
  * \param[in] tolerance threshold value used to filter out stencil items
  * \param[in] diffusivity (optional) impose a diffusivity field on POINT (provided also on ghost points)
  */
-MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
+MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, double tolerance,
                                              MimmoPiercedVector<double> * diffusivity)
 {
 
 	BITPIT_UNUSED(tolerance);
 
     // prepare and allocate the result list for laplacian stencils.
-	MPVStencilUPtr result = MPVStencilUPtr(new MPVStencil(&geo, MPVLocation::POINT));
+	MPVStencilUPtr result = MPVStencilUPtr(new MPVStencil(geo, MPVLocation::POINT));
 
-    result->reserve(geo.getNInternalVertices());
-    for(auto id : geo.getVertices().getIds()){
-    	if (geo.isPointInterior(id))
+    result->reserve(geo->getNInternalVertices());
+    for(auto id : geo->getVertices().getIds()){
+    	if (geo->isPointInterior(id))
     		result->insert(id, bitpit::StencilScalar());
     }
 
     //fill edges
-    if (!geo.isPointConnectivitySync())
-    	geo.buildPointConnectivity();
+    if (!geo->isPointConnectivitySync())
+    	geo->buildPointConnectivity();
 
     //interpolate diffusivity
     MimmoPiercedVector<double> pdiffusivity;
     if (diffusivity)
     	pdiffusivity = diffusivity->cellDataToPointData(1.5);
     else
-    	pdiffusivity.initialize(&geo, MPVLocation::POINT, 1.);
+    	pdiffusivity.initialize(geo, MPVLocation::POINT, 1.);
 
     //loop on point connectivity
    MimmoPiercedVector<double> sums;
-   sums.initialize(&geo, MPVLocation::POINT, 0.);
+   sums.initialize(geo, MPVLocation::POINT, 0.);
     double d_1;
     double p = 2.0;
     double localdiff, avgdiff;
-    for (long id1 : geo.getVertices().getIds()){
+    for (long id1 : geo->getVertices().getIds()){
         localdiff = pdiffusivity.at(id1);
-        auto pconn = geo.getPointConnectivity(id1);
+        auto pconn = geo->getPointConnectivity(id1);
         for (long id2 : pconn){
             avgdiff = 0.5*(localdiff + pdiffusivity.at(id2));
-            d_1 =1.0/std::pow(norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2)),p);
+            d_1 =1.0/std::pow(norm2(geo->getVertexCoords(id1)-geo->getVertexCoords(id2)),p);
             d_1 *= avgdiff;
             sums[id1] += d_1;
 
-    		if (geo.isPointInterior(id1))
+    		if (geo->isPointInterior(id1))
     		{
     			result->at(id1).appendItem(id2, d_1);
     		}
@@ -651,8 +651,8 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
     }
 
     //Insert diagonal values (-1)
-    for (long id : geo.getPatch()->getVertices().getIds()){
-    	if (geo.isPointInterior(id))
+    for (long id : geo->getPatch()->getVertices().getIds()){
+    	if (geo->isPointInterior(id))
     	{
     		result->at(id).addComplementToZero(id); // adding the central node weight as minus sum of other weights.
     		result->at(id).flatten();
@@ -681,49 +681,49 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance,
  * \param[in] tolerance threshold value used to filter out stencil items
  * \param[in] diffusivity (optional) impose a diffusivity field on POINT (provided also on ghost points)
  */
-MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, std::vector<long>* nodesList, double tolerance,
+MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, std::vector<long>* nodesList, double tolerance,
                                              MimmoPiercedVector<double> * diffusivity)
 {
 
 	BITPIT_UNUSED(tolerance);
 
     // prepare and allocate the result list for laplacian stencils.
-	MPVStencilUPtr result = MPVStencilUPtr(new MPVStencil(&geo, MPVLocation::POINT));
+	MPVStencilUPtr result = MPVStencilUPtr(new MPVStencil(geo, MPVLocation::POINT));
 
     result->reserve(nodesList->size());
     for(auto id : *nodesList){
-    	if (geo.isPointInterior(id))
+    	if (geo->isPointInterior(id))
     	{
     		result->insert(id, bitpit::StencilScalar());
     	}
     }
 
     //fill edges
-    if (!geo.isPointConnectivitySync())
-    	geo.buildPointConnectivity();
+    if (!geo->isPointConnectivitySync())
+    	geo->buildPointConnectivity();
 
     //interpolate diffusivity
     MimmoPiercedVector<double> pdiffusivity;
     if (diffusivity)
     	pdiffusivity = diffusivity->cellDataToPointData(1.5);
     else
-    	pdiffusivity.initialize(&geo, MPVLocation::POINT, 1.);
+    	pdiffusivity.initialize(geo, MPVLocation::POINT, 1.);
 
     //loop on edges
     MimmoPiercedVector<double> sums;
-    sums.initialize(&geo, MPVLocation::POINT, 0.);
+    sums.initialize(geo, MPVLocation::POINT, 0.);
     double d_1;
     double p = 2.0;
     double localdiff, avgdiff;
     for (long id1 : *nodesList){
         localdiff = pdiffusivity.at(id1);
-        auto pconn = geo.getPointConnectivity(id1);
+        auto pconn = geo->getPointConnectivity(id1);
         for (long id2 : pconn){
             avgdiff = 0.5*(localdiff + pdiffusivity.at(id2));
-            d_1 =1.0/std::pow(norm2(geo.getVertexCoords(id1)-geo.getVertexCoords(id2)),p);
+            d_1 =1.0/std::pow(norm2(geo->getVertexCoords(id1)-geo->getVertexCoords(id2)),p);
             d_1 *= avgdiff;
             sums[id1] += d_1;
-    		if (geo.isPointInterior(id1))
+    		if (geo->isPointInterior(id1))
     		{
     			result->at(id1).appendItem(id2, d_1);
     		}
@@ -739,7 +739,7 @@ MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, std::vector<long>* no
 
     //Insert diagonal values (-1)
     for (long id : *nodesList){
-    	if (geo.isPointInterior(id))
+    	if (geo->isPointInterior(id))
     	{
     		result->at(id).addComplementToZero(id); // adding the central node weight as minus sum of other weights.
     		result->at(id).flatten();
