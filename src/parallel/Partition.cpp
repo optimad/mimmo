@@ -37,10 +37,7 @@ Partition::Partition(){
 	m_name = "mimmo.Partition";
 	m_mode = PartitionMethod::PARTGEOM;
 	m_partition.clear();
-	m_boundary = nullptr;
-	m_isInternal = false;
-	m_isBoundaryInternal = false;
-	m_intgeo = nullptr;
+	m_boundary.reset();
 	m_interfacesReset = false;
 };
 
@@ -52,11 +49,8 @@ Partition::Partition(const bitpit::Config::Section & rootXML){
 
 	m_name = "mimmo.Partition";
 	m_mode = PartitionMethod::PARTGEOM;
-	m_boundary = nullptr;
+	m_boundary.reset();
 	m_partition.clear();
-	m_isInternal = false;
-	m_isBoundaryInternal = false;
-	m_intgeo = nullptr;
 	m_interfacesReset = false;
 
 	std::string fallback_name = "ClassNONE";
@@ -81,17 +75,6 @@ Partition::Partition(const Partition & other):BaseManipulation(other){
 	m_partition = other.m_partition;
 	m_boundary = other.m_boundary;
 	m_interfacesReset = other.m_interfacesReset;
-;
-
-	if(other.m_isInternal){
-        m_geometry = other.m_intgeo.get();
-    }
-    m_isInternal = false;
-
-	if(other.m_isBoundaryInternal){
-        m_boundary = other.m_intboundarygeo.get();
-    }
-    m_isBoundaryInternal = false;
 };
 
 /*! It builds the input/output ports of the object
@@ -102,53 +85,40 @@ Partition::buildPorts(){
 	bool built = true;
 
 	built = (built && createPortIn<std::unordered_map<long, int>, Partition>(this, &mimmo::Partition::setPartition, M_UMAPI));
-	built = (built && createPortIn<MimmoObject*, Partition>(this, &mimmo::Partition::setGeometry, M_GEOM, true));
-	built = (built && createPortIn<MimmoObject*, Partition>(this, &mimmo::Partition::setBoundaryGeometry, M_GEOM2));
+	built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, Partition>(this, &mimmo::Partition::setGeometry, M_GEOM, true));
+	built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, Partition>(this, &mimmo::Partition::setBoundaryGeometry, M_GEOM2));
 
-	built = (built && createPortOut<MimmoObject*, Partition>(this, &mimmo::Partition::getGeometry, M_GEOM));
-	built = (built && createPortOut<MimmoObject*, Partition>(this, &mimmo::Partition::getBoundaryGeometry, M_GEOM2));
+	built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, Partition>(this, &mimmo::Partition::getGeometry, M_GEOM));
+	built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, Partition>(this, &mimmo::Partition::getBoundaryGeometry, M_GEOM2));
 	m_arePortsBuilt = built;
 };
 
 /*!
- * Get current geometry pointer. Reimplementation of BaseManipulation::getGeometry
- */
-MimmoObject * Partition::getGeometry(){
-    if(m_isInternal)    return m_intgeo.get();
-    else                return m_geometry;
-}
-
-/*!
  * Get boundary geometry
  */
-MimmoObject*
+MimmoSharedPointer<MimmoObject>
 Partition::getBoundaryGeometry(){
-    if(m_isBoundaryInternal)    return m_intboundarygeo.get();
-    else                return m_boundary;
+    return m_boundary;
 }
 
 /*!
- * Set geometry
+ * Set geometry. Overload of BaseManipulation method.
  */
 void
-Partition::setGeometry(MimmoObject* geo){
+Partition::setGeometry(MimmoSharedPointer<MimmoObject> geo){
     if(geo == nullptr)    return;
-    if(getGeometry() == geo) return;
-    m_intgeo.reset(nullptr);
+    if(m_geometry == geo) return;
     m_geometry = geo;
-    m_isInternal = false;
 }
 
 /*!
  * Set boundary geometry
  */
 void
-Partition::setBoundaryGeometry(MimmoObject* geo){
+Partition::setBoundaryGeometry(MimmoSharedPointer<MimmoObject> geo){
     if(geo == nullptr)    return;
-    if(getBoundaryGeometry() == geo) return;
-    m_intboundarygeo.reset(nullptr);
+    if(m_boundary == geo) return;
 	m_boundary = geo;
-    m_isBoundaryInternal = false;
 }
 
 /*!
@@ -196,7 +166,7 @@ Partition::setPartitionMethod(int mode){
 void
 Partition::execute(){
 
-	if(getGeometry() == nullptr){
+	if( getGeometry()== nullptr){
 		(*m_log)<<m_name + " : null pointer to linked geometry found."<<std::endl;
 		return;
 	};
@@ -251,11 +221,6 @@ Partition::execute(){
 				}
 			}
 			else{
-				//Serialize only external geometry
-				if (m_isInternal){
-					(*m_log)<<"Warning in "<<m_name<<" . Internal geometry cannot be serialized."<<std::endl;
-					return;
-				}
 				serialize(m_geometry, false);
 			}
 
@@ -288,11 +253,6 @@ Partition::execute(){
 						}
 					}
 					else{
-						//Serialize only external geometry
-						if (m_isBoundaryInternal){
-							(*m_log)<<"Warning in "<<m_name<<" . Internal geometry cannot be serialized."<<std::endl;
-							return;
-						}
 						serialize(m_boundary, true);
 					}
 
@@ -396,8 +356,8 @@ Partition::parmetisPartGeom(){
 			//
 			std::vector<idx_t> part(nvtxs);
 
-			int ret = METIS_PartGraphKway ( &nvtxs, &ncon, xadj.data(), adjncy.data(), NULL, NULL,
-					NULL, &nParts, NULL, NULL, NULL, &objval, part.data() );
+			int ret = METIS_PartGraphKway ( &nvtxs, &ncon, xadj.data(), adjncy.data(), nullptr, nullptr,
+					nullptr, &nParts, nullptr, nullptr, nullptr, &objval, part.data() );
 
 			m_partition.clear();
 			m_partition.reserve(nvtxs);
@@ -651,10 +611,10 @@ Partition::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
  * Note. The geometry pointers are changed after the execution of the method: new serialized patches are internally created.
  */
 void
-Partition::serialize(MimmoObject* & geometry, bool isBoundary)
+Partition::serialize(MimmoSharedPointer<MimmoObject> & geometry, bool isBoundary)
 {
 	//SerializedGeometry
-    std::unique_ptr<MimmoObject> serialized(new MimmoObject(geometry->getType()));
+    MimmoSharedPointer<MimmoObject> serialized(new MimmoObject(geometry->getType()));
 
 	if (m_rank == 0){
 
@@ -800,20 +760,14 @@ Partition::serialize(MimmoObject* & geometry, bool isBoundary)
 	// Partitioned geometry is reset and now point to the internal geometry
 	if (isBoundary){
 		geometry->resetPatch();
-		m_intboundarygeo.reset(nullptr);
-		m_intboundarygeo = std::unique_ptr<MimmoObject>(serialized.release());
-		m_isBoundaryInternal = true;
-		m_boundary = nullptr;
+        m_boundary = serialized;
 		// Sort cells and vertices with Id
 		getBoundaryGeometry()->getPatch()->sortCells();
 		getBoundaryGeometry()->getPatch()->sortVertices();
 	}
 	else{
 		geometry->resetPatch();
-		m_intgeo.reset(nullptr);
-		m_intgeo = std::unique_ptr<MimmoObject>(serialized.release());
-		m_isInternal = true;
-		m_geometry = nullptr;
+		m_geometry = serialized;
 		// Sort cells and vertices with Id
 		getGeometry()->getPatch()->sortCells();
 		getGeometry()->getPatch()->sortVertices();
