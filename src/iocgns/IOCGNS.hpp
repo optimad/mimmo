@@ -169,8 +169,8 @@ public:
     void            setDefaults();
     void            buildPorts();
 
-    MimmoObject*    getSurfaceBoundary();
-    MimmoObject*    getGeometry();
+    MimmoSharedPointer<MimmoObject>    getSurfaceBoundary();
+    MimmoSharedPointer<MimmoObject>    getGeometry();
     BCCGNS*         getBoundaryConditions();
 
     IOCGNS_Mode     whichMode();
@@ -182,8 +182,8 @@ public:
     void            setDir(const std::string &dir);
     void            setFilename(const std::string &filename);
 
-    void            setGeometry(MimmoObject*);
-    void            setSurfaceBoundary(MimmoObject*);
+    void            setGeometry(MimmoSharedPointer<MimmoObject>);
+    void            setSurfaceBoundary(MimmoSharedPointer<MimmoObject>);
     void            setBoundaryConditions(BCCGNS*);
 
     void            setWritingFormat(IOCGNS_WriteType type);
@@ -204,7 +204,7 @@ protected:
     bool            belongToPool(const bitpit::ConstProxyVector<long> & elementconn, const std::set<long> &pool);
 
     void            unpackMixedConns( const ivector1D & connsArray,
-                                     MimmoObject * patchVol,
+                                     MimmoSharedPointer<MimmoObject> patchVol,
                                      std::unordered_map<long, std::vector<long>> surfElem,
                                      const long & idVertexOffset,
                                      const long & idCellOffset,
@@ -234,9 +234,9 @@ private:
     std::string     m_dir;         /**<Name of directory path*/
     std::string     m_filename;    /**<Name of file */
 
-    std::unique_ptr<MimmoObject>        m_volmesh;          /**<Original volume mesh, instantiated in reading */
-    std::unique_ptr<MimmoObject>        m_surfmesh;         /**<Original boundary mesh, instantiated in reading */
-    MimmoObject *                       m_surfmesh_not;     /**<Pointed external boundary mesh*/
+    MimmoSharedPointer<MimmoObject> m_volmesh;          /**<Original volume mesh, instantiated in reading */
+    MimmoSharedPointer<MimmoObject> m_surfmesh;         /**<Original boundary mesh, instantiated in reading */
+    MimmoSharedPointer<MimmoObject> m_surfmesh_not;     /**<Pointed external boundary mesh*/
 
     std::unique_ptr<BCCGNS>             m_storedBC;         /**<Information of boundary conditions of a CGNS read mesh.*/
 

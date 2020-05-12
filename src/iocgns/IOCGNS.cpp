@@ -130,7 +130,7 @@ IOCGNS::setDefaults(){
     m_mode      = IOCGNS_Mode::READ;
     m_filename  = "mimmoVolCGNS";
     m_dir       = "./";
-    m_surfmesh_not = NULL;
+    m_surfmesh_not = nullptr;
 //    m_storedInfo = std::move(std::unique_ptr<InfoCGNS>(new InfoCGNS()));
     m_storedBC  = std::move(std::unique_ptr<BCCGNS>(new BCCGNS()));
 
@@ -164,12 +164,12 @@ IOCGNS::buildPorts(){
             //do nothing;
             break;
     }
-    built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setGeometry, M_GEOM, mandatory_input, 0));
-    built = (built && createPortIn<MimmoObject*, IOCGNS>(this, &IOCGNS::setSurfaceBoundary, M_GEOM2, mandatory_input, 0));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOCGNS>(this, &IOCGNS::setGeometry, M_GEOM, mandatory_input, 0));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOCGNS>(this, &IOCGNS::setSurfaceBoundary, M_GEOM2, mandatory_input, 0));
     built = (built && createPortIn<BCCGNS*, IOCGNS>(this, &IOCGNS::setBoundaryConditions, M_BCCGNS));
 
-    built = (built && createPortOut<MimmoObject*, IOCGNS>(this, &IOCGNS::getGeometry, M_GEOM));
-    built = (built && createPortOut<MimmoObject*, IOCGNS>(this, &IOCGNS::getSurfaceBoundary, M_GEOM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOCGNS>(this, &IOCGNS::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOCGNS>(this, &IOCGNS::getSurfaceBoundary, M_GEOM2));
     built = (built && createPortOut<BCCGNS*, IOCGNS>(this, &IOCGNS::getBoundaryConditions, M_BCCGNS));
     m_arePortsBuilt = built;
 };
@@ -180,15 +180,15 @@ IOCGNS::buildPorts(){
  * while in writing mode refers to the actual object pointed by the User.
  * \return pointer to surface boundary mesh
  */
-MimmoObject*
+MimmoSharedPointer<MimmoObject>
 IOCGNS::getSurfaceBoundary(){
 
-    MimmoObject* res = nullptr;
+    MimmoSharedPointer<MimmoObject> res = nullptr;
 
     switch(m_mode){
         case IOCGNS_Mode::READ:
         case IOCGNS_Mode::RESTORE:
-            res = m_surfmesh.get();
+            res = m_surfmesh;
         break;
         case IOCGNS_Mode::WRITE:
         case IOCGNS_Mode::DUMP:
@@ -204,15 +204,15 @@ IOCGNS::getSurfaceBoundary(){
  * if in write mode return pointed externally geometry
  * \return pointer to volume mesh
  */
-MimmoObject*
+MimmoSharedPointer<MimmoObject>
 IOCGNS::getGeometry(){
 
-    MimmoObject* res = nullptr;
+    MimmoSharedPointer<MimmoObject> res = nullptr;
 
     switch(m_mode){
         case IOCGNS_Mode::READ:
         case IOCGNS_Mode::RESTORE:
-            res = m_volmesh.get();
+            res = m_volmesh;
         break;
         case IOCGNS_Mode::WRITE:
         case IOCGNS_Mode::DUMP:
@@ -320,7 +320,7 @@ IOCGNS::setWriteOnFileMeshInfo(bool write){
  * \param[in] geo Pointer to input volume mesh.
  */
 void
-IOCGNS::setGeometry(MimmoObject * geo){
+IOCGNS::setGeometry(MimmoSharedPointer<MimmoObject> geo){
     if(geo == nullptr )    return;
     if(geo->getType() != 2)    return;
     switch(m_mode){
@@ -340,7 +340,7 @@ IOCGNS::setGeometry(MimmoObject * geo){
  * \param[in] geosurf Pointer to input volume mesh.
  */
 void
-IOCGNS::setSurfaceBoundary(MimmoObject* geosurf){
+IOCGNS::setSurfaceBoundary(MimmoSharedPointer<MimmoObject> geosurf){
     if(geosurf == nullptr)    return;
     if(geosurf->getType() != 1)      return;
     switch(m_mode){
@@ -362,7 +362,7 @@ IOCGNS::setSurfaceBoundary(MimmoObject* geosurf){
  */
 void
 IOCGNS::setBoundaryConditions(BCCGNS* bccgns){
-    if(bccgns != NULL){
+    if(bccgns != nullptr){
         std::unique_ptr<BCCGNS> temp(new BCCGNS(*bccgns));
         m_storedBC = std::move(temp);
     }
@@ -440,8 +440,8 @@ IOCGNS::execute(){
 
                 m_surfmesh_not = nullptr;
                 m_geometry = nullptr;
-                m_volmesh = std::unique_ptr<MimmoObject>(new MimmoObject(2));
-                m_surfmesh = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+                m_volmesh = MimmoSharedPointer<MimmoObject>(new MimmoObject(2));
+                m_surfmesh = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
 
                 if(!restore(binaryReader.getStream())){
                     (*m_log) << "Error IOCGNS Restoring mode: impossible to restore from dump : "<< filedump << std::endl;
@@ -521,9 +521,9 @@ void IOCGNS::writeInfoFile(){
 bool
 IOCGNS::read(const std::string & file){
 
-    m_volmesh = std::unique_ptr<MimmoObject>(new MimmoObject(2));
-    m_surfmesh = std::unique_ptr<MimmoObject>(new MimmoObject(1));
-    std::unique_ptr<MimmoObject> patchVol(new MimmoObject(2));
+    m_volmesh = MimmoSharedPointer<MimmoObject>(new MimmoObject(2));
+    m_surfmesh = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
+    MimmoSharedPointer<MimmoObject> patchVol(new MimmoObject(2));
 
 #if MIMMO_ENABLE_MPI
     if(m_rank == 0){
@@ -948,7 +948,7 @@ IOCGNS::read(const std::string & file){
             break;
 
             case CGNS_ENUMV(MIXED):
-                unpackMixedConns(conns[target_zone][idsection], patchVol.get(), flaggedBCConns, idVertexOffset, idCellOffset, PIDZone, id);
+                unpackMixedConns(conns[target_zone][idsection], patchVol, flaggedBCConns, idVertexOffset, idCellOffset, PIDZone, id);
             break;
             default:
                 (*m_log)<<"Warning IOCGNS : found unsupported Element Type in CGNS connectivity"<<std::endl;
@@ -1158,8 +1158,8 @@ if(m_multizone){
 
     /* Fill this structures (surface boundary connectivity has
      * to be filled with same vertex indices of volume mesh) */
-    MimmoObject * vol = getGeometry();
-    MimmoObject * bnd = getSurfaceBoundary();
+    MimmoSharedPointer<MimmoObject> vol = getGeometry();
+    MimmoSharedPointer<MimmoObject> bnd = getSurfaceBoundary();
 
 
     if( vol == nullptr || bnd == nullptr ) return false;
@@ -1654,7 +1654,7 @@ IOCGNS::getBCElementsConn(const livector1D& cellIds,
 
 void
 IOCGNS::unpackMixedConns( const ivector1D & connsArray,
-                          MimmoObject * patchVol,
+                          MimmoSharedPointer<MimmoObject> patchVol,
                           std::unordered_map<long, std::vector<long>> surfElem,
                           const long & idVertexOffset,
                           const long & idCellOffset,
