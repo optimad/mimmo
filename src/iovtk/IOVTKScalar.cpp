@@ -43,9 +43,8 @@ IOVTKScalar::IOVTKScalar(){
     m_wfilename    = "mimmoVTKScalar";
     m_rdir        = "./";
     m_wdir        = "./";
-    m_polydata    = NULL;
+    m_polydata    = nullptr;
     m_polydataInternal = false;
-    m_local        = false;
     m_normalize    = true;
     m_scaling    = 1.0;
 }
@@ -64,9 +63,8 @@ IOVTKScalar::IOVTKScalar(const bitpit::Config::Section & rootXML){
     m_wfilename = "mimmoVTKScalar";
     m_rdir      = "./";
     m_wdir      = "./";
-    m_polydata  = NULL;
+    m_polydata  = nullptr;
     m_polydataInternal = false;
-    m_local     = false;
     m_normalize = true;
     m_scaling   = 1.0;
 
@@ -83,9 +81,8 @@ IOVTKScalar::IOVTKScalar(const bitpit::Config::Section & rootXML){
 /*!Default destructor of IOVTKScalar.
  */
 IOVTKScalar::~IOVTKScalar(){
-    if (m_local) delete getGeometry();
     if (m_polydataInternal) m_polydata->Delete();
-    m_polydataInternal = NULL;
+    m_polydataInternal = false;
 };
 
 /*!Copy constructor of IOVTKScalar. If to-be-copied class has an internal MimmoObject
@@ -104,7 +101,6 @@ IOVTKScalar::IOVTKScalar(const IOVTKScalar & other):BaseManipulation(other){
     m_field = other.m_field;
     m_normalize = other.m_normalize;
     m_scaling = other.m_scaling;
-    m_local = false;
 
 };
 
@@ -134,7 +130,6 @@ void IOVTKScalar::swap(IOVTKScalar & x) noexcept
    m_field.swap(x.m_field);
    std::swap(m_normalize, x.m_normalize);
    std::swap(m_scaling, x.m_scaling);
-   std::swap(m_local, x.m_local);
     BaseManipulation::swap(x);
 }
 
@@ -144,12 +139,12 @@ void
 IOVTKScalar::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::setGeometry, M_GEOM));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, IOVTKScalar>(this, &IOVTKScalar::setGeometry, M_GEOM));
     built = (built && createPortIn<double, IOVTKScalar>(this, &IOVTKScalar::setScaling, M_VALUED));
     built = (built && createPortIn<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::setPolyData, M_POLYDATA_));
     built = (built && createPortIn<dmpvector1D*, IOVTKScalar>(this, &IOVTKScalar::setField, M_SCALARFIELD));
 
-    built = (built && createPortOut<MimmoObject*, IOVTKScalar>(this, &IOVTKScalar::getGeometry, M_GEOM));
+    built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, IOVTKScalar>(this, &IOVTKScalar::getGeometry, M_GEOM));
     built = (built && createPortOut<vtkPolyData*, IOVTKScalar>(this, &IOVTKScalar::getPolyData, M_POLYDATA_));
     built = (built && createPortOut<dmpvector1D*, IOVTKScalar>(this, &IOVTKScalar::getField, M_SCALARFIELD));
     m_arePortsBuilt = built;
@@ -290,10 +285,8 @@ IOVTKScalar::read(){
     if (!check) return false;
     infile.close();
 
-    if (getGeometry() == NULL){
-        //Local Instantiation of mimmo Object.
-        m_local = true;
-        MimmoObject* mimmo0 = new MimmoObject(1);
+    if (getGeometry() == nullptr){
+        MimmoSharedPointer<MimmoObject> mimmo0(new MimmoObject(1));
         setGeometry(mimmo0);
     }
 
@@ -311,9 +304,9 @@ IOVTKScalar::read(){
     // All of the standard data types can be checked and obtained like this:
     if(reader->IsFilePolyData())
     {
-        //unlock m_polydata to NULL;
+        //unlock m_polydata to nullptr;
         if(m_polydataInternal) m_polydata->Delete();
-        m_polydata = NULL;
+        m_polydata = nullptr;
         m_polydata = vtkPolyData::New();
         m_polydata->DeepCopy(reader->GetPolyDataOutput());
         m_polydataInternal = true;
@@ -352,7 +345,7 @@ IOVTKScalar::read(){
         np = getGeometry()->getNVertices();
         vtkDataArray* data = pdata->GetArray(0);
         m_field.clear();
-        if (data != NULL){
+        if (data != nullptr){
             double maxf = 0.0;
             for (long int i=0; i<np; i++){
                 vtkIdType id = i;
@@ -391,10 +384,10 @@ IOVTKScalar::read(){
 bool
 IOVTKScalar::write(){
 
-    if (m_polydata == NULL && getGeometry() == NULL) return false;
+    if (m_polydata == nullptr && getGeometry() == nullptr) return false;
 
-    if (m_polydata != NULL){
-        if (getGeometry() != NULL){
+    if (m_polydata != nullptr){
+        if (getGeometry() != nullptr){
             vtkSmartPointer<vtkPoints> points = m_polydata->GetPoints();
             double point_[3];
             darray3E point;
@@ -433,7 +426,7 @@ IOVTKScalar::write(){
         }
         m_polydata->SetPoints(points);
         points->Delete();
-        points = NULL;
+        points = nullptr;
 
         /* Set polydata cells. */
         bitpit::PiercedVector<bitpit::Cell> & cells = getGeometry()->getCells();
@@ -474,7 +467,7 @@ IOVTKScalar::write(){
             }
             pdata->AddArray(data);
             data->Delete();
-            data = NULL;
+            data = nullptr;
         }
 
         std::string outputFilename = m_wdir+"/"+m_wfilename+".vtk";
