@@ -91,8 +91,8 @@ void SurfaceTriangulator::swap(SurfaceTriangulator &x) noexcept
 void SurfaceTriangulator::buildPorts(){
 
     bool built = true;
-    built = (built && createPortIn<MimmoObject *, SurfaceTriangulator>(this, &mimmo::SurfaceTriangulator::setGeometry,M_GEOM, true));
-    built = (built && createPortOut<MimmoObject*, SurfaceTriangulator>(this, &mimmo::SurfaceTriangulator::getGeometry, M_GEOM));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, SurfaceTriangulator>(this, &mimmo::SurfaceTriangulator::setGeometry,M_GEOM, true));
+    built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, SurfaceTriangulator>(this, &mimmo::SurfaceTriangulator::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
 
@@ -100,9 +100,9 @@ void SurfaceTriangulator::buildPorts(){
 /*!
  * \return pointer to geometry resulting by class manipulation
  */
-MimmoObject*  SurfaceTriangulator::getGeometry(){
+mimmo::MimmoSharedPointer<MimmoObject>  SurfaceTriangulator::getGeometry(){
     if(m_workOnTarget)  return BaseManipulation::getGeometry();
-    else                return m_intPatch.get();
+    else                return m_intPatch;
 };
 
 /*!
@@ -118,7 +118,7 @@ bool  SurfaceTriangulator::isWorkingOnTarget(){
  * be a surface tessellation.
  * \param[in] geo pointer to target geometry
  */
-void SurfaceTriangulator::setGeometry(MimmoObject * geo){
+void SurfaceTriangulator::setGeometry(mimmo::MimmoSharedPointer<MimmoObject> geo){
     if(!geo)    return;
     BaseManipulation::setGeometry(geo);
 };
@@ -138,16 +138,16 @@ void        SurfaceTriangulator::setWorkOnTarget(bool flag){
  */
 void SurfaceTriangulator::execute(){
 
-    MimmoObject * target = BaseManipulation::getGeometry();
+    mimmo::MimmoSharedPointer<MimmoObject> target = BaseManipulation::getGeometry();
 
-    if (target == NULL){
-        throw std::runtime_error (m_name + " : NULL pointer to linked geometry");
+    if (target == nullptr){
+        throw std::runtime_error (m_name + " : nullptr pointer to linked geometry");
     }
 
     if(!m_workOnTarget){
         //create internal patch as clone of the linked geometry and set target pointing to it
-        m_intPatch = std::move(target->clone());
-        target = m_intPatch.get();
+        m_intPatch = mimmo::MimmoSharedPointer<MimmoObject>(target->clone());
+        target = m_intPatch;
     }
 
     target->triangulate();

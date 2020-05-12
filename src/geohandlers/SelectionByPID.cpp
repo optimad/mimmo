@@ -56,7 +56,7 @@ SelectionByPID::SelectionByPID(const bitpit::Config::Section & rootXML){
  * \param[in] pidlist List of pid to be included into selection
  * \param[in] target    Pointer to target geometry
  */
-SelectionByPID::SelectionByPID(livector1D & pidlist, MimmoObject * target){
+SelectionByPID::SelectionByPID(livector1D & pidlist, mimmo::MimmoSharedPointer<MimmoObject> target){
     m_name = "mimmo.SelectionByPID";
     setGeometry(target);
     setPID(pidlist);
@@ -146,8 +146,8 @@ SelectionByPID::getActivePID(bool active){
  * \param[in] target Pointer to MimmoObject target geometry.
  */
 void
-SelectionByPID::setGeometry(MimmoObject * target ){
-    if(target == NULL) return;
+SelectionByPID::setGeometry(mimmo::MimmoSharedPointer<MimmoObject> target ){
+    if(target == nullptr) return;
 //    if(target->isEmpty())   return;
     if(target->getType() == 3)  return; //does not work with point cloud for now.
     m_geometry = target;
@@ -217,7 +217,7 @@ SelectionByPID::removePID(livector1D list){
  */
 void
 SelectionByPID::clear(){
-    m_subpatch.reset(nullptr);
+    m_subpatch.reset();
     m_activePID.clear();
     BaseManipulation::clear();
 };
@@ -273,7 +273,7 @@ SelectionByPID::extractSelection(){
  */
 void
 SelectionByPID::syncPIDList(){
-    if(getGeometry() == NULL)    return;
+    if(getGeometry() == nullptr)    return;
 
     if(m_setPID.count(-1) == 0){
 

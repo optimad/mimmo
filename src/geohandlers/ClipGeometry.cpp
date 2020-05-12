@@ -33,7 +33,7 @@ ClipGeometry::ClipGeometry(){
     m_origin.fill(0.0);
     m_normal.fill(0.0);
     m_insideout = false;
-    m_patch.reset(nullptr);
+    m_patch.reset();
     m_implicit = false;
 };
 
@@ -46,7 +46,7 @@ ClipGeometry::ClipGeometry(const bitpit::Config::Section & rootXML){
     m_name = "mimmo.ClipGeometry";
     m_plane.fill(0.0);
     m_insideout = false;
-    m_patch.reset(nullptr);
+    m_patch.reset();
     m_origin.fill(0.0);
     m_normal.fill(0.0);
     m_implicit = false;
@@ -86,9 +86,9 @@ ClipGeometry::buildPorts(){
     built = (built && createPortIn<darray3E, ClipGeometry>(this, &mimmo::ClipGeometry::setOrigin, M_POINT));
     built = (built && createPortIn<darray3E, ClipGeometry>(this, &mimmo::ClipGeometry::setNormal, M_AXIS));
     built = (built && createPortIn<bool, ClipGeometry>(this, &mimmo::ClipGeometry::setInsideOut, M_VALUEB));
-    built = (built && createPortIn<MimmoObject*, ClipGeometry>(this, &mimmo::ClipGeometry::setGeometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, ClipGeometry>(this, &mimmo::ClipGeometry::setGeometry, M_GEOM, true));
 
-    built = (built && createPortOut<MimmoObject*, ClipGeometry>(this, &mimmo::ClipGeometry::getClippedPatch, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, ClipGeometry>(this, &mimmo::ClipGeometry::getClippedPatch, M_GEOM));
     m_arePortsBuilt = built;
 };
 
@@ -107,9 +107,9 @@ ClipGeometry::isInsideOut(){
  * as an indipendent MimmoObject (owned by the class).
  * \return pointer to MimmoObject clipped patch
  */
-MimmoObject *
+MimmoSharedPointer<MimmoObject>
 ClipGeometry::getClippedPatch(){
-    return(m_patch.get());
+    return(m_patch);
 };
 
 /*!
@@ -190,7 +190,7 @@ ClipGeometry::setInsideOut(bool flag){
 void
 ClipGeometry::execute(){
 
-    if(getGeometry() == NULL){
+    if(getGeometry() == nullptr){
         (*m_log)<<m_name + " : nullptr geometry linked."<<std::endl;
         throw std::runtime_error (m_name + " : nullptr geometry linked.");
     };
@@ -204,7 +204,7 @@ ClipGeometry::execute(){
      */
     if (!m_implicit) setClipPlane(m_origin, m_normal);
 
-    m_patch.reset(nullptr);
+    m_patch.reset();
 
     livector1D extracted = clipPlane();
     if(extracted.empty()){
@@ -212,7 +212,7 @@ ClipGeometry::execute(){
     }
 
     /* Create subpatch.*/
-    std::unique_ptr<MimmoObject> temp(new MimmoObject(getGeometry()->getType()));
+    MimmoSharedPointer<MimmoObject> temp(new MimmoObject(getGeometry()->getType()));
     bitpit::PatchKernel * tri = getGeometry()->getPatch();
 
     if (getGeometry()->getType() != 3){
@@ -250,7 +250,7 @@ ClipGeometry::execute(){
         temp->setPIDName(val, originalmap[val]);
     }
 
-    m_patch = std::move(temp);
+    m_patch = temp;
 
 #if MIMMO_ENABLE_MPI
     // if the mesh is not  a point cloud

@@ -59,7 +59,7 @@ SelectionByBox::SelectionByBox(const bitpit::Config::Section & rootXML){
  * \param[in] span     Span of the box, width/height/depth.
  * \param[in] target    Pointer to MimmoObject target geometry.
  */
-SelectionByBox::SelectionByBox(darray3E origin, darray3E span, MimmoObject * target){
+SelectionByBox::SelectionByBox(darray3E origin, darray3E span, mimmo::MimmoSharedPointer<MimmoObject> target){
     m_name = "mimmo.SelectionByBox";
     m_type = SelectionType::BOX;
     setGeometry(target);
@@ -118,7 +118,7 @@ SelectionByBox::buildPorts(){
  */
 void
 SelectionByBox::clear(){
-    m_subpatch.reset(nullptr);
+    m_subpatch.reset();
     BaseManipulation::clear();
 };
 

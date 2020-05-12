@@ -63,7 +63,7 @@ SelectionBySphere::SelectionBySphere(const bitpit::Config::Section & rootXML){
  * \param[in] infLimPhi    Starting origin of the polar coordinate. default is 0 radians.
  * \param[in] target    Pointer to a target geometry
  */
-SelectionBySphere::SelectionBySphere(darray3E origin, darray3E span, double infLimTheta, double infLimPhi, MimmoObject * target){
+SelectionBySphere::SelectionBySphere(darray3E origin, darray3E span, double infLimTheta, double infLimPhi, mimmo::MimmoSharedPointer<MimmoObject> target){
     m_name = "mimmo.SelectionBySphere";
     m_type = SelectionType::SPHERE;
     setGeometry(target);
@@ -125,7 +125,7 @@ SelectionBySphere::buildPorts(){
  * Clear content of the class
  */
 void SelectionBySphere::clear(){
-    m_subpatch.release();
+    m_subpatch.reset();
     BaseManipulation::clear();
 };
 

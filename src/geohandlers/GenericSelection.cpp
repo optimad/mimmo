@@ -39,7 +39,7 @@ GenericSelection::GenericSelection(){
  * Basic Destructor
  */
 GenericSelection::~GenericSelection(){
-    m_subpatch.reset(nullptr);
+    m_subpatch.reset();
 };
 
 /*!
@@ -84,10 +84,10 @@ GenericSelection::buildPorts(){
 
     bool built = true;
 
-    built = (built && createPortIn<MimmoObject *, GenericSelection>(this, &GenericSelection::setGeometry, M_GEOM, true));
+    built = (built && createPortIn<mimmo::MimmoSharedPointer<MimmoObject>, GenericSelection>(this, &GenericSelection::setGeometry, M_GEOM, true));
     built = (built && createPortIn<bool, GenericSelection>(this, &GenericSelection::setDual,M_VALUEB));
 
-    built = (built && createPortOut<MimmoObject *, GenericSelection>(this, &GenericSelection::getPatch,M_GEOM));
+    built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, GenericSelection>(this, &GenericSelection::getPatch,M_GEOM));
     built = (built && createPortOut<livector1D, GenericSelection>(this, &GenericSelection::constrainedBoundary, M_VECTORLI));
     m_arePortsBuilt = built;
 };
@@ -107,18 +107,18 @@ GenericSelection::whichMethod(){
  * Return pointer by copy to sub-patch extracted by the class
  * \return pointer to MimmoObject extracted sub-patch
  */
-MimmoObject*
+mimmo::MimmoSharedPointer<MimmoObject>
 GenericSelection::getPatch(){
-    return    m_subpatch.get();
+    return    m_subpatch;
 };
 
 /*!
  * Return pointer by copy to subpatch extracted by the class [Const overloading].
  * \return pointer to MimmoObject extracted sub-patch
  */
-const MimmoObject*
+const mimmo::MimmoSharedPointer<MimmoObject>
 GenericSelection::getPatch() const{
-    return    m_subpatch.get();
+    return    m_subpatch;
 };
 
 /*!
@@ -127,8 +127,8 @@ GenericSelection::getPatch() const{
  *  \param[in] target Pointer to MimmoObject with target geometry.
  */
 void
-GenericSelection::setGeometry( MimmoObject * target){
-    if(target == NULL)  return;
+GenericSelection::setGeometry( mimmo::MimmoSharedPointer<MimmoObject> target){
+    if(target == nullptr)  return;
 //    if(target->isEmpty()) return;
     m_geometry = target;
     /*set topology informations*/
@@ -172,7 +172,7 @@ GenericSelection::isDual(){
 livector1D
 GenericSelection::constrainedBoundary(){
 
-    if(getGeometry() == NULL || getPatch() == NULL)    return livector1D(0);
+    if(getGeometry() == nullptr || getPatch() == nullptr)    return livector1D(0);
     if(getGeometry()->isEmpty() || getPatch()->isEmpty())    return livector1D(0);
     std::unordered_map<long, std::set<int> > survivors;
 
@@ -218,15 +218,15 @@ GenericSelection::constrainedBoundary(){
  */
 void
 GenericSelection::execute(){
-    if(getGeometry() == NULL) {
-        (*m_log)<<m_name + " : NULL pointer to target geometry found"<<std::endl;
-        throw std::runtime_error (m_name + " : NULL pointer to target geometry found");
+    if(getGeometry() == nullptr) {
+        (*m_log)<<m_name + " : nullptr pointer to target geometry found"<<std::endl;
+        throw std::runtime_error (m_name + " : nullptr pointer to target geometry found");
     }
     if(getGeometry()->isEmpty()){
         (*m_log)<<m_name + " : empty geometry linked"<<std::endl;
     };
 
-    m_subpatch.reset(nullptr);
+    m_subpatch.reset();
 
 // extract all the interior cell satisfying the extraction criterium.
     livector1D extracted = extractSelection();
@@ -236,7 +236,7 @@ GenericSelection::execute(){
     }
 
     /*Create subpatch.*/
-    std::unique_ptr<MimmoObject> temp(new MimmoObject(m_topo));
+    mimmo::MimmoSharedPointer<MimmoObject> temp(new MimmoObject(m_topo));
 
 
     if (m_topo != 3){
@@ -269,7 +269,7 @@ GenericSelection::execute(){
     for(const auto & val: currentPIDmap){
         temp->setPIDName(val, originalmap[val]);
     }
-    m_subpatch = std::move(temp);
+    m_subpatch = temp;
 
 #if MIMMO_ENABLE_MPI
     // if the mesh is not  a point cloud

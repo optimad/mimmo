@@ -73,9 +73,9 @@ class StitchGeometry: public BaseManipulation{
 
 private:
     int                                     m_topo;        /**<Mark topology of your stitcher 1-surface, 2-volume, 3-pointcloud, 4-3DCurve*/
-    std::unordered_map<MimmoObject*,int>    m_extgeo;    /**< pointers to external geometries*/
+    std::unordered_map<mimmo::MimmoSharedPointer<MimmoObject>,int>    m_extgeo;    /**< pointers to external geometries*/
 
-    std::unique_ptr<MimmoObject> m_patch;    /**< resulting patch geometry */
+    mimmo::MimmoSharedPointer<MimmoObject> m_patch;    /**< resulting patch geometry */
 
     std::unordered_map<long, std::pair<int, long> > m_mapCellDivision; /**< division map of actual ID-cell, part Id, original ID-cell*/
     std::unordered_map<long, std::pair<int, long> > m_mapVertDivision; /**< division map of actual ID-vertex, part Id, original ID-vertex*/
@@ -94,9 +94,9 @@ public:
     void buildPorts();
 
     int                             getTopology();
-    MimmoObject *                   getGeometry();
+    mimmo::MimmoSharedPointer<MimmoObject>    getGeometry();
 
-    void        addGeometry(MimmoObject * geo);
+    void        addGeometry(mimmo::MimmoSharedPointer<MimmoObject> geo);
 
     bool         isEmpty();
 

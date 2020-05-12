@@ -77,19 +77,9 @@ ExtractField & ExtractField::operator=(const ExtractField & other){
 void
 ExtractField::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, ExtractField>(this, &mimmo::ExtractField::setGeometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, ExtractField>(this, &mimmo::ExtractField::setGeometry, M_GEOM, true));
     m_arePortsBuilt = built;
 }
-
-/*!
- * Set the target geometry where your target extracted field will be defined.
- * \param[in] geo  Pointer to MimmoObject
- */
-void
-ExtractField::setGeometry(MimmoObject* geo){
-    if(geo == NULL)     return;
-    m_geometry = geo;
-};
 
 /*!
  * Set mode of extraction.

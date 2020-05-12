@@ -130,7 +130,7 @@ SelectLongField::setFields(std::vector<MimmoPiercedVector<long>*> fields){
 	m_fields.reserve(fields.size());
 	for(MimmoPiercedVector<long> * ff : fields){
 		if(!ff) continue;
-		if(ff->getDataLocation() == m_loc && ff->getGeometry()!= NULL){
+		if(ff->getDataLocation() == m_loc && ff->getGeometry()!= nullptr){
 			m_fields.push_back(*ff);
 		}
 	}
@@ -144,7 +144,7 @@ SelectLongField::setFields(std::vector<MimmoPiercedVector<long>*> fields){
 void
 SelectLongField::addField(MimmoPiercedVector<long> *field){
 	if(!field) return;
-	if(field->getDataLocation() == m_loc && field->getGeometry() != NULL){
+	if(field->getDataLocation() == m_loc && field->getGeometry() != nullptr){
 		m_fields.push_back(*field);
 	}
 

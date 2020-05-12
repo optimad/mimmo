@@ -88,7 +88,7 @@ enum class OverlapMethod{
  * Fields and Geometry have to be mandatorily passed through port.
  *
  */
-class ReconstructScalar: public mimmo::BaseManipulation {
+class ReconstructScalar: public BaseManipulation {
 
 private:
     MPVLocation m_loc;                  /**<Data reference Location */
@@ -113,7 +113,7 @@ public:
     void        setOverlapCriteriumENUM( OverlapMethod);
     void        setOverlapCriterium( int);
     void        addData( dmpvector1D * );
-    void        removeData(mimmo::MimmoObject* );
+    void        removeData(mimmo::MimmoSharedPointer<MimmoObject> );
     void        removeAllData();
     void        buildPorts();
     //cleaners
@@ -136,7 +136,7 @@ protected:
 
 private:
     void     overlapFields(long int ID, double & locField);
-    livector1D idsGeoDataLocation(MimmoObject*);
+    livector1D idsGeoDataLocation(mimmo::MimmoSharedPointer<MimmoObject>);
 };
 
 /*!
@@ -210,7 +210,7 @@ public:
     void        setOverlapCriteriumENUM( OverlapMethod);
     void        setOverlapCriterium(int );
     void        addData( dmpvecarr3E * );
-    void        removeData(mimmo::MimmoObject* );
+    void        removeData(mimmo::MimmoSharedPointer<MimmoObject> );
     void        removeAllData();
     void        buildPorts();
     //cleaners
@@ -233,7 +233,7 @@ protected:
     void swap(ReconstructVector &) noexcept;
 private:
     void    overlapFields(long int ID, darray3E & locField);
-    livector1D idsGeoDataLocation(MimmoObject*);
+    livector1D idsGeoDataLocation(mimmo::MimmoSharedPointer<MimmoObject>);
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __RECONSTRUCTSCALAR_HPP__)

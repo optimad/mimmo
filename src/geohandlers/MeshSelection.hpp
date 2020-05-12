@@ -82,7 +82,7 @@ class GenericSelection: public mimmo::BaseManipulation {
 protected:
 
     SelectionType                   m_type;      /**< Type of enum class SelectionType for selection method */
-    std::unique_ptr<MimmoObject>    m_subpatch;  /**< Pointer to result sub-patch */
+    mimmo::MimmoSharedPointer<MimmoObject>    m_subpatch;  /**< Pointer to result sub-patch */
     int                             m_topo;      /**< 1 = surface (default value), 2 = volume, 3 = points cloud, 4 = 3D-Curve */
     bool                            m_dual;      /**< False selects w/ current set up, true gets its "negative". False is default. */
 public:
@@ -95,11 +95,11 @@ public:
     void    buildPorts();
 
     SelectionType    whichMethod();
-    virtual void     setGeometry(MimmoObject *);
+    virtual void     setGeometry(mimmo::MimmoSharedPointer<MimmoObject>);
     void             setDual(bool flag=false);
 
-    const MimmoObject*    getPatch()const;
-    MimmoObject    *        getPatch();
+    const mimmo::MimmoSharedPointer<MimmoObject>  getPatch()const;
+    mimmo::MimmoSharedPointer<MimmoObject>        getPatch();
     bool                isDual();
 
     livector1D    constrainedBoundary();
@@ -186,7 +186,7 @@ class SelectionByBox: public GenericSelection, public mimmo::Cube {
 public:
     SelectionByBox();
     SelectionByBox(const bitpit::Config::Section & rootXML);
-    SelectionByBox(darray3E origin, darray3E span, MimmoObject * target);
+    SelectionByBox(darray3E origin, darray3E span, mimmo::MimmoSharedPointer<MimmoObject> target);
     virtual ~SelectionByBox();
     SelectionByBox(const SelectionByBox & other);
     SelectionByBox & operator=(SelectionByBox other);
@@ -274,7 +274,7 @@ class SelectionByCylinder: public GenericSelection, public mimmo::Cylinder {
 public:
     SelectionByCylinder();
     SelectionByCylinder(const bitpit::Config::Section & rootXML);
-    SelectionByCylinder(darray3E origin, darray3E span, double infLimTheta, darray3E mainAxis, MimmoObject * target);
+    SelectionByCylinder(darray3E origin, darray3E span, double infLimTheta, darray3E mainAxis, mimmo::MimmoSharedPointer<MimmoObject> target);
     virtual ~SelectionByCylinder();
     SelectionByCylinder(const SelectionByCylinder & other);
     SelectionByCylinder & operator=(SelectionByCylinder other);
@@ -365,7 +365,7 @@ class SelectionBySphere: public GenericSelection, public mimmo::Sphere {
 public:
     SelectionBySphere();
     SelectionBySphere(const bitpit::Config::Section & rootXML);
-    SelectionBySphere(darray3E origin, darray3E span, double infLimTheta, double infLimPhi, MimmoObject * target);
+    SelectionBySphere(darray3E origin, darray3E span, double infLimTheta, double infLimPhi, mimmo::MimmoSharedPointer<MimmoObject> target);
     virtual ~SelectionBySphere();
     SelectionBySphere(const SelectionBySphere & other);
     SelectionBySphere & operator=(SelectionBySphere other);
@@ -458,16 +458,16 @@ protected:
 class SelectionByMapping: public GenericSelection {
 
 private:
-    double                                  m_tolerance;     /**< tolerance for proximity detection*/
-    std::unordered_map<std::string, int>    m_geolist;      /**< list of file for geometrical proximity check*/
-    std::unordered_set<MimmoObject*>        m_mimmolist;    /**< list of mimmo objects for geometrical proximity check*/
-    std::vector<std::set< int > >           m_allowedType;  /**< list of FileType actually allowed for the target geometry type*/
-    std::vector<std::set< int > >           m_allowedTopology;  /**< list of mapping geometry topology allowed by current target topology*/
+    double                                              m_tolerance;     /**< tolerance for proximity detection*/
+    std::unordered_map<std::string, int>                m_geolist;      /**< list of file for geometrical proximity check*/
+    std::unordered_set<mimmo::MimmoSharedPointer<MimmoObject>>    m_mimmolist;    /**< list of mimmo objects for geometrical proximity check*/
+    std::vector<std::set< int > >                       m_allowedType;  /**< list of FileType actually allowed for the target geometry type*/
+    std::vector<std::set< int > >                       m_allowedTopology;  /**< list of mapping geometry topology allowed by current target topology*/
 
 public:
     SelectionByMapping(int topo = 1);
     SelectionByMapping(const bitpit::Config::Section & rootXML);
-    SelectionByMapping(std::unordered_map<std::string, int> & geolist, MimmoObject * target, double tolerance);
+    SelectionByMapping(std::unordered_map<std::string, int> & geolist, mimmo::MimmoSharedPointer<MimmoObject> target, double tolerance);
     virtual ~SelectionByMapping();
     SelectionByMapping(const SelectionByMapping & other);
     SelectionByMapping & operator=(SelectionByMapping other);
@@ -477,14 +477,14 @@ public:
     double    getTolerance();
     void     setTolerance(double tol=1.e-8);
 
-    void     setGeometry(MimmoObject * geometry);
+    void     setGeometry(mimmo::MimmoSharedPointer<MimmoObject> geometry);
 
     const std::unordered_map<std::string, int> &     getFiles() const;
     void    setFiles(std::unordered_map<std::string,int> );
     void    addFile(std::pair<std::string,int> );
     void     removeFile(std::string);
     void     removeFiles();
-    void    addMappingGeometry(MimmoObject * obj);
+    void    addMappingGeometry(mimmo::MimmoSharedPointer<MimmoObject> obj);
     void    removeMappingGeometries();
 
     void clear();
@@ -498,7 +498,7 @@ protected:
 
 private:
     livector1D getProximity(std::pair<std::string, int> val);
-    livector1D getProximity(MimmoObject * obj);
+    livector1D getProximity(mimmo::MimmoSharedPointer<MimmoObject> obj);
     svector1D extractInfo(std::string);
 };
 
@@ -569,7 +569,7 @@ private:
 public:
     SelectionByPID();
     SelectionByPID(const bitpit::Config::Section & rootXML);
-    SelectionByPID(livector1D & pidlist, MimmoObject * target);
+    SelectionByPID(livector1D & pidlist, mimmo::MimmoSharedPointer<MimmoObject> target);
     virtual ~SelectionByPID();
     SelectionByPID(const SelectionByPID & other);
     SelectionByPID & operator=(SelectionByPID other);
@@ -579,7 +579,7 @@ public:
     livector1D getPID();
     livector1D    getActivePID(bool active= true);
 
-    void     setGeometry(MimmoObject * );
+    void     setGeometry(mimmo::MimmoSharedPointer<MimmoObject>);
     void     setPID(long i = -1);
     void     setPID(livector1D);
 
@@ -684,7 +684,7 @@ protected:
 public:
     SelectionByBoxWithScalar();
     SelectionByBoxWithScalar(const bitpit::Config::Section & rootXML);
-    SelectionByBoxWithScalar(darray3E origin, darray3E span, MimmoObject * target);
+    SelectionByBoxWithScalar(darray3E origin, darray3E span, mimmo::MimmoSharedPointer<MimmoObject> target);
     virtual ~SelectionByBoxWithScalar();
     SelectionByBoxWithScalar(const SelectionByBoxWithScalar & other);
     SelectionByBoxWithScalar & operator=(SelectionByBoxWithScalar other);

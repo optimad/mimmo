@@ -30,7 +30,7 @@
  * \param[in,out] mesh pointer to a MimmoObject mesh to fill.
  * \return true if successfully created mesh
  */
-bool createMimmoMesh(mimmo::MimmoObject * mesh){
+bool createMimmoMesh(mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh){
 
 	double dx = 0.25, dy = 0.25;
 	int nV, nC;
@@ -104,9 +104,8 @@ bool createMimmoMesh(mimmo::MimmoObject * mesh){
 int test2() {
 
 	//define 3 single triangle mesh
-	mimmo::MimmoObject * m1 = new mimmo::MimmoObject(1);
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> m1(new mimmo::MimmoObject(1));
 	if(!createMimmoMesh(m1)){
-		delete m1;
 		return 1;
 	}
 
@@ -204,7 +203,6 @@ int test2() {
 		check = check && (val == 1.0);
 	}
 
-	delete m1;
 	delete clip;
 	delete clip2;
 	delete sel1;

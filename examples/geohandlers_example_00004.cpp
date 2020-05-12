@@ -46,9 +46,9 @@
  *
  * \return unique ptr to the polygonal surface mesh
  */
-std::unique_ptr<mimmo::MimmoObject> createMIOMesh(){
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> createMIOMesh(){
 
-    std::unique_ptr<mimmo::MimmoObject> mesh(new mimmo::MimmoObject(1));
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh(new mimmo::MimmoObject(1));
     //create the vertices set.
     mesh->addVertex({{0.0,0.0,0.0}}, 0);
     mesh->addVertex({{0.0,1.0,0.0}}, 1);
@@ -109,7 +109,7 @@ std::unique_ptr<mimmo::MimmoObject> createMIOMesh(){
 void test00001() {
 
     //create a surface polygonal mesh with texture MIO pidded as PID=1
-    std::unique_ptr<mimmo::MimmoObject> geo = createMIOMesh();
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> geo = createMIOMesh();
 
     mimmo::setExpertMode(true);
 
@@ -118,7 +118,7 @@ void test00001() {
      */
     std::unique_ptr<mimmo::SelectionByPID> sel(new mimmo::SelectionByPID());
     sel->setName("PIDExtraction");
-    sel->setGeometry(geo.get());
+    sel->setGeometry(geo);
     sel->setPID(1);
     sel->setDual(false);
     sel->setPlotInExecution(true);

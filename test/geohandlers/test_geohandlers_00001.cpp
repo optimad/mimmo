@@ -31,9 +31,9 @@
 int test1() {
 
     //define 3 single triangle mesh
-	mimmo::MimmoObject * m1 = new mimmo::MimmoObject(1);
-	mimmo::MimmoObject * m2 = new mimmo::MimmoObject(1);
-	mimmo::MimmoObject * m3 = new mimmo::MimmoObject(1);
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> m1(new mimmo::MimmoObject(1));
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> m2(new mimmo::MimmoObject(1));
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> m3(new mimmo::MimmoObject(1));
 
     dvecarr3E points(5, {{0.0,0.0,0.0}});
     points[1] = {{1.0,0.0,0.0}};
@@ -78,9 +78,6 @@ int test1() {
     stitch2->exec();
 
     if(stitch1->getGeometry()->getNCells() !=2 || stitch2->getGeometry()->getNCells() !=2){
-        delete m1;
-        delete m2;
-        delete m3;
         delete stitch1;
         delete stitch2;
         return 1;
@@ -96,9 +93,6 @@ int test1() {
     stitch1->getGeometry()->getPatch()->write("mesh1");
     stitch2->getGeometry()->getPatch()->write("mesh2");
 
-    delete m1;
-    delete m2;
-    delete m3;
     delete stitch1;
     delete stitch2;
 
