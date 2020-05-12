@@ -97,8 +97,6 @@ private:
     std::string     m_wdir;         /**<Name of directory to write the geometry (without final "/").*/
     std::string     m_wfilename;    /**<Name of file to write the geometry.*/
 
-    bool            m_local;        /**<Is the geometry locally instantiated?.*/
-
     vtkPolyData*    m_polydata;     /**<VTK Polydata geometry member.*/
     bool            m_polydataInternal; /**<flag to catch if m_polydata is allocated internally*/
 
