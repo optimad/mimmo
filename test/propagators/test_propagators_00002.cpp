@@ -47,7 +47,7 @@
  * \param[out]boundary layer surface grid pidded in 3, 0 front face prismatic, 1 back bulk bar faces, 2 other.
  * \return the volume grid
  */
-std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh( std::unique_ptr<mimmo::MimmoObject> &boundary)
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh( mimmo::MimmoSharedPointer<mimmo::MimmoObject> &boundary)
 {
 
     std::array<double, 3> origin({{0.0,0.0,0.0}});
@@ -88,7 +88,7 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh( std::unique_ptr<mimmo:
     }
 
     //create the volume mesh mimmo.
-    std::unique_ptr<mimmo::MimmoObject> mesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = mimmo::MimmoSharedPointer<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
     mesh->getPatch()->reserveVertices(counter);
 
     //pump up the vertices
@@ -223,7 +223,7 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh( std::unique_ptr<mimmo:
     auto orinterfaces = mesh->getInterfaces();
     auto orcells = mesh->getCells();
 
-    boundary = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
+    boundary = mimmo::MimmoSharedPointer<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
     boundary->getPatch()->reserveVertices(boundaryverts.size());
     boundary->getPatch()->reserveCells(pidfaces.size());
 
@@ -255,8 +255,8 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh( std::unique_ptr<mimmo:
 
 int test1() {
 
-    std::unique_ptr<mimmo::MimmoObject> boundary;
-    std::unique_ptr<mimmo::MimmoObject> mesh = createTestVolumeMesh(boundary);
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> boundary;
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(boundary);
 
     bool check = false;
     long targetNode =  (11*11)*25 + (11)*5 + 5;
@@ -264,7 +264,7 @@ int test1() {
 //TESTING THE SCALAR PROPAGATOR //////
     // and the scalar field of Dirichlet values on its nodes.
     mimmo::MimmoPiercedVector<double> bc_surf_field;
-    bc_surf_field.setGeometry(boundary.get());
+    bc_surf_field.setGeometry(boundary);
     bc_surf_field.setDataLocation(mimmo::MPVLocation::POINT);
     bc_surf_field.reserve(boundary->getNVertices());
     for(long val : boundary->getVertices().getIds()){
@@ -280,8 +280,8 @@ int test1() {
     // Now create a PropagateScalarField and solve the laplacian.
     mimmo::PropagateScalarField * prop = new mimmo::PropagateScalarField();
     prop->setName("test00002_PropagateScalarField");
-    prop->setGeometry(mesh.get());
-    prop->addDirichletBoundarySurface(boundary.get());
+    prop->setGeometry(mesh);
+    prop->addDirichletBoundarySurface(boundary);
     prop->addDirichletConditions(&bc_surf_field);
     prop->setDamping(false);
     prop->setPlotInExecution(true);

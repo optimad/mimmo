@@ -118,7 +118,7 @@ protected:
     MimmoPiercedVector<std::array<double, NCOMP> > m_field;    /**< Resulting Propagated Field on bulk nodes */
 
     // dirichlet surfaces and bcs
-    std::unordered_set<MimmoObject*>  m_dirichletSurfaces;           /**<list of MimmoObject boundary patches pointers identifying Dirichlet boundaries.*/
+    std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_dirichletSurfaces;           /**<list of MimmoObject boundary patches pointers identifying Dirichlet boundaries.*/
     MimmoPiercedVector<std::array<double, NCOMP> > m_bc_dir;         /**< Dirichlet-type condition values of POINTS on target volume mesh */
     std::unordered_set<MimmoPiercedVector<std::array<double, NCOMP> >* > m_dirichletBcs; /**< list of Dirichlet-type conditions on boundary surface POINTS*/
 
@@ -131,16 +131,16 @@ protected:
     double        m_plateau;        /**<Inner limit distance of damping function. At distance <= m_plateau from boundary with bc != 0
                                         the stencil during the laplacian computing account of the maximum artificial diffusivity.*/
     dmpvector1D   m_damping;        /**<Damping field used for weights computing.*/
-    std::unordered_set<MimmoObject*>  m_dampingSurfaces;   /**<list of MimmoObject boundary patches pointers to identify surface for damping calculation.*/
-    std::unique_ptr<MimmoObject> m_dampingUniSurface; /**< INTERNAL use. Final damping reference surface. If MPI, surface is serialized and shared among all procs*/
+    std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_dampingSurfaces;   /**<list of MimmoObject boundary patches pointers to identify surface for damping calculation.*/
+    MimmoSharedPointer<MimmoObject> m_dampingUniSurface; /**< INTERNAL use. Final damping reference surface. If MPI, surface is serialized and shared among all procs*/
 
     // Narrow Band surfaces and parameters set
     bool          m_bandActive;  /**< true the Narrow Band Control is active, false otherwise.*/
     double        m_bandwidth;   /**< width of the narrow band region.*/
     double        m_bandrelax;   /**< Narrow band relaxation param [0,1]. 1 no relaxing occurs, 0 full relaxation is performed */
     bitpit::PiercedVector<double> m_banddistances; /**< INTERNAL use, list of distances for vertex belonging to narrow band */
-    std::unordered_set<MimmoObject*>  m_bandSurfaces;   /**<list of MimmoObject boundary patches pointers to identify target baundaries for Narrow Band definition.*/
-    std::unique_ptr<MimmoObject> m_bandUniSurface; /**< INTERNAL use. Final narrow band reference surface. If MPI, surface is serialized and shared among all procs*/
+    std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_bandSurfaces;   /**<list of MimmoObject boundary patches pointers to identify target baundaries for Narrow Band definition.*/
+    MimmoSharedPointer<MimmoObject> m_bandUniSurface; /**< INTERNAL use. Final narrow band reference surface. If MPI, surface is serialized and shared among all procs*/
 
     //MPI
 #if MIMMO_ENABLE_MPI
@@ -166,18 +166,18 @@ public:
     virtual void    setUpdateThreshold(double thres);
     void	setPrint(bool print = true);
 
-    void    setGeometry(MimmoObject * geometry_);
-    void    addDirichletBoundarySurface(MimmoObject*);
+    void    setGeometry(MimmoSharedPointer<MimmoObject> geometry_);
+    void    addDirichletBoundarySurface(MimmoSharedPointer<MimmoObject>);
 
     void    setNarrowBand(bool flag);
-    void    addNarrowBandBoundarySurface(MimmoObject*);
+    void    addNarrowBandBoundarySurface(MimmoSharedPointer<MimmoObject>);
     void    setNarrowBandWidth(double width);
     void    setNarrowBandRelaxation(double relax);
 
     void    setDamping(bool flag);
     void    setDampingType( int type=0);
     void    setDampingDecayFactor(double decay);
-    void    addDampingBoundarySurface(MimmoObject*);
+    void    addDampingBoundarySurface(MimmoSharedPointer<MimmoObject>);
     void    setDampingInnerDistance(double plateau);
     void    setDampingOuterDistance(double radius);
 
@@ -193,7 +193,8 @@ protected:
     virtual void distributeBCOnBoundaryPoints();
 
     // core resolution functions.
-            void initializeUniqueSurface(const std::unordered_set<MimmoObject *> & listSurf, std::unique_ptr<MimmoObject> & uniSurf);
+    void initializeUniqueSurface(const std::unordered_set<MimmoSharedPointer<MimmoObject> > & listSurf, MimmoSharedPointer<MimmoObject> & uniSurf);
+
     //Damping
     virtual void initializeDampingFunction();
     virtual void updateDampingFunction();
@@ -435,12 +436,12 @@ protected:
     int           m_nstep;  /**< multistep solver steps */
 
     bool m_forcePlanarSlip; /**< force slip surface to be treated as plane */
-    std::unordered_set<MimmoObject*> m_slipSurfaces;          /**< list of MimmoObject boundary patches where slip conditions are applied */
-    std::unordered_set<MimmoObject*> m_slipReferenceSurfaces; /**< list of MimmoObject boundary patches identifying slip reference surface on which the slip nodes of boundary patch are re-projected. */
-    std::unique_ptr<MimmoObject> m_slipUniSurface;            /**< INTERNAL use. Final slip surface. If MPI, surface is serialized and shared among all procs*/
+    std::unordered_set<MimmoSharedPointer<MimmoObject> > m_slipSurfaces;          /**< list of MimmoObject boundary patches where slip conditions are applied */
+    std::unordered_set<MimmoSharedPointer<MimmoObject> > m_slipReferenceSurfaces; /**< list of MimmoObject boundary patches identifying slip reference surface on which the slip nodes of boundary patch are re-projected. */
+    MimmoSharedPointer<MimmoObject> m_slipUniSurface;            /**< INTERNAL use. Final slip surface. If MPI, surface is serialized and shared among all procs*/
     MimmoPiercedVector<std::array<double, 3> > m_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type condition values on POINTS of the target volume mesh */
 
-    std::unordered_set<MimmoObject*> m_periodicSurfaces;   /**< MimmoObject boundary patch identifying periodic conditions */
+    std::unordered_set<MimmoSharedPointer<MimmoObject> > m_periodicSurfaces;   /**< MimmoObject boundary patch identifying periodic conditions */
     std::unordered_set<long> m_periodicBoundaryPoints;     /**< list of mesh nodes flagged as periodic */
 
 private:
@@ -461,9 +462,9 @@ public:
     dmpvecarr3E * getPropagatedField();
     bool        isForcingPlanarSlip();
 
-    void    addSlipBoundarySurface(MimmoObject *);
-    void    addSlipReferenceSurface(MimmoObject *);
-    void    addPeriodicBoundarySurface(MimmoObject *);
+    void    addSlipBoundarySurface(MimmoSharedPointer<MimmoObject>);
+    void    addSlipReferenceSurface(MimmoSharedPointer<MimmoObject>);
+    void    addPeriodicBoundarySurface(MimmoSharedPointer<MimmoObject>);
 
     void    forcePlanarSlip(bool planar);
     void    addDirichletConditions(dmpvecarr3E * bc);

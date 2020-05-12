@@ -44,7 +44,7 @@
 
 // =================================================================================== //
 
-std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::unique_ptr<mimmo::MimmoObject> & boundary){
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(mimmo::MimmoSharedPointer<mimmo::MimmoObject> & boundary){
 
     std::array<double,3> center({{0.0,0.0,0.0}});
     double radiusin(2.0), radiusout(5.0);
@@ -71,7 +71,7 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::unique_ptr<mimmo::
     }
 
     //create the volume mesh mimmo.
-    std::unique_ptr<mimmo::MimmoObject> mesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = mimmo::MimmoSharedPointer<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
     mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
 
     //pump up the vertices
@@ -145,7 +145,7 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::unique_ptr<mimmo::
     auto orinterfaces = mesh->getInterfaces();
     auto orcells = mesh->getCells();
 
-    boundary = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
+    boundary = mimmo::MimmoSharedPointer<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
     boundary->getPatch()->reserveVertices(boundaryverts.size());
     boundary->getPatch()->reserveCells(pidfaces.size());
 
@@ -171,13 +171,13 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::unique_ptr<mimmo::
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-std::unique_ptr<mimmo::MimmoObject> pidExtractor(mimmo::MimmoObject* boundary, const livector1D & pids){
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> pidExtractor(mimmo::MimmoSharedPointer<mimmo::MimmoObject> boundary, const livector1D & pids){
     if(!boundary) return nullptr;
 
     livector1D cellsID = boundary->extractPIDCells(pids);
     livector1D vertID = boundary->getVertexFromCellList(cellsID);
 
-    std::unique_ptr<mimmo::MimmoObject> extracted(new mimmo::MimmoObject(1));
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> extracted(new mimmo::MimmoObject(1));
     extracted->getPatch()->reserveVertices(vertID.size());
     extracted->getPatch()->reserveCells(cellsID.size());
 
@@ -195,16 +195,16 @@ std::unique_ptr<mimmo::MimmoObject> pidExtractor(mimmo::MimmoObject* boundary, c
 
 int test1() {
 
-    std::unique_ptr<mimmo::MimmoObject> bDirMesh;
-    std::unique_ptr<mimmo::MimmoObject> mesh = createTestVolumeMesh(bDirMesh);
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> bDirMesh;
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(bDirMesh);
 
-    std::unique_ptr<mimmo::MimmoObject> bDIR = pidExtractor(bDirMesh.get(), {{1,2}});
-    std::unique_ptr<mimmo::MimmoObject> bSLIP = pidExtractor(bDirMesh.get(), {{5,6}});
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> bDIR = pidExtractor(bDirMesh, {{1,2}});
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> bSLIP = pidExtractor(bDirMesh, {{5,6}});
 
 //TESTING THE VECTOR PROPAGATOR //////
     // and the scalar field of Dirichlet values on pidded surface 0 and 1 nodes.
     mimmo::MimmoPiercedVector<std::array<double,3>> bc_surf_3Dfield;
-    bc_surf_3Dfield.setGeometry(bDIR.get());
+    bc_surf_3Dfield.setGeometry(bDIR);
     bc_surf_3Dfield.setDataLocation(mimmo::MPVLocation::POINT);
     bc_surf_3Dfield.reserve(bDIR->getNVertices());
 
@@ -230,11 +230,11 @@ int test1() {
     // Now create a PropagateScalarField and solve the laplacian.
     mimmo::PropagateVectorField * prop3D = new mimmo::PropagateVectorField();
     prop3D->setName("test00003_PropagateVectorField");
-    prop3D->setGeometry(mesh.get());
-    prop3D->addDirichletBoundarySurface(bDIR.get());
+    prop3D->setGeometry(mesh);
+    prop3D->addDirichletBoundarySurface(bDIR);
     prop3D->addDirichletConditions(&bc_surf_3Dfield);
-    prop3D->addSlipBoundarySurface(bSLIP.get());
-    prop3D->addSlipReferenceSurface(bSLIP.get());
+    prop3D->addSlipBoundarySurface(bSLIP);
+    prop3D->addSlipReferenceSurface(bSLIP);
 
     prop3D->setDamping(true);
     prop3D->setDampingType(0);
