@@ -42,7 +42,7 @@
 
 // =================================================================================== //
 
-std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
 
     std::array<double,3> center({{0.0,0.0,0.0}});
     double radiusin(2.0), radiusout(5.0);
@@ -69,7 +69,7 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::vector<long> &bcdi
     }
 
     //create the volume mesh mimmo.
-    std::unique_ptr<mimmo::MimmoObject> mesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh(new mimmo::MimmoObject(2));
     mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
 
     //pump up the vertices
@@ -122,13 +122,13 @@ std::unique_ptr<mimmo::MimmoObject> createTestVolumeMesh(std::vector<long> &bcdi
 int test1() {
 
     std::vector<long> bc1list, bc2list;
-    std::unique_ptr<mimmo::MimmoObject> mesh = createTestVolumeMesh(bc1list, bc2list);
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(bc1list, bc2list);
 
     livector1D cellInterfaceList1 = mesh->getInterfaceFromVertexList(bc1list, true, true);
     livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list, true, true);
 
     //create the portion of boundary mesh carrying Dirichlet conditions
-    std::unique_ptr<mimmo::MimmoObject> bdirMesh = std::unique_ptr<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> bdirMesh(new mimmo::MimmoObject(1));
     bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
     bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
 
@@ -158,7 +158,7 @@ int test1() {
 //TESTING THE SCALAR PROPAGATOR //////
     // and the scalar field of Dirichlet values on its nodes.
     mimmo::MimmoPiercedVector<double> bc_surf_field;
-    bc_surf_field.setGeometry(bdirMesh.get());
+    bc_surf_field.setGeometry(bdirMesh);
     bc_surf_field.setDataLocation(mimmo::MPVLocation::POINT);
     bc_surf_field.reserve(bdirMesh->getNVertices());
     for(auto & val : bc1list){
@@ -171,11 +171,13 @@ int test1() {
     // Now create a PropagateScalarField and solve the laplacian.
     mimmo::PropagateScalarField * prop = new mimmo::PropagateScalarField();
     prop->setName("test00001_PropagateScalarField");
-    prop->setGeometry(mesh.get());
-    prop->addDirichletBoundarySurface(bdirMesh.get());
+    prop->setGeometry(mesh);
+    prop->addDirichletBoundarySurface(bdirMesh);
     prop->addDirichletConditions(&bc_surf_field);
     prop->setDamping(false);
     prop->setPlotInExecution(true);
+
+    mesh->getPatch()->write("mesh");
 
     prop->exec();
 
@@ -186,7 +188,7 @@ int test1() {
 //TESTING THE VECTOR PROPAGATOR //////
     // and the scalar field of Dirichlet values on its nodes.
     mimmo::MimmoPiercedVector<std::array<double,3>> bc_surf_3Dfield;
-    bc_surf_3Dfield.setGeometry(bdirMesh.get());
+    bc_surf_3Dfield.setGeometry(bdirMesh);
     bc_surf_3Dfield.setDataLocation(mimmo::MPVLocation::POINT);
     bc_surf_3Dfield.reserve(bdirMesh->getNVertices());
     for(auto & val : bc1list){
@@ -199,8 +201,8 @@ int test1() {
     // Now create a PropagateScalarField and solve the laplacian.
     mimmo::PropagateVectorField * prop3D = new mimmo::PropagateVectorField();
     prop3D->setName("test00001_PropagateVectorField");
-    prop3D->setGeometry(mesh.get());
-    prop3D->addDirichletBoundarySurface(bdirMesh.get());
+    prop3D->setGeometry(mesh);
+    prop3D->addDirichletBoundarySurface(bdirMesh);
     prop3D->addDirichletConditions(&bc_surf_3Dfield);
     prop3D->setDamping(true);
     prop3D->setDampingType(1);

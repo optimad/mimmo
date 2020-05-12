@@ -238,7 +238,7 @@ PropagateScalarField::plotOptionalResults(){
 void
 PropagateScalarField::execute(){
 
-    MimmoObject * geo = getGeometry();
+    MimmoSharedPointer<MimmoObject> geo = getGeometry();
     if(!geo){
         (*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
         throw std::runtime_error("Error in "+m_name+" .No target volume mesh linked");
@@ -257,8 +257,6 @@ PropagateScalarField::execute(){
     if(!checkBoundariesCoherence()){
         (*m_log)<<"Warning in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"<<std::endl;
     }
-
-
 
     (*m_log) << bitpit::log::priority(bitpit::log::NORMAL);
     (*m_log) << bitpit::log::context("mimmo");
@@ -299,7 +297,7 @@ PropagateScalarField::execute(){
     distributeBCOnBoundaryPoints();
 
     // compute the laplacian stencils
-    GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(*geo, m_tol, &m_damping);
+    GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, m_tol, &m_damping);
 
     //modify stencils if Narrow band is active i.e. m_banddistances is not empty.
     //This is directly managed in the method.
@@ -439,9 +437,9 @@ PropagateVectorField::buildPorts(){
     PropagateField<3>::buildPorts();
 	bool built = m_arePortsBuilt;
 	built = (built && createPortIn<dmpvecarr3E *, PropagateVectorField>(this, &PropagateVectorField::addDirichletConditions, M_GDISPLS, true));
-	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::addSlipBoundarySurface, M_GEOM4));
-	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::addSlipReferenceSurface, M_GEOM6));
-	built = (built && createPortIn<MimmoObject *, PropagateVectorField>(this, &PropagateVectorField::addPeriodicBoundarySurface, M_GEOM5));
+	built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateVectorField>(this, &PropagateVectorField::addSlipBoundarySurface, M_GEOM4));
+	built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateVectorField>(this, &PropagateVectorField::addSlipReferenceSurface, M_GEOM6));
+	built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateVectorField>(this, &PropagateVectorField::addPeriodicBoundarySurface, M_GEOM5));
     built = (built && createPortOut<dmpvecarr3E *, PropagateVectorField>(this, &PropagateVectorField::getPropagatedField, M_GDISPLS));
 	m_arePortsBuilt = built;
 };
@@ -474,7 +472,7 @@ PropagateVectorField::isForcingPlanarSlip(){
  * \param[in] surface Boundary patch.
  */
 void
-PropagateVectorField::addSlipBoundarySurface(MimmoObject* surface){
+PropagateVectorField::addSlipBoundarySurface(MimmoSharedPointer<MimmoObject> surface){
     if (!surface)       return;
     if (surface->getType()!= 1 ) return;
     m_slipSurfaces.insert(surface);
@@ -488,7 +486,7 @@ PropagateVectorField::addSlipBoundarySurface(MimmoObject* surface){
  * \param[in] surface Slip reference surface.
  */
 void
-PropagateVectorField::addSlipReferenceSurface(MimmoObject* surface){
+PropagateVectorField::addSlipReferenceSurface(MimmoSharedPointer<MimmoObject> surface){
     if (!surface)       return;
     if (surface->getType()!= 1 ) return;
     m_slipReferenceSurfaces.insert(surface);
@@ -505,7 +503,7 @@ PropagateVectorField::addSlipReferenceSurface(MimmoObject* surface){
  * \param[in] surface Boundary patch.
  */
 void
-PropagateVectorField::addPeriodicBoundarySurface(MimmoObject* surface){
+PropagateVectorField::addPeriodicBoundarySurface(MimmoSharedPointer<MimmoObject> surface){
     if (!surface)       return;
     if (surface->getType()!= 1 ) return;
     m_periodicSurfaces.insert(surface);
@@ -639,7 +637,7 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 
     //check slip surfaces.(this include alse the periodic surfaces if any. See method addPeriodicBoundarySurface)
     std::unordered_set<long> nodeList;
-    for(MimmoObject * obj : m_slipSurfaces){
+    for(MimmoSharedPointer<MimmoObject> obj : m_slipSurfaces){
         std::vector<long> temp = obj->getVerticesIds(true); //only on internals
         nodeList.insert(temp.begin(), temp.end());
     }
@@ -663,7 +661,7 @@ bool PropagateVectorField::checkBoundariesCoherence(){
 
     // run over periodic surfaces and retain border patch vertices common with the volume mesh
     m_periodicBoundaryPoints.clear();
-    for (MimmoObject* obj : m_periodicSurfaces){
+    for (MimmoSharedPointer<MimmoObject> obj : m_periodicSurfaces){
         std::vector<long> tempboundary = obj->extractBoundaryVertexID(false); //no ghost, only internals
         //I have all internals and operations before guarantees me that
         //all internal points of periodic surfaces are present in the bulk mesh
@@ -704,7 +702,7 @@ PropagateVectorField::restoreBC(){
  */
 void
 PropagateVectorField::apply(){
-    MimmoObject * target = getGeometry();
+    MimmoSharedPointer<MimmoObject> target = getGeometry();
     bitpit::PiercedVector<bitpit::Vertex> & verts = target->getVertices();
 
     //deform bulk.
@@ -739,7 +737,7 @@ PropagateVectorField::apply(){
  */
 void
 PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & vertices){
-    MimmoObject * target = getGeometry();
+    MimmoSharedPointer<MimmoObject> target = getGeometry();
     bitpit::PiercedVector<bitpit::Vertex> &currentmesh = target->getVertices();
 
     //restore bulk.
@@ -830,7 +828,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 {
 
     //resize rhs to the number of internal cells
-    MimmoObject * geo = getGeometry();
+    MimmoSharedPointer<MimmoObject> geo = getGeometry();
     rhs.resize(geo->getNInternalVertices(), 0.0);
 
     if (!m_solver->isAssembled()) {
@@ -989,7 +987,7 @@ void PropagateVectorField::initializeSlipSurfaceAsPlane(){
     long countC = 0;
 
     //loop on m_slipReferenceSurfaces list
-    for(MimmoObject * obj : m_slipReferenceSurfaces){
+    for(MimmoSharedPointer<MimmoObject> obj : m_slipReferenceSurfaces){
 
 #if MIMMO_ENABLE_MPI
         // be sure ghost information on point/cell are synchronized
@@ -1056,7 +1054,13 @@ dmpvecarr3E PropagateVectorField::getBoundaryPropagatedField(){
 
     //prepare my own send buffer.
     mimmo::OBinaryStream myrankDataBuffer;
-    myrankDataBuffer << mpvres;
+    myrankDataBuffer << (std::size_t)mpvres.size();
+    auto itE = mpvres.cend();
+    for (auto it=mpvres.cbegin(); it!=itE; it++){
+        myrankDataBuffer << it.getId();
+        myrankDataBuffer << *it;
+    }
+
     long myrankDataBufferSize = myrankDataBuffer.getSize();
 
     for (int sendRank=0; sendRank<m_nprocs; sendRank++){
@@ -1069,7 +1073,15 @@ dmpvecarr3E PropagateVectorField::getBoundaryPropagatedField(){
             MPI_Recv(defBuffer.data(), defBuffer.getSize(), MPI_CHAR, sendRank, 910, m_communicator, MPI_STATUS_IGNORE);
 
             MimmoPiercedVector<std::array<double,3>> temp;
-            defBuffer >> temp;
+            std::size_t nP;
+            defBuffer >> nP;
+            std::array<double,3> val;
+            long int id;
+            for (std::size_t i = 0; i < nP; ++i) {
+                defBuffer >> id;
+                defBuffer >> val;
+                temp.insert(id, val);
+            }
 
             // insert this part in mpvres.
             for (auto it = temp.begin(); it!=temp.end(); ++it) {
@@ -1104,7 +1116,7 @@ dmpvecarr3E PropagateVectorField::getBoundaryPropagatedField(){
 void
 PropagateVectorField::execute(){
 
-    MimmoObject * geo = getGeometry();
+    MimmoSharedPointer<MimmoObject> geo = getGeometry();
     if(!geo){
         (*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
         throw std::runtime_error("Error in "+m_name+" .No target volume mesh linked");
@@ -1174,7 +1186,7 @@ PropagateVectorField::execute(){
     data = geo->getMapData(true);
 
     // compute the laplacian stencils
-    GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(*geo, m_tol, &m_damping);
+    GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, m_tol, &m_damping);
 
     //modify stencils if Narrow band is active i.e. m_banddistances is not empty.
     //This is directly managed in the method.
@@ -1258,7 +1270,7 @@ PropagateVectorField::execute(){
             propagateMaskMovingPoints(*(movingElementList.get()));
 
             // update the laplacian stencils
-            GraphLaplStencil::MPVStencilUPtr updateLaplaceStencils = GraphLaplStencil::computeLaplacianStencils(*geo, movingElementList.get(), m_tol, &m_damping);
+            GraphLaplStencil::MPVStencilUPtr updateLaplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, movingElementList.get(), m_tol, &m_damping);
             movingElementList->clear();
 
             //apply modification to the interested stencils if narrow band control is active

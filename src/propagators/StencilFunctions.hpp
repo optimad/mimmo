@@ -46,11 +46,11 @@ namespace FVolStencil{
                             const std::vector<double> &w,
                             std::vector<std::vector<double>> *weights);
 
-    MPVGradientUPtr   computeFVCellGradientStencil(MimmoObject & geo, const std::vector<long> * updatelist = nullptr);
+    MPVGradientUPtr   computeFVCellGradientStencil(MimmoSharedPointer<MimmoObject> geo, const std::vector<long> * updatelist = nullptr);
 
-    MPVGradientUPtr   computeFVFaceGradientStencil(MimmoObject & geo, MPVGradient * cellGradientStencil = nullptr);
-    MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, MPVGradient & cellGradientStencil);
-    MPVGradientUPtr   updateFVFaceGradientStencil(MimmoObject & geo, const std::vector<long> & list);
+    MPVGradientUPtr   computeFVFaceGradientStencil(MimmoSharedPointer<MimmoObject> geo, MPVGradient * cellGradientStencil = nullptr);
+    MPVGradientUPtr   updateFVFaceGradientStencil(MimmoSharedPointer<MimmoObject> geo, MPVGradient & cellGradientStencil);
+    MPVGradientUPtr   updateFVFaceGradientStencil(MimmoSharedPointer<MimmoObject> geo, const std::vector<long> & list);
 
     bitpit::StencilVector computeBorderFaceGradient(const std::array<double,3> & interfaceNormal,
                                                     const bitpit::StencilVector & CCellOwnerStencil);
@@ -106,10 +106,10 @@ namespace GraphLaplStencil{
 //                                                            const double &distD,
 //                                                            const bitpit::StencilVector & CCellOwnerStencil);
 
-    MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, double tolerance = 1.0e-12,
+    MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, double tolerance = 1.0e-12,
                                                  MimmoPiercedVector<double> * diffusivity = nullptr);
 
-    MPVStencilUPtr computeLaplacianStencils(MimmoObject & geo, std::vector<long>* nodesList, double tolerance,
+    MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, std::vector<long>* nodesList, double tolerance,
                                                  MimmoPiercedVector<double> * diffusivity);
 
 };//end namespace stencilFunction
