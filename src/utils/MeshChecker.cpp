@@ -461,7 +461,7 @@ MeshChecker::checkVolume()
 	}
 
 #if MIMMO_ENABLE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, &passed, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &passed, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
     MPI_Allreduce(MPI_IN_PLACE, &m_minVolumeChange, 1, MPI_DOUBLE, MPI_MIN, m_communicator);
     MPI_Allreduce(MPI_IN_PLACE, &m_maxVolume, 1, MPI_DOUBLE, MPI_MAX, m_communicator);
     MPI_Allreduce(MPI_IN_PLACE, &m_minVolume, 1, MPI_DOUBLE, MPI_MIN, m_communicator);
@@ -550,7 +550,7 @@ MeshChecker::checkSkewness()
 	} // end of if passed.
 
 #if MIMMO_ENABLE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, &passed, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &passed, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
     MPI_Allreduce(MPI_IN_PLACE, &m_maxSkewness, 1, MPI_DOUBLE, MPI_MAX, m_communicator);
     MPI_Allreduce(MPI_IN_PLACE, &m_maxSkewnessBoundary, 1, MPI_DOUBLE, MPI_MAX, m_communicator);
 #endif
@@ -639,7 +639,7 @@ MeshChecker::checkFaceValidity()
 	}
 
 #if MIMMO_ENABLE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, &passed, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &passed, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
     MPI_Allreduce(MPI_IN_PLACE, &m_minFaceValidity, 1, MPI_DOUBLE, MPI_MIN, m_communicator);
 #endif
 
@@ -682,10 +682,10 @@ MeshChecker::plotOptionalResults(){
     bool fvalEmpty = m_facevalidity->isEmpty();
 
 #if MIMMO_ENABLE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, &volumeEmpty, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &volchangeEmpty, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &skewEmpty, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, &fvalEmpty, 1, MPI_CXX_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &volumeEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &volchangeEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &skewEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &fvalEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
 #endif
 
 	if (!volumeEmpty){
