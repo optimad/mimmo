@@ -628,31 +628,46 @@ endif ()
 # parallel module dependencies
 if (MODULE_ENABLED_PARALLEL)
     # ---- parmetis/metis search ---
-    set(PARMETIS_DIR "/opt/parmetis/parmetis-4.0.3" CACHE PATH "path to parMETIS installation")
-    set(METIS_DIR "/opt/parmetis/parmetis-4.0.3/metis" CACHE PATH "path to METIS installation")
+    set(PARMETIS_INCLUDE_DIR " " CACHE PATH "path to parMETIS includes directory")
+    set(METIS_INCLUDE_DIR    " " CACHE PATH "path to METIS include directory")
 
-    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${METIS_DIR}/include")
-    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${PARMETIS_DIR}/include")
+    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${METIS_INCLUDE}")
+    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${PARMETIS_INCLUDE}")
 
-    find_library(METISLIB NAMES "libmetis.so" "libmetis.a" HINTS "${METIS_DIR}/lib")
+    # ---- parmetis/metis search ---
+    set(PARMETIS_LIB_DIR " " CACHE PATH "path to parMETIS library directory")
+    set(METIS_LIB_DIR    " " CACHE PATH "path to METIS library directory")
+
+    if(MINGW)
+        find_library(METISLIB NAMES "libmetis.dll.a" "libmetis.a" HINTS "${METIS_LIB_DIR}")
+    else()
+        find_library(METISLIB NAMES "libmetis.so" "libmetis.a" HINTS "${METIS_LIB_DIR}")
+    endif()
     if(NOT METISLIB)
         unset(METISLIB CACHE)
-        message(FATAL_ERROR "Cannot found any libmetis.so/libmetis.a in METIS lib installation path")
+        message(FATAL_ERROR "Cannot found any METIS library in current METIS_LIB_DIR")
     endif()
     list(APPEND OTHER_EXTERNAL_LIBRARIES ${METISLIB})
     unset(METISLIB CACHE)
 
-    find_library(PARMETISLIB NAMES "libparmetis.so" "libparmetis.a" HINTS "${PARMETIS_DIR}/lib")
+    if(MINGW)
+        find_library(PARMETISLIB NAMES "libparmetis.dll.a" "libparmetis.a" HINTS "${PARMETIS_LIB_DIR}")
+    else()
+        find_library(PARMETISLIB NAMES "libparmetis.so" "libparmetis.a" HINTS "${PARMETIS_LIB_DIR}")
+    endif()
     if(NOT PARMETISLIB)
         unset(PARMETISLIB CACHE)
-        message(FATAL_ERROR "Cannot found any libparmetis.so/libparmetis.a in parMETIS lib installation path")
+        message(FATAL_ERROR "Cannot found any parMETIS library in PARMETIS_LIB_DIR")
     endif()
     list(APPEND OTHER_EXTERNAL_LIBRARIES ${PARMETISLIB})
     unset(PARMETISLIB CACHE)
 
 else()
-    UNSET(METIS_DIR CACHE)
-    UNSET(PARMETIS_DIR CACHE)
+    UNSET(METIS_INCLUDE_DIR CACHE)
+    UNSET(PARMETIS_INCLUDE_DIR CACHE)
+    UNSET(METIS_LIB_DIR CACHE)
+    UNSET(PARMETIS_LIB_DIR CACHE)
+
 endif ()
 
 
