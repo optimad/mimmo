@@ -24,12 +24,10 @@
 #ifndef __MIMMONAMESPACE_HPP__
 #define __MIMMONAMESPACE_HPP__
 
+#include <mimmo_binary_stream.hpp>
 #include <logger.hpp>
 
 namespace mimmo{
-
-class BaseManipulation;
-
 /*!
  * \class FileDataInfo
  * \ingroup core
@@ -49,6 +47,22 @@ struct FileDataInfo{
     FileDataInfo(const FileDataInfo & other);
 };
 
+}
+
+/*!
+ * \ingroup binaryStream
+ * \{
+ */
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, mimmo::FileDataInfo&  element);
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const mimmo::FileDataInfo& element);
+/*!
+ *\}
+ */
+
+
+ namespace mimmo{
+
+ class BaseManipulation;
 
 /*!
 *

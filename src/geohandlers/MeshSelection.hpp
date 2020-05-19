@@ -25,7 +25,8 @@
 #ifndef __MESHSELECTION_HPP__
 #define __MESHSELECTION_HPP__
 
-#include "BaseManipulation.hpp"
+#include <BaseManipulation.hpp>
+#include <BasicShapes.hpp>
 
 #include <memory>
 #include <unordered_map>
