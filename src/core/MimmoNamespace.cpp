@@ -5,6 +5,38 @@ std::string mimmo::MIMMO_LOG_FILE = "mimmo"; /**<Default name of logger file.*/
 bool        mimmo::MIMMO_EXPERT = false;    /**<Flag that defines expert mode (true) or safe mode (false).
                                                 In case of expert mode active the mandatory ports are not checked. */
 
+
+/*!
+*	Input stream operator for mimmo::FileDataInfo
+*	\param[in] buffer is the input stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same input stream received in input.
+*/
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, mimmo::FileDataInfo&  var){
+
+    buffer >> var.ftype;
+    buffer >> var.fdir;
+    buffer >> var.fname;
+
+    return buffer;
+};
+
+/*!
+*	Output stream operator for mimmo::FileDataInfo
+*	\param[in] buffer is the output stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same output stream received in input.
+*/
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buffer, const mimmo::FileDataInfo& var){
+
+    buffer<<var.ftype;
+    buffer<<var.fdir;
+    buffer<<var.fname;
+
+    return buffer;
+};
+
+
 namespace mimmo{
 
 /*!

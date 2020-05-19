@@ -24,11 +24,13 @@
 #ifndef __BASEMANIPULATION_HPP__
 #define __BASEMANIPULATION_HPP__
 
-#include "factory.hpp"
-#include "portManager.hpp"
 #include "MimmoNamespace.hpp"
 #include "MimmoObject.hpp"
 #include "InOut.hpp"
+#include "MimmoPiercedVector.hpp"
+
+#include <factory.hpp>
+#include <portManager.hpp>
 
 #include <bitpit_common.hpp>
 

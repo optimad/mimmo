@@ -27,6 +27,62 @@
 #include <bitpit_common.hpp>
 #include <algorithm>
 
+
+/*!
+*	Output stream operator for mimmo::ShapeType enum
+*	\param[in] buffer is the output stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same output stream received in input.
+*/
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream  &buffer, const mimmo::ShapeType &var)
+{
+    buffer << static_cast<int> (var);
+    return buffer;
+}
+
+
+/*!
+*	Input stream operator for mimmo::ShapeType enum
+*	\param[in] buffer is the input stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same input stream received in input.
+*/
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, mimmo::ShapeType &var)
+{
+    int val;
+    buffer >> val;
+    var = static_cast<mimmo::ShapeType>	(val);
+    return buffer;
+}
+
+/*!
+*	Output stream operator for mimmo::CoordType enum
+*	\param[in] buffer is the output stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same output stream received in input.
+*/
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream  &buffer, const mimmo::CoordType &var)
+{
+    buffer << static_cast<int> (var);
+    return buffer;
+}
+
+
+/*!
+*	Input stream operator for mimmo::CoordType enum
+*	\param[in] buffer is the input stream
+*	\param[in] var is the element to be streamed
+*	\result Returns the same input stream received in input.
+*/
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, mimmo::CoordType &var)
+{
+    int val;
+    buffer >> val;
+    var = static_cast<mimmo::CoordType>	(val);
+    return buffer;
+}
+
+
 namespace mimmo{
 
 /*!
