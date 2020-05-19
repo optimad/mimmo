@@ -24,16 +24,12 @@
 #ifndef __INOUT_HPP__
 #define __INOUT_HPP__
 
-#include "BasicShapes.hpp"
-#include "MimmoPiercedVector.hpp"
-#include <binary_stream.hpp>
+#include <mimmo_binary_stream.hpp>
 #include <functional>
 
 namespace mimmo{
 
 class BaseManipulation;
-struct FileDataInfo;
-//class TrackingPointer;
 
 /*!
  * \ingroup typedefs
@@ -42,45 +38,9 @@ struct FileDataInfo;
 typedef std::string                 PortID; /**< port ID typedef */
 typedef std::string                 containerTAG; /**< containerTAG typedef*/
 typedef std::string                 dataTAG; /**< dataTAG typedef */
-
-typedef mimmo::MimmoPiercedVector<bool>  bmpvector1D;   /**< mimmo custom typedef*/
-typedef bitpit::PiercedVector<std::pair<bool, uint8_t>, long>  btpvector1D;   /**< mimmo custom typedef*/
-typedef mimmo::MimmoPiercedVector<double>  dmpvector1D;   /**< mimmo custom typedef*/
-typedef mimmo::MimmoPiercedVector<std::vector<double>>  dmpvector2D;   /**< mimmo custom typedef*/
-typedef mimmo::MimmoPiercedVector<long int>  limpvector1D;   /**< mimmo custom typedef*/
-typedef mimmo::MimmoPiercedVector<std::vector<long int>>  limpvector2D;   /**< mimmo custom typedef*/
-typedef mimmo::MimmoPiercedVector<darray3E>  dmpvecarr3E;   /**< mimmo custom typedef*/
-
 /*!
  * \}
  */
-
-
- /*!
-     @class IBinaryStream
-     @ingroup binaryStream
-     @brief mimmo custom derivation of bitpit IBinaryStream (see relative doc)
- */
- class IBinaryStream : public bitpit::IBinaryStream {
-
- public:
-     IBinaryStream(void);
-     IBinaryStream(std::size_t size);
-     IBinaryStream(const char *buffer, std::size_t size);
-     IBinaryStream(const std::vector<char> &buffer);
- };
-
- /*!
-     @class OBinaryStream
-     @ingroup binaryStream
-     @brief mimmo custom derivation of bitpit OBinaryStream (see relative doc)
- */
- class OBinaryStream : public bitpit::OBinaryStream {
-
- public:
-     OBinaryStream();
-     OBinaryStream(std::size_t size);
- };
 
 /*!
 * \class DataType
@@ -322,65 +282,6 @@ public:
 
 }
 
-/*!
- * \ingroup binaryStream
- * \{
- */
-//BASIC TYPES
-mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, mimmo::CoordType& element);
-mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const mimmo::CoordType& element);
-
-mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, mimmo::ShapeType& element);
-mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const mimmo::ShapeType& element);
-
-mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, mimmo::FileDataInfo&  element);
-mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const mimmo::FileDataInfo& element);
-
-mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, std::string & element);
-mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const std::string & element);
-
-//TEMPLATE STRUCTURES
-// template<typename T>
-// mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, T& element);
-// template<typename T>
-// mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const T& element);
-
-template<typename T>
-mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf,std::vector<T>& element);
-template<typename T>
-mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const std::vector<T>& element);
-
-template<typename T, std::size_t d>
-mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, std::array<T,d>& element);
-template<typename T, std::size_t d>
-mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const std::array<T,d>& element);
-
-template<typename T, typename Q>
-mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, std::pair<T, Q>& element);
-template<typename T, typename Q>
-mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const std::pair<T, Q>& element);
-
-template<typename T, typename Q>
-mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, std::unordered_map<T, Q>&  element);
-template<typename T, typename Q>
-mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const std::unordered_map<T, Q >& element);
-
-template<typename T, typename Q>
-mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, std::map<T,Q>& element);
-template<typename T, typename Q>
-mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const std::map<T, Q>& element);
-
-template<typename T>
-mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf,mimmo::MimmoPiercedVector<T>& element);
-template<typename T>
-mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const mimmo::MimmoPiercedVector<T>& element);
-
-/*!
- *\}
- */
-
 #include "InOut.tpp"
-
-
 
 #endif /* __INOUT_HPP__ */

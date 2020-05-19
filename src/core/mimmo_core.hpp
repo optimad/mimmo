@@ -25,10 +25,6 @@
  * \defgroup core core
  * Executable Blocks basic features and data structures
  * \{
- *      \defgroup binaryStream BinaryStream
- *      List of significant binary streams used to exchange data through pin/ports
- *      \{
- *      \}
  * \}
  *
  */

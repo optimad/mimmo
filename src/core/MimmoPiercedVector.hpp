@@ -25,7 +25,9 @@
 #define __MIMMOPIERCEDVECTOR_HPP__
 
 #include "MimmoObject.hpp"
+#include <mimmo_binary_stream.hpp>
 #include <piercedVector.hpp>
+
 
 namespace mimmo{
 
@@ -108,7 +110,38 @@ private:
     livector1D getGeometryIds(bool ordered=false);
 };
 
-};
+/*!
+ * \ingroup typedefs
+ * \{
+ */
+typedef mimmo::MimmoPiercedVector<bool>  bmpvector1D;   /**< mimmo custom typedef*/
+typedef bitpit::PiercedVector<std::pair<bool, uint8_t>, long>  btpvector1D;   /**< mimmo custom typedef*/
+typedef mimmo::MimmoPiercedVector<double>  dmpvector1D;   /**< mimmo custom typedef*/
+typedef mimmo::MimmoPiercedVector<std::vector<double>>  dmpvector2D;   /**< mimmo custom typedef*/
+typedef mimmo::MimmoPiercedVector<long int>  limpvector1D;   /**< mimmo custom typedef*/
+typedef mimmo::MimmoPiercedVector<std::vector<long int>>  limpvector2D;   /**< mimmo custom typedef*/
+typedef mimmo::MimmoPiercedVector<darray3E>  dmpvecarr3E;   /**< mimmo custom typedef*/
+
+/*!
+ * \}
+ */
+
+};//end namespace mimmo.
+
+/*!
+ * \ingroup binaryStream
+ * \{
+ */
+//Template provision of binary streams for Mimmo Pierced Vectors.
+template<typename T>
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf,mimmo::MimmoPiercedVector<T>& element);
+template<typename T>
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const mimmo::MimmoPiercedVector<T>& element);
+/*!
+ *\}
+ */
+
+
 
 #include "MimmoPiercedVector.tpp"
 

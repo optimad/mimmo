@@ -22,7 +22,63 @@
  *
 \*---------------------------------------------------------------------------*/
 
-#include "MimmoNamespace.hpp"
+/*!
+* Input stream operator for bitpit::MimmoPiercedVector\< T \>
+* \param[in] buffer is the input stream
+* \param[in] element is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+template< typename T>
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, mimmo::MimmoPiercedVector<T>& element){
+
+    element.clear();
+    mimmo::MimmoObject* geo;
+    buffer >> geo;
+    element.setGeometry(geo);
+    std::string name;
+    buffer>>name;
+    element.setName(name);
+
+    int loc_;
+    buffer >> loc_;
+    element.setDataLocation(static_cast<mimmo::MPVLocation>(loc_));
+
+    std::size_t nP;
+    buffer >> nP;
+
+    T val;
+    long int id;
+    for (std::size_t i = 0; i < nP; ++i) {
+        buffer >> id;
+        buffer >> val;
+        element.insert(id, val);
+    }
+    return buffer;
+};
+
+/*!
+* Output stream operator for bitpit::MimmoPiercedVector\< T \>
+* \param[in] buffer is the output stream
+* \param[in] element is the element to be streamed
+* \result Returns the same output stream received in input.
+*/
+template<typename T>
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buffer, const mimmo::MimmoPiercedVector<T>& element){
+
+    buffer << element.getGeometry();
+
+    std::string name = element.getName();
+    buffer << name;
+    buffer << static_cast<int>(element.getConstDataLocation());
+    buffer << (std::size_t)element.size();
+    auto itE = element.cend();
+    for (auto it=element.cbegin(); it!=itE; it++){
+        buffer << it.getId();
+        buffer << *it;
+    }
+    return buffer;
+};
+
 
 namespace mimmo{
 

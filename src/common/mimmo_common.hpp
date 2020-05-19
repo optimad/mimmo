@@ -61,6 +61,11 @@
  * \{
  * \}
  *
+ * \defgroup binaryStream BinaryStream
+ * List of significant binary streams used to exchange data through pin/ports
+ * \{
+ * \}
+
  */
 
 
@@ -76,7 +81,7 @@
 #include "mimmoTypeDef.hpp"
 #include "TrackingPointer.hpp"
 #include "customOperators.hpp"
-
+#include "mimmo_binary_stream.hpp"
 
 
 namespace mimmo{

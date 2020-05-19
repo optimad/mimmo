@@ -25,7 +25,8 @@
 #ifndef __FVMESHSELECTION_HPP__
 #define __FVMESHSELECTION_HPP__
 
-#include "BaseManipulation.hpp"
+#include <BaseManipulation.hpp>
+#include <BasicShapes.hpp>
 #include <memory>
 
 namespace mimmo{

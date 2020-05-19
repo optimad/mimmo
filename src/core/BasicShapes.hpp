@@ -26,6 +26,7 @@
 #define __MIMMOBASICSHAPES_HH
 
 #include "MimmoObject.hpp"
+#include <mimmo_binary_stream.hpp>
 #include <unordered_set>
 
 namespace mimmo{
@@ -53,6 +54,22 @@ enum class CoordType{
     SYMMETRIC =3  /**<provide simmetry condition on the interval extrema*/
 };
 
+}
+/*!
+ * \ingroup binaryStream
+ * \{
+ */
+//Binary stream occurring to Classes memebers for port exchange
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, mimmo::CoordType& element);
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const mimmo::CoordType& element);
+
+mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buf, mimmo::ShapeType& element);
+mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buf, const mimmo::ShapeType& element);
+/*!
+ *\}
+ */
+
+ namespace mimmo{
 
 /*!
  *\class BasicShape
