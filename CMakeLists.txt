@@ -120,10 +120,13 @@ function(addModuleIncludeDirectories MODULE_NAME)
 endfunction()
 
 #works only in linux systems ->suitable for libraries who does not own a find_package
-#/TODO need to make it work on windows systems also.
-function(addImportedLibrary NAMELIB HINTS_DIR SHAREDV)
+function(addImportedLibrary NAMELIB HINTS_DIR SHAREDV SAVED_LIBRARY)
     if(DEFINED SHAREDV AND SHAREDV)
-        SET(TAG ".so")
+        if(MINGW)
+            SET(TAG ".dll.a")
+        else()
+            set(TAG ".so")
+        endif()
     else()
         SET(TAG ".a")
     endif()
@@ -131,6 +134,9 @@ function(addImportedLibrary NAMELIB HINTS_DIR SHAREDV)
     add_library(${NAMELIB} UNKNOWN IMPORTED)
     set_property(TARGET ${NAMELIB} PROPERTY IMPORTED_LOCATION ${NAMEPATH})
     set_property(TARGET ${NAMELIB} PROPERTY IMPORTED_IMPLIB ${NAMEPATH})
+    if (NAMEPATH)
+        set (${SAVED_LIBRARY} ${NAMEPATH} PARENT_SCOPE)
+    endif()
     unset(NAMEPATH CACHE)
 endfunction()
 
@@ -468,7 +474,8 @@ endif()
 if (MODULE_ENABLED_IOVTK)
     # ---- VTK forced ---
     set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE PATH "path to VTK installation")
-    find_package(VTK REQUIRED)
+    set(VTK_QUERYPACKAGES "vtkCommonDataModel" "vtkCommonCore" "vtkFiltersCore" "vtkIOLegacy")
+    find_package(VTK REQUIRED COMPONENTS ${VTK_QUERYPACKAGES})
     include(${VTK_USE_FILE})
     ##BEtter to be refind after
     list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "VTK")
@@ -587,8 +594,8 @@ endif ()
 if (MODULE_ENABLED_IOCGNS)
 
     # ---- CGNS forced ---
-    set(CGNS_LIB " " CACHE PATH "path to CGNS libraries installation (libcgns.so) ")
-    set(CGNS_INCLUDE " " CACHE PATH "path to CGNS include installation")
+    set(CGNS_LIB_DIR " " CACHE PATH "path to CGNS libraries installation (libcgns.so) ")
+    set(CGNS_INCLUDE_DIR " " CACHE PATH "path to CGNS include installation")
     #set(HDF5_LIB " " CACHE PATH "path to HDF5 libraries installation")
     # set(HDF5_BUILD_TYPE "parallel" CACHE STRING
     #     "Choose the type of HDF5 build, options are: parallel serial.")
@@ -596,10 +603,13 @@ if (MODULE_ENABLED_IOCGNS)
     # set_property(CACHE HDF5_BUILD_TYPE PROPERTY STRINGS "parallel" "serial")
 
     ## you can bind libs to this current mimmo installation
-    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${CGNS_INCLUDE}")
-
-    addImportedLibrary("cgns" "${CGNS_LIB}" ON)
-    list(APPEND OTHER_EXTERNAL_LIBRARIES "cgns")
+    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${CGNS_INCLUDE_DIR}")
+    if(MINGW)
+        addImportedLibrary("cgnsdll" "${CGNS_LIB_DIR}" ON CGNS_LIB)
+    else()
+        addImportedLibrary("cgns" "${CGNS_LIB_DIR}" ON CGNS_LIB)
+    endif()
+    list(APPEND OTHER_EXTERNAL_LIBRARIES ${CGNS_LIB})
 
     # addImportedLibrary("hdf5" "${HDF5_LIB}" ON)
     # list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5")
@@ -619,10 +629,9 @@ if (MODULE_ENABLED_IOCGNS)
     # endif()
     #      ----
 else()
+    unset(CGNS_LIB_DIR CACHE)
+    unset(CGNS_INCLUDE_DIR CACHE)
     unset(CGNS_LIB CACHE)
-    unset(CGNS_INCLUDE CACHE)
-#    unset(HDF5_LIB CACHE)
-    # unset(HDF5_BUILD_TYPE CACHE)
 endif ()
 
 # parallel module dependencies
