@@ -50,5 +50,6 @@
 #include "VTUGridReader.hpp"
 #include "VTUGridWriterASCII.hpp"
 #include "Module.hpp"
+#include "MimmoSharedPointer.hpp"
 
 #endif
