@@ -36,6 +36,7 @@ list(APPEND TESTS "test_core_00002")
 list(APPEND TESTS "test_core_00003")
 list(APPEND TESTS "test_core_00004")
 list(APPEND TESTS "test_core_00005")
+list(APPEND TESTS "test_core_00006")
 
 # if (ENABLE_MPI)
 # 	list(APPEND TESTS "test_core_parallel_00001:3") ##:x number of procs
