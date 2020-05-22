@@ -36,8 +36,6 @@ IOCloudPoints::IOCloudPoints(bool readMode){
     m_template     = false;
     m_dir       = ".";
     m_filename     = m_name+"_source.dat";
-    m_isInternal = true;
-    m_intgeo.reset(nullptr);
 };
 
 /*!
@@ -67,10 +65,6 @@ IOCloudPoints::IOCloudPoints(const bitpit::Config::Section & rootXML){
     }else{
         warningXML(m_log, m_name);
     };
-
-    m_isInternal = true;
-    m_intgeo.reset(nullptr);
-
 }
 
 
@@ -84,12 +78,6 @@ IOCloudPoints::IOCloudPoints(const IOCloudPoints & other):BaseManipulation(other
     m_dir       = other.m_dir;
     m_filename     = other.m_filename;
     m_template = other.m_template;
-
-    if(other.m_isInternal){
-        m_geometry = other.m_intgeo.get();
-    }
-    m_isInternal = false;
-
 };
 
 /*!Assignement operator of IOCloudPoints. Labels, points and data attached are no copied.
@@ -115,8 +103,6 @@ void IOCloudPoints::swap(IOCloudPoints & x) noexcept
     std::swap(m_vectorfield , x.m_vectorfield);
     m_scalarfield.swap(x.m_scalarfield);
     m_vectorfield.swap(x.m_vectorfield);
-    std::swap(m_isInternal, x.m_isInternal);
-    std::swap(m_intgeo, x.m_intgeo);
     BaseManipulation::swap(x);
 }
 
@@ -129,25 +115,14 @@ IOCloudPoints::buildPorts(){
 
     built = (built && createPortIn<dmpvector1D*, IOCloudPoints>(this, &mimmo::IOCloudPoints::setScalarField, M_SCALARFIELD));
     built = (built && createPortIn<dmpvecarr3E*, IOCloudPoints>(this, &mimmo::IOCloudPoints::setVectorField, M_VECTORFIELD));
-    built = (built && createPortIn<MimmoObject*, IOCloudPoints>(this, &mimmo::IOCloudPoints::setGeometry, M_GEOM));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOCloudPoints>(this, &mimmo::IOCloudPoints::setGeometry, M_GEOM));
 
-    built = (built && createPortOut<MimmoObject*, IOCloudPoints>(this, &mimmo::IOCloudPoints::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOCloudPoints>(this, &mimmo::IOCloudPoints::getGeometry, M_GEOM));
     built = (built && createPortOut<dmpvector1D*, IOCloudPoints>(this, &mimmo::IOCloudPoints::getScalarField, M_SCALARFIELD));
     built = (built && createPortOut<dmpvecarr3E*, IOCloudPoints>(this, &mimmo::IOCloudPoints::getVectorField, M_VECTORFIELD));
 
     m_arePortsBuilt = built;
 }
-
-/*!
- * It gets the point cloud as a linked MimmoObject.
- * \return Pointer to point cloud geometry.
- */
-MimmoObject*
-IOCloudPoints::getGeometry(){
-    // Return internal geometry
-    if (m_isInternal) return m_intgeo.get();
-    return m_geometry;
-};
 
 /*!
  * Return the scalar field stored in the class as pointer to MimmoPiercedVector object.
@@ -211,16 +186,10 @@ IOCloudPoints::setWriteDir(std::string dir){
  * \param[in] geometry Pointer to point cloud geometry.
  */
 void
-IOCloudPoints::setGeometry(MimmoObject* geometry){
-
-    // Check if external geometry is a point cloud
+IOCloudPoints::setGeometry(MimmoSharedPointer<MimmoObject> geometry){
+    // Check if geometry is a point cloud
     if (geometry->getType() != 3) return;
-
-    // Set external geometry
-    m_isInternal = false;
-    m_intgeo.reset(nullptr);
     m_geometry = geometry;
-
 };
 
 /*!
@@ -275,8 +244,6 @@ IOCloudPoints::clear(){
     m_scalarfield.clear();
     m_template     = false;
     m_filename     = m_name+"_source.dat";
-    m_isInternal      = true;
-    m_intgeo.reset(nullptr);
     BaseManipulation::clear();
 }
 
@@ -502,24 +469,16 @@ IOCloudPoints::read(){
 
     reading.close();
 
-
     // Fill geometry
-
-    // Force external geometry pointer to null pointer
-    m_geometry = nullptr;
-
     // Instantiate a new MimmoObject of type point cloud and fill it
-    m_isInternal = true;
-    m_intgeo.reset(nullptr);
-    std::unique_ptr<MimmoObject> dum(new MimmoObject(3));
-    m_intgeo = std::move(dum);
+    m_geometry.reset(new MimmoObject(3));
 
     // Fill geometry with point cloud list
     std::size_t ind = 0;
     for (darray3E & coords : m_points){
             long label = m_labels[ind];
-            m_intgeo->addVertex(coords, label);
-            m_intgeo->addConnectedCell(livector1D(1,label), bitpit::ElementType::VERTEX, label);
+            getGeometry()->addVertex(coords, label);
+            getGeometry()->addConnectedCell(livector1D(1,label), bitpit::ElementType::VERTEX, label);
             ind++;
     }
 
@@ -528,10 +487,10 @@ IOCloudPoints::read(){
     livector1D().swap(m_labels);
 
     // Set the mimmo pierced vectors
-    m_scalarfield.setGeometry(m_intgeo.get());
+    m_scalarfield.setGeometry(getGeometry());
     m_scalarfield.setDataLocation(MPVLocation::POINT);
     m_scalarfield.setName("scalarfield");
-    m_vectorfield.setGeometry(m_intgeo.get());
+    m_vectorfield.setGeometry(getGeometry());
     m_vectorfield.setDataLocation(MPVLocation::POINT);
     m_vectorfield.setName("vectorfield");
 
@@ -566,7 +525,7 @@ IOCloudPoints::write(){
     std::string keyT1 = "{", keyT2 = "}";
     if(writing.is_open()){
 
-        MimmoObject* geometry = getGeometry();
+        MimmoSharedPointer<MimmoObject> geometry = getGeometry();
         darray3E coords;
         for(const long & label : geometry->getVerticesIds()){
             coords = geometry->getVertexCoords(label);

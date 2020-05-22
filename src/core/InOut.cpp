@@ -179,7 +179,7 @@ mimmo::PortOut::exec(){
         mimmo::IBinaryStream input(m_obuffer.data(), m_obuffer.getSize());
         cleanBuffer();
         for (int j=0; j<(int)m_objLink.size(); j++){
-            if (m_objLink[j] != NULL){
+            if (m_objLink[j] != nullptr){
                 m_objLink[j]->setBufferIn(m_portLink[j], input);
                 m_objLink[j]->readBufferIn(m_portLink[j]);
                 m_objLink[j]->cleanBufferIn(m_portLink[j]);

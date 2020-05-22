@@ -34,7 +34,7 @@
 int test5() {
 
 	mimmo::MimmoPiercedVector<double> mpv1;
-	mimmo::MimmoObject * obj = new mimmo::MimmoObject();
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> obj;
 
 	mpv1.insert(13, 1.234);
 	mpv1.insert(18, -2.0);
@@ -49,7 +49,6 @@ int test5() {
 
 	if(!check){
 		std::cout<<"Copy or assignment of MimmoPiercedVector failed -kernel verification"<<std::endl;
-        delete obj;
         return 1;
 	}
 
@@ -58,7 +57,6 @@ int test5() {
 
 	if(!check){
 		std::cout<<"Copy or assignment of MimmoPiercedVector failed -storage verification"<<std::endl;
-		delete obj;
         return 1;
 	}else{
 		std::cout<<"Copy and assignment of MimmoPiercedVector succeded"<<std::endl;
@@ -80,7 +78,6 @@ int test5() {
     check = (mpv4.size() == 2);
     if(!check){
         std::cout<<"Squeeze out of MimmoPiercedVector failed"<<std::endl;
-        delete obj;
         return 1;
     }else{
         std::cout<<"Squeeze out of MimmoPiercedVector succeded"<<std::endl;
@@ -89,7 +86,6 @@ int test5() {
         }
     }
 
-    delete obj;
     return 0;
 }
 

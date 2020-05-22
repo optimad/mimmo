@@ -136,9 +136,6 @@ protected:
     dmpvector1D     m_scalarfield;  /**< MimmoPiercedVector scalar field */
     dmpvecarr3E     m_vectorfield;  /**< MimmoPiercedVector vector field */
 
-    bool                            m_isInternal;   /**< Flag for internal instantiated MimmoObject */
-    std::unique_ptr<MimmoObject>    m_intgeo;       /**< Pointer to internal allocated geometry, if any */
-
     livector1D      m_labels;   /**< Labels associated to displacement, for internal use. */
     dvecarr3E       m_points;   /**< Cloud points list, for internal use. */
 
@@ -153,7 +150,6 @@ public:
 
     bool            isTemplate();
 
-    MimmoObject* getGeometry();
     dmpvector1D* getScalarField();
     dmpvecarr3E* getVectorField();
 
@@ -163,7 +159,7 @@ public:
     void setWriteFilename(std::string filename);
     void setTemplate(bool flag);
 
-    void setGeometry(MimmoObject* geometry);
+    void setGeometry(MimmoSharedPointer<MimmoObject> geometry);
     void setScalarField(dmpvector1D* scalarfield);
     void setVectorField(dmpvecarr3E* vectorfield);
 

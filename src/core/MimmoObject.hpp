@@ -25,6 +25,7 @@
 #define __MIMMOOBJECT_HPP__
 
 #include "mimmoTypeDef.hpp"
+#include "MimmoSharedPointer.hpp"
 #include <bitpit_volunstructured.hpp>
 #include <bitpit_surfunstructured.hpp>
 #include <bitpit_SA.hpp>
@@ -160,7 +161,7 @@ protected:
 
 public:
     MimmoObject(int type = 1);
-    MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL);
+    MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = nullptr);
     MimmoObject(int type, bitpit::PatchKernel* geometry);
     MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geometry);
     ~MimmoObject();
@@ -171,6 +172,8 @@ public:
     bool                                            isSkdTreeSupported();
     int                                             getType();
     long                                            getNVertices();
+    long                                            getNCells();
+    long                                            getNVertices()const;
     long                                            getNCells()const;
     long                                            getNInternals()const;
     long                                            getNInternalVertices();
@@ -179,14 +182,14 @@ public:
     long                                            getNGlobalCells();
     long                                            getPointGlobalCountOffset();
 #endif
-    dvecarr3E                                       getVerticesCoords(liimap* mapDataInv = NULL);
+    dvecarr3E                                       getVerticesCoords(liimap* mapDataInv = nullptr);
     const darray3E &                                getVertexCoords(long i) const;
     bitpit::PiercedVector<bitpit::Vertex> &         getVertices();
     const bitpit::PiercedVector<bitpit::Vertex> &   getVertices() const ;
 
     livector2D                                      getCompactConnectivity(liimap & mapDataInv);
     livector2D                                      getConnectivity();
-    livector1D                                      getCellConnectivity(long id);
+    livector1D                                      getCellConnectivity(long id) const ;
     bitpit::PiercedVector<bitpit::Cell> &           getCells();
     const bitpit::PiercedVector<bitpit::Cell> &     getCells() const;
 
@@ -199,6 +202,8 @@ public:
     const bitpit::PatchKernel*                      getPatch() const;
     std::unordered_set<long> &                      getPIDTypeList();
     std::unordered_map<long, std::string> &         getPIDTypeListWNames();
+    const std::unordered_set<long> &                getPIDTypeList() const;
+    const std::unordered_map<long, std::string> &   getPIDTypeListWNames() const;
     livector1D                                      getCompactPID();
     std::unordered_map<long, long>                  getPID();
 
@@ -251,7 +256,7 @@ public:
     bool        setPIDName(long, const std::string &);
     void        resyncPID();
 
-    std::unique_ptr<MimmoObject>	clone() const ;
+    MimmoSharedPointer<MimmoObject>	clone() const ;
     void                            swap(MimmoObject & ) noexcept;
 
     bool        cleanGeometry();

@@ -109,9 +109,9 @@ Apply::buildPorts(){
 	bool built = true;
 	built = (built && createPortIn<dmpvecarr3E*, Apply>(this, &Apply::setInput, M_GDISPLS, true, 1));
 	built = (built && createPortIn<dmpvector1D*, Apply>(this, &Apply::setScalarInput, M_SCALARFIELD, true, 1));
-	built = (built && createPortIn<MimmoObject*, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, true));
+	built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, true));
 
-	built = (built && createPortOut<MimmoObject*, Apply>(this, &BaseManipulation::getGeometry, M_GEOM));
+	built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, Apply>(this, &BaseManipulation::getGeometry, M_GEOM));
 	built = (built && createPortOut<dmpvecarr3E*, Apply>(this, &Apply::getOutput, M_GDISPLS));
     built = (built && createPortOut<MimmoPiercedVector<long>*, Apply>(this, &Apply::getAnnotatedVertices, M_LONGFIELD));
     built = (built && createPortOut<MimmoPiercedVector<long>*, Apply>(this, &Apply::getAnnotatedCells, M_LONGFIELD2));
@@ -233,7 +233,7 @@ MimmoPiercedVector<long> * Apply::getAnnotatedCells(){
 void
 Apply::execute(){
     if(!getGeometry()){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
         return;
     }
 

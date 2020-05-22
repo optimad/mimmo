@@ -33,7 +33,7 @@
 int test3() {
 
     //create a mimmoobject containing a single triangle.
-	mimmo::MimmoObject * mesh = new mimmo::MimmoObject(1);
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh(new mimmo::MimmoObject(1));
     dvecarr3E p(3, {{0.0,0.0,0.0}});
     livector1D conn(3,0);
 
@@ -93,7 +93,6 @@ int test3() {
     //check phase
     bool check =( (std::abs(std::acos(dotProduct(normal2,normal))) - BITPIT_PI/3.0) <= 1.E-18);
 
-    delete mesh;
     delete latt;
     delete applier;
 

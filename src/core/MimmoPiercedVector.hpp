@@ -25,6 +25,7 @@
 #define __MIMMOPIERCEDVECTOR_HPP__
 
 #include "MimmoObject.hpp"
+#include "MimmoNamespace.hpp"
 #include <mimmo_binary_stream.hpp>
 #include <piercedVector.hpp>
 
@@ -58,13 +59,13 @@ enum class MPVLocation: long {
 template<typename mpv_t>
 class MimmoPiercedVector: public bitpit::PiercedVector<mpv_t, long int> {
 private:
-    MimmoObject*                             m_geometry;            /**<Pointer to geometry. */
-    MPVLocation                              m_loc;                 /**< MPVLocation enum */
-    bitpit::Logger*                          m_log;          /**<Pointer to logger.*/
+    MimmoSharedPointer<MimmoObject>          m_geometry;    /**<Mimmo shared pointer to geometry. */
+    MPVLocation                              m_loc;         /**< MPVLocation enum */
+    bitpit::Logger*                          m_log;         /**<Pointer to logger.*/
     std::string								 m_name;		/**<Field name. */
 
 public:
-    MimmoPiercedVector(MimmoObject* geo = NULL, MPVLocation loc = MPVLocation::UNDEFINED);
+    MimmoPiercedVector(MimmoSharedPointer<MimmoObject> geo = nullptr, MPVLocation loc = MPVLocation::UNDEFINED);
     virtual ~MimmoPiercedVector();
     //copy constructors and operators
     MimmoPiercedVector(const MimmoPiercedVector<mpv_t> & other);
@@ -74,7 +75,7 @@ public:
     void  clear();
 
     // get/set methods of the class;
-    MimmoObject*        getGeometry() const;
+    MimmoSharedPointer<MimmoObject>        getGeometry() const;
     MPVLocation         getConstDataLocation() const;
     MPVLocation         getDataLocation();
     std::string			getName() const;
@@ -84,8 +85,8 @@ public:
     bool				isEmpty();
 
     bool	completeMissingData(const mpv_t & defValue);
-    void    initialize(MimmoObject *, MPVLocation, const mpv_t &);
-    void    setGeometry(MimmoObject* geo);
+    void    initialize(MimmoSharedPointer<MimmoObject>, MPVLocation, const mpv_t &);
+    void    setGeometry(MimmoSharedPointer<MimmoObject> geo);
     void    setDataLocation(MPVLocation loc);
     void    setDataLocation(int loc);
     void    setData(std::vector<mpv_t> &rawdata);

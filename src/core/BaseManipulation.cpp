@@ -34,7 +34,7 @@ int BaseManipulation::sm_baseManipulationCounter(1);
  * It sets to zero/null each member/pointer.
  */
 BaseManipulation::BaseManipulation(){
-    m_geometry      = NULL;
+    m_geometry      = nullptr;
     m_portsType     = ConnectionType::BOTH;
     m_name          = "mimmo";
     m_active        = true;
@@ -50,7 +50,7 @@ BaseManipulation::BaseManipulation(){
 	int initialized;
 	MPI_Initialized(&initialized);
 	if (!initialized)
-	   MPI_Init(NULL, NULL);
+	   MPI_Init(nullptr, nullptr);
 
     //Fixed MPI comm world
 	MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
@@ -141,7 +141,7 @@ void BaseManipulation::swap(BaseManipulation & x) noexcept
 {
     std::swap(m_priority, x.m_priority);
     std::swap(m_name, x.m_name);
-    std::swap(m_geometry, x.m_geometry);
+    m_geometry.swap(x.m_geometry);
     std::swap(m_portsType, x.m_portsType);
     std::swap(m_active, x.m_active);
     std::swap(m_execPlot, x.m_execPlot);
@@ -230,9 +230,20 @@ BaseManipulation::getName(){
 /*!
  * It gets the geometry linked by the manipulator object.
  * \return Pointer to geometry to be deformed by the manipulator object.
+ * Note. It gets a copy of a MimmoSharedPointer of the geometry.
  */
-MimmoObject*
+MimmoSharedPointer<MimmoObject>
 BaseManipulation::getGeometry(){
+    return m_geometry;
+};
+
+/*!
+ * It gets the geometry linked by the manipulator object.
+ * \return Pointer reference to geometry to be deformed by the manipulator object.
+ * Note. It gets the reference of a MimmoSharedPointer of the geometry.
+ */
+MimmoSharedPointer<MimmoObject> &
+BaseManipulation::getGeometryReference(){
     return m_geometry;
 };
 
@@ -289,7 +300,7 @@ BaseManipulation::getNChild(){
  */
 BaseManipulation*
 BaseManipulation::getChild(int i){
-    if (i>(int)m_child.size()-1) return NULL;
+    if (i>(int)m_child.size()-1) return nullptr;
     return next(m_child.begin(), i)->first;
 };
 
@@ -420,7 +431,7 @@ BaseManipulation::setName(std::string name){
  * \param[in] geometry Pointer to geometry to be deformed by the manipulator object.
  */
 void
-BaseManipulation::setGeometry(MimmoObject* geometry){
+BaseManipulation::setGeometry(MimmoSharedPointer<MimmoObject> geometry){
     m_geometry = geometry;
 };
 
@@ -524,7 +535,7 @@ BaseManipulation::removePinsOut(){
 }
 
 /*!
- * It clears the object, by setting to zero/NULL each member/pointer in the object.
+ * It clears the object, by setting to zero/nullptr each member/pointer in the object.
  */
 void
 BaseManipulation::clear(){
@@ -680,11 +691,11 @@ void
 BaseManipulation::deletePorts(){
     for (std::unordered_map<PortID, PortOut*>::iterator i = m_portOut.begin(); i != m_portOut.end(); i++){
         delete i->second;
-        i->second = NULL;
+        i->second = nullptr;
     }
     for (std::unordered_map<PortID, PortIn*>::iterator i = m_portIn.begin(); i != m_portIn.end(); i++){
         delete i->second;
-        i->second = NULL;
+        i->second = nullptr;
     }
 }
 
@@ -809,7 +820,7 @@ BaseManipulation::findPinOut(PortOut& pin){
  */
 void
 BaseManipulation::addPinIn(BaseManipulation* objIn, PortID portR){
-    if (objIn != NULL && m_portIn.count(portR) !=0 ){
+    if (objIn != nullptr && m_portIn.count(portR) !=0 ){
         m_portIn[portR]->m_objLink.push_back(objIn);
     }
 };
@@ -821,7 +832,7 @@ BaseManipulation::addPinIn(BaseManipulation* objIn, PortID portR){
  */
 void
 BaseManipulation::addPinOut(BaseManipulation* objOut, PortID portS, PortID portR){
-    if (objOut != NULL && m_portOut.count(portS) != 0 ){
+    if (objOut != nullptr && m_portOut.count(portS) != 0 ){
         if (objOut->m_portIn.count(portR) != 0){
             m_portOut[portS]->m_objLink.push_back(objOut);
             m_portOut[portS]->m_portLink.push_back(portR);
@@ -835,7 +846,7 @@ BaseManipulation::addPinOut(BaseManipulation* objOut, PortID portS, PortID portR
  */
 void
 BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
-    if (objIn != NULL && m_portIn.count(portR) != 0){
+    if (objIn != nullptr && m_portIn.count(portR) != 0){
         std::vector<BaseManipulation*>	linked = m_portIn[portR]->getLink();
         for (int i=0; i<(int)linked.size(); i++){
             if (linked[i] == objIn){
@@ -851,7 +862,7 @@ BaseManipulation::removePinIn(BaseManipulation* objIn, PortID portR){
  */
 void
 BaseManipulation::removePinOut(BaseManipulation* objOut, PortID portS){
-    if (objOut != NULL && m_portOut.count(portS) != 0){
+    if (objOut != nullptr && m_portOut.count(portS) != 0){
         std::vector<BaseManipulation*>	linked = m_portOut[portS]->getLink();
         for (int i=0; i<(int)linked.size(); i++){
             if (linked[i] == objOut){
@@ -969,7 +980,7 @@ BaseManipulation::_apply(MimmoPiercedVector<darray3E> & displacements)
  * \param[in] geometry MimmoObject pointer to target geometry
  */
 void
-BaseManipulation::write(MimmoObject* geometry)
+BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry)
 {
 	//Check geometry
 	if (geometry == nullptr){

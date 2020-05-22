@@ -106,14 +106,14 @@ It builds the input/output ports of the object
 void
 BendGeometry::buildPorts(){
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, BendGeometry>(&m_geometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, BendGeometry>(&m_geometry, M_GEOM, true));
     built = (built && createPortIn<dmpvector1D*, BendGeometry>(this, &mimmo::BendGeometry::setFilter, M_FILTER));
     built = (built && createPortIn<umatrix33E, BendGeometry>(&m_degree, M_BMATRIX));
     built = (built && createPortIn<dmat33Evec*, BendGeometry>(this, &BendGeometry::setCoeffs, M_BCOEFFS));
     built = (built && createPortIn<dmatrix33E, BendGeometry>(&m_system, M_AXES));
     built = (built && createPortIn<darray3E, BendGeometry>(&m_origin, M_POINT));
     built = (built && createPortOut<dmpvecarr3E*, BendGeometry>(this, &mimmo::BendGeometry::getDisplacements, M_GDISPLS));
-    built = (built && createPortOut<MimmoObject*, BendGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, BendGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
 
@@ -246,9 +246,9 @@ BendGeometry::setFilter(dmpvector1D * filter){
 void
 BendGeometry::execute(){
 
-    if(getGeometry() == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+    if(getGeometry() == nullptr){
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
 

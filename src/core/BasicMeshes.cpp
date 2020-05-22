@@ -82,25 +82,25 @@ UStructMesh::UStructMesh(const UStructMesh & other){
             case ShapeType::WEDGE :
             {
                 const Wedge * pp = dynamic_cast<const Wedge*>(other.m_shape.get());
-                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Wedge(*(pp)));
+                if (pp != nullptr)  m_shape = std::unique_ptr<BasicShape>(new Wedge(*(pp)));
             }
             break;
             case ShapeType::CYLINDER :
                 {
                     const Cylinder * pp = dynamic_cast<const Cylinder*>(other.m_shape.get());
-                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
+                    if (pp != nullptr)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
                 }
                 break;
             case ShapeType::SPHERE :
                 {
                     const Sphere * pp = dynamic_cast<const Sphere*>(other.m_shape.get());
-                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
+                    if (pp != nullptr)  m_shape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
                 }
                 break;
             default://CUBE
                 {
                     const Cube * pp = dynamic_cast<const Cube*>(other.m_shape.get());
-                    if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
+                    if (pp != nullptr)  m_shape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
                 }
                 break;
         }
@@ -172,25 +172,25 @@ void UStructMesh::swap(UStructMesh & x) noexcept
                 case ShapeType::WEDGE :
                 {
                     const Wedge * pp = dynamic_cast<const Wedge*>(x.m_shape.get());
-                    if (pp != NULL)  tempshape = std::unique_ptr<BasicShape>(new Wedge(*(pp)));
+                    if (pp != nullptr)  tempshape = std::unique_ptr<BasicShape>(new Wedge(*(pp)));
                 }
                 break;
                 case ShapeType::CYLINDER :
                 {
                     const Cylinder * pp = dynamic_cast<const Cylinder*>(x.m_shape.get());
-                    if (pp != NULL)  tempshape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
+                    if (pp != nullptr)  tempshape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
                 }
                 break;
                 case ShapeType::SPHERE :
                 {
                     const Sphere * pp = dynamic_cast<const Sphere*>(x.m_shape.get());
-                    if (pp != NULL)  tempshape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
+                    if (pp != nullptr)  tempshape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
                 }
                 break;
                 default://CUBE
                 {
                     const Cube * pp = dynamic_cast<const Cube*>(x.m_shape.get());
-                    if (pp != NULL)  tempshape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
+                    if (pp != nullptr)  tempshape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
                 }
                 break;
             }
@@ -219,7 +219,7 @@ BasicShape * UStructMesh::getShape(){
  * \return current origin of BasicShape core of the mesh
  */
 darray3E UStructMesh::getOrigin(){
-	if (getShape() == NULL) return(m_origin_temp);
+	if (getShape() == nullptr) return(m_origin_temp);
 	return(getShape()->getOrigin());
 }
 
@@ -227,7 +227,7 @@ darray3E UStructMesh::getOrigin(){
  * \return current span of BasicShape core of the mesh
  */
 darray3E UStructMesh::getSpan(){
-	if (getShape() == NULL) return(m_span_temp);
+	if (getShape() == nullptr) return(m_span_temp);
 	return(getShape()->getSpan());
 }
 
@@ -235,7 +235,7 @@ darray3E UStructMesh::getSpan(){
  * \return current lower limits of coordinates in BasicShape core of the mesh
  */
 darray3E UStructMesh::getInfLimits(){
-	if (getShape() == NULL) return(m_inflimits_temp);
+	if (getShape() == nullptr) return(m_inflimits_temp);
 	return(getShape()->getInfLimits());
 }
 
@@ -243,7 +243,7 @@ darray3E UStructMesh::getInfLimits(){
  *\return current local Reference System af axes
  */
 dmatrix33E UStructMesh::getRefSystem(){
-	if (getShape() == NULL) return(m_refsystem_temp);
+	if (getShape() == nullptr) return(m_refsystem_temp);
 	return(getShape()->getRefSystem());
 }
 
@@ -251,7 +251,7 @@ dmatrix33E UStructMesh::getRefSystem(){
  *\return actual scaling to primitive shape used in BasicShape core of the mesh
  */
 darray3E UStructMesh::getScaling(){
-	if (getShape() == NULL) return(darray3E{{1,1,1}});
+	if (getShape() == nullptr) return(darray3E{{1,1,1}});
 	return(getShape()->getScaling());
 }
 
@@ -259,7 +259,7 @@ darray3E UStructMesh::getScaling(){
  *\return local span of the primitive shape associated to BasicShape core of the mesh
  */
 darray3E UStructMesh::getLocalSpan(){
-	if (getShape() == NULL) return(darray3E{{1,1,1}});
+	if (getShape() == nullptr) return(darray3E{{1,1,1}});
 	return(getShape()->getLocalSpan());
 }
 
@@ -267,7 +267,7 @@ darray3E UStructMesh::getLocalSpan(){
  *\return type of shape associated to mesh core. See ShapeType enum
  */
 ShapeType UStructMesh::getShapeType(){
-	if (getShape() == NULL) return(m_shapetype_temp);
+	if (getShape() == nullptr) return(m_shapetype_temp);
 	return(getShape()->getShapeType());
 }
 
@@ -276,7 +276,7 @@ ShapeType UStructMesh::getShapeType(){
  * See CoordType enum.
  */
 CoordType UStructMesh::getCoordTypex(){
-	if (getShape() == NULL) return(CoordType::CLAMPED);
+	if (getShape() == nullptr) return(CoordType::CLAMPED);
 	return(getShape()->getCoordinateType(0));
 }
 
@@ -285,7 +285,7 @@ CoordType UStructMesh::getCoordTypex(){
  * \param[in] i index of component.
  */
 CoordType UStructMesh::getCoordType(int i){
-	if (getShape() == NULL) return(CoordType::CLAMPED);
+	if (getShape() == nullptr) return(CoordType::CLAMPED);
 	return(getShape()->getCoordinateType(i));
 }
 
@@ -294,7 +294,7 @@ CoordType UStructMesh::getCoordType(int i){
  * See CoordType enum.
  */
 CoordType UStructMesh::getCoordTypey(){
-	if (getShape() == NULL) return(CoordType::CLAMPED);
+	if (getShape() == nullptr) return(CoordType::CLAMPED);
 	return(getShape()->getCoordinateType(1));
 }
 
@@ -303,7 +303,7 @@ CoordType UStructMesh::getCoordTypey(){
  * See CoordType enum.
  */
 CoordType UStructMesh::getCoordTypez(){
-	if (getShape() == NULL) return(CoordType::CLAMPED);
+	if (getShape() == nullptr) return(CoordType::CLAMPED);
 	return(getShape()->getCoordinateType(2));
 }
 
@@ -537,7 +537,7 @@ dvecarr3E UStructMesh::getGlobalCellCentroids(){
  * \param[in] origin new origin point
  */
 void UStructMesh::setOrigin(darray3E origin){
-	if (getShape() == NULL){
+	if (getShape() == nullptr){
 		m_origin_temp = origin;
 		m_setorigin = true;
 	}else{
@@ -555,7 +555,7 @@ void UStructMesh::setOrigin(darray3E origin){
  */
 void UStructMesh::setSpan(double s0, double s1, double s2){
 
-	if (getShape() == NULL){
+	if (getShape() == nullptr){
 		m_span_temp[0] = s0;
 		m_span_temp[1] = s1;
 		m_span_temp[2] = s2;
@@ -584,7 +584,7 @@ void UStructMesh::setSpan(darray3E s){
  * \param[in] dir 0,1,2 int flag identifying coordinate
  */
 void UStructMesh::setInfLimits(double inflim, int dir){
-	if (getShape() == NULL){
+	if (getShape() == nullptr){
 		m_inflimits_temp[dir] = inflim;
 		m_setInfLimits = true;
 	}else{
@@ -616,7 +616,7 @@ void UStructMesh::setInfLimits(darray3E inflim){
  */
 void UStructMesh::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
 
-	if (getShape() == NULL){
+	if (getShape() == nullptr){
 		m_refsystem_temp[0] = axis0;
 		m_refsystem_temp[1] = axis1;
 		m_refsystem_temp[2] = axis2;
@@ -635,12 +635,12 @@ void UStructMesh::setRefSystem(darray3E axis0, darray3E axis1, darray3E axis2){
  */
 void UStructMesh::setRefSystem(int label, darray3E axis){
 
-	if(getShape() == NULL){
+	if(getShape() == nullptr){
 		BasicShape * temp = new Cube();
 		temp->setRefSystem(label, axis);
 		m_refsystem_temp = temp->getRefSystem();
 		delete temp;
-		temp = NULL;
+		temp = nullptr;
 		m_setRefSys = true;
 	}else{
 		getShape()->setRefSystem(label,axis);
@@ -654,7 +654,7 @@ void UStructMesh::setRefSystem(int label, darray3E axis){
  * \param[in] axes new direction of all local axes.
  */
 void UStructMesh::setRefSystem(dmatrix33E axes){
-	if (getShape() == NULL){
+	if (getShape() == nullptr){
 
     	m_refsystem_temp[0] = axes[0];
 		m_refsystem_temp[1] = axes[1];
@@ -774,7 +774,7 @@ void UStructMesh::setRefSystem(dmatrix33E axes){
  */
 void UStructMesh::setShape(const BasicShape * shape){
 
-	if(shape == NULL) return;
+	if(shape == nullptr) return;
 	m_shape.reset(nullptr);
 	m_setorigin = false;
 	m_setspan = false;
@@ -785,25 +785,25 @@ void UStructMesh::setShape(const BasicShape * shape){
         case ShapeType::WEDGE :
         {
             const Wedge * pp = dynamic_cast<const Wedge*>(shape);
-            if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Wedge(*(pp)));
+            if (pp != nullptr)  m_shape = std::unique_ptr<BasicShape>(new Wedge(*(pp)));
         }
         break;
         case ShapeType::CYLINDER :
             {
                 const Cylinder * pp = dynamic_cast<const Cylinder*>(shape);
-                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
+                if (pp != nullptr)  m_shape = std::unique_ptr<BasicShape>(new Cylinder(*(pp)));
             }
             break;
 		case ShapeType::SPHERE :
             {
                 const Sphere * pp = dynamic_cast<const Sphere*>(shape);
-                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
+                if (pp != nullptr)  m_shape = std::unique_ptr<BasicShape>(new Sphere(*(pp)));
             }
             break;
 		default://CUBE
             {
                 const Cube * pp = dynamic_cast<const Cube*>(shape);
-                if (pp != NULL)  m_shape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
+                if (pp != nullptr)  m_shape = std::unique_ptr<BasicShape>(new Cube(*(pp)));
             }
             break;
 	}
@@ -817,7 +817,7 @@ void UStructMesh::setShape(const BasicShape * shape){
  * See CoordType enum.
  */
 void UStructMesh::setCoordTypex(CoordType type){
-	if (getShape() == NULL) return;
+	if (getShape() == nullptr) return;
 	getShape()->setCoordinateType(type,0);
 }
 
@@ -828,7 +828,7 @@ void UStructMesh::setCoordTypex(CoordType type){
  * \param[in] i index of component.
  */
 void UStructMesh::setCoordType(CoordType type, int i){
-	if (getShape() == NULL) return;
+	if (getShape() == nullptr) return;
 	getShape()->setCoordinateType(type,i);
 }
 
@@ -838,7 +838,7 @@ void UStructMesh::setCoordType(CoordType type, int i){
  * * \param[in] type CoordType enum input
  */
 void UStructMesh::setCoordTypey(CoordType type){
-	if (getShape() == NULL) return;
+	if (getShape() == nullptr) return;
 	getShape()->setCoordinateType(type,1);
 }
 
@@ -848,7 +848,7 @@ void UStructMesh::setCoordTypey(CoordType type){
  * * \param[in] type CoordType enum input
  */
 void UStructMesh::setCoordTypez(CoordType type){
-	if (getShape() == NULL) return;
+	if (getShape() == nullptr) return;
 	getShape()->setCoordinateType(type,2);
 }
 
@@ -1403,7 +1403,7 @@ void UStructMesh::plotCloud( std::string & folder , std::string outfile,
 	int sizeTot = dim[0]*dim[1]*dim[2];
 
 	dvecarr3E activeP;
-	if(extPoints != NULL && (int)extPoints->size() == sizeTot){
+	if(extPoints != nullptr && (int)extPoints->size() == sizeTot){
 		activeP = *extPoints;
 	}else{
 		activeP.resize(sizeTot);
@@ -1502,7 +1502,7 @@ void UStructMesh::plotGrid(std::string & folder, std::string outfile ,
 	dvecarr3E activeP(sizePt);
 	ivector2D activeConn(sizeCl, ivector1D(8,0));
 
-	if(extPoints != NULL && (int)extPoints->size() == sizePt){
+	if(extPoints != nullptr && (int)extPoints->size() == sizePt){
 		activeP = *extPoints;
 	}
 	else{
@@ -1619,7 +1619,7 @@ void UStructMesh::resizeMesh(){
  */
 bool UStructMesh::build(){
 
-	if(getShape() == NULL){return false;}
+	if(getShape() == nullptr){return false;}
 
 	ivector1D dimLimit(3,2);
 	//create internal shape using unique_ptr member.

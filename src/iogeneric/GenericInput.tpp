@@ -427,7 +427,7 @@ GenericInputMPVData::_setResult(MimmoPiercedVector< T > & data){
 /*!
  * It gets the result of the object.
  * Result may be empty both for failed reading or invalid read data. In that case,
- * return a NULL pointer.
+ * return a nullptr pointer.
  * \return Pointer to data stored in the result member.
  */
 template<typename T>
@@ -435,7 +435,7 @@ MimmoPiercedVector< T >*
 GenericInputMPVData::_getResult(){
 
     MimmoPiercedVector< T > data;
-    MimmoObject * refgeo = getGeometry();
+    MimmoSharedPointer<MimmoObject> refgeo = getGeometry();
 
 #if MIMMO_ENABLE_MPI
     if(m_rank == 0)

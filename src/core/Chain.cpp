@@ -150,7 +150,7 @@ Chain::deleteObject(int idobj){
     std::vector<int>::iterator it = std::find(m_idObjects.begin(), m_idObjects.end(), idobj);
     if (it != m_idObjects.end()){
         int idx = std::distance(m_idObjects.begin(), it);
-        if (m_objects[idx]->getParent() != NULL || m_objects[idx]->getNChild() != 0) cut = true;
+        if (m_objects[idx]->getParent() != nullptr || m_objects[idx]->getNChild() != 0) cut = true;
         m_objects.erase(m_objects.begin()+idx);
         m_idObjects.erase(it);
     }
@@ -192,7 +192,7 @@ Chain::addObject(BaseManipulation* obj, int id_){
     }
     if (obj->getNParent()>0){
         for (int i=0; i<obj->getNParent(); i++){
-            if (obj->getParent(i) != NULL){
+            if (obj->getParent(i) != nullptr){
                 itparent = std::find(m_objects.begin(), m_objects.end(), obj->getParent(i));
                 if (itparent != m_objects.end()){
                     idxparent[i] = std::distance(m_objects.begin(), itparent);
@@ -227,7 +227,7 @@ Chain::addObject(BaseManipulation* obj, int id_){
         for (int i=0; i<obj->getNParent(); i++){
             if (idxparent[i] > idxchild){
                 addObject(parent[i], idparent[i]);
-                parent[i] = NULL;
+                parent[i] = nullptr;
             }
         }
         return idx+1;

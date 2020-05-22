@@ -129,9 +129,9 @@ bool createMimmoMesh(mimmo::MimmoObject * mesh, livector1D & list){
  * \param[in] list of cells to extract for target mesh.
  * \return unique_ptr to new mimmoobject mesh
  */
-std::unique_ptr<mimmo::MimmoObject> createSubMesh(mimmo::MimmoObject * original, livector1D & list){
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> createSubMesh(mimmo::MimmoObject * original, livector1D & list){
 
-	std::unique_ptr<mimmo::MimmoObject> result(new mimmo::MimmoObject(original->getType()));
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> result(new mimmo::MimmoObject(original->getType()));
 
 	//fill the mimmoObject;
 	long pid;
@@ -191,7 +191,7 @@ int test2() {
 		}
 	}
 
-	std::unique_ptr<mimmo::MimmoObject> subPatch;
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> subPatch;
 	if(!check){
 		std::cout<<"ERROR.Not able to extract sub-patch of MimmoObject mesh"<<std::endl;
         delete mesh;
@@ -235,7 +235,7 @@ int test2() {
 	}
 
 
-	std::unique_ptr<mimmo::MimmoObject> mesh_2 =mesh->clone();
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh_2 =mesh->clone();
 
     if(mesh_2->getNCells() != mesh->getNCells() && mesh_2->getPatch()==mesh->getPatch()){
         delete mesh;

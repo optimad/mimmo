@@ -233,7 +233,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 
 	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 
-	//	if(connectivity == NULL){
+	//	if(connectivity == nullptr){
 	//		m_type = 3;
 	//	}else{
 	m_type = std::max(type,1);
@@ -337,9 +337,9 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 
 	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 	m_type = std::max(type,1);
-	if (m_type > 4 || geometry == NULL){
-		(*m_log)<<"Error MimmoObject: unrecognized data structure type or NULL argument in class construction."<<std::endl;
-		throw std::runtime_error ("MimmoObject : unrecognized mesh type or NULL argument in class construction");
+	if (m_type > 4 || geometry == nullptr){
+		(*m_log)<<"Error MimmoObject: unrecognized data structure type or nullptr argument in class construction."<<std::endl;
+		throw std::runtime_error ("MimmoObject : unrecognized mesh type or nullptr argument in class construction");
 	}
 	if (geometry->getVertexCount() ==0){
 		(*m_log)<<"Error MimmoObject: no points detected in the linked mesh."<<std::endl;
@@ -475,8 +475,8 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 	m_type = std::max(type,1);
 	if (m_type > 4 || !geometry){
-		(*m_log)<<"Error MimmoObject: unrecognized data structure type or NULL argument in class construction."<<std::endl;
-		throw std::runtime_error ("MimmoObject : unrecognized mesh type or NULL argument in class construction");
+		(*m_log)<<"Error MimmoObject: unrecognized data structure type or nullptr argument in class construction."<<std::endl;
+		throw std::runtime_error ("MimmoObject : unrecognized mesh type or nullptr argument in class construction");
 	}
 	if (geometry->getVertexCount() ==0){
 		(*m_log)<<"Error MimmoObject: no points detected in the linked mesh."<<std::endl;
@@ -726,7 +726,7 @@ MimmoObject::initializeParallel(){
 	int initialized;
 	MPI_Initialized(&initialized);
 	if (!initialized)
-		MPI_Init(NULL, NULL);
+		MPI_Init(nullptr, nullptr);
 
 	//Recover or fix communicator
 	if (m_internalPatch){
@@ -816,9 +816,31 @@ MimmoObject::getNVertices(){
  * \return number of mesh cells.
  */
 long
-MimmoObject::getNCells() const {
+MimmoObject::getNCells(){
 	const auto p = getPatch();
 	return p->getCellCount();
+};
+
+/*!
+ * Return the total number of local vertices within the data structure.
+   For parallel versions: ghost vertices are considered in the count.
+ * \return number of mesh vertices
+ */
+long
+MimmoObject::getNVertices() const {
+    const auto p = getPatch();
+    return p->getVertexCount();
+};
+
+/*!
+ * Return the total number of local cells within the data structure.
+   For parallel versions: ghost cells are considered in the count.
+ * \return number of mesh cells.
+ */
+long
+MimmoObject::getNCells() const {
+    const auto p = getPatch();
+    return p->getCellCount();
 };
 
 /*!
@@ -916,7 +938,7 @@ MimmoObject::getVerticesCoords(liimap* mapDataInv){
 
 	auto pvert = getVertices();
 
-	if (mapDataInv != NULL){
+	if (mapDataInv != nullptr){
 		for (auto const & vertex : pvert){
 			result[i] = vertex.getCoords();
 			(*mapDataInv)[vertex.getId()] = i;
@@ -1055,10 +1077,10 @@ MimmoObject::getConnectivity(){
  * \return i-th cell-vertices connectivity, in bitpit::PatchKernel vertex indexing.
  */
 livector1D
-MimmoObject::getCellConnectivity(long i){
+MimmoObject::getCellConnectivity(long i) const {
 	if (!(getCells().exists(i)))    return livector1D(0);
 
-	bitpit::Cell & cell = getPatch()->getCell(i);
+	const bitpit::Cell & cell = getPatch()->getCell(i);
 	int np = cell.getConnectSize();
 	const long * conn_ = cell.getConnect();
 	livector1D connecti(np);
@@ -1304,6 +1326,23 @@ MimmoObject::getPIDTypeListWNames(){
 	return m_pidsTypeWNames;
 };
 
+/*!
+ * \return the list of PID types actually present in your geometry.
+ * If empty list is returned, pidding is actually not supported for this geometry
+ */
+const std::unordered_set<long>    &
+MimmoObject::getPIDTypeList() const {
+    return m_pidsType;
+};
+
+/*!
+ * \return the list of PID types actually present in your geometry with its custom names attached.
+ * If empty list is returned, pidding is actually not supported for this geometry
+ */
+const std::unordered_map<long, std::string> &
+MimmoObject::getPIDTypeListWNames() const {
+    return m_pidsTypeWNames;
+};
 
 /*!
  * \return the list of PID associated to each cell of tessellation in compact
@@ -1371,7 +1410,7 @@ MimmoObject::isInfoSync(){
  */
 bitpit::PatchSkdTree*
 MimmoObject::getSkdTree(){
-	if (!m_skdTreeSupported) return NULL;
+	if (!m_skdTreeSupported) return nullptr;
 	if (!isSkdTreeSync()) buildSkdTree();
 	return m_skdTree.get();
 }
@@ -2642,15 +2681,15 @@ MimmoObject::resyncPID(){
    Hard means that the geometry data structure will be allocated internally into
    the new object as an exact and stand-alone copy of the geometry data structure
    of the current class, indipendently on how the current class owns or links it.
- * \return cloned MimmoObject.
+ * \return MimmoSharedPointer to cloned MimmoObject.
  */
-std::unique_ptr<MimmoObject> MimmoObject::clone() const {
+MimmoSharedPointer<MimmoObject> MimmoObject::clone() const {
 
 	//first step clone the internal bitpit patch.
 	std::unique_ptr<bitpit::PatchKernel> clonedPatch = m_patch->clone();
 
 	//build the cloned mimmoObject using the custom constructor
-	std::unique_ptr<MimmoObject> result (new MimmoObject(m_type, clonedPatch));
+	MimmoSharedPointer<MimmoObject> result (new MimmoObject(m_type, clonedPatch));
 
 	//--> this constructor checks adjacencies and interfaces, initialize parallel
 	// and update the infoSync (cell parallel structures also)
@@ -2680,7 +2719,7 @@ std::unique_ptr<MimmoObject> MimmoObject::clone() const {
 /*!
  * It cleans geometry duplicated and, in case of connected tessellations,
    all orphan/isolated vertices.
- * \return false if the geometry member pointer is NULL.
+ * \return false if the geometry member pointer is nullptr.
  */
 bool
 MimmoObject::cleanGeometry(){
@@ -3412,7 +3451,7 @@ void MimmoObject::resetPatch(){
 /*!
  * Desume Element given the vertex connectivity list associated. Polygons and Polyhedra require
  * a special writing for their connectivity list. Please read doxy of
-   MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = NULL) custom constructor
+   MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = nullptr) custom constructor
    for further information.
  * Return undefined type for unexistent or unsupported element.
  * \param[in] locConn list of vertex indices composing the cell.
@@ -3624,7 +3663,7 @@ void MimmoObject::restore(std::istream & stream){
 void
 MimmoObject::evalCellVolumes(bitpit::PiercedVector<double> & volumes){
 
-	if(getPatch() == NULL)   return;
+	if(getPatch() == nullptr)   return;
 	if(isEmpty())       return ;
 
 	switch (getType()){
@@ -3664,7 +3703,7 @@ MimmoObject::evalCellVolumes(bitpit::PiercedVector<double> & volumes){
 void
 MimmoObject::evalCellAspectRatio(bitpit::PiercedVector<double> & ARs){
 
-	if(getPatch() == NULL)   return;
+	if(getPatch() == nullptr)   return;
 	if(isEmpty())       return;
 
 	switch (getType()){

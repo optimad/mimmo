@@ -139,16 +139,16 @@ void MRBF::swap(MRBF & x) noexcept
 void
 MRBF::buildPorts(){
 	bool built = true;
-    built = (built && createPortIn<MimmoObject*, MRBF>(&m_geometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, MRBF>(&m_geometry, M_GEOM, true));
     built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, M_COORDS));
     built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, M_DISPLS));
 	built = (built && createPortIn<dmpvector1D*, MRBF>(this, &mimmo::MRBF::setFilter, M_FILTER));
     built = (built && createPortIn<std::vector<double>, MRBF>(this, &mimmo::MRBF::setVariableSupportRadii, M_DATAFIELD));
-    built = (built && createPortIn<MimmoObject*, MRBF>(this, &mimmo::MRBF::setNode, M_GEOM2));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, MRBF>(this, &mimmo::MRBF::setNode, M_GEOM2));
     built = (built && createPortIn<dmpvecarr3E*, MRBF>(this, &mimmo::MRBF::setDisplacements, M_VECTORFIELD));
 
 	built = (built && createPortOut<dmpvecarr3E*, MRBF>(this, &mimmo::MRBF::getDisplacements, M_GDISPLS));
-	built = (built && createPortOut<MimmoObject*, MRBF>(this, &BaseManipulation::getGeometry, M_GEOM));
+	built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, MRBF>(this, &BaseManipulation::getGeometry, M_GEOM));
 	m_arePortsBuilt = built;
 };
 
@@ -294,7 +294,7 @@ MRBF::setNode(dvecarr3E nodes){
  * \param[in] geometry Pointer to MimmoObject that contains the geometry.
  */
 void
-MRBF::setNode(MimmoObject* geometry){
+MRBF::setNode(MimmoSharedPointer<MimmoObject> geometry){
 	if(!geometry)    return ;
 	m_rbfgeometry = geometry;
 };
@@ -344,7 +344,7 @@ MRBF::checkDuplicatedNodes(double tol){
 bool
 MRBF::removeDuplicatedNodes(ivector1D * list){
 	ivector1D marked;
-	if(list==NULL){
+	if(list==nullptr){
 		marked = checkDuplicatedNodes();
 		list = &marked;
 	}
@@ -567,10 +567,10 @@ MRBF::clearFilter(){
 void
 MRBF::execute(){
 
-	MimmoObject * container = getGeometry();
-    if(container == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+	MimmoSharedPointer<MimmoObject> container = getGeometry();
+    if(container == nullptr){
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
     if(container->isEmpty()){
