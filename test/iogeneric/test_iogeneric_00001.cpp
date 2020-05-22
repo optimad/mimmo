@@ -43,7 +43,7 @@ int test1() {
     *readerCopy = *reader;
     check = check && (readerCopy->getGeometry() == reader->getGeometry());
 
-    std::unique_ptr<mimmo::MimmoObject> objHC = reader->getGeometry()->clone();
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> objHC = reader->getGeometry()->clone();
     check = check && objHC->getNCells() == 12288;
     check = check && objHC->getNVertices() == 6146;
 

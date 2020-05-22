@@ -134,17 +134,17 @@ public:
     typedef std::string                                   PortID;            /**<Port ID (identifier of the port).*/
     /*! } */
 protected:
-    uint                        m_priority;         /**<Flag marking priority of execution of the object (0 - highest priority) >*/
-    std::string                 m_name;             /**<Name of the manipulation object.*/
-    int                         m_counter;          /**<Counter ID associated to the object */
-    MimmoObject*                m_geometry;         /**<Pointer to manipulated geometry. */
-    bmumap                      m_parent;           /**<Pointers list to manipulation objects FATHER of the current class. List retains for each
+    uint                            m_priority;         /**<Flag marking priority of execution of the object (0 - highest priority) >*/
+    std::string                     m_name;             /**<Name of the manipulation object.*/
+    int                             m_counter;          /**<Counter ID associated to the object */
+    MimmoSharedPointer<MimmoObject> m_geometry;         /**<Mimmo shared pointer to manipulated geometry. */
+    bmumap                          m_parent;           /**<Pointers list to manipulation objects FATHER of the current class. List retains for each
                                                         pointer a counter. When this counter is 0, pointer is released*/
-    bmumap                      m_child;            /**<Pointers list to manipulation objects CHILD of the current class.List retains for each
+    bmumap                          m_child;            /**<Pointers list to manipulation objects CHILD of the current class.List retains for each
                                                         pointer a counter. When this counter is 0, pointer is released*/
 
-    ConnectionType              m_portsType;        /**<Type of ports of the object: BOTH (bidirectional),
-                                                        BACKWARD (only input) or FORWARD (only output).*/
+    ConnectionType                  m_portsType;        /**<Type of ports of the object: BOTH (bidirectional),
+                                                            BACKWARD (only input) or FORWARD (only output).*/
     std::unordered_map<PortID, PortIn*>   m_portIn;         /**<Input ports map. */
     std::unordered_map<PortID, PortOut*>  m_portOut;        /**<Output ports map. */
     bool                                  m_arePortsBuilt;  /**<True or false is the ports are already set or not.*/
@@ -179,7 +179,8 @@ public:
 
     uint                 getPriority();
     std::string          getName();
-    MimmoObject*         getGeometry();
+    MimmoSharedPointer<MimmoObject>         getGeometry();
+    MimmoSharedPointer<MimmoObject>&        getGeometryReference();
     int                  getNParent();
     BaseManipulation*    getParent(int i = 0);
     bool                 isParent(BaseManipulation *, int&);
@@ -208,7 +209,7 @@ public:
     void	setLog(bitpit::Logger& log);
     void    setPriority(uint priority);
     void    setName(std::string name);
-    void    setGeometry(MimmoObject* geometry);
+    void    setGeometry(MimmoSharedPointer<MimmoObject> geometry);
     void    setPlotInExecution(bool);
     void    setOutputPlot(std::string path);
     void    setId(int );
@@ -284,25 +285,25 @@ protected:
     void            _apply(MimmoPiercedVector<darray3E> & displacements);
 
 
-    void		    write(MimmoObject* geometry);
+    void		    write(MimmoSharedPointer<MimmoObject> geometry);
 
     template<typename mpv_t, typename... Args>
-    void		    write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data, Args ... args);
+    void		    write(MimmoSharedPointer<MimmoObject> geometry, MimmoPiercedVector<mpv_t> & data, Args ... args);
 
     template<typename mpv_t>
-    void		    write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data);
+    void		    write(MimmoSharedPointer<MimmoObject> geometry, MimmoPiercedVector<mpv_t> & data);
 
     template<typename mpv_t, typename... Args>
-    void		    write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>> & data, Args ... args);
+    void		    write(MimmoSharedPointer<MimmoObject> geometry, std::vector<MimmoPiercedVector<mpv_t>> & data, Args ... args);
 
     template<typename mpv_t>
-    void		    write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>> & data);
+    void		    write(MimmoSharedPointer<MimmoObject> geometry, std::vector<MimmoPiercedVector<mpv_t>> & data);
 
     template<typename mpv_t, typename... Args>
-    void            write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>*> & data, Args ... args);
+    void            write(MimmoSharedPointer<MimmoObject> geometry, std::vector<MimmoPiercedVector<mpv_t>*> & data, Args ... args);
 
     template<typename mpv_t>
-    void            write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>*> & data);
+    void            write(MimmoSharedPointer<MimmoObject> geometry, std::vector<MimmoPiercedVector<mpv_t>*> & data);
 
 };
 

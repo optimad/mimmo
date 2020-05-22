@@ -355,8 +355,8 @@ darray3E BasicShape::getLocalSpan(){
  * \param[in] geo target tessellation
  * \return list-by-ids of simplicies included in the volumetric patch
  */
-livector1D BasicShape::includeGeometry(mimmo::MimmoObject * geo ){
-	if(geo == NULL)	return livector1D(0);
+livector1D BasicShape::includeGeometry(MimmoSharedPointer<MimmoObject> geo ){
+	if(geo == nullptr)	return livector1D(0);
 	if(!(geo->isSkdTreeSupported()))	return livector1D(0);
 
 	//create BvTree and fill it w/ cell list
@@ -375,9 +375,9 @@ livector1D BasicShape::includeGeometry(mimmo::MimmoObject * geo ){
  * \param[in] geo target tesselation
  * \return list-by-ids of simplicies outside the volumetric patch
  */
-livector1D BasicShape::excludeGeometry(mimmo::MimmoObject * geo){
+livector1D BasicShape::excludeGeometry(MimmoSharedPointer<MimmoObject> geo){
 
-	if(geo == NULL)	return livector1D(0);
+	if(geo == nullptr)	return livector1D(0);
 	livector1D internals = includeGeometry(geo);
 	std::sort(internals.begin(), internals.end());
 
@@ -409,7 +409,7 @@ livector1D BasicShape::excludeGeometry(mimmo::MimmoObject * geo){
  */
 livector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
 
-	if(tri == NULL)	return livector1D(0);
+	if(tri == nullptr)	return livector1D(0);
 	livector1D result(tri->getCellCount());
 	long id;
 	int counter = 0;
@@ -433,7 +433,7 @@ livector1D BasicShape::includeGeometry(bitpit::PatchKernel * tri ){
  */
 livector1D BasicShape::excludeGeometry(bitpit::PatchKernel * tri){
 
-	if(tri == NULL)	return livector1D(0);
+	if(tri == nullptr)	return livector1D(0);
 	livector1D result(tri->getCellCount());
 	long id;
 	int counter = 0;
@@ -503,7 +503,7 @@ livector1D BasicShape::excludeCloudPoints(const dvecarr3E & list){
  */
 livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
 
-	if(tri == NULL)		return livector1D(0);
+	if(tri == nullptr)		return livector1D(0);
 	livector1D result(tri->getVertexCount());
 	int counter = 0;
 	long id;
@@ -526,7 +526,7 @@ livector1D BasicShape::includeCloudPoints(bitpit::PatchKernel * tri){
  */
 livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
 
-	if(tri == NULL)		return livector1D(0);
+	if(tri == nullptr)		return livector1D(0);
 	livector1D result(tri->getVertexCount());
 	int counter = 0;
 	long id;
@@ -549,8 +549,8 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
  * \param[in] geo target geometry
  * \return list-by-ids of vertices included in the volumetric patch
  */
-livector1D BasicShape::includeCloudPoints(mimmo::MimmoObject * geo ){
-	if(geo == NULL)	return livector1D(0);
+livector1D BasicShape::includeCloudPoints(MimmoSharedPointer<MimmoObject> geo ){
+	if(geo == nullptr)	return livector1D(0);
 
 	livector1D elements;
 	//create BvTree and fill it w/ cell list
@@ -569,9 +569,9 @@ livector1D BasicShape::includeCloudPoints(mimmo::MimmoObject * geo ){
  * \param[in] geo target geometry
  * \return list-by-ids of vertices outside the volumetric patch
  */
-livector1D BasicShape::excludeCloudPoints(mimmo::MimmoObject * geo){
+livector1D BasicShape::excludeCloudPoints(MimmoSharedPointer<MimmoObject> geo){
 
-	if(geo == NULL)	return livector1D(0);
+	if(geo == nullptr)	return livector1D(0);
 	livector1D internals = includeCloudPoints(geo);
 	std::sort(internals.begin(), internals.end());
 

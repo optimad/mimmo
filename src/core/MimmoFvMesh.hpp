@@ -91,27 +91,23 @@ struct InfoBoundaryPatch{
 class MimmoFvMesh: public BaseManipulation{
 
 protected:
-    std::unique_ptr<MimmoObject>            m_bulk;              /**<Reference to INTERNAL bulk MimmoObject. */
-    MimmoObject *                           m_bulkext;           /**<Reference to EXTERNAL bulk MimmoObject. */
-    bool                                    m_internalBulk;      /**< flag to track if bulk is internally created/hold */
-    std::unique_ptr<MimmoObject>            m_boundary;          /**<Reference to INTERNAL boundary MimmoObject. */
-    MimmoObject *                           m_boundaryext;       /**<Reference to EXTERNAL boundary MimmoObject. */
-    bool                                    m_internalBoundary;  /**< flag to track if boundary is internally created/hold */
+    MimmoSharedPointer<MimmoObject>            m_bulk;              /**<Reference to bulk MimmoObject. */
+    MimmoSharedPointer<MimmoObject>            m_boundary;          /**<Reference to boundary MimmoObject. */
 
     //members
     std::unordered_map<long, InfoBoundaryPatch>   m_infoBoundary; /**< list of additional info on boundary patches */
 
 public:
     MimmoFvMesh();
-    MimmoFvMesh(std::unique_ptr<MimmoObject> &bulk, std::unique_ptr<MimmoObject> &boundary);
+    MimmoFvMesh(MimmoSharedPointer<MimmoObject> bulk, MimmoSharedPointer<MimmoObject> boundary);
     virtual ~MimmoFvMesh();
 
     MimmoFvMesh(const MimmoFvMesh & other);
 
-    void    setGeometry(MimmoObject * bulk);
-    void    setBoundaryGeometry(MimmoObject * boundary);
-    MimmoObject * getGeometry();
-    MimmoObject * getBoundaryGeometry();
+    void    setGeometry(MimmoSharedPointer<MimmoObject> bulk);
+    void    setBoundaryGeometry(MimmoSharedPointer<MimmoObject> boundary);
+    MimmoSharedPointer<MimmoObject> getGeometry();
+    MimmoSharedPointer<MimmoObject> getBoundaryGeometry();
 
     void                addInfoBoundaryPatch(const long & PID, const InfoBoundaryPatch & info);
     InfoBoundaryPatch   getInfoBoundaryPatch(const long & PID);

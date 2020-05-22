@@ -45,12 +45,8 @@ InfoBoundaryPatch::~InfoBoundaryPatch(){}
  */
 MimmoFvMesh::MimmoFvMesh(){
     m_name = "";
-    m_bulkext = nullptr;
-    m_boundaryext = nullptr;
-    m_internalBulk = false;
-    m_internalBoundary = false;
-    m_bulk.reset(nullptr);
-    m_boundary.reset(nullptr);
+    m_bulk.reset();
+    m_boundary.reset();
 }
 
 /*!
@@ -70,7 +66,7 @@ MimmoFvMesh::~MimmoFvMesh(){}
  *\param[in] bulk unique pointer to the bulk MimmoObject
  *\param[in] boundary unique pointer to the boundary MimmoObject
  */
-MimmoFvMesh::MimmoFvMesh(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<MimmoObject> &boundary){
+MimmoFvMesh::MimmoFvMesh(MimmoSharedPointer<MimmoObject> bulk, MimmoSharedPointer<MimmoObject> boundary){
     //check couples first
     if(!bulk && !boundary){
         throw std::runtime_error("Error in MimmoFvMesh Constructor: nullptr linked as bulk mesh or boundary mesh");
@@ -81,13 +77,8 @@ MimmoFvMesh::MimmoFvMesh(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<Mi
         throw std::runtime_error("Error in MimmoFvMesh Constructor: not valid types in pair bulk-boundary meshes");
     }
 
-    m_internalBulk = true;
-    m_bulk = std::move(bulk);
-    m_bulkext = NULL;
-
-    m_internalBoundary = true;
-    m_boundary = std::move(boundary);
-    m_boundaryext = NULL;
+    m_bulk = bulk;
+    m_boundary = boundary;
 }
 
 /*!
@@ -96,17 +87,8 @@ MimmoFvMesh::MimmoFvMesh(std::unique_ptr<MimmoObject> & bulk, std::unique_ptr<Mi
    \param[in] other object ot be copied
  */
 MimmoFvMesh::MimmoFvMesh(const MimmoFvMesh & other):BaseManipulation(other){
-    m_internalBulk = false;
-    m_internalBoundary = false;
-
-    m_bulkext = other.m_bulkext;
-    if(other.m_internalBulk){
-        m_bulkext = other.m_bulk.get();
-    }
-    m_boundaryext = other.m_boundaryext;
-    if(other.m_internalBoundary){
-        m_boundaryext = other.m_boundary.get();
-    }
+    m_bulk = other.m_bulk;
+    m_boundary = other.m_boundary;
 }
 
 
@@ -115,14 +97,9 @@ MimmoFvMesh::MimmoFvMesh(const MimmoFvMesh & other):BaseManipulation(other){
  * \param[in] x object to be swapped
  */
 void MimmoFvMesh::swap(MimmoFvMesh & x) noexcept{
-    std::swap(m_internalBulk, x.m_internalBulk);
-    std::swap(m_internalBoundary, x.m_internalBoundary);
     std::swap(m_bulk, x.m_bulk);
     std::swap(m_boundary, x.m_boundary);
-    std::swap(m_bulkext, x.m_bulkext);
-    std::swap(m_boundaryext, x.m_boundaryext);
     std::swap(m_infoBoundary, x.m_infoBoundary);
-
     BaseManipulation::swap(x);
 }
 
@@ -134,11 +111,11 @@ void MimmoFvMesh::buildPorts(){
     bool built = true;
     //Don't push mandatory ports here, this class is thought more as an intermediate interface,
     //than a proper mimmo executable block. See IOOFoam families, for example.
-    built = (built && createPortIn<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::setGeometry, M_GEOM ));
-    built = (built && createPortIn<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::setBoundaryGeometry, M_GEOM2));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, MimmoFvMesh>(this, &MimmoFvMesh::setGeometry, M_GEOM ));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, MimmoFvMesh>(this, &MimmoFvMesh::setBoundaryGeometry, M_GEOM2));
     // creating output ports
-    built = (built && createPortOut<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::getGeometry, M_GEOM));
-    built = (built && createPortOut<MimmoObject*, MimmoFvMesh>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, MimmoFvMesh>(this, &MimmoFvMesh::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, MimmoFvMesh>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOM2));
 
     m_arePortsBuilt = built;
 };
@@ -149,13 +126,10 @@ void MimmoFvMesh::buildPorts(){
  * MimmoObject type admitted are 2-Volume or 1-Surface.
  * \param[in] bulk geometry to be linked
  */
-void MimmoFvMesh::setGeometry(MimmoObject *bulk){
-    if (bulk == NULL) return;
+void MimmoFvMesh::setGeometry(MimmoSharedPointer<MimmoObject> bulk){
+    if (bulk == nullptr) return;
     if (bulk->getType() != 2 && bulk->getType() != 1) return;
-
-    m_bulkext = bulk;
-    m_internalBulk = false;
-    m_bulk.reset(nullptr);
+    m_bulk = bulk;
 }
 
 /*!
@@ -164,31 +138,26 @@ void MimmoFvMesh::setGeometry(MimmoObject *bulk){
  * MimmoObject type admitted are 1-Surface or 4-3dCurve.
  * \param[in] boundary geometry to be linked
  */
-void MimmoFvMesh::setBoundaryGeometry(MimmoObject * boundary){
-    if (boundary == NULL) return;
+void MimmoFvMesh::setBoundaryGeometry(MimmoSharedPointer<MimmoObject> boundary){
+    if (boundary == nullptr) return;
     if (boundary->getType() != 1 && boundary->getType() != 4) return;
-
-    m_boundaryext = boundary;
-    m_internalBoundary = false;
-    m_boundary.reset(nullptr);
+    m_boundary = boundary;
 }
 
 /*!
  * \return current bulk geometry
  */
-MimmoObject *
+MimmoSharedPointer<MimmoObject>
 MimmoFvMesh::getGeometry(){
-    if(m_internalBulk)  return m_bulk.get();
-    else                return m_bulkext;
+    return m_bulk;
 }
 
 /*!
  * \return current boundary geometry
  */
-MimmoObject *
+MimmoSharedPointer<MimmoObject>
 MimmoFvMesh::getBoundaryGeometry(){
-    if(m_internalBoundary)  return m_boundary.get();
-    else                    return m_boundaryext;
+    return m_boundary;
 }
 
 /*!
@@ -243,7 +212,7 @@ void MimmoFvMesh::flushSectionXML(bitpit::Config::Section & slotXML, std::string
  */
 void MimmoFvMesh::createBoundaryMesh(){
 
-    MimmoObject * bulk = getGeometry();
+    MimmoSharedPointer<MimmoObject> bulk = getGeometry();
     if (!bulk->areInterfacesBuilt()) bulk->buildInterfaces();
 
     std::set<long> boundaryInterfaces;
@@ -259,7 +228,7 @@ void MimmoFvMesh::createBoundaryMesh(){
 
     //fill new boundary
     int type = int(bulk->getType() == 2) + 4*int(bulk->getType() == 1);
-    std::unique_ptr<MimmoObject> temp(new MimmoObject(type));
+    MimmoSharedPointer<MimmoObject> temp(new MimmoObject(type));
 
     bitpit::PiercedVector<bitpit::Interface> & bulkInterf = bulk->getInterfaces();
 
@@ -285,9 +254,7 @@ void MimmoFvMesh::createBoundaryMesh(){
         temp->addConnectedCell(conn, eltype, PID, idI);
     }
 
-    m_boundary = std::move(temp);
-    m_internalBoundary = true;
-    m_boundaryext = NULL;
+    m_boundary = temp;
 }
 
 
@@ -305,14 +272,14 @@ void MimmoFvMesh::createBoundaryMesh(){
  */
 bool  MimmoFvMesh::checkMeshCoherence(){
 
-    MimmoObject * bulk = getGeometry();
-    if(bulk == NULL)  return false;
+    MimmoSharedPointer<MimmoObject> bulk = getGeometry();
+    if(bulk == nullptr)  return false;
     if(bulk->isEmpty())  return false;
 
-    MimmoObject * boundary = getBoundaryGeometry();
+    MimmoSharedPointer<MimmoObject> boundary = getBoundaryGeometry();
 
     bool checkBoundaries = true;
-    if(boundary == NULL)  checkBoundaries = false;
+    if(boundary == nullptr)  checkBoundaries = false;
     else if(boundary->isEmpty()) checkBoundaries = false;
 
     if(checkBoundaries){

@@ -108,9 +108,9 @@ TwistGeometry::buildPorts(){
     built = (built && createPortIn<double, TwistGeometry>(&m_alpha, M_VALUED));
     built = (built && createPortIn<double, TwistGeometry>(&m_distance, M_VALUED2));
     built = (built && createPortIn<dmpvector1D*, TwistGeometry>(this, &mimmo::TwistGeometry::setFilter, M_FILTER));
-    built = (built && createPortIn<MimmoObject*, TwistGeometry>(&m_geometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, TwistGeometry>(&m_geometry, M_GEOM, true));
     built = (built && createPortOut<dmpvecarr3E*, TwistGeometry>(this, &mimmo::TwistGeometry::getDisplacements, M_GDISPLS));
-    built = (built && createPortOut<MimmoObject*, TwistGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, TwistGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
 
@@ -193,9 +193,9 @@ TwistGeometry::getDisplacements(){
 void
 TwistGeometry::execute(){
 
-    if(getGeometry() == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+    if(getGeometry() == nullptr){
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
     if(getGeometry()->isEmpty()){

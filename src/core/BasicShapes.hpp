@@ -133,8 +133,8 @@ public:
 
 
     //functionalities
-    livector1D  includeGeometry(mimmo::MimmoObject * );
-    livector1D  excludeGeometry(mimmo::MimmoObject * );
+    livector1D  includeGeometry(MimmoSharedPointer<MimmoObject> );
+    livector1D  excludeGeometry(MimmoSharedPointer<MimmoObject> );
 
     livector1D  includeGeometry(bitpit::PatchKernel * );
     livector1D  excludeGeometry(bitpit::PatchKernel * );
@@ -145,8 +145,8 @@ public:
     livector1D  includeCloudPoints(bitpit::PatchKernel * );
     livector1D  excludeCloudPoints(bitpit::PatchKernel * );
 
-    livector1D  includeCloudPoints(mimmo::MimmoObject * );
-    livector1D  excludeCloudPoints(mimmo::MimmoObject * );
+    livector1D  includeCloudPoints(MimmoSharedPointer<MimmoObject> );
+    livector1D  excludeCloudPoints(MimmoSharedPointer<MimmoObject> );
 
     bool        isSimplexIncluded(const dvecarr3E &);
     bool        isSimplexIncluded(bitpit::PatchKernel * , const long int &indexT);

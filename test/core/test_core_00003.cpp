@@ -39,7 +39,7 @@
  * \param[in,out] mesh pointer to a MimmoObject mesh to fill.
  * \return true if successfully created mesh
  */
-bool createMimmoMesh(mimmo::MimmoObject * mesh){
+bool createMimmoMesh(mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh){
 
 	double dx = 0.25, dy = 0.25;
 	int nV, nC;
@@ -113,9 +113,9 @@ bool createMimmoMesh(mimmo::MimmoObject * mesh){
  * \param[in] list of cells to extract for target mesh.
  * \return unique_ptr to new mimmoobject mesh
  */
-std::unique_ptr<mimmo::MimmoObject> createSubMesh(mimmo::MimmoObject * original, livector1D & list){
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> createSubMesh(mimmo::MimmoSharedPointer<mimmo::MimmoObject> original, livector1D & list){
 
-	std::unique_ptr<mimmo::MimmoObject> result(new mimmo::MimmoObject(original->getType()));
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> result(new mimmo::MimmoObject(original->getType()));
 
 	//fill the mimmoObject;
 	long pid;
@@ -134,7 +134,7 @@ std::unique_ptr<mimmo::MimmoObject> createSubMesh(mimmo::MimmoObject * original,
 
 	result->buildAdjacencies();
 
-	return std::move(result);
+	return result;
 }
 
 
@@ -142,7 +142,7 @@ std::unique_ptr<mimmo::MimmoObject> createSubMesh(mimmo::MimmoObject * original,
 
 int test3() {
 
-	mimmo::MimmoObject * mesh = new mimmo::MimmoObject();
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh(new mimmo::MimmoObject());
 	livector1D list;
 
 	//create the target mesh;
@@ -150,7 +150,6 @@ int test3() {
 
 	if(!check){
 		std::cout<<"ERROR.Not able to create MimmoObject mesh"<<std::endl;
-		delete mesh;
         return 1;
 	}else{
 		mesh->getPatch()->write("original_t3");
@@ -179,10 +178,9 @@ int test3() {
 		}
 	}
 
-	std::unique_ptr<mimmo::MimmoObject> subPatch;
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> subPatch;
 	if(!check){
 		std::cout<<"ERROR.Not able to extract sub-patch included in the cylindrical shape w/ bvTree"<<std::endl;
-        delete mesh;
         delete shape;
         return 1;
 	}else{
@@ -191,7 +189,6 @@ int test3() {
 		std::cout<<"Sub-Patch included in cylinder extracted w/ bvTree and written to file subpatch_t3.vtu"<<std::endl;
 	}
 
-	delete mesh;
 	delete shape;
 
 	return 0;

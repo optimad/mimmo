@@ -343,9 +343,9 @@ int test1() {
 
     //12. testing an MimmoPiercedVector of strings
     {
-        mimmo::MimmoObject geo;
+        mimmo::MimmoSharedPointer<mimmo::MimmoObject> geo(new mimmo::MimmoObject());
         std::string name = "stringfield";
-        mimmo::MimmoPiercedVector<std::string> input(&geo, mimmo::MPVLocation::POINT);
+        mimmo::MimmoPiercedVector<std::string> input(geo, mimmo::MPVLocation::POINT);
         input.setName(name);
         input.insert(0, "just");
         input.insert(1, "something");
@@ -381,9 +381,9 @@ int test1() {
 
     //13. testing an MimmoPiercedVector of array<double,3>
     {
-        mimmo::MimmoObject geo;
+        mimmo::MimmoSharedPointer<mimmo::MimmoObject> geo(new mimmo::MimmoObject());
         std::string name = "vectorfield";
-        mimmo::MimmoPiercedVector<std::array<double,3> > input(&geo, mimmo::MPVLocation::CELL);
+        mimmo::MimmoPiercedVector<std::array<double,3> > input(geo, mimmo::MPVLocation::CELL);
         input.setName(name);
         input.insert(0, {{1.,2.,3.}});
         input.insert(1, {{4.,5.,6.}});

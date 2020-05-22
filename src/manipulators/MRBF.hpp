@@ -151,7 +151,7 @@ protected:
     dvector1D    m_effectiveSR; /**< INTERNAL USE list of support radii effectively used for each RBF */
     bool         m_isCompact;   /**< If true the basis function is used with compact support, i.e. it is supposed different from 0 and evaluated only inside the support radius.*/
 
-    MimmoObject* m_rbfgeometry; /**< RBF geometry. The vertices of this object are used as RBF nodes.*/
+    MimmoSharedPointer<MimmoObject> m_rbfgeometry; /**< RBF geometry. The vertices of this object are used as RBF nodes.*/
     dmpvecarr3E* m_rbfdispl;    /**<RBF nodes displacements related to RBF geometry vertex.*/
 
 public:
@@ -186,11 +186,11 @@ public:
 
     void            setNode(darray3E);
     void            setNode(dvecarr3E);
-    void            setNode(MimmoObject* geometry);
+    void            setNode(MimmoSharedPointer<MimmoObject> geometry);
     void            setFilter(dmpvector1D * );
 
     ivector1D       checkDuplicatedNodes(double tol=1.0E-12);
-    bool            removeDuplicatedNodes(ivector1D * list=NULL);
+    bool            removeDuplicatedNodes(ivector1D * list=nullptr);
 
     void            setSupportRadiusLocal(double suppR_);
     void            setSupportRadiusReal(double suppR_);

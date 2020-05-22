@@ -138,8 +138,6 @@ private:
     bool         m_write;         /**<If true it writes the geometry on file during the execution.*/
     FileDataInfo m_winfo;       /**< Info on the external file to write */
 
-    bool        m_isInternal;                /**< flag for internal instantiated MimmoObject */
-    std::unique_ptr<MimmoObject> m_intgeo;    /**< pointer to internal allocated geometry, if any */
     bool        m_codex;                    /**< Set codex format for writing true binary, false ascii */
     WFORMAT        m_wformat;                    /**<Format for .nas import/export. (Short/Long).*/
 
@@ -172,8 +170,6 @@ public:
     void buildPorts();
 
     const MimmoGeometry *    getCopy();
-    MimmoObject *     getGeometry();
-    const MimmoObject *     getGeometry()const ;
 
 public:
     void        setReadDir(std::string dir);
@@ -195,7 +191,7 @@ public:
     void 		setTolerance(double tol);
     void 		setClean(bool clean = true);
 
-    void        setGeometry( MimmoObject * external);
+    using BaseManipulation::setGeometry;
     void        setGeometry(int type=1);
 
     bitpit::PiercedVector<bitpit::Vertex> *     getVertices();
@@ -212,7 +208,6 @@ public:
     void        setBuildKdTree(bool build);
 
     bool         isEmpty();
-    bool        isInternal();
     void         clear();
     bool        write();
     bool        read();
@@ -253,9 +248,9 @@ public:
     void writeKeyword(std::string key, std::ofstream& os);
     void writeCoord(const darray3E & p, const long& pointI, std::ofstream& os);
     void writeFace(std::string faceType, const livector1D& facePts, const long& nFace, std::ofstream& os, long PID);
-    bool writeGeometry(dvecarr3E &points,livector1D &pointsID, livector2D &faces, livector1D &facesID, std::ofstream &os, livector1D *PIDS = NULL);
-    void writeFooter(std::ofstream& os, std::unordered_set<long>* PIDSSET = NULL);
-    void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D& facesID, livector1D* PIDS = NULL, std::unordered_set<long>* PIDSSET = NULL);
+    bool writeGeometry(dvecarr3E &points,livector1D &pointsID, livector2D &faces, livector1D &facesID, std::ofstream &os, livector1D *PIDS = nullptr);
+    void writeFooter(std::ofstream& os, std::unordered_set<long>* PIDSSET = nullptr);
+    void write(std::string& outputDir, std::string& surfaceName, dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D& facesID, livector1D* PIDS = nullptr, std::unordered_set<long>* PIDSSET = nullptr);
     void read(std::string& inputDir, std::string& surfaceName, dvecarr3E& points, livector1D& pointsID, livector2D& faces, livector1D& facesID, livector1D& PIDS);
 
     std::string trim(std::string in);

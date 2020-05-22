@@ -42,7 +42,8 @@ int test1() {
     std::cout<<"test1 passed :"<<check<<std::endl;
 
     mimmo::MimmoGeometry * writer = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
-    writer->setGeometry(reader->getGeometry());
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> geo = reader->getGeometry();
+    writer->setGeometry(geo);
     writer->setWriteDir(".");
     writer->setWriteFilename("curve_copy");
     writer->setWriteFileType(FileType::CURVEVTU);

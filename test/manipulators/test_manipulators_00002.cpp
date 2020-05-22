@@ -32,7 +32,7 @@
 int test2() {
 
     //create a mimmoobject containing a single triangle.
-	mimmo::MimmoObject * mesh = new mimmo::MimmoObject(1);
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh(new mimmo::MimmoObject(1));
     dvecarr3E p(3, {{0.0,0.0,0.0}});
     livector1D conn(3,0);
 
@@ -76,7 +76,6 @@ int test2() {
     //check phase
     bool check = ( (std::abs(area/area2) - 0.25) <= 1.e-18);
 
-    delete mesh;
     delete mrbf;
     delete applier;
 

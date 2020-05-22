@@ -97,9 +97,9 @@ TranslationGeometry::buildPorts(){
     built = (built && createPortIn<darray3E, TranslationGeometry>(&m_direction, M_AXIS));
     built = (built && createPortIn<double, TranslationGeometry>(&m_alpha, M_VALUED));
     built = (built && createPortIn<dmpvector1D*, TranslationGeometry>(this, &mimmo::TranslationGeometry::setFilter, M_FILTER));
-    built = (built && createPortIn<MimmoObject*, TranslationGeometry>(&m_geometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, TranslationGeometry>(&m_geometry, M_GEOM, true));
     built = (built && createPortOut<dmpvecarr3E*, TranslationGeometry>(this, &mimmo::TranslationGeometry::getDisplacements, M_GDISPLS));
-    built = (built && createPortOut<MimmoObject*, TranslationGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, TranslationGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
 
@@ -147,9 +147,9 @@ TranslationGeometry::getDisplacements(){
 void
 TranslationGeometry::execute(){
 
-    if(getGeometry() == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+    if(getGeometry() == nullptr){
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
 

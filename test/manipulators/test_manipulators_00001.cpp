@@ -33,7 +33,7 @@
 int test1() {
 
     //create a mimmoobject containing a single triangle.
-	mimmo::MimmoObject * mesh = new mimmo::MimmoObject(1);
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh(new mimmo::MimmoObject(1));
     dvecarr3E p(3, {{0.0,0.0,0.0}});
     livector1D conn(3,0);
 
@@ -53,7 +53,7 @@ int test1() {
     darray3E normal = (static_cast<bitpit::SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
     double area     = (static_cast<bitpit::SurfaceKernel * >(mesh->getPatch()))->evalCellArea(0);
 
-    std::unique_ptr<mimmo::MimmoObject> mesh2 = mesh->clone();
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh2 = mesh->clone();
 
     mimmo::RotationGeometry * rot = new mimmo::RotationGeometry();
     rot->setGeometry(mesh);
@@ -71,7 +71,7 @@ int test1() {
     applier->setInput(rot->getDisplacements());
 
     mimmo::Apply * applier2 = new mimmo::Apply();
-    applier2->setGeometry(mesh2.get());
+    applier2->setGeometry(mesh2);
     applier2->setInput(scale->getDisplacements());
 
     applier->exec();
@@ -81,13 +81,18 @@ int test1() {
     darray3E normal2 = (static_cast<bitpit::SurfaceKernel * >(mesh->getPatch()))->evalFacetNormal(0);
     double area2     = (static_cast<bitpit::SurfaceKernel * >(mesh2->getPatch()))->evalCellArea(0);
 
+    std::cout << normal2 << std::endl;
+    std::cout << area2 << std::endl;
+
+    std::cout << normal << std::endl;
+    std::cout << area << std::endl;
+
     //check phase
     bool check = true;
 
     check = check && ( (std::abs(std::acos(dotProduct(normal2,normal))) - BITPIT_PI/3.0) <= 1.e-18);
     check = check && ( (std::abs(area/area2) - 4.0) <= 1.e-18);
 
-    delete mesh;
     delete rot;
     delete scale;
     delete applier;
