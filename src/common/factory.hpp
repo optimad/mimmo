@@ -180,7 +180,7 @@ public:
     /*! Constructor
      * \param[in] fn CreateFn function
      */
-    Creator(CreateFn fn = NULL) : createFn(fn) {}
+    Creator(CreateFn fn = nullptr) : createFn(fn) {}
     /*! Function to create a new object of class Derived,
      * with custom function of type CreateFn linked as Creator
      * \param[in] xml_root reference of xml-data tree
