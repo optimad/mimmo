@@ -103,9 +103,9 @@ ScaleGeometry::buildPorts(){
     built = (built && createPortIn<darray3E, ScaleGeometry>(&m_origin, M_POINT));
     built = (built && createPortIn<darray3E, ScaleGeometry>(&m_scaling, M_SPAN));
     built = (built && createPortIn<dmpvector1D*, ScaleGeometry>(this, &mimmo::ScaleGeometry::setFilter, M_FILTER));
-    built = (built && createPortIn<MimmoObject*, ScaleGeometry>(&m_geometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, ScaleGeometry>(&m_geometry, M_GEOM, true));
     built = (built && createPortOut<dmpvecarr3E*, ScaleGeometry>(this, &mimmo::ScaleGeometry::getDisplacements, M_GDISPLS));
-    built = (built && createPortOut<MimmoObject*, ScaleGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, ScaleGeometry>(this, &BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 };
 
@@ -158,9 +158,9 @@ ScaleGeometry::getDisplacements(){
 void
 ScaleGeometry::execute(){
 
-    if(getGeometry() == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+    if(getGeometry() == nullptr){
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
     if(getGeometry()->isEmpty()){

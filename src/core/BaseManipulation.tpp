@@ -145,12 +145,12 @@ BaseManipulation::createPortIn(O* obj_, void (O::*setVar_)(T), PortID portR, boo
  * MimmoPiercedVector of data have to be consistent, otherwise the data is skipped.
  * It writes into the m_output directory with m_name+m_counter. It adds the input data field by deducing the type.
  * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
- * \param[in] geometry MimmoObject pointer to target geometry
+ * \param[in] geometry MimmoObject shared pointer to target geometry
  * \param[in] data MimmoPiercedVector with data field to write
  */
 template<typename mpv_t>
 void
-BaseManipulation::write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data)
+BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, MimmoPiercedVector<mpv_t> & data)
 {
 
 	//Check data and geometry linked
@@ -217,13 +217,13 @@ BaseManipulation::write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data)
  * that doesn't satisfy the coherence is skipped.
  * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
  * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
- * \param[in] geometry MimmoObject pointer to target geometry
+ * \param[in] geometry MimmoObject shared pointer to target geometry
  * \param[in] data MimmoPiercedVector with data fields to write
  * \param[in] ... MimmoPiercedVector series with data fields to write (template variadic function)
  */
 template<typename mpv_t, typename... Args>
 void
-BaseManipulation::write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data, Args ... args)
+BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, MimmoPiercedVector<mpv_t> & data, Args ... args)
 {
 	//Check data and geometry linked
 	if (data.size() == 0 || data.getGeometry() == nullptr){
@@ -289,12 +289,12 @@ BaseManipulation::write(MimmoObject* geometry, MimmoPiercedVector<mpv_t> & data,
  * that doesn't satisfy the coherence is skipped.
  * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
  * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
- * \param[in] geometry MimmoObject pointer to target geometry
+ * \param[in] geometry MimmoObject shared pointer to target geometry
  * \param[in] data vector of MimmoPiercedVectors with data fields to write
  */
 template<typename mpv_t>
 void
-BaseManipulation::write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>> & vdata)
+BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<MimmoPiercedVector<mpv_t>> & vdata)
 {
 	// Instantiate fields as vector structure
 	std::vector<std::vector<mpv_t>> fields(vdata.size());
@@ -372,13 +372,13 @@ BaseManipulation::write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mp
  * that doesn't satisfy the coherence is skipped.
  * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
  * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
- * \param[in] geometry MimmoObject pointer to target geometry
+ * \param[in] geometry MimmoObject shared pointer to target geometry
  * \param[in] data vector of MimmoPiercedVector with data fields to write
  * \param[in] ... MimmoPiercedVector series with vector of data fields to write (template variadic function)
  */
 template<typename mpv_t, typename... Args>
 void
-BaseManipulation::write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>> & vdata, Args ... args)
+BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<MimmoPiercedVector<mpv_t>> & vdata, Args ... args)
 {
 	// Instantiate fields as vector structure
 	std::vector<std::vector<mpv_t>> fields(vdata.size());
@@ -459,12 +459,12 @@ BaseManipulation::write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mp
  * that doesn't satisfy the coherence is skipped.
  * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
  * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
- * \param[in] geometry MimmoObject pointer to target geometry
+ * \param[in] geometry MimmoObject shared pointer to target geometry
  * \param[in] data vector of pointer to MimmoPiercedVectors with data fields to write
  */
 template<typename mpv_t>
 void
-BaseManipulation::write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>*> & vdata)
+BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<MimmoPiercedVector<mpv_t>*> & vdata)
 {
     // Instantiate fields as vector structure
     std::vector<std::vector<mpv_t>> fields(vdata.size());
@@ -542,13 +542,13 @@ BaseManipulation::write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mp
  * that doesn't satisfy the coherence is skipped.
  * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
  * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
- * \param[in] geometry MimmoObject pointer to target geometry
+ * \param[in] geometry MimmoObject shared pointer to target geometry
  * \param[in] data vector of Pointer of MimmoPiercedVector with data fields to write
  * \param[in] ... Pointer to MimmoPiercedVector series with vector of data fields to write (template variadic function)
  */
 template<typename mpv_t, typename... Args>
 void
-BaseManipulation::write(MimmoObject* geometry, std::vector<MimmoPiercedVector<mpv_t>*> & vdata, Args ... args)
+BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<MimmoPiercedVector<mpv_t>*> & vdata, Args ... args)
 {
     // Instantiate fields as vector structure
     std::vector<std::vector<mpv_t>> fields(vdata.size());

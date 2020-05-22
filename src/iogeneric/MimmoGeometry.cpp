@@ -94,11 +94,6 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(other
     m_multiSolidSTL = other.m_multiSolidSTL;
     m_tolerance = other.m_tolerance;
     m_clean = other.m_clean;
-
-    if(other.m_isInternal){
-        m_geometry = other.m_intgeo.get();
-    }
-    m_isInternal = false;
 };
 
 /*!
@@ -129,8 +124,6 @@ void MimmoGeometry::swap(MimmoGeometry & x) noexcept
     std::swap(m_multiSolidSTL, x.m_multiSolidSTL);
     std::swap(m_tolerance, x.m_tolerance);
     std::swap(m_clean, x.m_clean);
-    std::swap(m_isInternal, x.m_isInternal);
-    std::swap(m_intgeo, x.m_intgeo);
     BaseManipulation::swap(x);
 }
 
@@ -141,8 +134,8 @@ void
 MimmoGeometry::buildPorts(){
     bool built = true;
     bool mandatory_input = (m_write && !m_read);
-    built = (built && createPortIn<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::setGeometry, M_GEOM, mandatory_input));
-    built = (built && createPortOut<MimmoObject*, MimmoGeometry>(this, &mimmo::MimmoGeometry::getGeometry, M_GEOM));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, MimmoGeometry>(this, &mimmo::BaseManipulation::setGeometry, M_GEOM, mandatory_input));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, MimmoGeometry>(this, &mimmo::BaseManipulation::getGeometry, M_GEOM));
     m_arePortsBuilt = built;
 }
 
@@ -151,23 +144,6 @@ MimmoGeometry::buildPorts(){
  */
 const MimmoGeometry * MimmoGeometry::getCopy(){
     return this;
-}
-
-/*!
- * Get current geometry pointer. Reimplementation of BaseManipulation::getGeometry
- */
-MimmoObject * MimmoGeometry::getGeometry(){
-    if(m_isInternal)    return m_intgeo.get();
-    else                return m_geometry;
-}
-
-/*!
- * Get current geometry pointer. Reimplementation of BaseManipulation::getGeometry,
- * const overloading
- */
-const MimmoObject * MimmoGeometry::getGeometry() const{
-    if(m_isInternal)    return m_intgeo.get();
-    else                return m_geometry;
 }
 
 /*!
@@ -187,7 +163,6 @@ MimmoGeometry::setDefaults(){
     m_winfo.fdir    = "./";
 
     m_wformat        = Short;
-    m_isInternal      = true;
     m_codex            = true;
     m_buildSkdTree    = false;
     m_buildKdTree    = false;
@@ -408,22 +383,6 @@ MimmoGeometry::setClean(bool clean){
 }
 
 /*!
- * Set geometry from an external MimmoObject source, softly linked.
- * Reimplementation of BaseManipulation::setGeometry
- * \param[in] external pointer to external geometry
- */
-void
-MimmoGeometry::setGeometry(MimmoObject * external){
-    if(external == NULL)    return;
-//    if(external->isEmpty()) return;
-    if(getGeometry() == external) return;
-
-    m_intgeo.reset(nullptr);
-    m_geometry = external;
-    m_isInternal = false;
-};
-
-/*!
  * Force your class to allocate an internal MimmoObject of type 1-Superficial mesh
  * 2-Volume Mesh,3-Point Cloud, 4-3DCurve. Other internal object allocated or externally linked geometries
  * will be destroyed/unlinked.
@@ -433,11 +392,7 @@ void
 MimmoGeometry::setGeometry(int type){
     if(type > 4)    type = 1;
     int type_ = std::max(type,1);
-    m_geometry = NULL;
-    m_intgeo.reset(nullptr);
-    std::unique_ptr<MimmoObject> dum(new MimmoObject(type_));
-    m_intgeo = std::move(dum);
-    m_isInternal = true;
+    m_geometry.reset(new MimmoObject(type_));
 };
 
 /*!
@@ -447,7 +402,6 @@ MimmoGeometry::setGeometry(int type){
  */
 bitpit::PiercedVector<bitpit::Vertex> *
 MimmoGeometry::getVertices(){
-//    if(isEmpty())    return NULL;
     return &(getGeometry()->getVertices());
 };
 
@@ -457,11 +411,9 @@ MimmoGeometry::getVertices(){
  * \return pointer to the cells structure
  */
 bitpit::PiercedVector<bitpit::Cell> * MimmoGeometry::getCells(){
-//    if(isEmpty())    return NULL;
     return    &(getGeometry()->getCells());
 
 };
-
 
 /*!It sets the PIDs of all the cells of the geometry Patch.
  * \param[in] pids PIDs of the cells of geometry mesh, in compact sequential order. If pids size does not match number of current cell does nothing
@@ -516,17 +468,8 @@ MimmoGeometry::setBuildKdTree(bool build){
  * \return is the geometry empty?
  */
 bool MimmoGeometry::isEmpty(){
-    if(getGeometry() == NULL)   return true;
+    if(getGeometry() == nullptr)   return true;
     return getGeometry()->isEmpty();
-}
-
-/*!
- * Check if geometry is internally instantiated (true) or externally linked(false).
- * Return false if no geometry is checked. Please verify it with isEmpty method first
- * \return is the geometry internally instantiated?
- */
-bool MimmoGeometry::isInternal(){
-    return (m_isInternal);
 }
 
 /*!
@@ -535,7 +478,6 @@ bool MimmoGeometry::isInternal(){
 void
 MimmoGeometry::clear(){
     setDefaults();
-    m_intgeo.reset(nullptr);
     BaseManipulation::clear();
 };
 
@@ -703,11 +645,11 @@ MimmoGeometry::write(){
     {
     	int archiveVersion = 1;
     	std::string header = m_name;
-    	std::string filename = (m_winfo.fdir+"/"+m_winfo.fname+".geomimmo");
+    	std::string filename = (m_winfo.fdir+"/"+m_winfo.fname);
 #if MIMMO_ENABLE_MPI
-    	bitpit::OBinaryArchive binaryWriter(filename, archiveVersion, header, m_rank);
+    	bitpit::OBinaryArchive binaryWriter(filename, "geomimmo", archiveVersion, header, m_rank);
 #else
-    	bitpit::OBinaryArchive binaryWriter(filename, archiveVersion, header);
+    	bitpit::OBinaryArchive binaryWriter(filename, "geomimmo", archiveVersion, header);
 #endif
     	getGeometry()->dump(binaryWriter.getStream());
     	binaryWriter.close();
@@ -728,8 +670,6 @@ MimmoGeometry::write(){
  */
 bool
 MimmoGeometry::read(){
-
-    if(!m_isInternal) return false;
 
     switch(FileType::_from_integral(m_rinfo.ftype)){
 
@@ -854,12 +794,12 @@ MimmoGeometry::read(){
         int sizeV, sizeC;
         sizeV = Ipoints.size();
         sizeC = Iconnectivity.size();
-        m_intgeo->getPatch()->reserveVertices(sizeV);
-        m_intgeo->getPatch()->reserveCells(sizeC);
+        getGeometry()->getPatch()->reserveVertices(sizeV);
+        getGeometry()->getPatch()->reserveCells(sizeC);
 
         int counter = 0;
         for(const auto & vv : Ipoints){
-            m_intgeo->addVertex(vv, pointsID[counter]);
+            getGeometry()->addVertex(vv, pointsID[counter]);
             ++counter;
         }
         counter = 0;
@@ -869,10 +809,10 @@ MimmoGeometry::read(){
             if(ccsize == 1)  eltype = bitpit::ElementType::VERTEX;
             if(ccsize == 3)  eltype = bitpit::ElementType::TRIANGLE;
             if(ccsize == 4)  eltype = bitpit::ElementType::QUAD;
-            m_intgeo->addConnectedCell(cc, eltype, cellsID[counter]);
+            getGeometry()->addConnectedCell(cc, eltype, cellsID[counter]);
             ++counter;
         }
-        m_intgeo->setPID(pids);
+        getGeometry()->setPID(pids);
 #if MIMMO_ENABLE_MPI
     	}
 #endif
@@ -895,14 +835,14 @@ MimmoGeometry::read(){
         readOFP(m_rinfo.fdir, m_rinfo.fname, Ipoints);
 
         int sizeV = Ipoints.size();
-        m_intgeo->getPatch()->reserveVertices(sizeV);
+        getGeometry()->getPatch()->reserveVertices(sizeV);
 
         long Id = 0;
         for(const auto & vv : Ipoints){
-        	m_intgeo->addVertex(vv, Id);
+            getGeometry()->addVertex(vv, Id);
         	livector1D conn(1,Id);
         	bitpit::ElementType eltype = bitpit::ElementType::VERTEX;
-			m_intgeo->addConnectedCell(conn, eltype, Id);
+        	getGeometry()->addConnectedCell(conn, eltype, Id);
 			Id++;
         }
 #if MIMMO_ENABLE_MPI
@@ -958,16 +898,15 @@ MimmoGeometry::read(){
     case FileType::MIMMO :
     	//Import in mimmo (bitpit) restore format
     {
-    	std::string filename = (m_rinfo.fdir+"/"+m_rinfo.fname+".geomimmo");
+    	std::string filename = (m_rinfo.fdir+"/"+m_rinfo.fname);
 #if MIMMO_ENABLE_MPI
-    	bitpit::IBinaryArchive binaryReader(filename, m_rank);
+    	bitpit::IBinaryArchive binaryReader(filename,"geomimmo", m_rank);
 #else
-    	bitpit::IBinaryArchive binaryReader(filename);
+    	bitpit::IBinaryArchive binaryReader(filename, "geomimmo");
 #endif
-        m_intgeo.reset(nullptr);
-        std::unique_ptr<MimmoObject> dum(new MimmoObject());
-        m_intgeo = std::move(dum);
-    	m_intgeo->restore(binaryReader.getStream());
+
+        getGeometryReference().reset(new MimmoObject());
+        m_geometry->restore(binaryReader.getStream());
     	binaryReader.close();
     }
     break;
@@ -1572,7 +1511,7 @@ bool NastranInterface::writeGeometry(dvecarr3E& points, livector1D& pointsID, li
 
     if(points.size() != pointsID.size())    return false;
     if(faces.size() != facesID.size())    return false;
-    bool flagpid = (PIDS != NULL);
+    bool flagpid = (PIDS != nullptr);
     if(flagpid && (PIDS->size() != faces.size())) return false;
     int counter =  0;
     for (const auto & p: points){
@@ -1606,7 +1545,7 @@ bool NastranInterface::writeGeometry(dvecarr3E& points, livector1D& pointsID, li
  */
 void NastranInterface::writeFooter(std::ofstream& os, std::unordered_set<long>* PIDSSET){
     std::string separator_("");
-    if (PIDSSET == NULL){
+    if (PIDSSET == nullptr){
         int PID = 1;
         writeKeyword("PSHELL", os);
         os << separator_;

@@ -62,7 +62,7 @@ int test2_2() {
     conn[0][1] = 1; conn[0][2]=2;
     conn[1][0] = 1; conn[1][1]=3; conn[1][2] = 2;
 
-    mimmo::MimmoObject * geo = new mimmo::MimmoObject(1);
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> geo(new mimmo::MimmoObject(1));
     for(int i=0; i<(int)points.size(); ++i) geo->addVertex(points[i], i);
     geo->addConnectedCell(conn[0], bitpit::ElementType::TRIANGLE, long(0), long(0));
     geo->addConnectedCell(conn[1], bitpit::ElementType::TRIANGLE, long(0), long(1));
@@ -126,7 +126,6 @@ int test2_2() {
     delete write_vector;
     delete read_scalar;
     delete read_vector;
-    delete geo;
 
     std::cout<<"test passed :"<<check<<std::endl;
 
@@ -148,7 +147,7 @@ int test2_3() {
     conn[0][1] = 1; conn[0][2]=2;
     conn[1][0] = 1; conn[1][1]=3; conn[1][2] = 2;
 
-    mimmo::MimmoObject * geo = new mimmo::MimmoObject(1);
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> geo(new mimmo::MimmoObject(1));
     for(int i=0; i<(int)points.size(); ++i) geo->addVertex(points[i], i);
     geo->addConnectedCell(conn[0], bitpit::ElementType::TRIANGLE, long(0), long(0));
     geo->addConnectedCell(conn[1], bitpit::ElementType::TRIANGLE, long(0), long(1));
@@ -185,7 +184,6 @@ int test2_3() {
 
     delete write_vector;
     delete read_vector;
-    delete geo;
 
     std::cout<<"test passed :"<<check<<std::endl;
 

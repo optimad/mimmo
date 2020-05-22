@@ -51,8 +51,8 @@ public:
     MimmoPiercedVector<long> smoothids; /**< marker identifying smooth group which a cell can possibly belong to */
     MimmoPiercedVector<std::string> cellgroups; /**< label identifying cell group label which a cell can possibly belong to */
 
-    std::unique_ptr<MimmoObject> textures; /**< MimmoObject container for texture properties*/
-    std::unique_ptr<MimmoObject> normals; /**<MimmoObject container for vnormals properties*/
+    MimmoSharedPointer<MimmoObject> textures; /**< MimmoObject container for texture properties*/
+    MimmoSharedPointer<MimmoObject> normals; /**<MimmoObject container for vnormals properties*/
 
     //list
     std::unordered_map<std::string, long> materialsList; /**< list of all materials inside the class, argument marks long id */
@@ -65,7 +65,7 @@ public:
 
     // accessory info
     std::string materialfile; /**< path to materials file associated to the obj file */
-    MimmoObject * refGeometry; /**<reference geometry which the class belongs to */
+    MimmoSharedPointer<MimmoObject> refGeometry; /**<reference geometry which the class belongs to */
 
     WavefrontOBJData();
     /*! destructor */
@@ -240,8 +240,8 @@ protected:
 
 private:
     //make useless base class methods private;
-    MimmoObject * getGeometry(){return nullptr;};
-    void setGeometry(MimmoObject* geo){BITPIT_UNUSED(geo);};
+    MimmoSharedPointer<MimmoObject> getGeometry(){return nullptr;};
+    void setGeometry(MimmoSharedPointer<MimmoObject> geo){BITPIT_UNUSED(geo);};
 };
 
 /*!
@@ -353,17 +353,16 @@ public:
 
     WavefrontOBJData*                       getData();
     std::unordered_map<long, std::string>   getSubParts();
-    MimmoObject*                            getGeometry();
     std::string                             getMaterialFile();
 
     MimmoPiercedVector<std::string>*        getMaterials();
     MimmoPiercedVector<std::string>*        getCellGroups();
     MimmoPiercedVector<long>*               getSmoothIds();
 
-    MimmoObject *                           getNormals();
-    MimmoObject *                           getTextures();
+    MimmoSharedPointer<MimmoObject>                           getNormals();
+    MimmoSharedPointer<MimmoObject>                           getTextures();
 
-    void    setGeometry(MimmoObject * geo);
+    void    setGeometry(MimmoSharedPointer<MimmoObject> geo);
     void    setData(WavefrontOBJData* data);
     void    setMaterialFile(std::string materialfile);
     void    setDir(const std::string & pathdir);
@@ -417,7 +416,6 @@ protected:
 private:
 
     IOMode m_mode;      /**< working mode */
-    std::unique_ptr<MimmoObject> m_intPatch; /**< internal mesh  */
     std::unique_ptr<WavefrontOBJData> m_intData; /**< internal data  */
     WavefrontOBJData * m_extData; /**< externally linked data*/
 
@@ -431,7 +429,7 @@ private:
 
     //INTERNAL METHODS
     int convertKeyEntryToInt(char key);
-    long pushCell(MimmoObject * geo, std::vector<long> &conn, long PID, long id, int rank = -1 );
+    long pushCell(MimmoSharedPointer<MimmoObject> geo, std::vector<long> &conn, long PID, long id, int rank = -1 );
     int checkFacetDefinition(const std::string & str);
 };
 

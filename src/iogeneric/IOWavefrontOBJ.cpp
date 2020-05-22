@@ -195,11 +195,11 @@ WavefrontOBJData::dump(std::ostream & out){
     // ref geometry cannot BE DUMPED
 
     // dump textures
-    bool textureOn = textures.get() != nullptr;
+    bool textureOn = textures != nullptr;
     bitpit::utils::binary::write(out, textureOn);
     if(textureOn)   textures->dump(out);
     // dump normals
-    bool normalOn = normals.get() != nullptr;
+    bool normalOn = normals != nullptr;
     bitpit::utils::binary::write(out, normalOn);
     if(normalOn)   normals->dump(out);
 
@@ -282,14 +282,14 @@ WavefrontOBJData::restore(std::istream & in){
     bool textureOn;
     bitpit::utils::binary::read(in, textureOn);
     if(textureOn){
-        textures = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+        textures = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
         textures->restore(in);
     }
     //restore normals
     bool normalOn;
     bitpit::utils::binary::read(in, normalOn);
     if(normalOn){
-        normals = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+        normals = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
         normals->restore(in);
     }
 
@@ -779,7 +779,7 @@ void   ManipulateWFOBJData::execute(){
     no check is perfomed internally.
 */
 void ManipulateWFOBJData::checkNormalsMagnitude(){
-    if(!m_extData->normals.get() || !m_checkNormalsMag) return;
+    if(!m_extData->normals || !m_checkNormalsMag) return;
     std::array<double,3> temp;
     double norm_temp;
     for(auto it = m_extData->normals->getPatch()->vertexBegin(); it!=m_extData->normals->getPatch()->vertexEnd(); ++it){
@@ -863,8 +863,8 @@ void ManipulateWFOBJData::computeAnnotations(){
 void ManipulateWFOBJData::computeNormals(){
     if(m_normalsCells.empty())   return;
 
-    MimmoObject * vnormals = m_extData->normals.get();
-    MimmoObject * mother = m_extData->refGeometry;
+    MimmoSharedPointer<MimmoObject> vnormals = m_extData->normals;
+    MimmoSharedPointer<MimmoObject> mother = m_extData->refGeometry;
     if(!vnormals){
         *(m_log)<<"WARNING in "<<m_name<<" : WavefrontOBJData::normals is nullptr. No normals to recompute..."<<std::endl;
         return;
@@ -966,7 +966,7 @@ void ManipulateWFOBJData::computeNormals(){
 */
 void ManipulateWFOBJData::extractPinnedLists(){
 
-    MimmoObject * geo = m_extData->refGeometry;
+    MimmoSharedPointer<MimmoObject> geo = m_extData->refGeometry;
     if(!geo){
         *(m_log)<<"WARNING in "<<m_name<<" : WavefrontOBJData::refGeometry is null. Cannot extract pinned lists..."<<std::endl;
     }
@@ -1208,7 +1208,6 @@ void IOWavefrontOBJ::swap(IOWavefrontOBJ & x) noexcept{
     std::swap(m_ignoringCellGroups, x.m_ignoringCellGroups);
     std::swap(m_textureUVMode, x.m_textureUVMode);
 
-    std::swap(m_intPatch, x.m_intPatch);
     std::swap(m_intData, x.m_intData);
     std::swap(m_extData, x.m_extData);
 
@@ -1230,7 +1229,7 @@ void IOWavefrontOBJ::buildPorts(){
             break;
     }
 
-    built = (built && createPortIn<MimmoObject*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setGeometry, M_GEOM, mandatoryWrite));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setGeometry, M_GEOM, mandatoryWrite));
     built = (built && createPortIn<WavefrontOBJData*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setData, M_WAVEFRONTDATA));
     // built = (built && createPortIn<MimmoPiercedVector<std::string>*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setMaterials, M_STRINGFIELD, false, 2));
     // built = (built && createPortIn<MimmoPiercedVector<long>*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setSmoothIds, M_LONGFIELD, false, 2));
@@ -1240,13 +1239,13 @@ void IOWavefrontOBJ::buildPorts(){
     // built = (built && createPortIn<std::vector<MimmoPiercedVector<std::array<double,3>>*>, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setAllTextures, M_VECVECTORFIELDS2, false, 2));
     // built = (built && createPortIn<std::string, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setMaterialFile, M_NAME, false, 2));
 
-    built = (built && createPortOut<MimmoObject*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getGeometry, M_GEOM));
     built = (built && createPortOut<WavefrontOBJData*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getData, M_WAVEFRONTDATA));
     built = (built && createPortOut<MimmoPiercedVector<std::string>*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getMaterials, M_STRINGFIELD));
     built = (built && createPortOut<MimmoPiercedVector<std::string>*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getCellGroups, M_STRINGFIELD2));
     built = (built && createPortOut<MimmoPiercedVector<long>*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getSmoothIds, M_LONGFIELD));
-    built = (built && createPortOut<MimmoObject*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getNormals, M_GEOM3));
-    built = (built && createPortOut<MimmoObject*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getTextures, M_GEOM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getNormals, M_GEOM3));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getTextures, M_GEOM2));
     built = (built && createPortOut<std::string, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getMaterialFile, M_NAME));
     m_arePortsBuilt = built;
 
@@ -1290,17 +1289,6 @@ std::unordered_map<long, std::string> IOWavefrontOBJ::getSubParts(){
 
     return getGeometry()->getPIDTypeListWNames();
 }
-
-/*!
-    Return pointer to MimmoObject geometry.
-    - In Read mode : return pointer to the what resulted from .obj file reading
-    - in Write mode: return pointer to what is set with setGeometry method.
-    \return MimmoObject mesh
-*/
-MimmoObject*   IOWavefrontOBJ::getGeometry(){
-    if(whichModeInt()> 1) return m_geometry;
-    else                  return m_intPatch.get();
-};
 
 /*!
     Return string with filename with materials lib.
@@ -1349,11 +1337,11 @@ MimmoPiercedVector<long>*   IOWavefrontOBJ::getSmoothIds(){
     Return texture object
     \return texture data
 */
-MimmoObject *
+MimmoSharedPointer<MimmoObject>
 IOWavefrontOBJ::getTextures()
 {
-    if(m_extData != nullptr)       return (m_extData->textures.get());
-	else if(m_intData != nullptr)  return (m_intData->textures.get());
+    if(m_extData != nullptr)       return (m_extData->textures);
+	else if(m_intData != nullptr)  return (m_intData->textures);
 	else return nullptr;
 };
 
@@ -1362,11 +1350,11 @@ IOWavefrontOBJ::getTextures()
     Return normals object
     \return normals data
 */
-MimmoObject *
+MimmoSharedPointer<MimmoObject>
 IOWavefrontOBJ::getNormals()
 {
-    if(m_extData != nullptr)       return (m_extData->normals.get());
-	else if(m_intData != nullptr)  return (m_intData->normals.get());
+    if(m_extData != nullptr)       return (m_extData->normals);
+	else if(m_intData != nullptr)  return (m_intData->normals);
 	else return nullptr;
 };
 
@@ -1374,8 +1362,8 @@ IOWavefrontOBJ::getNormals()
     Set the geometry meant to be written.  Does nothing in read/restore mode.
     \param[in] geo MimmoObject surface mesh of type 1
 */
-void    IOWavefrontOBJ::setGeometry(MimmoObject * geo){
-    if(!geo || whichModeInt()<2) return;
+void    IOWavefrontOBJ::setGeometry(MimmoSharedPointer<MimmoObject> geo){
+    if(!geo) return;
     if(geo->getType() != 1) return;
     m_geometry = geo;
 }
@@ -1415,7 +1403,7 @@ void    IOWavefrontOBJ::setData(WavefrontOBJData* data){
 //         return;
 //     }
 //     // Initialize internal data structure if not yet initialized
-//     if (!m_intData.get())
+//     if (!m_intData)
 //     	m_intData = std::unique_ptr<WavefrontOBJData>(new WavefrontOBJData());
 //     m_intData->materialfile = materialfile;
 // }
@@ -1593,7 +1581,7 @@ void   IOWavefrontOBJ::execute(){
     switch(m_mode) {
         case IOMode::READ:
             //instantiation of a brand new MimmoObject to absorb grid
-            m_intPatch = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+            m_geometry.reset(new MimmoObject(1));
             m_intData = std::unique_ptr<WavefrontOBJData>(new WavefrontOBJData());
             read(m_dir+"/"+m_filename+".obj");
             break;
@@ -1606,7 +1594,7 @@ void   IOWavefrontOBJ::execute(){
             bitpit::IBinaryArchive binaryReader(filedump,"dump");
 //#endif
             //instantiation of a brand new MimmoObject to absorb grid
-            m_intPatch = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+            m_geometry.reset(new MimmoObject(1));
             m_intData = std::unique_ptr<WavefrontOBJData>(new WavefrontOBJData());
             restore(binaryReader.getStream());
             binaryReader.close();
@@ -1662,17 +1650,17 @@ void IOWavefrontOBJ::read(const std::string & filename){
         searchObjectPosition(in, objectPositions, objectNames, objectVCounters, totVCounters, nCellTot);
 
         //reserve geometry vertices and cells
-        m_intPatch->getVertices().reserve(totVCounters[0]);
-        m_intPatch->getCells().reserve(nCellTot);
+        m_geometry->getVertices().reserve(totVCounters[0]);
+        m_geometry->getCells().reserve(nCellTot);
 
         //compile safely data options
         m_intData->materials.reserve(nCellTot);
         m_intData->cellgroups.reserve(nCellTot);
         m_intData->smoothids.reserve(nCellTot);
 
-        m_intData->materials.setGeometry(m_intPatch.get());
-        m_intData->cellgroups.setGeometry(m_intPatch.get());
-        m_intData->smoothids.setGeometry(m_intPatch.get());
+        m_intData->materials.setGeometry(getGeometry());
+        m_intData->cellgroups.setGeometry(getGeometry());
+        m_intData->smoothids.setGeometry(getGeometry());
         m_intData->materials.setDataLocation(MPVLocation::CELL);
         m_intData->cellgroups.setDataLocation(MPVLocation::CELL);
         m_intData->smoothids.setDataLocation(MPVLocation::CELL);
@@ -1683,13 +1671,13 @@ void IOWavefrontOBJ::read(const std::string & filename){
         // prepare textures and normals
         m_intData->textures = nullptr;
         if(totVCounters[1]> 0){
-            m_intData->textures = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+            m_intData->textures = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
             m_intData->textures->getVertices().reserve(totVCounters[1]);
             m_intData->textures->getCells().reserve(nCellTot);
         }
         m_intData->normals = nullptr;
         if(totVCounters[2]> 0){
-            m_intData->normals = std::unique_ptr<MimmoObject>(new MimmoObject(1));
+            m_intData->normals = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
             m_intData->normals->getVertices().reserve(totVCounters[2]);
             m_intData->normals->getCells().reserve(nCellTot);
         }
@@ -1701,7 +1689,7 @@ void IOWavefrontOBJ::read(const std::string & filename){
 
             readObjectData(in, pos, pidObject,objectNames[pidObject], objectVCounters[pidObject],
                            vOffset, vnOffset, vTxtOffset, cOffset);
-            m_intPatch->setPIDName(pidObject, objectNames[pidObject]);
+            m_geometry->setPIDName(pidObject, objectNames[pidObject]);
             ++pidObject;
         }
 
@@ -1713,47 +1701,47 @@ void IOWavefrontOBJ::read(const std::string & filename){
     }
 
     //shrink to fit all the reserve stuffs;
-    m_intPatch->getVertices().shrinkToFit();
-    m_intPatch->getCells().shrinkToFit();
+    m_geometry->getVertices().shrinkToFit();
+    m_geometry->getCells().shrinkToFit();
 
     m_intData->materials.shrinkToFit();
     m_intData->smoothids.shrinkToFit();
     m_intData->cellgroups.shrinkToFit();
 
-    if(m_intData->textures.get()){
+    if(m_intData->textures){
         m_intData->textures->getVertices().shrinkToFit();
         m_intData->textures->getCells().shrinkToFit();
     }
-    if(m_intData->normals.get()){
+    if(m_intData->normals){
         m_intData->normals->getVertices().shrinkToFit();
         m_intData->normals->getCells().shrinkToFit();
     }
 
     // sync the lists of intData
     m_intData->syncListsOnData();
-    m_intData->refGeometry = m_intPatch.get();
+    m_intData->refGeometry = getGeometry();
 
     //original mesh cleaning stuffs
-    m_intPatch->getPatch()->setTol(m_tol);
+    m_geometry->getPatch()->setTol(m_tol);
     // delete orphan vertices not in the tessellation.
-    m_intPatch->getPatch()->deleteOrphanVertices();
+    m_geometry->getPatch()->deleteOrphanVertices();
     //force cleaning of double vertices part.
     if(m_cleanDoubleVertices){
-        m_intPatch->getPatch()->deleteCoincidentVertices();
+        m_geometry->getPatch()->deleteCoincidentVertices();
     }
 
     // check for fuzzy or degenerate cells into your tessellation.
     bitpit::PiercedVector<bitpit::Cell>degenerateElements;
     // erase or degrade it.
-    m_intPatch->degradeDegenerateElements(&degenerateElements, nullptr);
-    m_intPatch->getPatch()->deleteOrphanVertices();
+    m_geometry->degradeDegenerateElements(&degenerateElements, nullptr);
+    m_geometry->getPatch()->deleteOrphanVertices();
 
     // the real mesh is ok, we need to check textures, normals, and other cell data.
     if(degenerateElements.size() > 0){
 
-        bitpit::PiercedVector<bitpit::Cell> &patchCells = m_intPatch->getCells();
-        MimmoObject * textures = m_intData->textures.get();
-        MimmoObject * normals = m_intData->normals.get();
+        bitpit::PiercedVector<bitpit::Cell> &patchCells = m_geometry->getCells();
+        MimmoSharedPointer<MimmoObject> textures = m_intData->textures;
+        MimmoSharedPointer<MimmoObject> normals = m_intData->normals;
         long idd;
         //loop on degenerate cells
         for(bitpit::Cell & degenerateCell : degenerateElements){
@@ -1902,8 +1890,8 @@ void IOWavefrontOBJ::write(const std::string & filename){
     vOffsets.fill(1);
     std::array<std::unordered_map<long,long>,3> vinsertion_maps; // key long id, written id.
     vinsertion_maps[0].reserve(m_geometry->getNVertices());
-    if(objData->textures.get())     vinsertion_maps[1].reserve(objData->textures->getNVertices());
-    if(objData->normals.get())     vinsertion_maps[2].reserve(objData->normals->getNVertices());
+    if(objData->textures)     vinsertion_maps[1].reserve(objData->textures->getNVertices());
+    if(objData->normals)     vinsertion_maps[2].reserve(objData->normals->getNVertices());
 
     long activeMaterial = 0;
     long activeSmoothId = 0;
@@ -1939,12 +1927,12 @@ void IOWavefrontOBJ::write(const std::string & filename){
             cellList = pidSubdivision[refPid];
             vertexLists[0] = m_geometry->getVertexFromCellList(cellList);
 
-            if (objData->textures.get()){
+            if (objData->textures){
                 vertexLists[1] = objData->textures->getVertexFromCellList(cellList);
             }else{
                 vertexLists[1].clear();
             }
-            if (objData->normals.get()){
+            if (objData->normals){
                 vertexLists[2] = objData->normals->getVertexFromCellList(cellList);
             }else{
                 vertexLists[2].clear();
@@ -1978,19 +1966,19 @@ void IOWavefrontOBJ::restore(std::istream & in){
 
     bitpit::utils::binary::read(in, geoMark);
     if(geoMark){
-        m_intPatch->restore(in);
+        m_geometry->restore(in);
     }else{
-        m_intPatch = nullptr;
+        m_geometry.reset();
     }
 
     bitpit::utils::binary::read(in, dataMark);
     if(dataMark){
         m_intData->restore(in);
         //attach polygonal geometry to fields
-        m_intData->materials.setGeometry(m_intPatch.get());
-        m_intData->cellgroups.setGeometry(m_intPatch.get());
-        m_intData->smoothids.setGeometry(m_intPatch.get());
-        m_intData->refGeometry = m_intPatch.get();
+        m_intData->materials.setGeometry(getGeometry());
+        m_intData->cellgroups.setGeometry(getGeometry());
+        m_intData->smoothids.setGeometry(getGeometry());
+        m_intData->refGeometry = getGeometry();
 
     }else{
         m_intData = nullptr;
@@ -2235,8 +2223,8 @@ void IOWavefrontOBJ::readObjectData(std::ifstream & in, const std::streampos &be
     //std::vector<long> locConn;
     std::string connEntry, txtEntry, normalEntry;
 
-    MimmoObject * textures = m_intData->textures.get();
-    MimmoObject * normals = m_intData->normals.get();
+    MimmoSharedPointer<MimmoObject> textures = m_intData->textures;
+    MimmoSharedPointer<MimmoObject> normals = m_intData->normals;
 
 
     // the idea is v, vt, vn are always compacted in block and not sparsed in the file.
@@ -2275,7 +2263,7 @@ void IOWavefrontOBJ::readObjectData(std::ifstream & in, const std::streampos &be
                     ss>>cast_stod;
                     val = std::stod(cast_stod);
                 }
-                m_intPatch->addVertex(temp, vOffset + i );
+                getGeometry()->addVertex(temp, vOffset + i );
                 std::getline(in, line);
                 key = line.at(0);
                 ss.clear();
@@ -2381,7 +2369,7 @@ void IOWavefrontOBJ::readObjectData(std::ifstream & in, const std::streampos &be
                     ss.clear();
 
                     //adding cell desuming cell type from locConn.
-                    if(pushCell(m_intPatch.get(), locConn, PID, cOffset, -1) == bitpit::Cell::NULL_ID){
+                    if(pushCell(getGeometry(), locConn, PID, cOffset, -1) == bitpit::Cell::NULL_ID){
                         *(m_log)<<"WARNING "<<m_name<<" : skipping unsupported facet while reading obj file. "<<std::endl;
                     }else{
                         if(textures)    pushCell(textures, txtConn, PID, cOffset, -1);
@@ -2474,9 +2462,9 @@ void IOWavefrontOBJ::writeObjectData(WavefrontOBJData* objData, std::ofstream & 
                                      long & activeGroup, long & activeMaterial, long &activeSmoothId)
 {
     int facetType = 0; //only mesh present;
-    if(objData->textures.get() && objData->normals.get())   facetType = 2;
-    if(objData->textures.get() && !objData->normals.get())   facetType = 1;
-    if(!objData->textures.get() && objData->normals.get())   facetType = 3;
+    if(objData->textures && objData->normals)   facetType = 2;
+    if(objData->textures && !objData->normals)   facetType = 1;
+    if(!objData->textures && objData->normals)   facetType = 3;
 
     //writing mesh vertices
     for(long id: vertexLists[0]){
@@ -2665,7 +2653,7 @@ int IOWavefrontOBJ::convertKeyEntryToInt(char key){
     \param[in] rank MPI only -  proc rank.
 */
 
-long IOWavefrontOBJ::pushCell(MimmoObject * obj, std::vector<long> &conn, long PID, long id, int rank ){
+long IOWavefrontOBJ::pushCell(MimmoSharedPointer<MimmoObject> obj, std::vector<long> &conn, long PID, long id, int rank ){
     long markedid = bitpit::Cell::NULL_ID;
 
     switch(int(conn.size())){

@@ -176,9 +176,9 @@ public:
 	darray3E	interpolatePointData(darray3E & point, dvecarr3E & pointdata);
 
 	//plotting
-	void 		plotCloud( std::string & , std::string, int , bool, const ivector1D & labels, dvecarr3E * extPoints=NULL);
+	void 		plotCloud( std::string & , std::string, int , bool, const ivector1D & labels, dvecarr3E * extPoints=nullptr);
     void 		plotCloudScalar(std::string, std::string , int, bool, dvector1D & data);
-	void 		plotGrid(std::string &, std::string , int, bool, const ivector1D & labels, dvecarr3E * extPoints=NULL);
+	void 		plotGrid(std::string &, std::string , int, bool, const ivector1D & labels, dvecarr3E * extPoints=nullptr);
 	void 		plotGridScalar(std::string, std::string , int, bool, dvector1D & data);
 
 	void 		execute();

@@ -234,7 +234,7 @@ FFDLattice::getDegrees(){
  */
 dvecarr3E*
 FFDLattice::getDisplacements(){
-    if(m_displ.empty())    return NULL;
+    if(m_displ.empty())    return nullptr;
     return(&m_displ);
 };
 
@@ -525,7 +525,7 @@ FFDLattice::plotGrid(std::string directory, std::string filename,int counter, bo
         }
         UStructMesh::plotGrid(directory, filename, counter, binary, labels, &data);
     }else{
-        dvecarr3E* pnull = NULL;
+        dvecarr3E* pnull = nullptr;
         UStructMesh::plotGrid(directory, filename, counter, binary, labels, pnull);
 
     }
@@ -565,7 +565,7 @@ FFDLattice::plotCloud(std::string directory, std::string filename, int counter, 
         }
         UStructMesh::plotCloud(directory, filename, counter, binary, labels, &data);
     }else{
-        dvecarr3E* pnull = NULL;
+        dvecarr3E* pnull = nullptr;
         UStructMesh::plotCloud(directory, filename, counter, binary, labels, pnull);
 
     }
@@ -579,10 +579,10 @@ FFDLattice::plotCloud(std::string directory, std::string filename, int counter, 
 void
 FFDLattice::execute(){
 
-    MimmoObject * container = getGeometry();
-    if(container == NULL){
-        (*m_log)<<m_name + " : NULL pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "NULL pointer to linked geometry found");
+    MimmoSharedPointer<MimmoObject> container = getGeometry();
+    if(container == nullptr){
+        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
     if(container->isEmpty()){
         (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
@@ -639,7 +639,7 @@ FFDLattice::apply(darray3E & point){
 
 /*! Apply current deformation setup to geometry linked as a MimmoObject container,
     member of the class (see method getGeometry).If MimmoObject member
-    m_geometry is NULL,return void results.The method applies filter field
+    m_geometry is nullptr,return void results.The method applies filter field
     modulation if any.
 
  * \param[out] list list of non-zero displacement of m_geometry vertices
@@ -648,9 +648,9 @@ FFDLattice::apply(darray3E & point){
 dvecarr3E
 FFDLattice::apply(livector1D & list){
 
-    MimmoObject * container = getGeometry();
+    MimmoSharedPointer<MimmoObject> container = getGeometry();
     list.clear();
-    if(container == NULL) return dvecarr3E(0);
+    if(container == nullptr) return dvecarr3E(0);
     if(container->isEmpty() || !isBuilt()) return dvecarr3E(0);
 
 
@@ -674,7 +674,7 @@ FFDLattice::apply(livector1D & list){
 
 /*! Apply current deformation setup to a custom list of 3D points.
     Only points contained into the lattice will be deformed,displacement of the
-    others will be set to zero. If point list is NULL,return void results.
+    others will be set to zero. If point list is nullptr,return void results.
  *  The method does not apply filter field modulation if any.
 
  * \param[in] point pointer to a list of 3D points.
@@ -684,7 +684,7 @@ dvecarr3E
 FFDLattice::apply(dvecarr3E * point){
 
     dvecarr3E result;
-    if(point ==NULL || !isBuilt() ) return result;
+    if(point ==nullptr || !isBuilt() ) return result;
 
     result.resize(point->size(), darray3E{{0,0,0}});
     livector1D list = getShape()->includeCloudPoints(*point);

@@ -32,7 +32,7 @@ template< typename T>
 mimmo::IBinaryStream& operator>>(mimmo::IBinaryStream &buffer, mimmo::MimmoPiercedVector<T>& element){
 
     element.clear();
-    mimmo::MimmoObject* geo;
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> geo;
     buffer >> geo;
     element.setGeometry(geo);
     std::string name;
@@ -84,11 +84,11 @@ namespace mimmo{
 
 /*!
  * Default constructor of MimmoPiercedVector.
- * \param[in] geo pointer to related geometry
+ * \param[in] geo mimmo shared pointer to related geometry
  * \param[in] loc reference location of field. see MPVLocation.
  */
 template<typename mpv_t>
-MimmoPiercedVector<mpv_t>::MimmoPiercedVector(MimmoObject* geo, MPVLocation loc):bitpit::PiercedVector<mpv_t,long int>(){
+MimmoPiercedVector<mpv_t>::MimmoPiercedVector(MimmoSharedPointer<MimmoObject> geo, MPVLocation loc):bitpit::PiercedVector<mpv_t,long int>(){
 	m_geometry = geo;
 	m_loc = loc;
 	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
@@ -155,7 +155,7 @@ void MimmoPiercedVector<mpv_t>::swap(MimmoPiercedVector<mpv_t> & x) noexcept
 template<typename mpv_t>
 void
 MimmoPiercedVector<mpv_t>::clear(){
-	m_geometry = NULL;
+	m_geometry = nullptr;
 	m_name = "data";
 	m_loc = MPVLocation::UNDEFINED;
 	bitpit::PiercedVector<mpv_t, long int>::clear();
@@ -163,10 +163,10 @@ MimmoPiercedVector<mpv_t>::clear(){
 
 /*!
  * Get the linked MimmoObject.
- * \return pointer to linked geometry.
+ * \return mimmo shared pointer to linked geometry.
  */
 template<typename mpv_t>
-MimmoObject*
+MimmoSharedPointer<MimmoObject>
 MimmoPiercedVector<mpv_t>::getGeometry() const{
 	return m_geometry;
 }
@@ -236,7 +236,7 @@ MimmoPiercedVector<mpv_t>::getDataAsVector(bool ordered){
 template<typename mpv_t>
 std::vector<mpv_t>
 MimmoPiercedVector<mpv_t>::getInternalDataAsVector(bool ordered, bool squeeze){
-	if(getGeometry() == NULL) return std::vector<mpv_t>(0);
+	if(getGeometry() == nullptr) return std::vector<mpv_t>(0);
 	std::vector<mpv_t> result;
 	livector1D ids;
 	std::unordered_set<long> ids_;
@@ -307,11 +307,11 @@ MimmoPiercedVector<mpv_t>::getRawDataAsVector(bool ordered){
 
 /*!
  * Set the linked MimmoObject.
- * \param[in] geo pointer to linked geometry.
+ * \param[in] geo mimmo shared pointer to linked geometry.
  */
 template<typename mpv_t>
 void
-MimmoPiercedVector<mpv_t>::setGeometry(MimmoObject* geo){
+MimmoPiercedVector<mpv_t>::setGeometry(MimmoSharedPointer<MimmoObject> geo){
 	m_geometry = geo;
 }
 
@@ -376,7 +376,7 @@ MimmoPiercedVector<mpv_t>::setName(std::string name){
 template<typename mpv_t>
 bool
 MimmoPiercedVector<mpv_t>::checkDataSizeCoherence(){
-	if(getGeometry()==NULL) return false;
+	if(getGeometry()==nullptr) return false;
 	bool check = false;
 	switch(m_loc){
 	case MPVLocation::CELL:
@@ -413,7 +413,7 @@ MimmoPiercedVector<mpv_t>::checkDataSizeCoherence(){
 template<typename mpv_t>
 bool
 MimmoPiercedVector<mpv_t>::checkDataIdsCoherence(){
-	if(getGeometry()==NULL) return false;
+	if(getGeometry()==nullptr) return false;
 	if (this->isEmpty()) return true;
 	auto ids = this->getIds();
 	bool check = true;
@@ -539,7 +539,7 @@ MimmoPiercedVector<mpv_t>::intIsValidLocation(int &value){
 template<typename mpv_t>
 livector1D
 MimmoPiercedVector<mpv_t>::getGeometryIds(bool ordered){
-	if(getGeometry()==NULL) return livector1D(0);
+	if(getGeometry()==nullptr) return livector1D(0);
 	switch(m_loc){
 	case MPVLocation::POINT:
 		return getGeometry()->getVertices().getIds(ordered);
@@ -607,7 +607,7 @@ MimmoPiercedVector<mpv_t>::completeMissingData(const mpv_t & defValue){
  */
 template<typename mpv_t>
 void
-MimmoPiercedVector<mpv_t>::initialize(MimmoObject * geo, MPVLocation loc, const mpv_t & data){
+MimmoPiercedVector<mpv_t>::initialize(MimmoSharedPointer<MimmoObject> geo, MPVLocation loc, const mpv_t & data){
 
 	switch(loc){
 	case MPVLocation::POINT :
@@ -666,7 +666,7 @@ MimmoPiercedVector<mpv_t>::initialize(MimmoObject * geo, MPVLocation loc, const 
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToCellData(double p){
-	MimmoObject* geo = this->getGeometry();
+	MimmoSharedPointer<MimmoObject> geo = this->getGeometry();
 	MimmoPiercedVector<mpv_t> cellData(geo, MPVLocation::CELL);
 	MimmoPiercedVector<double> sumWeights(geo, MPVLocation::POINT);
 	for (bitpit::Cell & cell : geo->getCells()){
@@ -702,7 +702,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToCellData(double 
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double p){
-	MimmoObject* geo = this->getGeometry();
+	MimmoSharedPointer<MimmoObject> geo = this->getGeometry();
 	MimmoPiercedVector<mpv_t> pointData(geo, MPVLocation::POINT);
 	MimmoPiercedVector<int> countCells(geo, MPVLocation::POINT);
 	MimmoPiercedVector<double> sumWeights(geo, MPVLocation::POINT);
@@ -748,7 +748,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(const M
 	if (maximum){
 		p = 0.;
 	}
-	MimmoObject* geo = this->getGeometry();
+	MimmoSharedPointer<MimmoObject> geo = this->getGeometry();
 	MimmoPiercedVector<mpv_t> pointData(geo, MPVLocation::POINT);
 	MimmoPiercedVector<double> sumWeights(geo, MPVLocation::POINT);
 	for (bitpit::Cell & cell : geo->getCells()){
@@ -801,7 +801,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(const M
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToBoundaryInterfaceData(double p){
-	MimmoObject* geo = this->getGeometry();
+	MimmoSharedPointer<MimmoObject> geo = this->getGeometry();
 	MimmoPiercedVector<mpv_t> interfaceData(geo, MPVLocation::INTERFACE);
 	MimmoPiercedVector<double> sumWeights(geo, MPVLocation::POINT);
 	for (bitpit::Interface & interface : geo->getInterfaces()){

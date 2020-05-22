@@ -33,7 +33,7 @@ namespace mimmo {
  */
 template<typename T, typename O>
 PortOutT<T,O>::PortOutT(){
-    m_var_ = NULL;
+    m_var_ = nullptr;
 };
 
 /*!
@@ -42,9 +42,9 @@ PortOutT<T,O>::PortOutT(){
  */
 template<typename T, typename O>
 PortOutT<T,O>::PortOutT(T *var_){
-    m_obj_ 		= NULL;
+    m_obj_ 		= nullptr;
     m_var_ 		= var_;
-    m_getVar_ 	= NULL;
+    m_getVar_ 	= nullptr;
 };
 
 /*!
@@ -54,9 +54,9 @@ PortOutT<T,O>::PortOutT(T *var_){
  */
 template<typename T, typename O>
 PortOutT<T,O>::PortOutT(T *var_, DataType datatype){
-    m_obj_ 		= NULL;
+    m_obj_ 		= nullptr;
     m_var_ 		= var_;
-    m_getVar_ 	= NULL;
+    m_getVar_ 	= nullptr;
     m_datatype	= datatype;
 };
 
@@ -69,7 +69,7 @@ template<typename T, typename O>
 PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)()){
     m_obj_ 		= obj_;
     m_getVar_ 	= getVar_;
-    m_var_ 		= NULL;
+    m_var_ 		= nullptr;
 };
 
 /*!
@@ -82,7 +82,7 @@ template<typename T, typename O>
 PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)(), DataType datatype){
     m_obj_ 		= obj_;
     m_getVar_ 	= getVar_;
-    m_var_ 		= NULL;
+    m_var_ 		= nullptr;
     m_datatype	= datatype;
 };
 
@@ -92,9 +92,9 @@ PortOutT<T,O>::PortOutT(O* obj_, T (O::*getVar_)(), DataType datatype){
  */
 template<typename T, typename O>
 PortOutT<T,O>::~PortOutT(){
-    m_obj_ 		= NULL;
-    m_var_ 		= NULL;
-    m_getVar_ 	= NULL;
+    m_obj_ 		= nullptr;
+    m_var_ 		= nullptr;
+    m_getVar_ 	= nullptr;
 };
 
 /*!
@@ -121,18 +121,18 @@ bool  PortOutT<T,O>::operator==(const PortOutT<T,O> & other){
 
 /*!
 * It writes the buffer of the output port with the data to be communicated.
-* It uses the linked get function if the member pointer m_getVar_ is not NULL.
-* Alternatively it uses m_var_ directly (if not NULL).
+* It uses the linked get function if the member pointer m_getVar_ is not nullptr.
+* Alternatively it uses m_var_ directly (if not nullptr).
 */
 template<typename T, typename O>
 void
 PortOutT<T,O>::writeBuffer(){
-    if (m_getVar_ != NULL){
+    if (m_getVar_ != nullptr){
         T temp = ((m_obj_->*m_getVar_)());
         m_obuffer << temp;
         return;
     }
-    if (m_var_ != NULL){
+    if (m_var_ != nullptr){
         m_obuffer << (*m_var_);
     }
 }
@@ -144,9 +144,9 @@ PortOutT<T,O>::writeBuffer(){
  */
 template<typename T, typename O>
 PortInT<T, O>::PortInT(){
-    m_obj_ 		= NULL;
-    m_var_ 		= NULL;
-    m_setVar_ 	= NULL;
+    m_obj_ 		= nullptr;
+    m_var_ 		= nullptr;
+    m_setVar_ 	= nullptr;
 };
 
 /*!
@@ -155,9 +155,9 @@ PortInT<T, O>::PortInT(){
  */
 template<typename T, typename O>
 PortInT<T, O>::PortInT(T *var_){
-    m_obj_ 		= NULL;
+    m_obj_ 		= nullptr;
     m_var_ 		= var_;
-    m_setVar_ 	= NULL;
+    m_setVar_ 	= nullptr;
     m_mandatory = false;
 };
 
@@ -170,9 +170,9 @@ PortInT<T, O>::PortInT(T *var_){
  */
 template<typename T, typename O>
 PortInT<T, O>::PortInT(T *var_, DataType datatype, bool mandatory, int family){
-    m_obj_ 		= NULL;
+    m_obj_ 		= nullptr;
     m_var_ 		= var_;
-    m_setVar_ 	= NULL;
+    m_setVar_ 	= nullptr;
     m_datatype	= datatype;
     m_mandatory = mandatory;
     m_familym   = family;
@@ -189,7 +189,7 @@ template<typename T, typename O>
 PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T), bool mandatory, int family){
     m_obj_ 		= obj_;
     m_setVar_ 	= setVar_;
-    m_var_ 		= NULL;
+    m_var_ 		= nullptr;
     m_mandatory = mandatory;
     m_familym   = family;
 };
@@ -206,7 +206,7 @@ template<typename T, typename O>
 PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T), DataType datatype, bool mandatory, int family){
     m_obj_ 		= obj_;
     m_setVar_ 	= setVar_;
-    m_var_ 		= NULL;
+    m_var_ 		= nullptr;
     m_datatype	= datatype;
     m_mandatory = mandatory;
     m_familym   = family;
@@ -217,9 +217,9 @@ PortInT<T,O>::PortInT(O* obj_, void (O::*setVar_)(T), DataType datatype, bool ma
  */
 template<typename T, typename O>
 PortInT<T, O>::~PortInT(){
-    m_obj_ 		= NULL;
-    m_var_ 		= NULL;
-    m_setVar_ 	= NULL;
+    m_obj_ 		= nullptr;
+    m_var_ 		= nullptr;
+    m_setVar_ 	= nullptr;
 };
 
 /*!
@@ -253,11 +253,11 @@ void
 PortInT<T, O>::readBuffer(){
     T temp;
     m_ibuffer >> temp;
-    if (m_setVar_ != NULL){
+    if (m_setVar_ != nullptr){
         (m_obj_->*m_setVar_)(temp);
         return;
     }
-    if (m_var_ != NULL){
+    if (m_var_ != nullptr){
         (*m_var_) = temp;
     }
 }

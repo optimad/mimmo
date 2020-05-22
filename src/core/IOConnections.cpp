@@ -39,7 +39,7 @@ IOConnections_MIMMO::IOConnections_MIMMO(std::unordered_map<std::string, BaseMan
     m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 
     for(auto &val: mapConn){
-        if(val.second == NULL) continue;
+        if(val.second == nullptr) continue;
         m_mapConn[val.first] = val.second;
         m_invMapConn[val.second] =  val.first;
     }

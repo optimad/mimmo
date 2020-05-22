@@ -86,7 +86,7 @@ void Lattice::swap(Lattice & x) noexcept
 void Lattice::buildPorts(){
 
     bool built = true;
-    built = (built && createPortIn<MimmoObject*, Lattice>(&m_geometry, M_GEOM, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, Lattice>(&m_geometry, M_GEOM, true));
     built = (built && createPortIn<iarray3E, Lattice>(this, &mimmo::Lattice::setDimension, M_DIMENSION));
     built = (built && createPortIn<darray3E, Lattice>(this, &mimmo::Lattice::setInfLimits, M_INFLIMITS));
     built = (built && createPortIn<dmatrix33E, Lattice>(this, &mimmo::Lattice::setRefSystem, M_AXES));
@@ -104,7 +104,7 @@ void Lattice::buildPorts(){
     built = (built && createPortOut<darray3E, Lattice>(this, &mimmo::Lattice::getSpan, M_SPAN));
     built = (built && createPortOut<iarray3E, Lattice>(this, &mimmo::Lattice::getDimension, M_DIMENSION));
     built = (built && createPortOut<BasicShape *, Lattice>(this, &mimmo::Lattice::getShape, M_COPYSHAPE));
-    built = (built && createPortOut<MimmoObject*, Lattice>(this, &mimmo::Lattice::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, Lattice>(this, &mimmo::Lattice::getGeometry, M_GEOM));
 
     m_arePortsBuilt = built;
 };
