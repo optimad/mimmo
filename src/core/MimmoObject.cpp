@@ -3235,7 +3235,7 @@ bool MimmoObject::areAdjacenciesBuilt(){
 	//check if you are synchronized with patch
 	bool patchAdjBuilt = getPatch()->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
 	if(m_AdjBuilt != patchAdjBuilt ){
-		m_AdjBuilt = patchAdjBuilt;
+        m_AdjBuilt = false;
 	}
 	return  m_AdjBuilt;
 };
@@ -3248,7 +3248,7 @@ bool MimmoObject::areInterfacesBuilt(){
 	//check if you are synchronized with patch
 	bool patchIntBuilt = getPatch()->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
 	if(m_IntBuilt != patchIntBuilt ){
-		m_IntBuilt = patchIntBuilt;
+		m_IntBuilt = false;
 	}
 
 	return  m_IntBuilt;
