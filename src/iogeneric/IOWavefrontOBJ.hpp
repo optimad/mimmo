@@ -160,7 +160,8 @@ public:
         HARD = 0,  /**< Cell is continuously marked by annotations which refer to it. The last annotation in the list wins.*/
         SOFT = 1,  /**< Cell is marked with an annotation value, if and only if no other
                         annotations are present. Successive referring annotations in the list are ignored */
-        GETALL = 2    /**< Multiple annotations values on a cell are chained toghether to form a new unique marker */
+        GETALL = 2,    /**< Multiple annotations values on a cell are chained toghether (blank spaced) to form a new unique marker */
+        GETALLNOBLANKS = 3    /**< do exactly as GETALL without blank space separators*/
     };
 
     /*!
