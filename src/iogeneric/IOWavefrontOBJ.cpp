@@ -837,6 +837,16 @@ void ManipulateWFOBJData::computeAnnotations(){
                         }
                     }
                     break;
+                case OverlapAnnotationMode::GETALLNOBLANKS:
+                    if(cgs[id].empty()){
+                        cgs[id] = data.getName();
+                    }else{
+                        // be sure to skip marking if the data.getName() string is already here.
+                        if(cgs[id].find(data.getName()) == std::string::npos){
+                            cgs[id] = cgs[id] + data.getName();
+                        }
+                    }
+                    break;
                 case OverlapAnnotationMode::HARD:
                 default:
                     cgs[id] = data.getName();
