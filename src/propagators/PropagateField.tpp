@@ -1131,7 +1131,7 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
 	upelements.assembly();
 
 	//call the solver update;
-	m_solver->update(rows_involved, upelements);
+	m_solver->update(rows_involved.size(), rows_involved.data(), upelements);
 
 }
 
