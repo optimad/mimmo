@@ -611,7 +611,7 @@ IOVTKScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name
     BaseManipulation::flushSectionXML(slotXML, name);
     std::string output;
 
-    output = std::to_string(uint(m_read));
+    output = std::to_string(int(m_read));
     slotXML.set("ReadFlag", output);
 
     if(m_read){
@@ -619,7 +619,7 @@ IOVTKScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name
         slotXML.set("ReadFilename", m_rfilename);
     }
 
-    output = std::to_string(uint(m_write));
+    output = std::to_string(int(m_write));
     slotXML.set("WriteFlag", output);
 
     if(m_write){
@@ -627,7 +627,7 @@ IOVTKScalar::flushSectionXML(bitpit::Config::Section & slotXML, std::string name
         slotXML.set("WriteFilename", m_wfilename);
     }
 
-    output = std::to_string(uint(m_normalize));
+    output = std::to_string(int(m_normalize));
     slotXML.set("Normalize", output);
     slotXML.set("Scaling", std::to_string(m_scaling));
 };
