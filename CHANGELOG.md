@@ -6,16 +6,23 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 ### Fixed
 - fixed copy during compilation of binary samples additional files
+- various bug fixes
 ### Added
 - restored name in MimmoPiercedVector objects
 - new methods to write geometries with several and different kind of fields (scalar/vector, defined on points/cells) added to BaseManipulation class
 - added geometric tolerance to mimmo objects
 - added use of geometric tolerance and cleaning flag during reading with MimmoGeometry objects
+- Added RefineGeometry class to handle refinement of surface mesh: ternary and red-green engines provided for triangular based meshes
+- Added IOWaveFrontOBJ to handle input/output of surface mesh in Wavefront OBJ format. Enabled class ManipulateWFOBJData to manipulate data attached to the OBJ mesh (texture, normal fields, cell groups)
+- Added new feature to MRBF manipulator class, i.e. the possibility to handle RBF node set with variable support radii.
 ### Changed
 - modified plotOptionalResults methods in some classes to use the new write function of base class
 - Point Cloud geometries now build the cell too. The cells are defined as bitpit::VERTEX type elements.
+- introducing SelectField blocks, instead of SwitchField blocks for selecting a field in a block chain
+- reworked IOCLoudPoints class: interface enhanced
+- general cmake enhanced to retrack more robustly mimmo external dependencies.
 ### Removed
-
+- SwitchField classes removed.
 
  ## [1.3.0] - 2019-10-25
 ### Fixed
