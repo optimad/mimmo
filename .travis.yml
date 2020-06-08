@@ -4,7 +4,6 @@ language:
 branches:
   only:
   - master
-  - devel
   - coverity_scan
 addons:
   apt:
