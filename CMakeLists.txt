@@ -376,6 +376,7 @@ else()
     set(PROPAGATORS_DEPS "common;core")
 endif()
 
+
 #------------------------------------------------------------------------------------#
 # Check of the dependencies
 #------------------------------------------------------------------------------------#
@@ -427,6 +428,15 @@ set(${IOGENERIC_MODULE_ENABLED} 1 CACHE INTERNAL "Request building iogeneric mod
 getModuleEnableName("manipulators" MANIPULATORS_MODULE_ENABLED)
 unset(${MANIPULATORS_MODULE_ENABLED} CACHE)
 set(${MANIPULATORS_MODULE_ENABLED} 1 CACHE INTERNAL "Request building manipulators module" FORCE)
+
+# disabling ioofoam module in Windows-MIngw compilation.
+if(MINGW)
+    getModuleEnableName("ioofoam" IOOFOAM_MODULE_ENABLED)
+    unset(${IOOFOAM_MODULE_ENABLED} CACHE)
+    set(${IOOFOAM_MODULE_ENABLED} 0 CACHE INTERNAL "Request building ioofoam module" FORCE)
+    message("IOOFOAM module forcefully disabled in Win-Mingw compilation")
+endif()
+
 
 #------------------------------------------------------------------------------------#
 # External modules dependecies
@@ -512,8 +522,8 @@ if (MODULE_ENABLED_IOOFOAM)
     endif()
     if(NOT OPENFOAM_DISTRO)
         # Set OpenFOAM distro: can be Foundation releases or ESI-OpenFOAM-Plus releases
-        set(OPENFOAM_DISTRO "OpenFOAM-Foundation" CACHE STRING  "Choose between OpenFOAM-Foundation release or ESI-OpenFOAM-Plus release distros")
-    	set_property(CACHE OPENFOAM_DISTRO PROPERTY STRINGS "OpenFOAM-Foundation" "ESI-OpenFOAM-Plus")
+        set(OPENFOAM_DISTRO "ESI-OpenCFD" CACHE STRING  "Choose between OpenFOAM-Foundation release or ESI-OpenCFD OpenFOAM distros")
+    	set_property(CACHE OPENFOAM_DISTRO PROPERTY STRINGS "OpenFOAM-Foundation" "ESI-OpenCFD")
     endif()
 
     ## set dir and needed include and libs
@@ -524,7 +534,7 @@ if (MODULE_ENABLED_IOOFOAM)
     ## get the version string for the api
     set(WOFAPI "$ENV{FOAM_API}")
     if(NOT WOFAPI)
-        if(OPENFOAM_DISTRO MATCHES "ESI-OpenFOAM-Plus")
+        if(OPENFOAM_DISTRO MATCHES "ESI-OpenCFD")
             string(REGEX REPLACE "^v([0-9][0-9][0-9][0-9]).*" "\\1" WOFAPI "$ENV{WM_PROJECT_VERSION}")
         else()
             string(REGEX REPLACE "^([0-9]).*" "\\1" WOFAPI "$ENV{WM_PROJECT_VERSION}")
@@ -535,7 +545,7 @@ if (MODULE_ENABLED_IOOFOAM)
 
     ## add other needed libs according to version
     set(OPENFOAM_OLDVER "0")
-    if(OPENFOAM_DISTRO MATCHES "ESI-OpenFOAM-Plus" AND "${OPENFOAM_API}" LESS 1706)
+    if(OPENFOAM_DISTRO MATCHES "ESI-OpenCFD" AND "${OPENFOAM_API}" LESS 1706)
         set(OFOAM_LIBS ${OFOAM_LIBS} triSurface)
         set(OPENFOAM_OLDVER "1" BOOL)
     endif()
