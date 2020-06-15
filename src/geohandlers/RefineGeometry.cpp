@@ -184,6 +184,12 @@ RefineGeometry::execute(){
 		(*m_log)<<m_name + " : data structure type different from Surface "<<std::endl;
 		throw std::runtime_error (m_name + " : data structure type different from Surface");
 	}
+    // For Now this method works only in SERIAL mode.
+#if MIMMO_ENABLE_MPI
+        //TODO review implementation in MPI version of the class. See more details
+        // ternary and redgreen engines
+        (*m_log)<< "WARNING " <<m_name <<" : is not available yet in parallel/MPI version."<<std::endl;
+#else
 
 	// Initialize active cells with all geometry cells
 	m_activecells = getGeometry()->getCellsIds();
@@ -200,6 +206,7 @@ RefineGeometry::execute(){
 	if (m_steps>0)
 		smoothing();
 
+#endif
 }
 
 /*!
