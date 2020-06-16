@@ -16,6 +16,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - Added IOWaveFrontOBJ to handle input/output of surface mesh in Wavefront OBJ format. Enabled class ManipulateWFOBJData to manipulate data attached to the OBJ mesh (texture, normal fields, cell groups)
 - Added new feature to MRBF manipulator class, i.e. the possibility to handle RBF node set with variable support radii.
 ### Changed
+- Geometry container MimmoObject through MimmoSharedPointer: use custom mimmo smart pointer to exchange geometries through ports or set/get method of blocks interfaces.
 - modified plotOptionalResults methods in some classes to use the new write function of base class
 - Point Cloud geometries now build the cell too. The cells are defined as bitpit::VERTEX type elements.
 - introducing SelectField blocks, instead of SwitchField blocks for selecting a field in a block chain
