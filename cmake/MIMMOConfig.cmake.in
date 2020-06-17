@@ -152,10 +152,15 @@ libfind_process(MIMMO)
 #-----------------------------------------------------------------------------
 # Find mimmo external dependencies
 #-----------------------------------------------------------------------------
+ set(VTK_QPACK @VTK_QUERYPACKAGES@)
 
  ##Find external packages
 foreach(_DEPENDENCY @MIMMO_EXTERNAL_DEPENDENCIES@)
-    find_package("${_DEPENDENCY}" REQUIRED)
+    if(${_DEPENDENCY} STREQUAL "VTK")
+        find_package("${_DEPENDENCY}" REQUIRED  COMPONENTS ${${_DEPENDENCY}_QPACK})
+    else()
+        find_package("${_DEPENDENCY}" REQUIRED)
+    endif()    
     string(TOUPPER ${_DEPENDENCY} DEPTT)
     if(NOT DEFINED "${DEPTT}_USE_FILE")
         if(NOT DEFINED "${DEPTT}_INCLUDE_DIRS")
