@@ -1414,7 +1414,7 @@ double
 CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
 
     MimmoSharedPointer<MimmoObject> geo = getGeometry();
-    long supportCell = skdTreeUtils::locatePointOnPatch(point, *(geo->getSkdTree()));
+    long supportCell = skdTreeUtils::locatePointOnPatch(point, geo->getSkdTree());
     if(supportCell == bitpit::Cell::NULL_ID)    return 0.0;
 
     bitpit::Cell & cell = geo->getPatch()->getCell(supportCell);

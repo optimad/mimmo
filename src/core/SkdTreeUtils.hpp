@@ -25,6 +25,7 @@
 # define __SKDTREEUTILS_HPP__
 
 # include <patch_skd_tree.hpp>
+# include <surfunstructured.hpp>
 
 namespace mimmo{
 
@@ -35,13 +36,29 @@ namespace mimmo{
  */
 namespace skdTreeUtils{
 
-    double distance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, long &id, double &r);
-    double signedDistance(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, long &id, std::array<double,3> &n, double &r);
+    double distance(const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long &id, double r);
+    double signedDistance(const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long &id, std::array<double,3> &normal, double r);
+    void distance(std::size_t nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *id, double *distances, double r);
+    double signedDistance(std::size_t nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double r);
     std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol = 1.0e-04);
     void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit::SkdNode*> & leafSelection, std::vector<long> &extracted, double tol);
-    std::array<double,3> projectPoint(std::array<double,3> *P_, bitpit::PatchSkdTree *bvtree_, double r_ = 1.0e+18);
-    long locatePointOnPatch(const std::array<double, 3> &point, bitpit::PatchSkdTree &tree);
+    std::array<double,3> projectPoint(const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, double r = 1.0e+18);
+    void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double r = 1.0e+18);
+    long locatePointOnPatch(const std::array<double, 3> &point, const bitpit::PatchSkdTree *tree);
     long closestCellToPoint(const std::array<double, 3> &point, bitpit::PatchSkdTree &tree);
+
+    std::array<double, 3> computePseudoNormal(const std::array<double,3> &point, const bitpit::SurfUnstructured *surface_mesh, long id);
+    bool checkPointBelongsToCell(const std::array<double, 3> &point, const bitpit::SurfUnstructured *surface_mesh, long id);
+
+#if MIMMO_ENABLE_MPI
+    void globalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double r, bool shared = false);
+    void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double r, bool shared = false);
+    void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double r = std::numeric_limits<double>::max(), bool shared = false);
+    void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, bool shared = false);
+    std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol = 1.0e-04);
+    void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBox> &leafSelectionBoxes, std::vector<long> &extracted, double tol);
+#endif
+
 }; //end namespace skdTreeUtils
 
 } //end namespace mimmo
