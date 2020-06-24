@@ -422,82 +422,6 @@ long locatePointOnPatch(const std::array<double, 3> &point, const bitpit::PatchS
     return id;
 }
 
-/*!
- * Try to return the closest cell of a target mesh to a prescribed orientation point
- * it works with all those meshes who support a SkdTree.
- *
- * \param[in] point is the target point
- * \param[in] tree reference to SkdTree relative to the target mesh (can be a surface or a volume).
- * \return id of the geometry cell the point is close. Return bitpit::Cell::NULL_ID if no cell is found.
- */
-long closestCellToPoint(const std::array<double, 3> &point, bitpit::PatchSkdTree &tree)
-{
-    // Initialize the distance with an estimate
-    //
-    // The real distance will be lesser than or equal to the estimate.
-    std::size_t rootId = 0;
-    const bitpit::SkdNode &root = tree.getNode(rootId);
-    double distance = root.evalPointMaxDistance(point);
-
-    // Get a list of candidates nodes
-    //
-    std::vector<std::size_t>    m_candidateIds;
-
-    std::vector<std::size_t> nodeStack;
-    nodeStack.push_back(rootId);
-    while (!nodeStack.empty()) {
-        std::size_t nodeId = nodeStack.back();
-        const bitpit::SkdNode &node = tree.getNode(nodeId);
-        nodeStack.pop_back();
-
-        // Do not consider nodes with a minimum distance greater than
-        // the distance estimate
-        double nodeMinDistance = node.evalPointMinDistance(point);
-        if (nodeMinDistance > distance) {
-            continue;
-        }
-
-        // Update the distance estimate
-        //
-        // The real distance will be lesser than or equal to the
-        // estimate.
-        double nodeMaxDistance = node.evalPointMaxDistance(point);
-        distance = std::min(nodeMaxDistance, distance);
-
-        // If the node is a leaf add it to the candidates, otherwise
-        // add its children to the stack.
-        bool isLeaf = true;
-        for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {
-            bitpit::SkdNode::ChildLocation childLocation = static_cast<bitpit::SkdNode::ChildLocation>(i);
-            std::size_t childId = node.getChildId(childLocation);
-            if (childId != bitpit::SkdNode::NULL_ID) {
-                isLeaf = false;
-                nodeStack.push_back(childId);
-            }
-        }
-
-        if (isLeaf) {
-            m_candidateIds.push_back(nodeId);
-        }
-    }
-
-    // Process the candidates and find which cell is the nearest to the target point
-    double distanceMin = std::numeric_limits<double>::max();
-    distance = 1.0E18;
-    // Initialize the cell id
-    long id = bitpit::Cell::NULL_ID;
-    long idwork;
-
-    for (std::size_t cand : m_candidateIds) {
-        tree.getNode(cand).findPointClosestCell(point, &idwork, &distance);
-        if(distance < distanceMin){
-            distanceMin = distance;
-            id = idwork;
-        }
-    }
-    return id;
-}
-
 std::array<double, 3>
 computePseudoNormal(const std::array<double, 3> &point, const bitpit::SurfUnstructured *surface_mesh, long id)
 {
@@ -598,9 +522,6 @@ checkPointBelongsToCell(const std::array<double, 3> &point, const bitpit::SurfUn
 }
 
 #if MIMMO_ENABLE_MPI
-
-// TODO MULTIPLE POINTS VERSION TO OPTIMIZE COMMUNICATIONS
-
 /*!
  * It computes the unsigned distance of a point to a geometry linked in a SkdTree
  * object. The geometry has to be a surface mesh, in particular an object of type
