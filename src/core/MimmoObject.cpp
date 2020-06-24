@@ -3910,7 +3910,9 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 			auto itsurfend = loop.end();
 			while(itsurf != itsurfend ){
 				//continue to search for a seed cell candidate, visiting all point of the target surface.
-				idseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
+				//idseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
+			    double dummydistance;
+			    static_cast<bitpit::SurfaceSkdTree*>(this->getSkdTree())->findPointClosestCell(surface.evalCellCentroid(*itsurf), &idseed, &dummydistance);
 				if(idseed < 0) {
 					++itsurf;
 					continue;
@@ -4054,7 +4056,9 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
 			auto itsurfend = loop.end();
 			while(itsurf != itsurfend ){
 				//continue to search for a seed cell candidate, visiting all point of the target surface.
-				idcellseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
+			    //idcellseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
+                double dummydistance;
+                static_cast<bitpit::SurfaceSkdTree*>(this->getSkdTree())->findPointClosestCell(surface.evalCellCentroid(*itsurf), &idcellseed, &dummydistance);
 				if(idcellseed < 0) {
 					++itsurf;
 					continue;
