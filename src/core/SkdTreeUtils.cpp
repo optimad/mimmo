@@ -552,7 +552,7 @@ void globalDistance(std::size_t nP, const std::array<double,3> *points, const bi
     }
 
     if (shared){
-        static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestGlobalCell(nP, points, r, ids, ranks, distances);
+        findSharedPointClosestGlobalCell(nP, points, tree, ids, ranks, distances, r);
     } else {
         static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestGlobalCell(nP, points, r, ids, ranks, distances);
     }
@@ -591,7 +591,7 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
 
     if (shared){
         // All processes share the points
-        static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestGlobalCell(nP, points, r, ids, ranks, distances);
+        findSharedPointClosestGlobalCell(nP, points, tree, ids, ranks, distances, r);
     } else {
         // Distributed points
         static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestGlobalCell(nP, points, r, ids, ranks, distances);
@@ -773,7 +773,7 @@ void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, cons
  *
  * \param[in] nP Number of input points
  * \param[in] points is the set of points
- * \param[in] tree reference to SkdTree relative to the target surface geometry.
+ * \param[in] tree pointer to SkdTree relative to the target surface geometry.
  * \param[out] ids of the geometry cells the points is into. Return bitpit::Cell::NULL_ID if no cell is found.
  * \param[out] ranks Ranks of the process owner of the elements found as location of the points.
  * \param[in] shared True if the input points are shared between the processes
@@ -796,7 +796,7 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
     std::vector<int> cellRanks(nP, -1);
     if (shared){
         // All processes share the points
-        static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestGlobalCell(nP, points, cellIds.data(), ranks, distances.data());
+        findSharedPointClosestGlobalCell(nP, points, tree, cellIds.data(), ranks, distances.data());
     } else {
         // Distributed points
         static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestGlobalCell(nP, points, cellIds.data(), ranks, distances.data());
@@ -1133,6 +1133,107 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
     }
 
     extracted.insert(extracted.end(), cellExtracted.begin(), cellExtracted.end());
+}
+
+
+/*!
+* Given the specified points, considered shared on the processes, find the
+* closest cells contained in the tree and evaluates the distance values
+* between those cells and the given points.
+*
+* \param[in] nPoints number of the points
+* \param[in] points points coordinates
+* \param[in] tree pointer to SkdTree relative to the target surface geometry.
+* \param[in] r all cells whose distance is greater than
+* this parameters will not be considered for the evaluation of the
+* distance
+* \param[out] ids on output it will contain the ids of the cells closest
+* to the points. If all cells contained in the tree are farther from a point
+* than the maximum distance, the related id will be set to the null id
+* \param[out] ranks on output it will contain the rank indices of the processes
+* owner of the cells closest to the points
+* \param[out] distances on output it will contain the distances
+* between the points and closest cells. If all cells contained in the tree are
+* farther than the maximum distance, the related argument will be set to the
+* maximum representable distance.
+*/
+void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree,
+        long *ids, int *ranks, double *distances, double r)
+{
+    // Initialize the cell ids and ranks
+    for (std::size_t i = 0; i < nPoints; i++){
+        ids[i] = bitpit::Cell::NULL_ID;
+        ranks[i] = -1;
+    }
+
+    // Initialize rank and number of processes
+    int myRank = tree->getPatch().getRank();
+    int nProcs = tree->getPatch().getProcessorCount();
+
+    // Call local find point closest cell for each global point collected
+
+    // Instantiate global container for distances, ids and ranks (SkdCellInfo)
+    std::vector<bitpit::PatchSkdTree::SkdCellInfo> dri_data(nPoints, bitpit::PatchSkdTree::SkdCellInfo(std::numeric_limits<double>::max(), myRank, bitpit::Cell::NULL_ID));
+
+    // Call local find point closest cell for each global point collected
+    for (std::size_t ip = 0; ip < nPoints; ip++){
+
+        const std::array<double,3> & point = points[ip];
+        double & distance = dri_data[ip].distance;
+        int & rank = dri_data[ip].rank;
+        long & id = dri_data[ip].id;
+
+        // Use a maximum distance for each point given by an estimation based on partition
+        // bounding boxes. The distance will be lesser than or equal to the point maximum distance
+        double pointMaxDistance = r;
+        for (int irank = 0; irank < nProcs; irank++){
+            pointMaxDistance = std::min(tree->getPartitionBox(irank).evalPointMaxDistance(point), pointMaxDistance);
+        }
+
+        // Call local find point closest cell with estimated distance used as maximum distance
+        long nDistanceEvaluations = tree->findPointClosestCell(point, pointMaxDistance, &id, &distance);
+
+    }
+
+    // Force distance to numeric limits maximum value for point projected on ghost cells
+    // The desired result id is the local cell id on the ghost owner rank
+    for (std::size_t ip = 0; ip < nPoints; ip++){
+        long cellId = dri_data[ip].id;
+        if(cellId != bitpit::Cell::NULL_ID && !tree->getPatch().getCell(cellId).isInterior()) {
+            dri_data[ip].id = tree->getGhostCellsRemoteIds().at(cellId);
+            dri_data[ip].rank = tree->getPatch().getCellRank(cellId);
+        }
+    }
+
+    // Communicate the computed distances of the distributed input points to all processes
+    // and retain the indices of the rank owner and the id of the closest cell
+
+    // Prepare MPI custom data type and Operation
+    // The data are of MPI custom data type  with distance, ids and rank as member
+    int blocklengths[3] = {1,1,1};
+    MPI_Aint displacements[3] = {offsetof(bitpit::PatchSkdTree::SkdCellInfo, distance),
+            offsetof(bitpit::PatchSkdTree::SkdCellInfo, rank),
+            offsetof(bitpit::PatchSkdTree::SkdCellInfo, id)};
+    MPI_Datatype types[3] = {MPI_DOUBLE, MPI_INT, MPI_LONG};
+    MPI_Datatype MPI_DRI;
+    MPI_Type_create_struct(3, blocklengths, displacements, types, &MPI_DRI);
+    MPI_Type_commit(&MPI_DRI);
+
+    MPI_Op MPI_MIN_DRI;
+    MPI_Op_create((MPI_User_function *) bitpit::minSkdCellInfo, false, &MPI_MIN_DRI);
+
+    // Communicate the closest cells distances, ranks and ids by reduce with custom minimum distance operation
+    // Reduce only the right portion of data to the right process
+    for (int irank = 0; irank < nProcs; irank++){
+        MPI_Allreduce(MPI_IN_PLACE, dri_data.data(), nPoints, MPI_DRI, MPI_MIN_DRI, tree->getCommunicator());
+    }
+
+    // Update distances, rank indices and cell ids
+    for (std::size_t ip = 0; ip < nPoints; ip++){
+        distances[ip] = dri_data[ip].distance;
+        ranks[ip] = dri_data[ip].rank;
+        ids[ip] = dri_data[ip].id;
+    }
 }
 
 #endif
