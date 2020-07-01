@@ -42,8 +42,8 @@ namespace skdTreeUtils{
     double signedDistance(std::size_t nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double r);
     std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol = 1.0e-04);
     void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit::SkdNode*> & leafSelection, std::vector<long> &extracted, double tol);
-    std::array<double,3> projectPoint(const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, double r = 1.0e+18);
-    void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double r = 1.0e+18);
+    std::array<double,3> projectPoint(const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, double r = std::numeric_limits<double>::max());
+    void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double r = std::numeric_limits<double>::max());
     long locatePointOnPatch(const std::array<double, 3> &point, const bitpit::PatchSkdTree *tree);
 
     std::array<double, 3> computePseudoNormal(const std::array<double,3> &point, const bitpit::SurfUnstructured *surface_mesh, long id);
@@ -56,6 +56,7 @@ namespace skdTreeUtils{
     void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, bool shared = false);
     std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol = 1.0e-04);
     void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBox> &leafSelectionBoxes, std::vector<long> &extracted, double tol);
+    void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double r = std::numeric_limits<double>::max());
 #endif
 
 }; //end namespace skdTreeUtils
