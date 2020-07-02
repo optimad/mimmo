@@ -1548,10 +1548,8 @@ const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExc
  */
 bool MimmoObject::arePointGhostExchangeInfoSync()
 {
-#if MIMMO_ENABLE_MPI
 	MPI_Barrier(m_communicator);
 	MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
-#endif
 	return m_pointGhostExchangeInfoSync;
 }
 
@@ -3207,7 +3205,7 @@ void MimmoObject::getBoundingBox(std::array<double,3> & pmin, std::array<double,
  *\param[in] value build the minimum leaf of the tree as a bounding box containing value elements at most.
  */
 void MimmoObject::buildSkdTree(std::size_t value){
-	if(!m_skdTreeSupported || isEmpty())   return;
+	if(!m_skdTreeSupported)   return;
 
 	if (!m_skdTreeSync){
 		m_skdTree->clear();
@@ -3337,6 +3335,7 @@ bool MimmoObject::isClosedLoop(){
  * the cellID list belonging to each subpatches
  *\return list of cellIDs set for each subpatch
  */
+//TODO PARALLEL VERSION
 livector2D MimmoObject::decomposeLoop(){
 	if(!areAdjacenciesBuilt())	buildAdjacencies();
 
@@ -3411,7 +3410,7 @@ void MimmoObject::buildInterfaces(){
 	if(m_type !=3){
 		if(!areAdjacenciesBuilt()) buildAdjacencies();
 		getPatch()->buildInterfaces();
-		m_IntBuilt=  true;
+		m_IntBuilt = true;
 	}
 };
 
@@ -3873,73 +3872,98 @@ MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double 
 bitpit::PiercedVector<double>
 MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
 
-	bitpit::PiercedVector<double> result;
-	if(surface.isEmpty() || surface.getType() != 1) return result;
-	if(isEmpty() || getType() == 3)  return result;
+    if(!surface.areAdjacenciesBuilt()){
+        surface.buildAdjacencies();
+    }
 
-	if(!surface.areAdjacenciesBuilt()){
-		surface.buildAdjacencies();
-	}
+    if (!surface.isSkdTreeSync())
+        surface.buildSkdTree();
 
-	if (!surface.isSkdTreeSync())
-		surface.buildSkdTree();
+    bitpit::PiercedVector<double> result;
+    if(surface.getType() != 1) return result;
+    if(getType() == 3)  return result;
 
-	//use a stack-based search on face cell neighbors of some prescribed seed cells.
-	//You need at least one cell to be near enough to surface
+    //use a stack-based search on face cell neighbors of some prescribed seed cells.
+    //You need at least one cell to be near enough to surface
 
-	//First step check seed list and precalculate distance. If dist >= maxdist
-	//the seed candidate is out.
-	darray3E pp;
-	double distance, maxdistance(maxdist);
-	long idsuppsurf;
-	if(seedlist){
-		for(long id: *seedlist){
-			pp = getPatch()->evalCellCentroid(id);
-			distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-			if(distance < maxdist){
-				result.insert(id, distance);
-			}
-		}
-	}else{
-		//find all the unconnected patches composing surfaces.
-		livector2D loops = surface.decomposeLoop();
-		//ping a seed on each subpatch
-		for(livector1D & loop : loops){
-			long idseed;
-			auto itsurf = loop.begin();
-			auto itsurfend = loop.end();
-			while(itsurf != itsurfend ){
-				//continue to search for a seed cell candidate, visiting all point of the target surface.
-				//idseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
-			    double dummydistance;
-			    static_cast<bitpit::SurfaceSkdTree*>(this->getSkdTree())->findPointClosestCell(surface.evalCellCentroid(*itsurf), &idseed, &dummydistance);
-				if(idseed < 0) {
-					++itsurf;
-					continue;
-				}
-				pp = getPatch()->evalCellCentroid(idseed);
-				distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-				if(distance >= maxdist){
-					++itsurf;
-					continue;
-				}
-				result.insert(idseed, distance);
-				itsurf = itsurfend;
-			}
-		}
-	}
+    //First step check seed list and precalculate distance. If dist >= maxdist
+    //the seed candidate is out.
+    std::size_t npoints;
+    darray3E point;
+    dvecarr3E points;
+    dvector1D distances;
+    livector1D surface_ids;
+    livector1D * candidates;
+    double distance, maxdistance(maxdist);
+    long id;
+    if(seedlist){
 
-	// if no seed is found exit.
-	if(result.empty()){
-		//impossible to find a valid seed;
-		return result;
-	}
+        // Fill points array with seed list
+        npoints = seedlist->size();
+        points.reserve(npoints);
+        candidates = seedlist;
+        for(long idseed : *seedlist){
+            points.emplace_back(getPatch()->evalCellCentroid(idseed));
+        }
 
+    } else {
 
+        // Find the seeds by using all the cells of surface patch
+        // Recover the seeds by selecting by patch the target cells
+        // by using the surface input patch as selection patch.
+        // Then check if the candidate cells are closer than maxdistance,
+        // in this case insert in result as seeds
+
+        // Create candidates with new (delete when not more needed outside the scope!)
+        candidates = new livector1D;
+#if MIMMO_ENABLE_MPI
+        if (surface.getPatch()->isPartitioned()){
+            *candidates = skdTreeUtils::selectByGlobalPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
+        } else
+#endif
+        {
+            *candidates = skdTreeUtils::selectByPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
+        }
+
+        npoints = candidates->size();
+        points.reserve(npoints);
+        for(long idseed : *candidates){
+            points.emplace_back(getPatch()->evalCellCentroid(idseed));
+        }
+
+    } // end if seed list is null
+
+    distances.resize(npoints, std::numeric_limits<double>::max());
+    surface_ids.resize(npoints, bitpit::Cell::NULL_ID);
+
+    // Compute distances from surface
+#if MIMMO_ENABLE_MPI
+    if (surface.getPatch()->isPartitioned()){
+        ivector1D surface_ranks(npoints, -1);
+        skdTreeUtils::globalDistance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), surface_ranks.data(), distances.data(), maxdistance);
+    } else
+#endif
+    {
+        skdTreeUtils::distance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), distances.data(), maxdistance);
+    }
+
+    // Fill seeds (directly in result) if distance < maxdistance
+    for (std::size_t ipoint = 0; ipoint < npoints; ipoint++){
+        distance = distances[ipoint];
+        id = candidates->at(ipoint);
+        if(distance < maxdist){
+            result.insert(id, distance);
+        }
+    }
+
+    if(!seedlist){
+        // Delete candidates
+        delete candidates;
+    }
 
 	// create the stack of neighbours with the seed i have.
 	std::unordered_set<long> visited;
-	livector1D stackNeighs;
+	livector1D stackNeighs, newStackNeighs;
 	std::unordered_set<long> tt;
 	for(auto it = result.begin(); it != result.end(); ++it){
 		livector1D neighs = getPatch()->findCellNeighs(it.getId(), 1); //only face neighs.
@@ -3955,37 +3979,72 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 		visited.insert(temp.begin(), temp.end());
 	}
 
-	long target;
-	//search until the stack is empty.
-	while(!stackNeighs.empty()){
+	// Search until the stack is empty.
+	// In case of parallel and partitioned test the global stack size
+	bool stackEmpty = stackNeighs.empty();
+#if MIMMO_ENABLE_MPI
+    if (getPatch()->isPartitioned()){
+        MPI_Allreduce(MPI_IN_PLACE, &stackEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    }
+#endif
+    while(!stackEmpty){
 
-		// extract the candidate
-		target = stackNeighs.back();
+        // use all stack neighs as candidates
+        visited.insert(stackNeighs.begin(), stackNeighs.end());
 
-		stackNeighs.pop_back();
-		visited.insert(target);
-		// evaluate its distance;
-		pp = getPatch()->evalCellCentroid(target);
-		distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+        // evaluate their distances;
+        npoints = stackNeighs.size();
+        points.clear();
+        points.reserve(npoints);
+        distances.clear();
+        distances.resize(npoints, std::numeric_limits<double>::max());
+        surface_ids.clear();
+        surface_ids.resize(npoints, bitpit::Cell::NULL_ID);
+        for (long idtarget : stackNeighs){
+            points.emplace_back(getPatch()->evalCellCentroid(idtarget));
+        }
 
-		if(distance < maxdist){
-			result.insert(target, distance);
+#if MIMMO_ENABLE_MPI
+        if (surface.getPatch()->isPartitioned()){
+            ivector1D surface_ranks(npoints, -1);
+            skdTreeUtils::globalDistance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), surface_ranks.data(), distances.data(), maxdistance);
+        } else
+#endif
+        {
+            skdTreeUtils::distance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), distances.data(), maxdistance);
+        }
 
-			livector1D neighs = getPatch()->findCellNeighs(target, 1); //only face neighs.
-			for(long id: neighs){
-				if(visited.count(id) < 1){
-					visited.insert(id);
-					stackNeighs.push_back(id);
-				}
-			}
-		}
-	}
-	return result;
-	//TODO need to find a cooking recipe here in case of PARALLEL computing of the narrow band.
+        // Fill points inside narrow band in result and their neighbours in stack
+        for (std::size_t ipoint = 0; ipoint < npoints; ipoint++){
+            distance = distances[ipoint];
+            id = stackNeighs[ipoint];
+            if(distance < maxdist){
+                result.insert(id, distance);
+                livector1D neighs = getPatch()->findCellNeighs(id, 1); //only face neighs.
+                for(long id : neighs){
+                    if(visited.count(id) < 1){
+                        visited.insert(id);
+                        newStackNeighs.push_back(id);
+                    }
+                }
+            }
+        } // end loop on points
+
+        // Empty stack by old targets and push the new stack neighs
+        stackNeighs.swap(newStackNeighs);
+        livector1D().swap(newStackNeighs);
+
+        stackEmpty = stackNeighs.empty();
+#if MIMMO_ENABLE_MPI
+        if (getPatch()->isPartitioned()){
+            MPI_Allreduce(MPI_IN_PLACE, &stackEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+        }
+#endif
+
+    } // end while stack empty
+    return result;
 
 };
-
-
 
 /*!
  * Get all the vertices of the current mesh  within a prescribed
@@ -3995,7 +4054,6 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
  * \param[in] maxdist threshold distance.
  * \param[in] seedlist (optional) list of vertices to starting narrow band search.
               In case the current class is a point cloud, a non empty seed list is mandatory.
-
  * \return list of vertices inside the narrow band at maxdist from target surface.
  */
 livector1D
@@ -4017,134 +4075,185 @@ MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const doub
 bitpit::PiercedVector<double>
 MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
 
-	bitpit::PiercedVector<double> result;
-	if(surface.isEmpty() || surface.getType() != 1) return result;
-	if(isEmpty())  return result;
+    bitpit::PiercedVector<double> result;
+    if(surface.getType() != 1) return result;
 
-	if(!surface.areAdjacenciesBuilt()){
-		surface.buildAdjacencies();
-	}
+    if(!surface.areAdjacenciesBuilt()){
+        surface.buildAdjacencies();
+    }
 
-	if (!surface.isSkdTreeSync())
-		surface.buildSkdTree();
+    if (!surface.isSkdTreeSync())
+        surface.buildSkdTree();
 
     if(!isPointConnectivitySync())    buildPointConnectivity();
 
-	//use a stack-based search on ring vertex neighbors of some prescribed seed vertex.
-	//You need at least one vertex to be near enough to surface
+    //use a stack-based search on ring vertex neighbors of some prescribed seed vertex.
+    //You need at least one vertex to be near enough to surface
 
-	//First step check seed list and precalculate distance. If dist >= maxdist
-	//the seed candidate is out.
-	darray3E pp;
-	double distance, maxdistance(maxdist);
-	long idsuppsurf;
-	if(seedlist){
-		for(long id: *seedlist){
-			pp = getVertexCoords(id);
-			distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-			if(distance < maxdist){
-				result.insert(id, distance);
-			}
-		}
-	}else if(getType() != 3){
-		//find all the unconnected patches composing surfaces.
-		livector2D loops = surface.decomposeLoop();
-		//ping a seed on each subpatch
-		for(livector1D & loop : loops){
-			long idcellseed;
-			auto itsurf = loop.begin();
-			auto itsurfend = loop.end();
-			while(itsurf != itsurfend ){
-				//continue to search for a seed cell candidate, visiting all point of the target surface.
-			    //idcellseed = mimmo::skdTreeUtils::closestCellToPoint(surface.evalCellCentroid(*itsurf), *(this->getSkdTree()));
-                double dummydistance;
-                static_cast<bitpit::SurfaceSkdTree*>(this->getSkdTree())->findPointClosestCell(surface.evalCellCentroid(*itsurf), &idcellseed, &dummydistance);
-				if(idcellseed < 0) {
-					++itsurf;
-					continue;
-				}
-                //check cell centroid first
-                pp = getPatch()->evalCellCentroid(idcellseed);
-				distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-				if(distance >= maxdist){
-					++itsurf;
-					continue;
-				}
+    //First step check seed list and precalculate distance. If dist >= maxdist
+    //the seed candidate is out.
+    std::size_t npoints;
+    darray3E point;
+    dvecarr3E points;
+    dvector1D distances;
+    livector1D surface_ids;
+    livector1D * candidates;
+    double distance, maxdistance(maxdist);
+    long id;
+    // Fill points candidates with seedlist or found candidates
+    if(seedlist){
 
-                //you found a cell inside. get the closest of its vertex and promote it to seed.
+        // Fill points array with seed list
+        npoints = seedlist->size();
+        points.reserve(npoints);
+        candidates = seedlist;
+        for(long idseed : *seedlist){
+            points.emplace_back(getVertexCoords(idseed));
+        }
 
-                bitpit::ConstProxyVector<long> conncell = getPatch()->getCell(idcellseed).getVertexIds();
+    }else if(getType() != 3){
 
-                double distance_xx = maxdist;
-                long candidate;
-                for(long idv : conncell){
-                    pp = getVertexCoords(idv);
-                    distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
-                    if(distance < distance_xx){
-                        candidate = idv;
-                        distance_xx = distance;
-                    }
-                }
-                result.insert(candidate, distance);
-                //finalize the search
-                itsurf = itsurfend;
+        // Find the seeds by using all the cells of surface patch
+        // Recover the seeds by selecting by patch the target cells
+        // by using the surface input patch as selection patch.
+        // Then check if the candidate cells are closer than maxdistance,
+        // in this case insert in result as seeds
+
+        // Create points candidates with new (delete when not more needed outside the scope!)
+        candidates = new livector1D;
+
+        // Create cell candidates structure
+        livector1D cell_candidates;
+#if MIMMO_ENABLE_MPI
+        if (surface.getPatch()->isPartitioned()){
+            cell_candidates = skdTreeUtils::selectByGlobalPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
+        } else
+#endif
+        {
+            cell_candidates = skdTreeUtils::selectByPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
+        }
+
+        // Fill points candidates with all the vertices of the found cells
+        for(long idcellseed : cell_candidates){
+            bitpit::ConstProxyVector<long> conncell = getPatch()->getCell(idcellseed).getVertexIds();
+            for(long idvertex : conncell){
+                candidates->push_back(idvertex);
+                points.emplace_back(getVertexCoords(idvertex));
             }
+        }
+
+    } // end if seed list is null
+
+    distances.resize(npoints, std::numeric_limits<double>::max());
+    surface_ids.resize(npoints, bitpit::Cell::NULL_ID);
+    // Compute distances from surface
+#if MIMMO_ENABLE_MPI
+    if (surface.getPatch()->isPartitioned()){
+        ivector1D surface_ranks(npoints, -1);
+        skdTreeUtils::globalDistance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), surface_ranks.data(), distances.data(), maxdistance);
+    } else
+#endif
+    {
+        skdTreeUtils::distance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), distances.data(), maxdistance);
+    }
+
+    // Fill seed points (directly in result) if distance < maxdistance
+    for (std::size_t ipoint = 0; ipoint < npoints; ipoint++){
+        distance = distances[ipoint];
+        id = candidates->at(ipoint);
+        if(distance < maxdist){
+            result.insert(id, distance);
         }
     }
 
-	// if no seed is found exit.
-	if(result.empty()){
-		//impossible to find a valid seed;
-		return result;
-	}
+    if(!seedlist){
+        // Delete candidates
+        delete candidates;
+    }
 
+    // create the stack of neighbours with the seed i have.
+    std::unordered_set<long> visited;
+    livector1D stackNeighs, newStackNeighs;
+    std::unordered_set<long> tt;
+    for(auto it = result.begin(); it != result.end(); ++it){
+        std::unordered_set<long> neighs = getPointConnectivity(it.getId()); //only edge connected neighbours.
+        for(long id: neighs){
+            if(!result.exists(id))  visited.insert(id);
+        }
+    }
+    stackNeighs.insert(stackNeighs.end(), visited.begin(), visited.end());
 
+    //add as visited also the id already in result;
+    {
+        livector1D temp = result.getIds();
+        visited.insert(temp.begin(), temp.end());
+    }
 
-	// create the stack of neighbours with the seed i have.
-	std::unordered_set<long> visited;
-	livector1D stackNeighs;
-	std::unordered_set<long> tt;
-	for(auto it = result.begin(); it != result.end(); ++it){
-		std::unordered_set<long> neighs = getPointConnectivity(it.getId()); //only edge connected neighbours.
-		for(long id: neighs){
-			if(!result.exists(id))  visited.insert(id);
-		}
-	}
-	stackNeighs.insert(stackNeighs.end(), visited.begin(), visited.end());
+    // Search until the stack is empty.
+    // In case of parallel and partitioned test the global stack size
+    bool stackEmpty = stackNeighs.empty();
+#if MIMMO_ENABLE_MPI
+    if (getPatch()->isPartitioned()){
+        MPI_Allreduce(MPI_IN_PLACE, &stackEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+    }
+#endif
+    while(!stackEmpty){
 
-	//add as visited also the id already in result;
-	{
-		livector1D temp = result.getIds();
-		visited.insert(temp.begin(), temp.end());
-	}
+        // use all stack neighs as candidates
+        visited.insert(stackNeighs.begin(), stackNeighs.end());
 
-	long target;
-	//search until the stack is empty.
-	while(!stackNeighs.empty()){
+        // evaluate their distances;
+        npoints = stackNeighs.size();
+        points.clear();
+        points.reserve(npoints);
+        distances.clear();
+        distances.resize(npoints, std::numeric_limits<double>::max());
+        surface_ids.clear();
+        surface_ids.resize(npoints, bitpit::Cell::NULL_ID);
+        for (long idtarget : stackNeighs){
+            points.emplace_back(getVertexCoords(idtarget));
+        }
 
-		// extract the candidate
-		target = stackNeighs.back();
+#if MIMMO_ENABLE_MPI
+        if (surface.getPatch()->isPartitioned()){
+            ivector1D surface_ranks(npoints, -1);
+            skdTreeUtils::globalDistance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), surface_ranks.data(), distances.data(), maxdistance);
+        } else
+#endif
+        {
+            skdTreeUtils::distance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), distances.data(), maxdistance);
+        }
 
-		stackNeighs.pop_back();
-		visited.insert(target);
-		// evaluate its distance;
-		pp = getVertexCoords(target);
-		distance = mimmo::skdTreeUtils::distance(&pp, surface.getSkdTree(),idsuppsurf,maxdistance);
+        // Fill points inside narrow band in result and their neighbours in stack
+        for (std::size_t ipoint = 0; ipoint < npoints; ipoint++){
+            distance = distances[ipoint];
+            id = stackNeighs[ipoint];
+            if(distance < maxdist){
+                result.insert(id, distance);
+                std::unordered_set<long int> neighs = getPointConnectivity(id); //only edge connected
+                for(long id : neighs){
+                    if(visited.count(id) < 1){
+                        visited.insert(id);
+                        newStackNeighs.push_back(id);
+                    }
+                }
+            }
+        } // end loop on points
 
-		if(distance < maxdist){
-			result.insert(target, distance);
+        // Empty stack by old targets and push the new stack neighs
+        stackNeighs.swap(newStackNeighs);
+        livector1D().swap(newStackNeighs);
 
-			std::unordered_set<long> neighs = getPointConnectivity(target); //only edge connected
-			for(long id: neighs){
-				if(visited.count(id) < 1){
-					visited.insert(id);
-					stackNeighs.push_back(id);
-				}
-			}
-		}
-	}
-	return result;
-	//TODO need to find a cooking recipe here in case of PARALLEL computing of the narrow band.
+        stackEmpty = stackNeighs.empty();
+#if MIMMO_ENABLE_MPI
+        if (getPatch()->isPartitioned()){
+            MPI_Allreduce(MPI_IN_PLACE, &stackEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+        }
+#endif
+
+    } // end while stack empty
+
+    return result;
 
 };
 
@@ -4181,6 +4290,7 @@ std::unordered_map<long,long> MimmoObject::getInverseConnectivity(){
  * \param[in]    vertexId    bitpit::PatchKernel Id of the target vertex
  * \return        list of all vertex in the One Ring of the target, by their bitpit::PatchKernel Ids
  */
+// TODO PARALLEL VERSION, i.e. work only with local vertices as input
 std::set<long> MimmoObject::findVertexVertexOneRing(const long & cellId, const long & vertexId){
 	std::set<long> result;
 	if(getType() == 3)  return result;
@@ -4515,6 +4625,7 @@ MimmoObject::triangulate(){
 	//    }
 	//    setPartitioned();
 	//TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
+	//TODO BITPIT NODES ID MANAGING IS NOT READY FOR DISTRIBUTED PATCHES
 	//(*m_log)<< "WARNING " <<m_name <<" : forced triangulation is not available yet in MPI compilation."<<std::endl;
 #endif
 
@@ -4534,6 +4645,7 @@ MimmoObject::triangulate(){
  * \param[out] collapsedVertices If not a null pointer the pointed vector is filled
                with the original collapsed (i.e. deleted) vertices
  */
+//TODO PARALLEL VERSION
 void
 MimmoObject::degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degradedDeletedCells,
                                        bitpit::PiercedVector<bitpit::Vertex>* collapsedVertices)
