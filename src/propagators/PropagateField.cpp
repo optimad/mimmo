@@ -288,7 +288,7 @@ PropagateScalarField::execute(){
 
     //store the id of the border nodes only;
     //TODO extract boundary vertex ID as unordered_set
-    livector1D borderPointsID_vector = geo->extractBoundaryVertexID(false);
+    livector1D borderPointsID_vector = geo->extractBoundaryVertexID(true);
     std::unordered_set<long> borderPointsID(borderPointsID_vector.begin(), borderPointsID_vector.end());
 
     //get this inverse map -> you will need it to compact the stencils.
@@ -677,7 +677,7 @@ bool PropagateVectorField::checkBoundariesCoherence(){
     // run over periodic surfaces and retain border patch vertices common with the volume mesh
     m_periodicBoundaryPoints.clear();
     for (MimmoSharedPointer<MimmoObject> obj : m_periodicSurfaces){
-        std::vector<long> tempboundary = obj->extractBoundaryVertexID(false); //no ghost, only internals
+        std::vector<long> tempboundary = obj->extractBoundaryVertexID(true); //no ghost, only internals
         //I have all internals and operations before guarantees me that
         //all internal points of periodic surfaces are present in the bulk mesh
         m_periodicBoundaryPoints.insert(tempboundary.begin(), tempboundary.end());
@@ -962,7 +962,7 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
     //first step: extract solutions on twin border nodes of m_slip_bc_dir;
     // I'm sure from checkBoundariesCoherence that m_slip_bc_dir share the same id
     // of guessSolutionOnPoint
-    for(auto it=m_slip_bc_dir.begin(); it!=m_slip_bc_dir.end(); ++it){
+    for(auto it = m_slip_bc_dir.begin(); it != m_slip_bc_dir.end(); ++it){
         *it = guessSolutionOnPoint.at(it.getId());
     }
     //calculate projection of deformed mesh node under guessSolution deformation;
@@ -975,28 +975,48 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
         // average slip plane features (normal and point) must be already available
         // since initializeSlipSurfaceAsPlane method invoke.
         //loop on surface points.
-        for(auto it=m_slip_bc_dir.begin(); it!=m_slip_bc_dir.end(); ++it){
+        for(auto it = m_slip_bc_dir.begin(); it != m_slip_bc_dir.end(); ++it){
             long idV = it.getId();
             std::array<double,3> point = m_geometry->getVertexCoords(idV) + *it;
-            projectionVector[idV] = bitpit::CGElem::projectPointPlane(point, m_AVGslipCenter,m_AVGslipNormal) - point;
+            projectionVector[idV] = bitpit::CGElem::projectPointPlane(point, m_AVGslipCenter, m_AVGslipNormal) - point;
         }
+
     }else{
 
         //VERSION USING REFERENCE EXTERNAL SURFACE, that must be stored in m_slipUniSurface
         //at this point this surface must be allocated and not null. --> invoke initializeUniqueSurface
         //applied to list m_slipReferenceSurfaces
         bitpit::PatchSkdTree *tree = m_slipUniSurface->getSkdTree(); //(method directly build skdtree if not built)
+        std::vector<std::array<double,3>> points;
+        std::size_t npoints = m_slipUniSurface->getNVertices();
+        points.reserve(npoints);
+        double radius = std::numeric_limits<double>::min();
+        std::vector<long> ids(npoints);
         //loop on surface points.
-        for(auto it=m_slip_bc_dir.begin(); it!=m_slip_bc_dir.end(); ++it){
+        for(auto it = m_slip_bc_dir.begin(); it != m_slip_bc_dir.end(); ++it){
             long idV = it.getId();
             std::array<double,3> point = m_geometry->getVertexCoords(idV) + *it;
-            double r = std::max(1.0E-05, norm2(*it));
-            projectionVector[idV] = skdTreeUtils::projectPoint(&point, tree, r) - point;
+            points.push_back(point);
+            radius = std::max(radius, norm2(*it));
         }
-    }
+        std::vector<std::array<double,3>> projected_points(npoints);
+#if MIMMO_ENABLE_MPI
+        std::vector<int> ranks(npoints);
+        skdTreeUtils::projectPointGlobal(npoints, points.data(), tree, projected_points.data(), ids.data(), ranks.data(), radius);
+#else
+        skdTreeUtils::projectPoint(npoints, points.data(), tree, projected_points.data(), ids.data(), radius);
+#endif
+        std::size_t ip = 0;
+        for(auto it = m_slip_bc_dir.begin(); it != m_slip_bc_dir.end(); ++it){
+            long idV = it.getId();
+            projectionVector[idV] = projected_points[ip] - points[ip];
+            ip++;
+        }
+
+    } // end if external surface
 
     // add the projectionVector correction on m_slip_bc_dir
-    for(auto it=m_slip_bc_dir.begin(); it!=m_slip_bc_dir.end(); ++it){
+    for(auto it = m_slip_bc_dir.begin(); it != m_slip_bc_dir.end(); ++it){
         (*it) += projectionVector.at(it.getId());
     }
     //correction done.
@@ -1073,67 +1093,10 @@ dmpvecarr3E PropagateVectorField::getBoundaryPropagatedField(){
     mpvres.reserve(m_field.size());
 
     //fill mpvres with the value of m_field on boundary nodes
-    //FOR MPI version retain only values on interior boundary nodes.
-    std::vector<long> bIds =  m_geometry->extractBoundaryVertexID(false);
+    std::vector<long> bIds =  m_geometry->extractBoundaryVertexID(true);
     for(long id : bIds){
         mpvres.insert(id, m_field.at(id));
     }
-
-#if MIMMO_ENABLE_MPI
-    //MPI stuffs
-    //Send my own and receive mpvres from others.
-
-    //prepare my own send buffer.
-    mimmo::OBinaryStream myrankDataBuffer;
-    myrankDataBuffer << (std::size_t)mpvres.size();
-    auto itE = mpvres.cend();
-    for (auto it=mpvres.cbegin(); it!=itE; it++){
-        myrankDataBuffer << it.getId();
-        myrankDataBuffer << *it;
-    }
-
-    long myrankDataBufferSize = myrankDataBuffer.getSize();
-
-    for (int sendRank=0; sendRank<m_nprocs; sendRank++){
-
-        if (m_rank != sendRank){
-            // receive data from other ranks.
-            long defBufferSize;
-            MPI_Recv(&defBufferSize, 1, MPI_LONG, sendRank, 900, m_communicator, MPI_STATUS_IGNORE);
-            mimmo::IBinaryStream defBuffer(defBufferSize);
-            MPI_Recv(defBuffer.data(), defBuffer.getSize(), MPI_CHAR, sendRank, 910, m_communicator, MPI_STATUS_IGNORE);
-
-            MimmoPiercedVector<std::array<double,3>> temp;
-            std::size_t nP;
-            defBuffer >> nP;
-            std::array<double,3> val;
-            long int id;
-            for (std::size_t i = 0; i < nP; ++i) {
-                defBuffer >> id;
-                defBuffer >> val;
-                temp.insert(id, val);
-            }
-
-            // insert this part in mpvres.
-            for (auto it = temp.begin(); it!=temp.end(); ++it) {
-                if(!mpvres.exists(it.getId())){
-                    mpvres.insert(it.getId(), *it);
-                }
-            }
-        }else{
-            //send to all other except me the def data.
-            for (int recvRank=0; recvRank<m_nprocs; recvRank++){
-                if (m_rank != recvRank){
-                    MPI_Send(&myrankDataBufferSize, 1, MPI_LONG, recvRank, 900, m_communicator);
-                    MPI_Send(myrankDataBuffer.data(), myrankDataBuffer.getSize(), MPI_CHAR, recvRank, 910, m_communicator);
-                }
-            }
-        }
-    }// end external sendrank loop
-
-    MPI_Barrier(m_communicator);
-
-#endif
 
     // shrink structure
     mpvres.shrinkToFit();
@@ -1210,7 +1173,7 @@ PropagateVectorField::execute(){
 
     //store the id of the border nodes only;
     //TODO extract boundary vertex ID as unordered_set
-    livector1D borderPointsID_vector = geo->extractBoundaryVertexID(false);
+    livector1D borderPointsID_vector = geo->extractBoundaryVertexID(true);
     std::unordered_set<long> borderPointsID(borderPointsID_vector.begin(), borderPointsID_vector.end());
 
     //get this inverse map -> you will need it to compact the stencils.
