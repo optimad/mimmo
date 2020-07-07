@@ -577,6 +577,7 @@ PropagateField<NCOMP>::clear(){
    - check if points of Dirichlet patches belongs to the bulk mesh.
    - check if points of NarrowBand surfaces belongs to the bulk mesh.
    - check if points of Damping surfaces belongs to the bulk mesh.
+ * Note. In parallel the bulk and boundaries meshes must have the same spatial partitioning.
  * \return true if coherence is satisfied, false otherwise.
  */
 template <std::size_t NCOMP>
@@ -694,158 +695,37 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSha
         tempSurface->getPatch()->reserveVertices(tempSurface->getPatch()->getVertexCount() + obj->getPatch()->getVertexCount());
         for(bitpit::Vertex & vertex : obj->getVertices()){
             long vertexId = vertex.getId();
-            if (obj->isPointInterior(vertexId)){
-                tempSurface->addVertex(vertex, vertexId);
-            }
+            tempSurface->addVertex(vertex, vertexId);
         }
         tempSurface->getPatch()->reserveCells(tempSurface->getPatch()->getCellCount() + obj->getPatch()->getCellCount());
         for (bitpit::Cell &cell : obj->getCells()){
-            if (cell.isInterior()){
-                tempSurface->addCell(cell, cell.getId()); // rank is default, i.e. the actual proc rank in MPI version
+            long idCell = cell.getId();
+#if MIMMO_ENABLE_MPI
+            int rank = m_rank;
+            if (!cell.isInterior()){
+                rank = obj->getPatch()->getCellRank(idCell);
             }
+            tempSurface->addCell(cell, idCell, rank);
+#else
+            tempSurface->addCell(cell, idCell);
+#endif
         }
     }
 
     tempSurface->getPatch()->squeezeCells();
     tempSurface->getPatch()->squeezeVertices();
 
-
-// now in MPI version you need to send all current tempSurface info to all other proc, and receive data from
-// all other procs. In serial version, you are pretty ready to store tempSurface as your m_dampingUniSurface
 #if MIMMO_ENABLE_MPI
-    if (getTotalProcs() > 1){
-        uniSurf.reset(new MimmoObject(1));
-
-        uniSurf->getPatch()->reserveVertices(uniSurf->getPatch()->getVertexCount() + tempSurface->getPatch()->getVertexCount());
-        uniSurf->getPatch()->reserveCells(uniSurf->getPatch()->getCellCount() + tempSurface->getPatch()->getCellCount());
-
-        //serialize reconstructed geometry which is made only by internal cells/vertices!
-        for (bitpit::Vertex &vertex : tempSurface->getVertices()){
-            uniSurf->addVertex(vertex, vertex.getId());
-        }
-        for (bitpit::Cell &cell : tempSurface->getCells()){
-            uniSurf->addCell(cell, cell.getId());
-        }
-
-        //Receive vertices and cells from other procs
-        for (int sendRank=0; sendRank<m_nprocs; sendRank++){
-
-            if (m_rank != sendRank){
-
-                // Vertex data
-                long vertexBufferSize;
-                MPI_Recv(&vertexBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
-
-                mimmo::IBinaryStream vertexBuffer(vertexBufferSize);
-                MPI_Recv(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
-
-                // Cell data
-                long cellBufferSize;
-                MPI_Recv(&cellBufferSize, 1, MPI_LONG, sendRank, 200, m_communicator, MPI_STATUS_IGNORE);
-
-                mimmo::IBinaryStream cellBuffer(cellBufferSize);
-                MPI_Recv(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, sendRank, 210, m_communicator, MPI_STATUS_IGNORE);
-
-                long nRecvVertices;
-                vertexBuffer >> nRecvVertices;
-                uniSurf->getPatch()->reserveVertices(uniSurf->getPatch()->getVertexCount() + nRecvVertices);
-
-                // Do not add the vertices with Id already in serialized geometry
-                for (long i = 0; i < nRecvVertices; ++i) {
-                    bitpit::Vertex vertex;
-                    vertexBuffer >> vertex;
-                    long vertexId = vertex.getId();
-                    if (!uniSurf->getVertices().exists(vertexId)){
-                        uniSurf->addVertex(vertex, vertexId);
-                    }
-                }
-
-                //Receive and add all Cells
-                long nReceivedCells;
-                cellBuffer >> nReceivedCells;
-                uniSurf->getPatch()->reserveCells(uniSurf->getPatch()->getCellCount() + nReceivedCells);
-
-                for (long i = 0; i < nReceivedCells; ++i) {
-                    // Cell data
-                    bitpit::Cell cell;
-                    cellBuffer >> cell;
-                    long cellId = cell.getId();
-                    // Add cell
-                    uniSurf->addCell(cell, cellId);
-                }
-
-            }else{
-                //Send local vertices and local cells to ranks
-                //
-                // Send vertex data
-                mimmo::OBinaryStream vertexBuffer;
-                long vertexBufferSize = 0;
-                long nVerticesToCommunicate = 0;
-
-                // Fill buffer with vertex data
-                vertexBufferSize += sizeof(long);
-                for (bitpit::Vertex & vert : tempSurface->getVertices()){
-                    vertexBufferSize += vert.getBinarySize();
-                    nVerticesToCommunicate++;
-                }
-                vertexBuffer.setSize(vertexBufferSize);
-
-                vertexBuffer << nVerticesToCommunicate;
-                for (bitpit::Vertex & vert : tempSurface->getVertices()){
-                    vertexBuffer << vert;
-                }
-
-                for (int recvRank=0; recvRank<m_nprocs; recvRank++){
-                    if (m_rank != recvRank){
-                        // Communication
-                        MPI_Send(&vertexBufferSize, 1, MPI_LONG, recvRank, 100, m_communicator);
-                        MPI_Send(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, recvRank, 110, m_communicator);
-                    }
-                }
-                //
-                // Send cell data
-                //
-                mimmo::OBinaryStream cellBuffer;
-                long cellBufferSize = 0;
-                long nCellsToCommunicate = 0;
-
-                // Fill the buffer with cell data
-                cellBufferSize += sizeof(long);
-                for (bitpit::Cell & cell : tempSurface->getCells()) {
-                    // WTF this double sizeof(int) is for?
-                    //cellBufferSize += sizeof(int) + sizeof(int) + tempSurface->getCells()[cellId].getBinarySize();
-                    cellBufferSize += cell.getBinarySize();
-                    nCellsToCommunicate++;
-                }
-                cellBuffer.setSize(cellBufferSize);
-                cellBuffer << nCellsToCommunicate;
-                for (bitpit::Cell & cell : tempSurface->getCells()) {
-                    // Cell data
-                    cellBuffer << cell;
-                }
-
-                for (int recvRank=0; recvRank<m_nprocs; recvRank++){
-                    if (m_rank != recvRank){
-                        // Communication
-                        MPI_Send(&cellBufferSize, 1, MPI_LONG, recvRank, 200, m_communicator);
-                        MPI_Send(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, recvRank, 210, m_communicator);
-                    }
-                }
-            }
-
-    	}// end external sendrank loop
-        uniSurf->getPatch()->squeezeVertices();
-        uniSurf->getPatch()->squeezeCells();
-        tempSurface = nullptr;
-    }
-    else
+    // Set partitioned patch to build parallel information
+    tempSurface->setPartitioned();
 #endif
-    {
-    	//serial version
-    	uniSurf = std::move(tempSurface);
-    }
 
-    //now uniSurf is the same for all proc, and made only by internals.
+    uniSurf = std::move(tempSurface);
+
+    // Now uniSurf is the union of the surface patches in the list.
+    // The original connections are untouched and no new connections are imposed
+    // Duplicated vertices from different surface patches are maintained
+
 }
 
 /*!
