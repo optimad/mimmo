@@ -300,8 +300,8 @@ Partition::parmetisPartGeom(){
 
 	if ((m_nprocs>1) && !(getGeometry()->getPatch()->isPartitioned())){
 
-		liimap mapcell = getGeometry()->getMapCell();
-		liimap mapcellinv = getGeometry()->getMapCellInv();
+		lilimap mapcell = getGeometry()->getMapCell();
+		lilimap mapcellinv = getGeometry()->getMapCellInv();
 
 		if (m_rank == 0){
 

@@ -352,7 +352,7 @@ int
 Proj3DCurveOnSurface::fillPreliminaryStructure(dvecarr3E & points, std::unordered_map<long, std::array<long,2> > &connectivity){
     int nVerts, nCells, res;
     long id;
-    liimap mapDataInv;
+    lilimap mapDataInv;
     if (m_cobj) {
         nVerts = m_cobj->getNVertices();
         mapDataInv = m_cobj->getMapDataInv();

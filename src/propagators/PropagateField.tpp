@@ -1025,7 +1025,7 @@ PropagateField<NCOMP>::updateNarrowBand(){
  */
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * laplacianStencils, const liimap & maplocals){
+PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * laplacianStencils, const lilimap & maplocals){
 
 	bitpit::KSPOptions &solverOptions = m_solver->getKSPOptions();
 
@@ -1091,7 +1091,7 @@ PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * la
  */
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const liimap & maplocals){
+PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacianStencils, const lilimap & maplocals){
 
 	// total number of local DOFS, determines size of matrix
 	long nDOFs = m_solver->getColCount();
@@ -1154,7 +1154,7 @@ template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
                                               GraphLaplStencil::MPVStencil * borderLaplacianStencil,
-                                              const liimap & maplocals, dvector1D & rhs)
+                                              const lilimap & maplocals, dvector1D & rhs)
 {
     BITPIT_UNUSED(unused);
     //resize rhs to the number of internal cells
@@ -1242,7 +1242,7 @@ PropagateField<NCOMP>::solveLaplace(const dvector1D &rhs, dvector1D &result){
  */
 template<std::size_t NCOMP>
 void
-PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const liimap & mapglobals, livector1D * marked)
+PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const lilimap & mapglobals, livector1D * marked)
 {
     if(results.size() != NCOMP){
         (*m_log) << "WARNING in "<<m_name<<" . A field with dimension different from" <<NCOMP<<" is feeded to reconstructResults. m_field is not touched"<<std::endl;

@@ -264,7 +264,7 @@ PropagateScalarField::execute(){
     //allocate the solver;
     m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver(m_print));
     //get this inverse map -> you will need it to compact the stencils.
-    liimap dataInv;
+    lilimap dataInv;
 
     //check if damping or narrow band control are active,
     //initialize their reference surfaces and compute them
@@ -333,7 +333,7 @@ PropagateScalarField::execute(){
 
     dataInv.clear();
     //reconstruct getting the direct node map -> you will need it uncompact the system solution in global id.
-    liimap mapdata = geo->getMapData(true);
+    lilimap mapdata = geo->getMapData(true);
     reconstructResults(result, mapdata);
     // now data are direcly pushed in m_field.
 
@@ -824,7 +824,7 @@ void PropagateVectorField::propagateMaskMovingPoints(livector1D & vertexList) {
 void
 PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
                                             GraphLaplStencil::MPVStencil * borderLaplacianStencil,
-                                            const liimap & maplocals, dvector1D & rhs)
+                                            const lilimap & maplocals, dvector1D & rhs)
 {
 
     //resize rhs to the number of internal cells
@@ -1144,7 +1144,7 @@ PropagateVectorField::execute(){
     m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver(m_print));
 
     //declare inverse and direct map
-    liimap dataInv, data;
+    lilimap dataInv, data;
 
     //check if damping or narrow band control are active,
     //initialize their reference surfaces and compute them
