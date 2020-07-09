@@ -91,7 +91,7 @@ typedef std::array<uarray3E,3>      umatrix33E; /**< mimmo custom typedef*/
 typedef std::array<dvector1D,3>     darr3Evec;  /**< mimmo custom typedef*/
 typedef std::array<darr3Evec,3>     dmat33Evec; /**< mimmo custom typedef*/
 
-typedef std::unordered_map<long int, long int>     liimap;     /**< mimmo custom typedef*/
+typedef std::unordered_map<long int, long int>     lilimap;     /**< mimmo custom typedef*/
 
 /*!
  * \}

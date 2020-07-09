@@ -182,12 +182,12 @@ public:
     long                                            getNGlobalCells();
     long                                            getPointGlobalCountOffset();
 #endif
-    dvecarr3E                                       getVerticesCoords(liimap* mapDataInv = nullptr);
+    dvecarr3E                                       getVerticesCoords(lilimap* mapDataInv = nullptr);
     const darray3E &                                getVertexCoords(long i) const;
     bitpit::PiercedVector<bitpit::Vertex> &         getVertices();
     const bitpit::PiercedVector<bitpit::Vertex> &   getVertices() const ;
 
-    livector2D                                      getCompactConnectivity(liimap & mapDataInv);
+    livector2D                                      getCompactConnectivity(lilimap & mapDataInv);
     livector2D                                      getConnectivity();
     livector1D                                      getCellConnectivity(long id) const ;
     bitpit::PiercedVector<bitpit::Cell> &           getCells();
@@ -277,10 +277,10 @@ public:
 
     std::map<long, livector1D> extractPIDSubdivision();
 
-    liimap      getMapData(bool withghosts=false);
-    liimap      getMapDataInv(bool withghosts=true);
-    liimap	    getMapCell(bool withghosts=true);
-    liimap      getMapCellInv(bool withghosts=true);
+    lilimap      getMapData(bool withghosts=false);
+    lilimap      getMapDataInv(bool withghosts=true);
+    lilimap	    getMapCell(bool withghosts=true);
+    lilimap      getMapCellInv(bool withghosts=true);
 
     void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax);
     void        buildSkdTree(std::size_t value = 1);

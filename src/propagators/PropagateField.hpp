@@ -204,14 +204,14 @@ protected:
     virtual void modifyStencilsForNarrowBand(GraphLaplStencil::MPVStencilUPtr &laplaceStencils );
 
     // Laplace Solver
-    virtual void initializeLaplaceSolver(GraphLaplStencil::MPVStencil * laplacianStencils, const liimap & maplocals);
-    virtual void updateLaplaceSolver(GraphLaplStencil::MPVStencil * laplacianStencils, const liimap & maplocals);
+    virtual void initializeLaplaceSolver(GraphLaplStencil::MPVStencil * laplacianStencils, const lilimap & maplocals);
+    virtual void updateLaplaceSolver(GraphLaplStencil::MPVStencil * laplacianStencils, const lilimap & maplocals);
     virtual void assignBCAndEvaluateRHS(std::size_t comp, bool unused, GraphLaplStencil::MPVStencil * borderLaplacianStencil,
-                                        const liimap & maplocals, dvector1D & rhs);
+                                        const lilimap & maplocals, dvector1D & rhs);
     virtual void solveLaplace(const dvector1D &rhs, dvector1D & result);
 
     // reconstruct final result field
-    virtual void reconstructResults(const dvector2D & results, const liimap & mapglobals,  livector1D * markedcells = nullptr);
+    virtual void reconstructResults(const dvector2D & results, const lilimap & mapglobals,  livector1D * markedcells = nullptr);
 
 #if MIMMO_ENABLE_MPI
     int createGhostCommunicator(MimmoObject * refgeo, bool continuous);
@@ -495,7 +495,7 @@ protected:
 
     virtual void assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
                                 GraphLaplStencil::MPVStencil * borderLaplacianStencil,
-                                const liimap & maplocals,
+                                const lilimap & maplocals,
                                 dvector1D & rhs);
 
     virtual void computeSlipBCCorrector(const MimmoPiercedVector<std::array<double,3> > & guessSolutionOnPoint);

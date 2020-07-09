@@ -557,7 +557,7 @@ MimmoGeometry::write(){
         // same for PID: if 0 exists, pids are incremented by 1; if -1 exists are incremented by 2;
         // Beware if id >= 10^8 nas format does not support it.
     {
-        liimap mapDataInv;
+        lilimap mapDataInv;
         dvecarr3E    points = getGeometry()->getVerticesCoords();
         livector1D   pointsID;
         pointsID.reserve(points.size());
