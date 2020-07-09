@@ -372,6 +372,7 @@ livector1D BasicShape::includeGeometry(MimmoSharedPointer<MimmoObject> geo ){
  * Given a geometry by MimmoObject class, return cell identifiers of those simplex outside the volume of
  * the BasicShape object. The methods implicitly use search algorithms based on the SkdTree
  * of the class MimmoObject.
+ * Ghost elements are considered.
  * \param[in] geo target tesselation
  * \return list-by-ids of simplicies outside the volumetric patch
  */
@@ -546,6 +547,7 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
  * Given a geometry by MimmoObject class, return vertex identifiers of those vertices inside the volume of
  * the BasicShape object. The methods implicitly use search algorithms based on the bitpit::KdTree
  * of the class MimmoObject.
+ * Ghost vertices are included.
  * \param[in] geo target geometry
  * \return list-by-ids of vertices included in the volumetric patch
  */
@@ -720,8 +722,9 @@ void    BasicShape::searchKdTreeMatches(bitpit::KdTree<3,bitpit::Vertex,long> & 
 };
 
 /*!
- * Visit SkdTree relative to a PatchKernel structure and extract possible simplex candidates included in the current shape.
- * Identifiers of extracted matches are collected in result structure
+ * Visit SkdTree relative to a PatchKernel structure and extract possible local simplex candidates included in the current shape.
+ * Identifiers of extracted matches are collected in result structure.
+ * Ghost element are included.
  *\param[in] tree           SkdTree of PatchKernel simplicies
  *\param[in] geo            pointer to tessellation the tree refers to.
  *\param[out] result        list of simplex-ids included in the shape.
