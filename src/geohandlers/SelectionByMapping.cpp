@@ -352,7 +352,7 @@ SelectionByMapping::clear(){
 livector1D
 SelectionByMapping::extractSelection(){
 
-    if(!(getGeometry()->isSkdTreeSync()))    getGeometry()->buildSkdTree();
+    if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
     std::set<long> cellList;
 
     for (auto & file : m_geolist){
@@ -410,17 +410,23 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
     geo->setBuildSkdTree(true);
     geo->execute();
 
-    if(geo->getGeometry()->getNVertices() == 0 || geo->getGeometry()->getNCells() == 0 || geo->getGeometry()->getType()==3 ){
+    if(geo->getGeometry()->getNVertices() == 0 || geo->getGeometry()->getNCells() == 0 || geo->getGeometry()->getType() == 3 ){
         m_log->setPriority(bitpit::log::NORMAL);
         (*m_log)<< m_name << " failed to read or unsuitable geometry in SelectionByMapping::getProximity"<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);
         return livector1D();
     }
-    livector1D result = mimmo::skdTreeUtils::selectByPatch(geo->getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);
-    delete geo;
-    geo=nullptr;
 
-    return    result;
+#if MIMMO_ENABLE_MPI
+    livector1D result = mimmo::skdTreeUtils::selectByGlobalPatch(geo->getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);
+#else
+    livector1D result = mimmo::skdTreeUtils::selectByPatch(geo->getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);
+#endif
+
+    delete geo;
+    geo = nullptr;
+
+    return result;
 };
 
 /*!
@@ -437,9 +443,13 @@ SelectionByMapping::getProximity(mimmo::MimmoSharedPointer<MimmoObject> obj){
         return livector1D();
     }
 
+#if MIMMO_ENABLE_MPI
+    livector1D result = mimmo::skdTreeUtils::selectByGlobalPatch(obj->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);
+#else
     livector1D result = mimmo::skdTreeUtils::selectByPatch(obj->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);
+#endif
 
-    return    result;
+    return result;
 };
 
 /*!
