@@ -949,13 +949,16 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
  */
 std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol){
 
-    if (!target->getPatch().isPartitioned()){
+    if (!selection->isCommunicatorSet() || !target->isCommunicatorSet()){
+        throw std::runtime_error("Error: at least one PatchSkdTree communicator not set in selectByGlobalPatch");
+    }
+    if (!selection->getPatch().isPartitioned() && !target->getPatch().isPartitioned()){
         return(selectByPatch(selection, target, tol));
     }
 
     // Leaf selection nodes of current rank initialized for each rank of target bounding box
-    int nprocs = target->getPatch().getProcessorCount();
-    int myRank = target->getPatch().getRank();
+    int nprocs = selection->getPatch().getProcessorCount();
+    int myRank = selection->getPatch().getRank();
     std::size_t nleafs = selection->getLeafCount();
     std::size_t nnodess = selection->getNodeCount();
     std::unordered_map<int, std::vector<const bitpit::SkdNode*>> rankLeafSelection;
@@ -970,7 +973,6 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
                         target->getPartitionBoxMax(irank) ) ){
                     leafSelection[count] = &(selection->getNode(i));
                     count++;
-
                 }
             }
         }
@@ -993,7 +995,7 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
     for (int irank = 0; irank < nprocs; irank++){
         // Scatter send to all process of irank process data
         int * recvbuff = &nLeafRecv[irank];
-        MPI_Scatter(nLeafSend.data(), 1, MPI_INT, recvbuff, 1, MPI_INT, irank, MPI_COMM_WORLD);
+        MPI_Scatter(nLeafSend.data(), 1, MPI_INT, recvbuff, 1, MPI_INT, irank, selection->getCommunicator());
     }
 
     // Recover global leaf received to resize local received boxes container
@@ -1040,7 +1042,7 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
         }
 
         // Gather bounding boxes points to the root process
-        MPI_Gatherv(sendBoxes.data(), nSendData, MPI_DOUBLE, recvBoxes.data(), nRecvDataPerProc.data(), recvDispls.data(), MPI_DOUBLE, irank, target->getCommunicator());
+        MPI_Gatherv(sendBoxes.data(), nSendData, MPI_DOUBLE, recvBoxes.data(), nRecvDataPerProc.data(), recvDispls.data(), MPI_DOUBLE, irank, selection->getCommunicator());
 
     } // End loop on root processes
 
