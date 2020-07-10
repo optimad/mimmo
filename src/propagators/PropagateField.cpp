@@ -709,6 +709,10 @@ PropagateVectorField::apply(){
     for (auto it= verts.begin(); it != verts.end(); ++it){
         target->modifyVertex( it->getCoords() + m_field.at(it.getId()), it.getId() );
     }
+#if MIMMO_ENABLE_MPI
+    target->cleanAllParallelSync();
+    target->updatePointGhostExchangeInfo();
+#endif
 
     dmpvecarr3E serialized_bf;
 
@@ -720,6 +724,10 @@ PropagateVectorField::apply(){
         for(auto it= m_dampingUniSurface->getPatch()->vertexBegin(); it!= m_dampingUniSurface->getPatch()->vertexEnd(); ++it){
             m_dampingUniSurface->modifyVertex(it->getCoords() + serialized_bf.at(it.getId()), it.getId());
         }
+#if MIMMO_ENABLE_MPI
+        m_dampingUniSurface->cleanAllParallelSync();
+        m_dampingUniSurface->updatePointGhostExchangeInfo();
+#endif
     }
 
     //Check the narrowband and deform m_bandUniSurface
@@ -729,6 +737,10 @@ PropagateVectorField::apply(){
         for(auto it= m_bandUniSurface->getPatch()->vertexBegin(); it!= m_bandUniSurface->getPatch()->vertexEnd(); ++it){
             m_bandUniSurface->modifyVertex(it->getCoords() + serialized_bf.at(it.getId()), it.getId());
         }
+#if MIMMO_ENABLE_MPI
+        m_bandUniSurface->cleanAllParallelSync();
+        m_bandUniSurface->updatePointGhostExchangeInfo();
+#endif
     }
 }
 /*!
@@ -748,6 +760,10 @@ PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & ve
         m_field.at(ID) = currentmesh.at(ID).getCoords() - coords;
         target->modifyVertex(coords, ID);
     }
+#if MIMMO_ENABLE_MPI
+    target->cleanAllParallelSync();
+    target->updatePointGhostExchangeInfo();
+#endif
 
     //damping and narrowband if active have their UniSurface morphed.
     //But since the UniSurfaces are not inputs, but internal temp resources, I see no utility
