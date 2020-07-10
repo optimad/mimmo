@@ -771,6 +771,11 @@ void   ManipulateWFOBJData::execute(){
     computeNormals();
     extractPinnedLists();
 
+#if MIMMO_ENABLE_MPI
+    getGeometry()->cleanAllParallelSync();
+    getGeometry()->updatePointGhostExchangeInfo();
+#endif
+
 }
 
 /*!

@@ -292,9 +292,9 @@ Apply::execute(){
         //no need to shrink cellAnnotation.
     }
 
-
 #if MIMMO_ENABLE_MPI
-	getGeometry()->updatePointGhostExchangeInfo();
+    getGeometry()->cleanAllParallelSync();
+    getGeometry()->updatePointGhostExchangeInfo();
 #endif
 
 };
