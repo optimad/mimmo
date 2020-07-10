@@ -301,7 +301,11 @@ void ExtractStringField::extractMapping(mimmo::MPVLocation loc){
 
     if(! m_field.getGeometry()->isSkdTreeSync())  m_field.getGeometry()->buildSkdTree();
     if(! getGeometry()->isSkdTreeSync())          getGeometry()->buildSkdTree();
+#if MIMMO_ENABLE_MPI
+    livector1D cellExtracted = mimmo::skdTreeUtils::selectByGlobalPatch(m_field.getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tol);
+#else
     livector1D cellExtracted = mimmo::skdTreeUtils::selectByPatch(m_field.getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tol);
+#endif
 
     switch(loc){
         case mimmo::MPVLocation::POINT:
