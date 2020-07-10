@@ -436,13 +436,6 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
 livector1D
 SelectionByMapping::getProximity(mimmo::MimmoSharedPointer<MimmoObject> obj){
 
-    if(obj->getNVertices() == 0 || obj->getNCells() == 0){
-        m_log->setPriority(bitpit::log::NORMAL);
-        (*m_log)<< m_name << " failed to read geometry in SelectionByMapping::getProximity"<<std::endl;
-        m_log->setPriority(bitpit::log::DEBUG);
-        return livector1D();
-    }
-
 #if MIMMO_ENABLE_MPI
     livector1D result = mimmo::skdTreeUtils::selectByGlobalPatch(obj->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);
 #else
