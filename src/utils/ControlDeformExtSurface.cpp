@@ -120,7 +120,7 @@ ControlDeformExtSurface::buildPorts(){
 double
 ControlDeformExtSurface::getViolation(){
 
-    double result = -1.0E+18;
+    double result = -1.0*std::numeric_limits<double>::max();
     for(const auto & val : m_violationField){
         result = std::fmax(result, val);
     }
@@ -315,7 +315,7 @@ ControlDeformExtSurface::execute(){
     long int ID;
     for (const auto & v : geo->getVertices()){
         ID = v.getId();
-        m_violationField.insert(ID, -1.0e+18);
+        m_violationField.insert(ID, -1.0*std::numeric_limits<double>::max());
     }
 
     dvector1D violationField;
@@ -738,7 +738,7 @@ ControlDeformExtSurface::extractInfo(std::string file){
 double
 ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::MimmoObject * geo, long & id, darray3E & normal, double &initRadius){
 
-    double dist = 1.0E+18;
+    double dist = std::numeric_limits<double>::max();
     double rate = 0.02;
     int kmax = 1000;
     int kiter = 0;
@@ -748,8 +748,10 @@ ControlDeformExtSurface::evaluateSignedDistance(darray3E &point, mimmo::MimmoObj
 
     while(flag && kiter < kmax){
         dist = skdTreeUtils::signedDistance(&point, geo->getSkdTree(), id, normal, initRadius);
-        flag = (dist == 1.0E+18);
-        if(flag)    initRadius *= (1.0+ rate*((double)flag));
+        flag = (dist == std::numeric_limits<double>::max());
+        if(flag){
+            initRadius *= (1.0 + rate);
+        }
         kiter++;
     }
 

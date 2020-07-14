@@ -425,7 +425,7 @@ Partition::computeBoundaryPartition()
 				getBoundaryGeometry()->buildSkdTree();
                 bitpit::PatchSkdTree *btree = getBoundaryGeometry()->getSkdTree();
 				double tol = 1.0E-12;
-                std::vector<double> distances(getBoundaryGeometry()->getNCells(), 1.0E+18);
+                std::vector<double> distances(getBoundaryGeometry()->getNCells(), std::numeric_limits<double>::max());
 //                bitpit::PiercedVector<bitpit::Interface> & interfaces = getGeometry()->getInterfaces();
 //                for (bitpit::Interface &inter : interfaces ){
 //					if (inter.isBorder()){

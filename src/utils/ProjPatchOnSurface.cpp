@@ -211,11 +211,26 @@ ProjPatchOnSurface::projection(){
     //...and projecting them onto target surface
     if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
     bitpit::PiercedVector<bitpit::Vertex> & verts = dum->getVertices();
-    darray3E point, proj;
+    dvecarr3E points;
+    points.reserve(verts.size());
     for(auto it = verts.begin(); it != verts.end(); ++it){
-        point = it->getCoords();
-        proj = skdTreeUtils::projectPoint(&point, getGeometry()->getSkdTree());
-        it->setCoords(proj);
+        points.push_back(it->getCoords());
+     }
+    std::size_t npoints = points.size();
+    dvecarr3E projs(npoints);
+    livector1D ids(npoints);
+#if MIMMO_ENABLE_MPI
+    ivector1D ranks(npoints);
+    double radius =  std::numeric_limits<double>::max();
+    bool shared = true;
+    skdTreeUtils::projectPointGlobal(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data(), ranks.data(), radius, shared);
+#else
+    skdTreeUtils::projectPoint(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data());
+#endif
+    std::size_t counter = 0;
+    for(auto it = verts.begin(); it != verts.end(); ++it){
+        it->setCoords(projs[0]);
+        counter++;
     }
     m_patch = dum;
 };

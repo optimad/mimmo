@@ -498,7 +498,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
         dmpvector1D field;
         for (const auto & v : tri->getVertices()){
-            field.insert(v.getId(), 1.0E+18);
+            field.insert(v.getId(), std::numeric_limits<double>::max());
         }
         for(const auto & dd : m_deads)    field[dd] = 0.0;
 
@@ -912,7 +912,7 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, b
     int                        k, m;
 
     int                        select = -1;
-    double                    value(1.0e+18);
+    double                    value(std::numeric_limits<double>::max());
     double                    dVU, dVW, dWU, dVP;
     std::array<double,3>    eVU, eVW, eWU, eVP, P;
 
@@ -1074,7 +1074,7 @@ CreateSeedsOnSurface::updateEikonal(double g, double s, long tVert,long tCell, b
 /*!
  * Solve the 3D Eikonal equation |grad(u)| = g, using  a fast marching method, on a target triangulation
  * associated unstructured superficial grid. Tessellation must be mandatorily a triangular one.
- * (SurfaceConstraints::m_sdf values in the unknown region must be set to the value 1.0e+18.
+ * (SurfaceConstraints::m_sdf values in the unknown region must be set to the value std::numeric_limits<double>::max().
  *  Dead vertices of front to be propagated must be set to zero, initially)
  * \param[in] g Propagation speed.
  * \param[in] s Velocity sign (+1 --> propagate outwards, -1 --> propagate inwards).
@@ -1127,7 +1127,7 @@ CreateSeedsOnSurface::solveEikonal(double g, double s,bitpit::PatchKernel &tri, 
                 itend = neighs.end();
                 while(!check && it !=itend){
 
-                    check = s*field[*it] >= 0.0 && field[*it] < 1.0E+18;
+                    check = s*field[*it] >= 0.0 && field[*it] < std::numeric_limits<double>::max();
                     ++it;
                 };
 

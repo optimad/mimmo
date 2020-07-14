@@ -242,12 +242,18 @@ ProjectCloud::execute(){
     if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
 
     //project points on surface.
-    int counter = 0;
-    m_proj.resize(m_points.size(), {{0.0,0.0,0.0}});
-    for(darray3E &val : m_points){
-        m_proj[counter]= skdTreeUtils::projectPoint(&val, getGeometry()->getSkdTree());
-        ++counter;
-    }
+    std::size_t npoints = m_points.size();
+    dvecarr3E projs(npoints);
+    livector1D ids(npoints);
+#if MIMMO_ENABLE_MPI
+    ivector1D ranks(npoints);
+    double radius =  std::numeric_limits<double>::max();
+    bool shared = true;
+    skdTreeUtils::projectPointGlobal(npoints, m_points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data(), ranks.data(), radius, shared);
+#else
+    skdTreeUtils::projectPoint(npoints, m_points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data());
+#endif
+
     return;
 };
 
