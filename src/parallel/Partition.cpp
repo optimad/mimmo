@@ -447,6 +447,7 @@ Partition::computeBoundaryPartition()
                 				double r = tol;
                 				double distance;
                 				while(id == bitpit::Cell::NULL_ID && iter<maxiter){
+                				    // Call local distance computing, the two meshes are on the same processor rank = 0
                 					distance = skdTreeUtils::distance(&intercenter, btree, id, r);
                 					++iter;
                 					r = tol * std::pow(10, iter);
