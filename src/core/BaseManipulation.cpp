@@ -163,7 +163,6 @@ void BaseManipulation::swap(BaseManipulation & x) noexcept
 void
 BaseManipulation::initializeLogger(bool logexist){
 	if (!logexist){
-		bitpit::log::manager().setMode(bitpit::log::Mode::COMBINED);
 #if MIMMO_ENABLE_MPI
 		bitpit::log::manager().create(MIMMO_LOG_FILE, false, m_nprocs, m_rank);
 #else
