@@ -38,13 +38,13 @@ namespace skdTreeUtils{
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the element with minimum distance in a box of length 2*r, if none
- * is found return a default value of distance equal to std::numeric_limits<double>::max();
+ * is found return a default value of distance equal to std::numeric_limits<double>::max().
  * \param[in] point Pointer to coordinates of input point.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
- * \param[out] id Label of the element found as minimum distance element in the bv-tree.
+ * \param[out] id Label of the element found as minimum distance element in the skd-tree.
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
- * \return Unsigned distance of the input point from the patch in the bv-tree.
+ * \return Unsigned distance of the input point from the patch in the skd-tree.
  */
 double distance(const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long &id, double r)
 {
@@ -70,16 +70,16 @@ double distance(const std::array<double,3> *point, const bitpit::PatchSkdTree *t
  * computed. A positive distance means that the point is located, in respect to the
  * surface mesh, on the same side of the outer normal vector.
  * It searches the element with minimum distance in a box of length 2*r, if none
- * is found return a default value of distance equal to std::numeric_limits<double>::max();
+ * is found return a default value of distance equal to std::numeric_limits<double>::max().
  * \param[in] point Pointer to coordinates of input point.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
- * \param[out] id Label of the element found as minimum distance element in the bv-tree.
+ * \param[out] id Label of the element found as minimum distance element in the skd-tree.
  * \param[out] normal Pseudo-normal of the element (i.e. unit vector with direction (P-xP),
  * where P is the input point and xP the nearest point on the element (simplex) to
  * the projection of P on the plane of the simplex.
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
- * \return Signed distance of the input point from the patch in the bv-tree.
+ * \return Signed distance of the input point from the patch in the skd-tree.
  */
 double signedDistance(const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long &id, std::array<double,3> &normal, double r)
 {
@@ -107,12 +107,13 @@ double signedDistance(const std::array<double,3> *point, const bitpit::PatchSkdT
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the element with minimum distance in a box of length 2*r, if none
- * is found return a default value of distance equal to std::numeric_limits<double>::max();
+ * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
+ * position of the distances array related to the input point.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
- * \param[out] distances Unsigned distance of the input points from the patch in the bv-tree.
- * \param[out] ids Label of the elements found as minimum distance elements in the bv-tree.
+ * \param[out] distances Unsigned distance of the input points from the patch in the skd-tree.
+ * \param[out] ids Label of the elements found as minimum distance elements in the skd-tree.
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
  */
@@ -148,12 +149,13 @@ void distance(size_t nP, const std::array<double,3> *points, const bitpit::Patch
  * computed. A positive distance means that the point is located, in respect to the
  * surface mesh, on the same side of the outer normal vector.
  * It searches the element with minimum distance in a box of length 2*r, if none
- * is found return a default value of distance equal to std::numeric_limits<double>::max();
+ * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
+ * position of the distances array related to the input point.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
- * \param[out] distances Signed distance of the input points from the patch in the bv-tree.
- * \param[out] ids Label of the elements found as minimum distance elements in the bv-tree.
+ * \param[out] distances Signed distance of the input points from the patch in the skd-tree.
+ * \param[out] ids Label of the elements found as minimum distance elements in the skd-tree.
  * \param[out] normals Pseudo-normal of the elements (i.e. unit vector with direction (P-xP),
  * where P is the input point and xP the nearest point on the element (simplex) to
  * the projection of P on the plane of the simplex.
@@ -187,13 +189,13 @@ double signedDistance(std::size_t nP, const std::array<double,3> *points, const 
 }
 
 /*!
- * It selects the elements of a geometry stored in a skdtree by a distance criterion
- * in respect to an other geometry stored in a different skdtree.
- * \param[in] selection Pointer to bv-tree used as selection patch.
- * \param[in] target Pointer to bv-tree that store the target geometry.
+ * It selects the elements of a geometry stored in a skd-tree by a distance criterion
+ * in respect to an other geometry stored in a different skd-tree.
+ * \param[in] selection Pointer to skd-tree used as selection patch.
+ * \param[in] target Pointer to skd-tree that store the target geometry.
  * \param[in] tol Distance threshold used to select the elements of target.
- * \return Vector of the label of all the elements of the target skdtree placed
- * at a distance <= tol from the bounding boxes of the leaf nodes of the skdtree
+ * \return Vector of the label of all the elements of the target skd-tree placed
+ * at a distance <= tol from the bounding boxes of the leaf nodes of the skd-tree
  * selection.
  */
 std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol){
@@ -225,13 +227,13 @@ std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSk
 }
 
 /*!
- * It extracts the elements of a leaf node of geometry stored in a skdtree
+ * It extracts the elements of a leaf node of geometry stored in a skd-tree
  * by a distance criterion in respect to an other geometry stored
- * in a different skdtree. It is a method used in selectByPatch method.
- * \param[in] target Pointer to skdtree that store the target geometry.
+ * in a different skd-tree. It is a method used in selectByPatch method.
+ * \param[in] target Pointer to skd-tree that store the target geometry.
  * \param[in,out] leafSelection Vector of pointers to the leaf nodes currently interesting
  * for the selection procedure.
- * \param[in,out] extracted of the label of all the elements of the target skdtree,
+ * \param[in,out] extracted of the label of all the elements of the target skd-tree,
  * currently found placed at a distance <= tol from the bounding boxes of the
  * leaf nodes in leafSelection.
  * \param[in] tol Distance threshold used to select the elements of target.
@@ -302,14 +304,14 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit:
 }
 
 /*!
- * It computes the projection of a point on a geometry linked in a skdtree
+ * It computes the projection of a point on a geometry linked in a skd-tree
  * object. The geometry must be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the elements of the geometry with minimum distance
  * recursively in a sphere of radius r, by increasing the size r at each step
  * until at least one element is found.
- * \param[in] P_ Pointer to coordinates of input point.
- * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
+ * \param[in] point Pointer to coordinates of input point.
+ * \param[in] skdtree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
  * \param[in] r Initial length of the sphere radius used to search. (The algorithm checks
  * every element encountered inside the sphere).
  * \return Coordinates of the projected point.
@@ -323,7 +325,7 @@ darray3E projectPoint(const std::array<double,3> *point, const bitpit::PatchSkdT
 }
 
 /*!
- * It computes the projection of a set of points on a geometry linked in a skdtree
+ * It computes the projection of a set of points on a geometry linked in a skd-tree
  * object. The geometry must be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the elements of the geometry with minimum distance
@@ -422,6 +424,15 @@ long locatePointOnPatch(const std::array<double, 3> &point, const bitpit::PatchS
     return id;
 }
 
+/*!
+ * It computes the pseudo-normal of a cell of a surface mesh from an input point,
+ * i.e. the unit vector with direction (P-xP), where P is the input point and
+ * xP is the projection on the cell.
+ * \param[in] point point coordinates
+ * \param[in] surface_mesh pointer to surface mesh
+ * \param[in] id cell id belong to the input surface mesh
+ * \return pseudo-normal components
+ */
 std::array<double, 3>
 computePseudoNormal(const std::array<double, 3> &point, const bitpit::SurfUnstructured *surface_mesh, long id)
 {
@@ -489,6 +500,14 @@ computePseudoNormal(const std::array<double, 3> &point, const bitpit::SurfUnstru
     return pseudo_normal;
 }
 
+/*!
+ * It check if a point belongs to an input cell. If the point is located on the plane of the
+ * cell and inside it, it returns true, false otherwise.
+ * \param[in] point point coordinates
+ * \param[in] surface_mesh pointer to surface mesh
+ * \param[in] cellId cell id belong to the input surface mesh to be checked
+ * \return true if the point belongs to the input cell
+ */
 bool
 checkPointBelongsToCell(const std::array<double, 3> &point, const bitpit::SurfUnstructured *surface_mesh, long cellId)
 {
@@ -523,20 +542,18 @@ checkPointBelongsToCell(const std::array<double, 3> &point, const bitpit::SurfUn
 
 #if MIMMO_ENABLE_MPI
 /*!
- * It computes the unsigned distance of a point to a geometry linked in a SkdTree
+ * It computes the unsigned distance of a set of points to a geometry linked in a SkdTree
  * object. The geometry has to be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the element with minimum distance in a box of length 2*r, if none
- * is found return a default value of distance equal to std::numeric_limits<double>::max();
+ * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
+ * position of the distances array related to the input point.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
- * \param[out] ids Labels of the elements found as minimum distance element in the bv-tree.
- * \param[out] ranks Ranks of the process owner of the elements found as minimum distance elements in the bv-tree.
- * \param[out] normals Pseudo-normals of the elements (i.e. unit vector with direction (P-xP),
- * where P is the input point and xP the nearest point on the element (simplex) to
- * the projection of P on the plane of the simplex.
- * \param[out] distances Distance of the input points from the patch in the bv-tree.
+ * \param[out] ids Labels of the elements found as minimum distance element in the skd-tree.
+ * \param[out] ranks Ranks of the process owner of the elements found as minimum distance elements in the skd-tree.
+ * \param[out] distances Distance of the input points from the patch in the skd-tree.
  * \param[in] shared True if the input points are shared between the processes
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
@@ -567,16 +584,17 @@ void globalDistance(std::size_t nP, const std::array<double,3> *points, const bi
  * computed. A positive distance means that the point is located, in respect to the
  * surface mesh, on the same side of the outer normal vector.
  * It searches the element with minimum distance in a box of length 2*r, if none
- * is found return a default value of distance equal to std::numeric_limits<double>::max();
+ * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
+ * position of the distances array related to the input point.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
- * \param[out] ids Labels of the elements found as minimum distance element in the bv-tree.
- * \param[out] ranks Ranks of the process owner of the elements found as minimum distance elements in the bv-tree.
+ * \param[out] ids Labels of the elements found as minimum distance element in the skd-tree.
+ * \param[out] ranks Ranks of the process owner of the elements found as minimum distance elements in the skd-tree.
  * \param[out] normals Pseudo-normals of the elements (i.e. unit vector with direction (P-xP),
  * where P is the input point and xP the nearest point on the element (simplex) to
  * the projection of P on the plane of the simplex.
- * \param[out] distances Signed distance of the input points from the patch in the bv-tree.
+ * \param[out] distances Signed distance of the input points from the patch in the skd-tree.
  * \param[in] shared True if the input points are shared between the processes
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
@@ -725,7 +743,7 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
 }
 
 /*!
- * It computes the projection of a set of points on a geometry linked in a skdtree
+ * It computes the projection of a set of points on a geometry linked in a skd-tree
  * object. The geometry must be a surface mesh, in particular an object of type
  * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
  * It searches the elements of the geometry with minimum distance
@@ -770,7 +788,6 @@ void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, cons
 /*!
  * Given the specified set of points find the cells of a surface patch it is into.
  * The method works only with trees generated with bitpit::SurfUnstructured mesh.
- *
  * \param[in] nP Number of input points
  * \param[in] points is the set of points
  * \param[in] tree pointer to SkdTree relative to the target surface geometry.
@@ -938,13 +955,13 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
 }
 
 /*!
- * It selects the elements of a geometry stored in a skdtree by a distance criterion
- * in respect to an other global geometry stored in a different global skdtree.
- * \param[in] selection Pointer to bv-tree used as selection patch.
- * \param[in] target Pointer to bv-tree that store the target geometry.
+ * It selects the elements of a geometry stored in a skd-tree by a distance criterion
+ * in respect to an other global geometry stored in a different global skd-tree.
+ * \param[in] selection Pointer to skd-tree used as selection patch.
+ * \param[in] target Pointer to skd-tree that store the target geometry.
  * \param[in] tol Distance threshold used to select the elements of target.
- * \return Vector of the label of all the local (current rank) elements of the target skdtree placed
- * at a distance <= tol from the bounding boxes of the leaf nodes of the global skdtree
+ * \return Vector of the label of all the local (current rank) elements of the target skd-tree placed
+ * at a distance <= tol from the bounding boxes of the leaf nodes of the global skd-tree
  * selection.
  */
 std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol){
@@ -1068,19 +1085,17 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
 }
 
 /*!
- * It extracts the elements of a leaf node of geometry stored in a skdtree
+ * It extracts the elements of a leaf node of geometry stored in a skd-tree
  * by a distance criterion in respect to an other geometry stored
- * in a different skdtree and passed as vector of bounding boxes. It is a method used in selectByGlobalPatch method.
- * \param[in] target Pointer to skdtree that store the target geometry.
+ * in a different skd-tree and passed as vector of bounding boxes. It is a method used in selectByGlobalPatch method.
+ * \param[in] target Pointer to skd-tree that store the target geometry.
  * \param[in] leafSelection Vector of bounding boxes SkdBox of the leaf nodes currently interesting
  * for the selection procedure.
- * \param[in,out] extracted of the label of all the elements of the target skdtree,
+ * \param[in,out] extracted of the label of all the elements of the target skd-tree,
  * currently found placed at a distance <= tol from the bounding boxes of the
  * leaf nodes in leafSelection.
  * \param[in] tol Distance threshold used to select the elements of target.
  * the next-th node is not a leaf node the method is recursively called.
- *
- *
  */
 void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBox> &leafSelectionBoxes, std::vector<long> &extracted, double tol)
 {
@@ -1139,10 +1154,9 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
 
 
 /*!
-* Given the specified points, considered shared on the processes, find the
+* Given the specified set of points, considered shared on the processes, find the
 * closest cells contained in the tree and evaluates the distance values
 * between those cells and the given points.
-*
 * \param[in] nPoints number of the points
 * \param[in] points points coordinates
 * \param[in] tree pointer to SkdTree relative to the target surface geometry.
