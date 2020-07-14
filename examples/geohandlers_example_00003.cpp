@@ -90,7 +90,7 @@ void test00003() {
     mimmo5->setWriteFilename("geohandlers_output_00003.0003");
 
 #if MIMMO_ENABLE_MPI
-    /* Instantiation of a Partition object with default patition method space filling curve.
+    /* Instantiation of a Partition object with default partition method space filling curve.
      * Plot Optional results during execution active for Partition block.
      */
     mimmo::Partition* partition0 = new mimmo::Partition();
@@ -186,10 +186,6 @@ void test00003() {
     /* Setup pin connections.
      */
 #if MIMMO_ENABLE_MPI
-    //    mimmo::pin::addPin(mimmo0, mapSel1, M_GEOM, M_GEOM);
-    //    mimmo::pin::addPin(mimmo0, mapSel2, M_GEOM, M_GEOM);
-    //    mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
-    //    mimmo::pin::addPin(mimmo1, mapSel1, M_GEOM, M_GEOM2);
     mimmo::pin::addPin(mimmo0, partition0, M_GEOM, M_GEOM);
     mimmo::pin::addPin(partition0, mapSel1, M_GEOM, M_GEOM);
     mimmo::pin::addPin(partition0, mapSel2, M_GEOM, M_GEOM);
