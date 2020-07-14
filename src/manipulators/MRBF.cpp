@@ -1000,7 +1000,7 @@ MRBF::computeEffectiveSupportRadiusList(){
         if (!m_srIsReal){
             double bboxDiag;
             darray3E pmin, pmax;
-            getGeometry()->getPatch()->getBoundingBox(pmin, pmax);
+            getGeometry()->getBoundingBox(pmin, pmax);
             bboxDiag= norm2(pmax - pmin);
             candidateRadius *= bboxDiag;
         }
