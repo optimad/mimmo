@@ -113,7 +113,7 @@ ControlDeformMaxDistance::buildPorts(){
 double
 ControlDeformMaxDistance::getViolation(){
 
-    double result = -1.0E+18;
+    double result = -1.0*std::numeric_limits<double>::max();
     for(const auto & val : m_violationField){
         result = std::fmax(result, val);
     }
@@ -206,7 +206,7 @@ ControlDeformMaxDistance::execute(){
         ID = v.getId();
         points.insert(ID, geo->getVertexCoords(ID) + m_defField[ID] );
         normDef.insert(ID, norm2(m_defField[ID]));
-        m_violationField.insert(ID, -1.0e+18);
+        m_violationField.insert(ID, -1.0*std::numeric_limits<double>::max());
     }
 
     double dist;
@@ -217,14 +217,16 @@ ControlDeformMaxDistance::execute(){
     bool flag;
     long int IDC;
     for(const auto &ID : points.getIds()){
-        dist =1.0E+18;
+        dist = std::numeric_limits<double>::max();
         kiter = 0;
         flag = true;
         radius = std::fmax(1.0E-8, normDef[ID]);
         while(flag && kiter < kmax){
             dist = skdTreeUtils::distance(&points[ID], geo->getSkdTree(), IDC, radius);
-            flag = (dist == 1.0E+18);
-            if(flag)    radius *= (1.0+ rate*((double)flag));
+            flag = (dist == std::numeric_limits<double>::max());
+            if(flag){
+                radius *= (1.0 + rate);
+            }
             kiter++;
         }
         if(kiter == kmax)    dist = m_maxDist - dist;

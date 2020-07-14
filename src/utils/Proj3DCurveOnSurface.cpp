@@ -307,12 +307,17 @@ Proj3DCurveOnSurface::projection(){
 
     //...and projecting them onto target surface
     if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
-    int counter=0;
-    dvecarr3E projs(points.size());
-    for(auto &val : points){
-        projs[counter]= skdTreeUtils::projectPoint(&val, getGeometry()->getSkdTree());
-        ++counter;
-    }
+    std::size_t npoints = points.size();
+    dvecarr3E projs(npoints);
+    livector1D ids(npoints);
+#if MIMMO_ENABLE_MPI
+    ivector1D ranks(npoints);
+    double radius =  std::numeric_limits<double>::max();
+    bool shared = true;
+    skdTreeUtils::projectPointGlobal(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data(), ranks.data(), radius, shared);
+#else
+    skdTreeUtils::projectPoint(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data());
+#endif
 
     dum->getPatch()->reserveVertices(points.size());
     dum->getPatch()->reserveCells(connectivity.size());

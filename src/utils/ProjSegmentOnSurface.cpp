@@ -259,13 +259,13 @@ ProjSegmentOnSurface::projection(){
     }
 
     //create points ...
-    dvecarr3E verts((m_nC + 1)), projs;
+    dvecarr3E points((m_nC + 1));
     {
         //create the vertices array, ordered from pointA to pointB
         auto dx = (m_pointB - m_pointA);
         dx /= double(m_nC);
         counter = 0;
-        for( auto && ele : verts){
+        for( auto && ele : points){
             ele  = m_pointA + double(counter)*dx;
             ++counter;
         }
@@ -273,12 +273,18 @@ ProjSegmentOnSurface::projection(){
 
     //...and projecting them onto target surface
     if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
-    counter = 0;
-    projs.resize(verts.size());
-    for(auto &val : verts){
-        projs[counter]= skdTreeUtils::projectPoint(&val, getGeometry()->getSkdTree());
-        ++counter;
-    }
+
+    std::size_t npoints = points.size();
+    dvecarr3E projs(npoints);
+    livector1D ids(npoints);
+#if MIMMO_ENABLE_MPI
+    ivector1D ranks(npoints);
+    double radius =  std::numeric_limits<double>::max();
+    bool shared = true;
+    skdTreeUtils::projectPointGlobal(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data(), ranks.data(), radius, shared);
+#else
+    skdTreeUtils::projectPoint(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data());
+#endif
 
     //storing the projected points in the MImmoObject:
     long idS = 0;

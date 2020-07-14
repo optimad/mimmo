@@ -413,12 +413,18 @@ SpecularPoints::execute(){
     if(project){
         if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
 
-        //project points on surface.
-        int counter = 0;
-        for(auto &val : m_proj){
-            m_proj[counter]= skdTreeUtils::projectPoint(&val, getGeometry()->getSkdTree());
-            ++counter;
-        }
+        // In place use of project point
+        std::size_t npoints = m_proj.size();
+        livector1D ids(npoints);
+    #if MIMMO_ENABLE_MPI
+        ivector1D ranks(npoints);
+        double radius =  std::numeric_limits<double>::max();
+        bool shared = true;
+        skdTreeUtils::projectPointGlobal(npoints, m_proj.data(), getGeometry()->getSkdTree(), m_proj.data(), ids.data(), ranks.data(), radius, shared);
+    #else
+        skdTreeUtils::projectPoint(npoints, m_proj.data(), getGeometry()->getSkdTree(), m_proj.data(), ids.data());
+    #endif
+
     }
 };
 
