@@ -25,6 +25,9 @@
 
 #include "mimmo_core.hpp"
 #include "mimmo_iogeneric.hpp"
+#if MIMMO_ENABLE_MPI
+#include "mimmo_parallel.hpp"
+#endif
 
 // =================================================================================== //
 /*!
@@ -32,8 +35,17 @@
 
 	\brief Example of interpolating data over an unstructured non-homogeneous mesh.
 
-	Using: MimmoGeometry, MimmoPiercedVector
-
+*/
+#if MIMMO_ENABLE_MPI
+/*!
+    Using: MimmoGeometry, MimmoPiercedVector, Partition
+ */
+#else
+/*!
+    Using: MimmoGeometry, MimmoPiercedVector
+ */
+#endif
+/*!
 	<b>To run</b>: ./core_example_00001 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
@@ -48,8 +60,34 @@ void test00001() {
 	mimmo0->setReadDir("geodata");
 	mimmo0->setReadFileType(FileType::STL);
 	mimmo0->setReadFilename("plane3");
-
 	mimmo0->execute();
+
+#if MIMMO_ENABLE_MPI
+    /* Execution of a Partition object with default partition method space filling curve.
+     */
+    mimmo::Partition* partition= new mimmo::Partition();
+    partition->setGeometry(mimmo0->getGeometry());
+    partition->execute();
+#endif
+
+//    /* Setup pin connections.
+//     */
+//#if MIMMO_ENABLE_MPI
+//    mimmo::pin::addPin(mimmo0, partition, M_GEOM, M_GEOM);
+//#endif
+//
+//    /* Setup execution chain.
+//     */
+//    mimmo::Chain ch0;
+//    ch0.addObject(mimmo0);
+//#if MIMMO_ENABLE_MPI
+//    ch0.addObject(partition);
+//#endif
+//
+//    /* Execution of chain.
+//     * Use debug flag true to to print out the execution steps.
+//     */
+//    ch0.exec(true);
 
 	/*
 	 * Creation of a synthetic point field.
@@ -121,6 +159,8 @@ void test00001() {
 		for (bitpit::Interface & interface : mimmo0->getGeometry()->getPatch()->getInterfaces()){
 			if (interface.isBorder()){
 				field[count] = interfaceField[interface.getId()];
+                bitpit::log::cout() << bitpit::log::priority(bitpit::log::NORMAL);
+                bitpit::log::cout() << bitpit::log::visibility(bitpit::log::GLOBAL);
 				bitpit::log::cout() << "field on boundary interface " << count << " : " << field[count] << std::endl;
 				count++;
 			}
@@ -130,6 +170,9 @@ void test00001() {
 	/* Clean up & exit;
 	 */
 	delete mimmo0;
+#if MIMMO_ENABLE_MPI
+	delete partition;
+#endif
 	return;
 
 }
@@ -145,10 +188,6 @@ int main(int argc, char *argv[]) {
 
 	{
 #endif
-
-		/**<Change the name of mimmo logger file (default mimmo.log)
-		 * before initialization of BaseManipulation objects*/
-		mimmo::setLogger("mimmo");
 
 		/**<Calling mimmo Test routines*/
 		try{
