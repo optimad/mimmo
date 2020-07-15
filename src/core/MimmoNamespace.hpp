@@ -99,9 +99,11 @@ bool checkCompatibility(BaseManipulation* objSend, BaseManipulation* objRec, Por
 
 
 //log variables
-extern std::string MIMMO_LOG_FILE; /**<Name of logger file.*/
+extern std::string MIMMO_LOG_FILE;  /**<Name of logger file.*/
+extern std::string MIMMO_LOG_DIR;   /**<Directory of logger file.*/
 
 void    setLogger(std::string log);
+void    setLoggerDirectory(std::string dir);
 
 void    warningXML(bitpit::Logger* log, std::string name);
 

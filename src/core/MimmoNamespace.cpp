@@ -1,9 +1,10 @@
 #include "MimmoNamespace.hpp"
 #include "BaseManipulation.hpp"
 
-std::string mimmo::MIMMO_LOG_FILE = "mimmo"; /**<Default name of logger file.*/
-bool        mimmo::MIMMO_EXPERT = false;    /**<Flag that defines expert mode (true) or safe mode (false).
-                                                In case of expert mode active the mandatory ports are not checked. */
+std::string mimmo::MIMMO_LOG_FILE = "mimmo";    /**<Default name of logger file.*/
+std::string mimmo::MIMMO_LOG_DIR = ".";         /**<Default directory of logger file.*/
+bool        mimmo::MIMMO_EXPERT = false;        /**<Flag that defines expert mode (true) or safe mode (false).
+                                                    In case of expert mode active the mandatory ports are not checked. */
 
 
 /*!
@@ -197,6 +198,19 @@ void    setLogger(std::string log){
         return;
     }
     MIMMO_LOG_FILE = log;
+}
+
+/*!
+   Change the directory of the mimmo custom logger.
+ * \param[in] dir directory of the logger file.
+ */
+void    setLoggerDirectory(std::string dir){
+    if (BaseManipulation::sm_baseManipulationCounter > 1){
+        bitpit::Logger* log = &bitpit::log::cout(MIMMO_LOG_FILE);
+        (*log) << "warning: logger already set -> cannot change logger directory " << std::endl;
+        return;
+    }
+    MIMMO_LOG_DIR = dir;
 }
 
 /*!Return basic warning for no data found in xml dictionary.
