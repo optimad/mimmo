@@ -125,6 +125,10 @@ class BaseManipulation{
      * see mimmo::setLogger
      */
     friend void mimmo::setLogger(std::string log);
+    /*!
+     * see mimmo::setLoggerDirectory
+     */
+    friend void mimmo::setLoggerDirectory(std::string dir);
 
 public:
     //type definitions

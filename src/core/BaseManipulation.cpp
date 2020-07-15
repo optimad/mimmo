@@ -164,9 +164,9 @@ void
 BaseManipulation::initializeLogger(bool logexist){
 	if (!logexist){
 #if MIMMO_ENABLE_MPI
-		bitpit::log::manager().create(MIMMO_LOG_FILE, false, m_nprocs, m_rank);
+		bitpit::log::manager().initialize(bitpit::log::Mode::COMBINED, MIMMO_LOG_FILE, true, MIMMO_LOG_DIR, m_nprocs, m_rank);
 #else
-		bitpit::log::manager().create(MIMMO_LOG_FILE, false);
+		bitpit::log::manager().initialize(bitpit::log::Mode::COMBINED, MIMMO_LOG_FILE, true, MIMMO_LOG_DIR);
 #endif
 	}
 	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
