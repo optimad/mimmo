@@ -164,7 +164,8 @@ int test0() {
     std::vector<std::array<double,3>> array_projected_points(np);
     std::vector<long> projectCellIds(np, bitpit::Cell::NULL_ID);
     std::vector<int> ranks(np, -1);
-    skdTreeUtils::projectPointGlobal(np, points.data(), tree, array_projected_points.data(), projectCellIds.data(), ranks.data());
+    double radius = std::numeric_limits<double>::max();
+    skdTreeUtils::projectPointGlobal(np, points.data(), tree, array_projected_points.data(), projectCellIds.data(), ranks.data(), radius, true);
 
     for (auto & point : array_projected_points)
         bitpit::log::cout()<< point <<std::endl;
@@ -174,7 +175,7 @@ int test0() {
     /* Locate points on surface patch. */
     bitpit::log::cout() << " --- LOCATE POINTS --- " << std::endl;
     std::vector<long> locateCellIds(np, bitpit::Cell::NULL_ID);
-    skdTreeUtils::locatePointOnGlobalPatch(np, array_projected_points.data(), tree, locateCellIds.data(), ranks.data());
+    skdTreeUtils::locatePointOnGlobalPatch(np, array_projected_points.data(), tree, locateCellIds.data(), ranks.data(), true);
 
     for (std::size_t i = 0; i < np; i++){
         bitpit::log::cout()<< " projected cell id : " << projectCellIds[i] << "  locate cell id : " << locateCellIds[i] <<std::endl;
