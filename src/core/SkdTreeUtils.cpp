@@ -119,6 +119,27 @@ double signedDistance(const std::array<double,3> *point, const bitpit::PatchSkdT
  */
 void distance(size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, double r)
 {
+    std::vector<double> rs(nP, r);
+    distance(nP, points, tree, ids, distances, rs.data());
+}
+
+/*!
+ * It computes the unsigned distance of a set of points to a geometry linked in a SkdTree
+ * object. The geometry has to be a surface mesh, in particular an object of type
+ * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
+ * It searches the element with minimum distance in a box of length 2*r, if none
+ * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
+ * position of the distances array related to the input point.
+ * \param[in] nP Number of input points.
+ * \param[in] points Pointer to coordinates of input points.
+ * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
+ * \param[out] distances Unsigned distance of the input points from the patch in the skd-tree.
+ * \param[out] ids Label of the elements found as minimum distance elements in the skd-tree.
+ * \param[in] r Length of the side of the box or radius of the sphere used to search for each
+ * input point. (The algorithm checks every element encountered inside the box/sphere).
+ */
+void distance(size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, double *r)
+{
 
     // Initialize distances
     for (std::size_t ip = 0; ip < nP; ip++){
@@ -136,7 +157,8 @@ void distance(size_t nP, const std::array<double,3> *points, const bitpit::Patch
         const std::array<double,3> *point = &points[ip];
         long *id = &ids[ip];
         double *distance = &distances[ip];
-        static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestCell(*point, r, id, distance);
+        double rpoint = r[ip];
+        static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestCell(*point, rpoint, id, distance);
     }
 
 }
@@ -162,7 +184,34 @@ void distance(size_t nP, const std::array<double,3> *points, const bitpit::Patch
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
  */
-double signedDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, std::array<double,3> *normals, double *distances, double r)
+void signedDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double r)
+{
+    std::vector<double> rs(nP, r);
+    signedDistance(nP, points, tree, ids, distances, normals, rs.data());
+}
+
+/*!
+ * It computes the signed distance of a set of points to a geometry linked in a SkdTree
+ * object. The geometry must be a surface mesh, in particular an object of type
+ * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
+ * The sign of the distance is provided by the normal to the geometry locally
+ * computed. A positive distance means that the point is located, in respect to the
+ * surface mesh, on the same side of the outer normal vector.
+ * It searches the element with minimum distance in a box of length 2*r, if none
+ * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
+ * position of the distances array related to the input point.
+ * \param[in] nP Number of input points.
+ * \param[in] points Pointer to coordinates of input points.
+ * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
+ * \param[out] distances Signed distance of the input points from the patch in the skd-tree.
+ * \param[out] ids Label of the elements found as minimum distance elements in the skd-tree.
+ * \param[out] normals Pseudo-normal of the elements (i.e. unit vector with direction (P-xP),
+ * where P is the input point and xP the nearest point on the element (simplex) to
+ * the projection of P on the plane of the simplex.
+ * \param[in] r Length of the side of the box or radius of the sphere used to search for each input
+ * point. (The algorithm checks every element encountered inside the box/sphere).
+ */
+void signedDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double *r)
 {
 
     // Initialize distances
@@ -182,7 +231,8 @@ double signedDistance(std::size_t nP, const std::array<double,3> *points, const 
         const std::array<double,3> *point = &points[ip];
         long *id = &ids[ip];
         double *distance = &distances[ip];
-        static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestCell(*point, r, id, distance);
+        double rpoint = r[ip];
+        static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestCell(*point, rpoint, id, distance);
         normals[ip] = computePseudoNormal(*point, spatch, *id);
     }
 
@@ -341,23 +391,45 @@ darray3E projectPoint(const std::array<double,3> *point, const bitpit::PatchSkdT
  */
 void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double r )
 {
+    std::vector<double> rs(nP, r);
+    projectPoint(nP, points, tree, projected_points, ids, rs.data());
+}
+
+/*!
+ * It computes the projection of a set of points on a geometry linked in a skd-tree
+ * object. The geometry must be a surface mesh, in particular an object of type
+ * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
+ * It searches the elements of the geometry with minimum distance
+ * recursively in a sphere of radius r, by increasing the size r at each step
+ * until at least one element is found.
+ * \param[in] nP Number of input points.
+ * \param[in] points Pointer to coordinates of input points.
+ * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
+ * \param[out] ids Labels of the elements found as minimum distance element into the points are projected.
+ * \param[in] r Initial length of the sphere radius used to search for each input point. (The algorithm checks
+ * every element encountered inside the sphere).
+ * \param[out] Coordinates of the projected points.
+ */
+void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double *r )
+{
 
     // Initialize ids and ranks
     for (std::size_t ip = 0; ip < nP; ip++){
         ids[ip] = bitpit::Cell::NULL_ID;
+        r[ip] = std::max(r[ip], tree->getPatch().getTol());
     }
     std::vector<darray3E>    normals(nP);
-
-    r = std::max(r, tree->getPatch().getTol());
 
     std::vector<double> dist(nP, std::numeric_limits<double>::max());
     double max_dist = std::numeric_limits<double>::max();
     while (max_dist == std::numeric_limits<double>::max()){
         //use method sphere by default
+        signedDistance(nP, points, tree, ids, dist.data(), normals.data(), r);
         for (std::size_t ip = 0; ip < nP; ip++){
-            dist[ip] = signedDistance(&points[ip], tree, ids[ip], normals[ip], r);
+            if (std::abs(dist[ip]) >= max_dist){
+                r[ip] *= 1.5;
+            }
         }
-        r *= 1.5;
         max_dist = std::abs(*std::max_element(dist.begin(), dist.end()));
         max_dist = std::max(max_dist, std::abs(*std::min_element(dist.begin(), dist.end())));
     }
@@ -560,6 +632,29 @@ checkPointBelongsToCell(const std::array<double, 3> &point, const bitpit::SurfUn
  */
 void globalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double r, bool shared)
 {
+    std::vector<double> rs(nP, r);
+    globalDistance(nP, points, tree, ids, ranks, distances, rs.data(), shared);
+}
+
+/*!
+ * It computes the unsigned distance of a set of points to a geometry linked in a SkdTree
+ * object. The geometry has to be a surface mesh, in particular an object of type
+ * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
+ * It searches the element with minimum distance in a box of length 2*r, if none
+ * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
+ * position of the distances array related to the input point.
+ * \param[in] nP Number of input points.
+ * \param[in] points Pointer to coordinates of input points.
+ * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
+ * \param[out] ids Labels of the elements found as minimum distance element in the skd-tree.
+ * \param[out] ranks Ranks of the process owner of the elements found as minimum distance elements in the skd-tree.
+ * \param[out] distances Distance of the input points from the patch in the skd-tree.
+ * \param[in] shared True if the input points are shared between the processes
+ * \param[in] r Length of the side of the box or radius of the sphere used to search for each input point (The algorithm checks
+ * every element encountered inside the box/sphere).
+ */
+void globalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double* r, bool shared)
+{
 
     if(!tree ){
         throw std::runtime_error("Invalid use of skdTreeUtils::distance method: a void tree is detected.");
@@ -575,6 +670,7 @@ void globalDistance(std::size_t nP, const std::array<double,3> *points, const bi
     }
 
 }
+
 
 /*!
  * It computes the signed global distance of a set of points to a geometry linked in a SkdTree
@@ -600,6 +696,35 @@ void globalDistance(std::size_t nP, const std::array<double,3> *points, const bi
  * every element encountered inside the box/sphere).
  */
 void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double r, bool shared)
+{
+    std::vector<double> rs(nP, r);
+    signedGlobalDistance(nP, points, tree, ids, ranks, normals, distances, rs.data(), shared);
+}
+
+/*!
+ * It computes the signed global distance of a set of points to a geometry linked in a SkdTree
+ * object. The geometry must be a surface mesh, in particular an object of type
+ * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
+ * The sign of the distance is provided by the normal to the geometry locally
+ * computed. A positive distance means that the point is located, in respect to the
+ * surface mesh, on the same side of the outer normal vector.
+ * It searches the element with minimum distance in a box of length 2*r, if none
+ * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
+ * position of the distances array related to the input point.
+ * \param[in] nP Number of input points.
+ * \param[in] points Pointer to coordinates of input points.
+ * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
+ * \param[out] ids Labels of the elements found as minimum distance element in the skd-tree.
+ * \param[out] ranks Ranks of the process owner of the elements found as minimum distance elements in the skd-tree.
+ * \param[out] normals Pseudo-normals of the elements (i.e. unit vector with direction (P-xP),
+ * where P is the input point and xP the nearest point on the element (simplex) to
+ * the projection of P on the plane of the simplex.
+ * \param[out] distances Signed distance of the input points from the patch in the skd-tree.
+ * \param[in] shared True if the input points are shared between the processes
+ * \param[in] r Length of the side of the box or radius of the sphere used to search for each input point. (The algorithm checks
+ * every element encountered inside the box/sphere).
+ */
+void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double *r, bool shared)
 {
 
     if(!tree){
@@ -760,22 +885,47 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
  */
 void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double r, bool shared )
 {
+    std::vector<double> rs(nP, r);
+    projectPointGlobal(nP, points, tree, projected_points, ids, ranks, rs.data(), shared);
+}
+
+/*!
+ * It computes the projection of a set of points on a geometry linked in a skd-tree
+ * object. The geometry must be a surface mesh, in particular an object of type
+ * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
+ * It searches the elements of the geometry with minimum distance
+ * recursively in a sphere of radius r, by increasing the size r at each step
+ * until at least one element is found.
+ * \param[in] nP Number of input points.
+ * \param[in] points Pointer to coordinates of input points.
+ * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
+ * \param[out] ids Labels of the elements found as minimum distance element into the points are projected.
+ * \param[out] ranks Ranks of the process owner of the elements into the points are projected.
+ * \param[in] r Initial length of the sphere radius used to search for each input point. (The algorithm checks
+ * every element encountered inside the sphere).
+ * \param[out] Coordinates of the projected points.
+ */
+void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double *r, bool shared )
+{
 
     // Initialize ids and ranks
     for (std::size_t ip = 0; ip < nP; ip++){
         ids[ip] = bitpit::Cell::NULL_ID;
         ranks[ip] = -1;
+        r[ip] = std::max(r[ip], tree->getPatch().getTol());
     }
     std::vector<darray3E>    normals(nP);
-
-    r = std::max(r, tree->getPatch().getTol());
 
     std::vector<double> dist(nP, std::numeric_limits<double>::max());
     double max_dist = std::numeric_limits<double>::max();
     while (max_dist >= std::numeric_limits<double>::max()){
         //use method sphere by default
         signedGlobalDistance(nP, points, tree, ids, ranks, normals.data(), dist.data(), r, shared);
-        r *= 1.5;
+        for (std::size_t ip = 0; ip < nP; ip++){
+            if (std::abs(dist[ip]) >= max_dist){
+                r[ip] *= 1.5;
+            }
+        }
         max_dist = std::abs(*std::max_element(dist.begin(), dist.end()));
         max_dist = std::max(max_dist, std::abs(*std::min_element(dist.begin(), dist.end())));
     }
@@ -1176,6 +1326,33 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
 void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree,
         long *ids, int *ranks, double *distances, double r)
 {
+    std::vector<double> rs(nPoints, r);
+    findSharedPointClosestGlobalCell(nPoints, points, tree, ids, ranks, distances, rs.data());
+}
+
+/*!
+* Given the specified set of points, considered shared on the processes, find the
+* closest cells contained in the tree and evaluates the distance values
+* between those cells and the given points.
+* \param[in] nPoints number of the points
+* \param[in] points points coordinates
+* \param[in] tree pointer to SkdTree relative to the target surface geometry.
+* \param[in] r all cells whose distance is greater than
+* this parameters, one for each input point, will not be considered
+* for the evaluation of the distance
+* \param[out] ids on output it will contain the ids of the cells closest
+* to the points. If all cells contained in the tree are farther from a point
+* than the maximum distance, the related id will be set to the null id
+* \param[out] ranks on output it will contain the rank indices of the processes
+* owner of the cells closest to the points
+* \param[out] distances on output it will contain the distances
+* between the points and closest cells. If all cells contained in the tree are
+* farther than the maximum distance, the related argument will be set to the
+* maximum representable distance.
+*/
+void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree,
+        long *ids, int *ranks, double *distances, double *r)
+{
     // Initialize the cell ids and ranks
     for (std::size_t i = 0; i < nPoints; i++){
         ids[i] = bitpit::Cell::NULL_ID;
@@ -1201,7 +1378,7 @@ void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<doub
 
         // Use a maximum distance for each point given by an estimation based on partition
         // bounding boxes. The distance will be lesser than or equal to the point maximum distance
-        double pointMaxDistance = r;
+        double pointMaxDistance = r[ip];
         for (int irank = 0; irank < nProcs; irank++){
             pointMaxDistance = std::min(tree->getPartitionBox(irank).evalPointMaxDistance(point), pointMaxDistance);
         }
