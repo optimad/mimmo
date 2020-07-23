@@ -66,6 +66,13 @@ namespace skdTreeUtils{
     void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double *r);
 #endif
 
+    // Functions to allow the use with volume patches (currently not allowed in bitpit)
+    long findPointClosestCell(const std::array<double,3> &point, const bitpit::VolumeSkdTree *tree, long *id, double *distance);
+    long findPointClosestCell(const std::array<double,3> &point, const bitpit::VolumeSkdTree *tree, double maxDistance, long *id, double *distance);
+#if MIMMO_ENABLE_MPI
+    void findPointClosestGlobalCell(const std::size_t nPoints, const std::array<double, 3> *points, const bitpit::VolumeSkdTree *tree, long *ids, int *ranks, double *distances);
+#endif
+
 }; //end namespace skdTreeUtils
 
 } //end namespace mimmo
