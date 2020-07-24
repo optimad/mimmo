@@ -562,7 +562,7 @@ computePseudoNormal(const std::array<double, 3> &point, const bitpit::SurfUnstru
         //pseudo-normal (direction P and xP closest point on triangle)
         pseudo_normal = s * (point - xP);
         double normX = norm2(pseudo_normal);
-        if(normX < 1.E-15){
+        if(normX < surface_mesh->getTol()){
             pseudo_normal = normal/norm2(normal);
         }else{
             pseudo_normal /= normX;
