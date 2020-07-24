@@ -992,23 +992,7 @@ BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry)
 	bitpit::VTKUnstructuredGrid & VTK = geometry->getPatch()->getVTK();
 	VTK.setDirectory(m_outputPlot+"/");
 	VTK.setName(m_name+std::to_string(m_counter));
-
-//	if(geometry->getType() != 3){
-		geometry->getPatch()->write();
-//	}
-//	else{
-//		liimap mapDataInv;
-//		dvecarr3E points = geometry->getVerticesCoords(&mapDataInv);
-//		int size = points.size();
-//		ivector2D connectivity(size, ivector1D(1));
-//		for(int i=0; i<size; ++i)    connectivity[i][0]=i;
-////		VTK.setElementType(bitpit::VTKElementType::VERTEX);
-//		VTK.setGeomData( bitpit::VTKUnstructuredField::POINTS, points);
-//		VTK.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, connectivity);
-//		VTK.setDimensions(connectivity.size(), points.size());
-//		VTK.setCodex(bitpit::VTKFormat::APPENDED);
-//		VTK.write();
-//	}
+	geometry->getPatch()->write();
 }
 
 };

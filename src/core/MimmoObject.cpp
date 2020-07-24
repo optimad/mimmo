@@ -234,15 +234,11 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 
 	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 
-	//	if(connectivity == nullptr){
-	//		m_type = 3;
-	//	}else{
 	m_type = std::max(type,1);
 	if (m_type > 4){
 		(*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
 		throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
 	}
-	//	}
 
 	switch(m_type){
 	case 1:
@@ -287,7 +283,6 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 
 	m_log->setPriority(bitpit::log::Priority::DEBUG);
 
-	//	if(m_type != 3){
 	livector1D temp;
 	std::size_t sizeCell = connectivity->size();
 	m_patch->reserveCells(sizeCell);
@@ -303,10 +298,6 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 	m_pidsType.insert(0);
 	m_pidsTypeWNames.insert(std::make_pair(0,""));
 
-	//	}else{
-	//		(*m_log)<<"Not supported connectivity found for MimmoObject"<<std::endl;
-	//		(*m_log)<<"Proceeding as Point Cloud geometry"<<std::endl;
-	//	}
 	m_log->setPriority(bitpit::log::Priority::NORMAL);
 
 #if MIMMO_ENABLE_MPI
@@ -346,7 +337,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	if (geometry->getVertexCount() ==0){
 		(*m_log)<<"Error MimmoObject: no points detected in the linked mesh."<<std::endl;
 	}
-	if (geometry->getCellCount() ==0){ // && m_type != 3){
+	if (geometry->getCellCount() ==0){
 		(*m_log)<<"Error MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
 	}
 
@@ -484,7 +475,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	if (geometry->getVertexCount() ==0){
 		(*m_log)<<"Error MimmoObject: no points detected in the linked mesh."<<std::endl;
 	}
-	if (geometry->getCellCount() ==0){ // && m_type != 3){
+	if (geometry->getCellCount() ==0){
 		(*m_log)<<"Error MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
 	}
 
@@ -777,7 +768,6 @@ bool
 MimmoObject::isEmpty(){
 
 	bool check = getNVertices() == 0;
-	//	if(m_type != 3) check = check || (getNCells() == 0);
 	check = check || (getNCells() == 0);
 
 	return check;
@@ -868,10 +858,6 @@ MimmoObject::getNInternalVertices(){
 #endif
 		return getNVertices();
 #if MIMMO_ENABLE_MPI
-
-	//	if (!arePointGhostExchangeInfoSync())
-	//		updatePointGhostExchangeInfo();
-
 	return m_ninteriorvertices;
 #endif
 };
@@ -889,9 +875,6 @@ MimmoObject::getNGlobalVertices(){
 		return p->getVertexCount();
 	}
 
-	//	if (!arePointGhostExchangeInfoSync())
-	//		updatePointGhostExchangeInfo();
-
 	return m_nglobalvertices;
 };
 
@@ -907,6 +890,7 @@ MimmoObject::getNGlobalCells() {
 
 	if (!isInfoSync())
 		buildPatchInfo();
+
 	return getPatchInfo()->getCellGlobalCount();
 };
 
@@ -919,9 +903,6 @@ long
 MimmoObject::getPointGlobalCountOffset(){
 	if (!getPatch()->isPartitioned())
 		return 0;
-
-	//	if (!arePointGhostExchangeInfoSync())
-	//		updatePointGhostExchangeInfo();
 
 	return m_globaloffset;
 };
@@ -1355,7 +1336,6 @@ MimmoObject::getPIDTypeListWNames() const {
  */
 livector1D
 MimmoObject::getCompactPID() {
-	//	if(!m_skdTreeSupported || m_pidsType.empty())	return livector1D(0);
 	if(m_pidsType.empty())	return livector1D(0);
 	livector1D result(getNCells());
 	int counter=0;
@@ -1373,7 +1353,6 @@ MimmoObject::getCompactPID() {
  */
 std::unordered_map<long,long>
 MimmoObject::getPID() {
-	//	if(!m_skdTreeSupported || m_pidsType.empty())	return std::unordered_map<long,long>();
 	if(m_pidsType.empty())	return std::unordered_map<long,long>();
 	std::unordered_map<long,long> 	result;
 	for(auto const & cell : getCells()){
@@ -1457,16 +1436,9 @@ MimmoObject::isPointInterior(long id)
 {
 #if MIMMO_ENABLE_MPI
 
-	//TODO Initialize structure to true if not partitioned
 	//If not partitioned return true
 	if (!getPatch()->isPartitioned())
 		return true;
-
-	//	if (!arePointGhostExchangeInfoSync())
-	//		updatePointGhostExchangeInfo();
-
-	//	if (!m_isPointInterior.count(id))
-	//		return false;
 
 	return m_isPointInterior.at(id);
 
@@ -2490,7 +2462,6 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 	BITPIT_UNUSED(rank);
 #endif
 
-	//	if (conn.empty() || !m_skdTreeSupported) return false;
 	if (conn.empty()) return bitpit::Cell::NULL_ID;
 	if(idtag != bitpit::Cell::NULL_ID && getCells().exists(idtag)) return bitpit::Cell::NULL_ID;
 
@@ -2600,7 +2571,7 @@ MimmoObject::addCell(bitpit::Cell & cell, const long idtag, int rank){
  */
 void
 MimmoObject::setPID(livector1D pids){
-	if((int)pids.size() != getNCells()) return; // || !m_skdTreeSupported)	return;
+	if((int)pids.size() != getNCells()) return;
 
 	m_pidsType.clear();
 	m_pidsTypeWNames.clear();
@@ -2624,7 +2595,7 @@ MimmoObject::setPID(livector1D pids){
  */
 void
 MimmoObject::setPID(std::unordered_map<long, long> pidsMap){
-	if(getNCells() == 0) return; // || !m_skdTreeSupported)	return;
+	if(getNCells() == 0) return;
 
 	m_pidsType.clear();
 	m_pidsTypeWNames.clear();
@@ -2746,7 +2717,6 @@ bool
 MimmoObject::cleanGeometry(){
 	auto patch = getPatch();
 	patch->deleteCoincidentVertices();
-	//	if(m_skdTreeSupported)  patch->deleteOrphanVertices();
 
 	m_kdTreeSync = false;
 	m_infoSync = false;
@@ -4287,7 +4257,6 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
 std::unordered_map<long,long> MimmoObject::getInverseConnectivity(){
 
 	std::unordered_map<long,long> invConn ;
-	//	if(getType() == 3) return invConn;
 
 	long cellId;
 	for(const auto &cell : getCells()){
@@ -4441,7 +4410,6 @@ MimmoObject::buildPointConnectivity()
 	if(getType() == 1 || getType() == 2 || getType() == 4){
 		//Surface/volume mesh & 3d curve point connectivity
 
-		//	std::set<long> visited;
 		//ONLY EDGE CONNECTIVITY
 		std::set<std::pair<long,long> > edges;
 		for (bitpit::Cell & cell : getCells()){
@@ -4477,26 +4445,6 @@ MimmoObject::buildPointConnectivity()
 				}
 			}
 		}
-
-		//
-		//	//ONE RING CELL CONNECTIVITY
-		//	for (bitpit::Cell & cell : getCells()){
-		//		long idcell = cell.getId();
-		//		int nv = cell.getVertexCount();
-		//		for (int iv=0; iv<nv; iv++){
-		//			long id = cell.getVertexId(iv);
-		//			if (!visited.count(id)){
-		//				livector1D list = getPatch()->findCellVertexOneRing(idcell, iv);
-		//				visited.insert(id);
-		//				for(const auto & cellIndex : list){
-		//			          bitpit::ConstProxyVector<long> ids = getPatch()->getCell(cellIndex).getVertexIds();
-		//			          m_pointConnectivity[id].insert(ids.begin(), ids.end());
-		//				}
-		//				m_pointConnectivity[id].erase(id);
-		//			}
-		//		}
-		//	}
-
 	}
 	else{
 		//No allowed type
