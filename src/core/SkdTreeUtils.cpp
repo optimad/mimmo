@@ -117,7 +117,7 @@ double signedDistance(const std::array<double,3> *point, const bitpit::PatchSkdT
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
  */
-void distance(size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, double r)
+void distance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, double r)
 {
     std::vector<double> rs(nP, r);
     distance(nP, points, tree, ids, distances, rs.data());
@@ -138,11 +138,11 @@ void distance(size_t nP, const std::array<double,3> *points, const bitpit::Patch
  * \param[in] r Length of the side of the box or radius of the sphere used to search for each
  * input point. (The algorithm checks every element encountered inside the box/sphere).
  */
-void distance(size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, double *r)
+void distance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, double *r)
 {
 
     // Initialize distances
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
         distances[ip] = std::numeric_limits<double>::max();
     }
 
@@ -153,7 +153,7 @@ void distance(size_t nP, const std::array<double,3> *points, const bitpit::Patch
         throw std::runtime_error("Invalid use of skdTreeUtils::distance method: a not surface patch tree is detected.");
     }
 
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
         const std::array<double,3> *point = &points[ip];
         long *id = &ids[ip];
         double *distance = &distances[ip];
@@ -184,7 +184,7 @@ void distance(size_t nP, const std::array<double,3> *points, const bitpit::Patch
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
  */
-void signedDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double r)
+void signedDistance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double r)
 {
     std::vector<double> rs(nP, r);
     signedDistance(nP, points, tree, ids, distances, normals, rs.data());
@@ -211,11 +211,11 @@ void signedDistance(std::size_t nP, const std::array<double,3> *points, const bi
  * \param[in] r Length of the side of the box or radius of the sphere used to search for each input
  * point. (The algorithm checks every element encountered inside the box/sphere).
  */
-void signedDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double *r)
+void signedDistance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double *r)
 {
 
     // Initialize distances
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
         distances[ip] = std::numeric_limits<double>::max();
     }
 
@@ -227,7 +227,7 @@ void signedDistance(std::size_t nP, const std::array<double,3> *points, const bi
         throw std::runtime_error("Invalid use of skdTreeUtils::signedDistance method: a not surface patch tree is detected.");
     }
 
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
         const std::array<double,3> *point = &points[ip];
         long *id = &ids[ip];
         double *distance = &distances[ip];
@@ -294,10 +294,10 @@ std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSk
 void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit::SkdNode*> & leafSelection, std::vector<long> &extracted, double tol){
 
     if(leafSelection.empty())   return;
-    std::size_t rootId = 0;
+    long rootId = 0;
 
-    std::vector<std::size_t> candidates;
-    std::vector<std::pair< std::size_t, std::vector<const bitpit::SkdNode*> > > nodeStack;
+    std::vector<long> candidates;
+    std::vector<std::pair< long, std::vector<const bitpit::SkdNode*> > > nodeStack;
 
     std::vector<const bitpit::SkdNode*> tocheck;
     for (int i=0; i<(int)leafSelection.size(); i++){
@@ -313,7 +313,7 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit:
 
     while(!nodeStack.empty()){
 
-        std::pair<std::size_t,  std::vector<const bitpit::SkdNode*> >  touple = nodeStack.back();
+        std::pair<long,  std::vector<const bitpit::SkdNode*> >  touple = nodeStack.back();
         const bitpit::SkdNode & node = target->getNode(touple.first);
         nodeStack.pop_back();
 
@@ -321,7 +321,7 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit:
         bool isLeaf = true;
         for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {
             bitpit::SkdNode::ChildLocation childLocation = static_cast<bitpit::SkdNode::ChildLocation>(i);
-            std::size_t childId = node.getChildId(childLocation);
+            long childId = node.getChildId(childLocation);
             if (childId != bitpit::SkdNode::NULL_ID) {
                 isLeaf = false;
                 tocheck.clear();
@@ -389,7 +389,7 @@ darray3E projectPoint(const std::array<double,3> *point, const bitpit::PatchSkdT
  * every element encountered inside the sphere).
  * \param[out] Coordinates of the projected points.
  */
-void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double r )
+void projectPoint(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double r )
 {
     std::vector<double> rs(nP, r);
     projectPoint(nP, points, tree, projected_points, ids, rs.data());
@@ -410,11 +410,11 @@ void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitp
  * every element encountered inside the sphere).
  * \param[out] Coordinates of the projected points.
  */
-void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double *r )
+void projectPoint(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double *r )
 {
 
     // Initialize ids and ranks
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
         ids[ip] = bitpit::Cell::NULL_ID;
         r[ip] = std::max(r[ip], tree->getPatch().getTol());
     }
@@ -425,7 +425,7 @@ void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitp
     while (max_dist == std::numeric_limits<double>::max()){
         //use method sphere by default
         signedDistance(nP, points, tree, ids, dist.data(), normals.data(), r);
-        for (std::size_t ip = 0; ip < nP; ip++){
+        for (int ip = 0; ip < nP; ip++){
             if (std::abs(dist[ip]) >= max_dist){
                 r[ip] *= 1.5;
             }
@@ -434,7 +434,7 @@ void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitp
         max_dist = std::max(max_dist, std::abs(*std::min_element(dist.begin(), dist.end())));
     }
 
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
         projected_points[ip] = points[ip] - dist[ip] * normals[ip];
     }
 }
@@ -626,7 +626,7 @@ checkPointBelongsToCell(const std::array<double, 3> &point, const bitpit::SurfUn
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
  */
-void globalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double r, bool shared)
+void globalDistance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double r, bool shared)
 {
     std::vector<double> rs(nP, r);
     globalDistance(nP, points, tree, ids, ranks, distances, rs.data(), shared);
@@ -645,7 +645,7 @@ void globalDistance(std::size_t nP, const std::array<double,3> *points, const bi
  * \param[in] r Length of the side of the box or radius of the sphere used to search for each input point (The algorithm checks
  * every element encountered inside the box/sphere).
  */
-void globalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double* r, bool shared)
+void globalDistance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double* r, bool shared)
 {
 
     if(!tree ){
@@ -679,7 +679,7 @@ void globalDistance(std::size_t nP, const std::array<double,3> *points, const bi
  * \param[in] r Length of the side of the box or radius of the sphere used to search. (The algorithm checks
  * every element encountered inside the box/sphere).
  */
-void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double r, bool shared)
+void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double r, bool shared)
 {
     std::vector<double> rs(nP, r);
     signedGlobalDistance(nP, points, tree, ids, ranks, normals, distances, rs.data(), shared);
@@ -701,7 +701,7 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
  * \param[in] r Length of the side of the box or radius of the sphere used to search for each input point. (The algorithm checks
  * every element encountered inside the box/sphere).
  */
-void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double *r, bool shared)
+void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double *r, bool shared)
 {
 
     if(!tree){
@@ -722,10 +722,10 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
     // Map with rank to ask info in case of distributed points
     std::map<int,std::vector<long>> ask_to_rank;
     std::map<int,std::vector<std::array<double,3>>> point_to_rank;
-    std::map<int,std::vector<std::size_t>> point_index_received_from_rank;
+    std::map<int,std::vector<int>> point_index_received_from_rank;
 
     // Loop on points
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
 
         const std::array<double,3> & point = points[ip];
         const long & cellId = ids[ip];
@@ -764,15 +764,15 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
         if (shared){
 
             // If all points are shared between processes all reduce on normal by minimum operation
-            MPI_Allreduce(MPI_IN_PLACE, normals, 3*nP, MPI_DOUBLE, MPI_MIN, tree->getCommunicator());
+            MPI_Allreduce(MPI_IN_PLACE, normals, 3*nP, MPI_DOUBLE, MPI_MIN, tree->getPatch().getCommunicator());
 
         } else {
 
             // Send/receive number of normals to send to other processes
-            std::vector<std::size_t> n_send_to_rank(nProcessors, 0);
+            std::vector<int> n_send_to_rank(nProcessors, 0);
             for (int irank = 0; irank < nProcessors; irank++){
-                std::size_t n_ask_to_current_rank = ask_to_rank[irank].size();
-                MPI_Gather(&n_ask_to_current_rank, 1, MPI_LONG, n_send_to_rank.data(), 1, MPI_LONG, irank, tree->getCommunicator());
+                int n_ask_to_current_rank = ask_to_rank[irank].size();
+                MPI_Gather(&n_ask_to_current_rank, 1, MPI_INT, n_send_to_rank.data(), 1, MPI_INT, irank, tree->getPatch().getCommunicator());
             }
 
             // Map with rank to send info for cellId and point coordinates
@@ -788,23 +788,23 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
                 if (myrank == irank){
                     for (int jrank = 0; jrank < nProcessors; jrank++){
                         if (jrank != irank){
-                            std::size_t n_send_to_current_rank = n_send_to_rank[jrank];
-                            MPI_Recv(send_to_rank[jrank].data(), n_send_to_current_rank, MPI_LONG, jrank, 100, tree->getCommunicator(), MPI_STATUS_IGNORE);
-                            MPI_Recv(point_from_rank[jrank].data(), n_send_to_current_rank*3, MPI_DOUBLE, jrank, 101, tree->getCommunicator(), MPI_STATUS_IGNORE);
+                            int n_send_to_current_rank = n_send_to_rank[jrank];
+                            MPI_Recv(send_to_rank[jrank].data(), n_send_to_current_rank, MPI_LONG, jrank, 100, tree->getPatch().getCommunicator(), MPI_STATUS_IGNORE);
+                            MPI_Recv(point_from_rank[jrank].data(), n_send_to_current_rank*3, MPI_DOUBLE, jrank, 101, tree->getPatch().getCommunicator(), MPI_STATUS_IGNORE);
                         }
                     }
                 } else {
-                    std::size_t n_ask_to_current_rank = ask_to_rank[irank].size();
-                    MPI_Send(ask_to_rank[irank].data(), n_ask_to_current_rank, MPI_LONG, irank, 100, tree->getCommunicator());
-                    MPI_Send(point_to_rank[irank].data(), n_ask_to_current_rank*3, MPI_DOUBLE, irank, 101, tree->getCommunicator());
+                    int n_ask_to_current_rank = ask_to_rank[irank].size();
+                    MPI_Send(ask_to_rank[irank].data(), n_ask_to_current_rank, MPI_LONG, irank, 100, tree->getPatch().getCommunicator());
+                    MPI_Send(point_to_rank[irank].data(), n_ask_to_current_rank*3, MPI_DOUBLE, irank, 101, tree->getPatch().getCommunicator());
                 }
             }
 
             // Compute pseudo-normal for each received point from each rank
             std::map<int, std::vector<std::array<double,3>>> normal_to_rank;
-            for (std::size_t irank = 0; irank < nProcessors; irank++){
+            for (int irank = 0; irank < nProcessors; irank++){
                 normal_to_rank[irank].resize(n_send_to_rank[irank], std::array<double,3>({std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max()}));
-                for (std::size_t ip = 0; ip < n_send_to_rank[irank]; ip++){
+                for (int ip = 0; ip < n_send_to_rank[irank]; ip++){
 
                     const std::array<double,3> & point = point_from_rank[irank][ip];
                     const long & cellId = send_to_rank[irank][ip];
@@ -822,21 +822,21 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
                 if (myrank == irank){
                     for (int jrank = 0; jrank < nProcessors; jrank++){
                         if (jrank != irank){
-                            std::size_t n_ask_to_current_rank = ask_to_rank[jrank].size();
+                            int n_ask_to_current_rank = ask_to_rank[jrank].size();
                             normal_from_rank[jrank].resize(n_ask_to_current_rank);
-                            MPI_Recv(normal_from_rank[jrank].data(), n_ask_to_current_rank*3, MPI_DOUBLE, jrank, 102, tree->getCommunicator(), MPI_STATUS_IGNORE);
+                            MPI_Recv(normal_from_rank[jrank].data(), n_ask_to_current_rank*3, MPI_DOUBLE, jrank, 102, tree->getPatch().getCommunicator(), MPI_STATUS_IGNORE);
 
                             // Fill normals output with the correct received pseudonormals (TODO move out of communications scope?)
-                            for (std::size_t ip = 0; ip < n_ask_to_current_rank; ip++){
-                                std::size_t point_index = point_index_received_from_rank[jrank][ip];
+                            for (int ip = 0; ip < n_ask_to_current_rank; ip++){
+                                int point_index = point_index_received_from_rank[jrank][ip];
                                 normals[point_index] = normal_from_rank[jrank][ip];
                             }
 
                         }
                     }
                 } else {
-                    std::size_t n_send_to_current_rank = n_send_to_rank[irank];
-                    MPI_Send(normal_to_rank[irank].data(), n_send_to_current_rank*3, MPI_DOUBLE, irank, 102, tree->getCommunicator());
+                    int n_send_to_current_rank = n_send_to_rank[irank];
+                    MPI_Send(normal_to_rank[irank].data(), n_send_to_current_rank*3, MPI_DOUBLE, irank, 102, tree->getPatch().getCommunicator());
                 }
             }
 
@@ -856,7 +856,7 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
  * every element encountered inside the sphere).
  * \param[out] Coordinates of the projected points.
  */
-void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double r, bool shared )
+void projectPointGlobal(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double r, bool shared )
 {
     std::vector<double> rs(nP, r);
     projectPointGlobal(nP, points, tree, projected_points, ids, ranks, rs.data(), shared);
@@ -874,11 +874,11 @@ void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, cons
  * every element encountered inside the sphere).
  * \param[out] Coordinates of the projected points.
  */
-void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double *r, bool shared )
+void projectPointGlobal(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double *r, bool shared )
 {
 
     // Initialize ids and ranks
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
         ids[ip] = bitpit::Cell::NULL_ID;
         ranks[ip] = -1;
         r[ip] = std::max(r[ip], tree->getPatch().getTol());
@@ -890,7 +890,7 @@ void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, cons
     while (max_dist >= std::numeric_limits<double>::max()){
         //use method sphere by default
         signedGlobalDistance(nP, points, tree, ids, ranks, normals.data(), dist.data(), r, shared);
-        for (std::size_t ip = 0; ip < nP; ip++){
+        for (int ip = 0; ip < nP; ip++){
             if (std::abs(dist[ip]) >= max_dist){
                 r[ip] *= 1.5;
             }
@@ -899,7 +899,7 @@ void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, cons
         max_dist = std::max(max_dist, std::abs(*std::min_element(dist.begin(), dist.end())));
     }
 
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
         projected_points[ip] = points[ip] - dist[ip] * normals[ip];
     }
 }
@@ -914,7 +914,7 @@ void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, cons
  * \param[out] ranks Ranks of the process owner of the elements found as location of the points.
  * \param[in] shared True if the input points are shared between the processes
  */
-void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, bool shared)
+void locatePointOnGlobalPatch(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, bool shared)
 {
     if(!dynamic_cast<const bitpit::SurfUnstructured*>(&(tree->getPatch()))){
         throw std::runtime_error("Invalid use of skdTreeUtils::locatePointOnPatch method: a non surface patch or void patch was detected.");
@@ -922,7 +922,7 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
     const bitpit::SurfUnstructured & spatch = static_cast<const bitpit::SurfUnstructured&>(tree->getPatch());
 
     // Initialize the cell id and distance
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
         ids[ip] = bitpit::Cell::NULL_ID;
     }
     std::vector<double> distances(nP, std::numeric_limits<double>::max());
@@ -943,10 +943,10 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
     // Map with rank to ask info in case of distributed points
     std::map<int,std::vector<long>> ask_to_rank;
     std::map<int,std::vector<std::array<double,3>>> point_to_rank;
-    std::map<int,std::vector<std::size_t>> point_index_received_from_rank;
+    std::map<int,std::vector<int>> point_index_received_from_rank;
 
     // Loop on points
-    for (std::size_t ip = 0; ip < nP; ip++){
+    for (int ip = 0; ip < nP; ip++){
 
         const std::array<double,3> & point = points[ip];
         const long & cellId = cellIds[ip];
@@ -989,15 +989,15 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
         if (shared){
 
             // If all points are shared between processes all reduce on ids by maximum operation
-            MPI_Allreduce(MPI_IN_PLACE, ids, nP, MPI_LONG, MPI_MAX, tree->getCommunicator());
+            MPI_Allreduce(MPI_IN_PLACE, ids, nP, MPI_LONG, MPI_MAX, tree->getPatch().getCommunicator());
 
         } else {
 
             // Send/receive number of check belong to send to other processes
-            std::vector<std::size_t> n_send_to_rank(nProcessors, 0);
+            std::vector<int> n_send_to_rank(nProcessors, 0);
             for (int irank = 0; irank < nProcessors; irank++){
-                std::size_t n_ask_to_current_rank = ask_to_rank[irank].size();
-                MPI_Gather(&n_ask_to_current_rank, 1, MPI_LONG, n_send_to_rank.data(), 1, MPI_LONG, irank, tree->getCommunicator());
+                int n_ask_to_current_rank = ask_to_rank[irank].size();
+                MPI_Gather(&n_ask_to_current_rank, 1, MPI_INT, n_send_to_rank.data(), 1, MPI_INT, irank, tree->getPatch().getCommunicator());
             }
 
             // Map with rank to send info for cellId and point coordinates
@@ -1013,23 +1013,23 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
                 if (myrank == irank){
                     for (int jrank = 0; jrank < nProcessors; jrank++){
                         if (jrank != irank){
-                            std::size_t n_send_to_current_rank = n_send_to_rank[jrank];
-                            MPI_Recv(send_to_rank[jrank].data(), n_send_to_current_rank, MPI_LONG, jrank, 100, tree->getCommunicator(), MPI_STATUS_IGNORE);
-                            MPI_Recv(point_from_rank[jrank].data(), n_send_to_current_rank*3, MPI_DOUBLE, jrank, 101, tree->getCommunicator(), MPI_STATUS_IGNORE);
+                            int n_send_to_current_rank = n_send_to_rank[jrank];
+                            MPI_Recv(send_to_rank[jrank].data(), n_send_to_current_rank, MPI_LONG, jrank, 100, tree->getPatch().getCommunicator(), MPI_STATUS_IGNORE);
+                            MPI_Recv(point_from_rank[jrank].data(), n_send_to_current_rank*3, MPI_DOUBLE, jrank, 101, tree->getPatch().getCommunicator(), MPI_STATUS_IGNORE);
                         }
                     }
                 } else {
-                    std::size_t n_ask_to_current_rank = ask_to_rank[irank].size();
-                    MPI_Send(ask_to_rank[irank].data(), n_ask_to_current_rank, MPI_LONG, irank, 100, tree->getCommunicator());
-                    MPI_Send(point_to_rank[irank].data(), n_ask_to_current_rank*3, MPI_DOUBLE, irank, 101, tree->getCommunicator());
+                    int n_ask_to_current_rank = ask_to_rank[irank].size();
+                    MPI_Send(ask_to_rank[irank].data(), n_ask_to_current_rank, MPI_LONG, irank, 100, tree->getPatch().getCommunicator());
+                    MPI_Send(point_to_rank[irank].data(), n_ask_to_current_rank*3, MPI_DOUBLE, irank, 101, tree->getPatch().getCommunicator());
                 }
             }
 
             // Check if the point belong to cell for each received point from each rank
             std::map<int, std::vector<int>> checkBelong_to_rank;
-            for (std::size_t irank = 0; irank < nProcessors; irank++){
+            for (int irank = 0; irank < nProcessors; irank++){
                 checkBelong_to_rank[irank].resize(n_send_to_rank[irank], false);
-                for (std::size_t ip = 0; ip < n_send_to_rank[irank]; ip++){
+                for (int ip = 0; ip < n_send_to_rank[irank]; ip++){
 
                     const std::array<double,3> & point = point_from_rank[irank][ip];
                     const long & cellId = send_to_rank[irank][ip];
@@ -1047,13 +1047,13 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
                 if (myrank == irank){
                     for (int jrank = 0; jrank < nProcessors; jrank++){
                         if (jrank != irank){
-                            std::size_t n_ask_to_current_rank = ask_to_rank[jrank].size();
+                            int n_ask_to_current_rank = ask_to_rank[jrank].size();
                             checkBelong_from_rank[jrank].resize(n_ask_to_current_rank);
-                            MPI_Recv(checkBelong_from_rank[jrank].data(), n_ask_to_current_rank, MPI_INT, jrank, 102, tree->getCommunicator(), MPI_STATUS_IGNORE);
+                            MPI_Recv(checkBelong_from_rank[jrank].data(), n_ask_to_current_rank, MPI_INT, jrank, 102, tree->getPatch().getCommunicator(), MPI_STATUS_IGNORE);
 
                             // Fill cell ids output if the received check belong is true (TODO move out of communications scope?)
-                            for (std::size_t ip = 0; ip < n_ask_to_current_rank; ip++){
-                                std::size_t point_index = point_index_received_from_rank[jrank][ip];
+                            for (int ip = 0; ip < n_ask_to_current_rank; ip++){
+                                int point_index = point_index_received_from_rank[jrank][ip];
                                 long cellId = ask_to_rank[jrank][ip];
                                 // Check received int value (zero or one) casting to boolean
                                 if (bool(checkBelong_from_rank[jrank][ip])) {
@@ -1064,8 +1064,8 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
                         }
                     }
                 } else {
-                    std::size_t n_send_to_current_rank = n_send_to_rank[irank];
-                    MPI_Send(checkBelong_to_rank[irank].data(), n_send_to_current_rank, MPI_INT, irank, 102, tree->getCommunicator());
+                    int n_send_to_current_rank = n_send_to_rank[irank];
+                    MPI_Send(checkBelong_to_rank[irank].data(), n_send_to_current_rank, MPI_INT, irank, 102, tree->getPatch().getCommunicator());
                 }
             }
 
@@ -1086,7 +1086,7 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
  */
 std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol){
 
-    if (!selection->isCommunicatorSet() || !target->isCommunicatorSet()){
+    if (!selection->getPatch().isCommunicatorSet() || !target->getPatch().isCommunicatorSet()){
         throw std::runtime_error("Error: at least one PatchSkdTree communicator not set in selectByGlobalPatch");
     }
     if (!selection->getPatch().isPartitioned() && !target->getPatch().isPartitioned()){
@@ -1096,8 +1096,8 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
     // Leaf selection nodes of current rank initialized for each rank of target bounding box
     int nprocs = selection->getPatch().getProcessorCount();
     int myRank = selection->getPatch().getRank();
-    std::size_t nleafs = selection->getLeafCount();
-    std::size_t nnodess = selection->getNodeCount();
+    int nleafs = selection->getLeafCount();
+    int nnodess = selection->getNodeCount();
     std::unordered_map<int, std::vector<const bitpit::SkdNode*>> rankLeafSelection;
     for (int irank = 0; irank < nprocs; irank++){
         std::vector<const bitpit::SkdNode*> leafSelection(nleafs);
@@ -1106,8 +1106,8 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
             if (selection->getNode(i).isLeaf()){
                 if (bitpit::CGElem::intersectBoxBox(selection->getNode(i).getBoxMin()-tol,
                         selection->getNode(i).getBoxMax()+tol,
-                        target->getPartitionBoxMin(irank),
-                        target->getPartitionBoxMax(irank) ) ){
+                        target->getPartitionBox(irank).getBoxMin(),
+                        target->getPartitionBox(irank).getBoxMax() ) ){
                     leafSelection[count] = &(selection->getNode(i));
                     count++;
                 }
@@ -1132,7 +1132,7 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
     for (int irank = 0; irank < nprocs; irank++){
         // Scatter send to all process of irank process data
         int * recvbuff = &nLeafRecv[irank];
-        MPI_Scatter(nLeafSend.data(), 1, MPI_INT, recvbuff, 1, MPI_INT, irank, selection->getCommunicator());
+        MPI_Scatter(nLeafSend.data(), 1, MPI_INT, recvbuff, 1, MPI_INT, irank, selection->getPatch().getCommunicator());
     }
 
     // Recover global leaf received to resize local received boxes container
@@ -1179,13 +1179,13 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
         }
 
         // Gather bounding boxes points to the root process
-        MPI_Gatherv(sendBoxes.data(), nSendData, MPI_DOUBLE, recvBoxes.data(), nRecvDataPerProc.data(), recvDispls.data(), MPI_DOUBLE, irank, selection->getCommunicator());
+        MPI_Gatherv(sendBoxes.data(), nSendData, MPI_DOUBLE, recvBoxes.data(), nRecvDataPerProc.data(), recvDispls.data(), MPI_DOUBLE, irank, selection->getPatch().getCommunicator());
 
     } // End loop on root processes
 
     // Fill leaf selection boxes container
     std::vector<double>::iterator itBox = recvBoxes.begin();
-    for (std::size_t ibox = 0; ibox < nGlobalReceived; ibox++){
+    for (int ibox = 0; ibox < nGlobalReceived; ibox++){
         std::array<double, 3> minPoint;
         minPoint[0] = *(itBox++);
         minPoint[1] = *(itBox++);
@@ -1222,16 +1222,16 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
 {
 
     if(leafSelectionBoxes.empty()) return;
-    std::size_t rootId = 0;
+    long rootId = 0;
 
     // Candidates saved in set to avoid duplicate
-    std::unordered_set<std::size_t> candidates;
+    std::unordered_set<long> candidates;
 
     // Loop on leaf selection boxes and go across the target tree with a node stack
     for (const bitpit::SkdBox & selectionBox : leafSelectionBoxes){
 
         // Initialize stack with target root node
-        std::queue<std::size_t> nodeStack;
+        std::queue<long> nodeStack;
         nodeStack.push(rootId);
 
         // Pop and push target tree nodes checked with current selection boxe
@@ -1239,14 +1239,14 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
         // Stop when stack is empty
         while(!nodeStack.empty()){
 
-            std::size_t nodeId = nodeStack.front();
+            long nodeId = nodeStack.front();
             nodeStack.pop();
             const bitpit::SkdNode & node = target->getNode(nodeId);
 
             bool isLeaf = true;
             for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {
                 bitpit::SkdNode::ChildLocation childLocation = static_cast<bitpit::SkdNode::ChildLocation>(i);
-                std::size_t childId = node.getChildId(childLocation);
+                long childId = node.getChildId(childLocation);
                 if (childId != bitpit::SkdNode::NULL_ID) {
                     isLeaf = false;
                     if (bitpit::CGElem::intersectBoxBox(selectionBox.getBoxMin()-tol, selectionBox.getBoxMax()+tol,
@@ -1264,7 +1264,7 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
     // Extract cell from candidates nodes
     // Do not check for intersection -> exctraction performed only by using bounding boxes of leaf nodes of the skd-trees
     std::unordered_set<long> cellExtracted;
-    for(std::size_t nodeId : candidates){
+    for(long nodeId : candidates){
         const bitpit::SkdNode & node = target->getNode(nodeId);
         std::vector<long> cellids = node.getCells();
         cellExtracted.insert(cellids.begin(), cellids.end());
@@ -1294,11 +1294,11 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
 * farther than the maximum distance, the related argument will be set to the
 * maximum representable distance.
 */
-void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree,
+long findSharedPointClosestGlobalCell(int nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree,
         long *ids, int *ranks, double *distances, double r)
 {
     std::vector<double> rs(nPoints, r);
-    findSharedPointClosestGlobalCell(nPoints, points, tree, ids, ranks, distances, rs.data());
+    return findSharedPointClosestGlobalCell(nPoints, points, tree, ids, ranks, distances, rs.data());
 }
 
 /*!
@@ -1321,85 +1321,89 @@ void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<doub
 * farther than the maximum distance, the related argument will be set to the
 * maximum representable distance.
 */
-void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree,
+long findSharedPointClosestGlobalCell(int nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree,
         long *ids, int *ranks, double *distances, double *r)
 {
-    // Initialize the cell ids and ranks
-    for (std::size_t i = 0; i < nPoints; i++){
-        ids[i] = bitpit::Cell::NULL_ID;
-        ranks[i] = -1;
+
+    long nDistanceEvaluations = 0;
+
+    std::vector<double> maxDistances(nPoints, std::numeric_limits<double>::max());
+
+    // Early return is the patch is not partitioned
+    const bitpit::PatchKernel &patch = tree->getPatch();
+    if (!patch.isPartitioned()) {
+        for (int i = 0; i < nPoints; ++i) {
+            // Evaluate distance
+            nDistanceEvaluations += findPointClosestCell(points[i], tree, maxDistances[i], ids + i, distances + i);
+
+            // The patch is not partitioned, all cells are local
+            ranks[i] = patch.getRank();
+
+            return nDistanceEvaluations;
+        }
     }
 
-    // Initialize rank and number of processes
+    // Get MPI communicator
+    // Patch is partitioned call the parallel method
+    if (!tree->getPatch().isCommunicatorSet()){
+        throw std::runtime_error ("There is no communicator set for the patch.");
+    }
+
+    MPI_Comm communicator = tree->getPatch().getCommunicator();
+    int nprocs = tree->getPatch().getProcessorCount();
     int myRank = tree->getPatch().getRank();
-    int nProcs = tree->getPatch().getProcessorCount();
 
-    // Call local find point closest cell for each global point collected
+    // Initialize distance information
+    std::vector<bitpit::SkdGlobalCellDistance> globalCellDistances(nPoints);
 
-    // Instantiate global container for distances, ids and ranks (SkdCellInfo)
-    std::vector<bitpit::PatchSkdTree::SkdCellInfo> dri_data(nPoints, bitpit::PatchSkdTree::SkdCellInfo(std::numeric_limits<double>::max(), myRank, bitpit::Cell::NULL_ID));
+    // Call local find point closest cell for each point
+    for (int i = 0; i < nPoints; ++i) {
+        // Get point information
+        const std::array<double, 3> &point = points[i];
 
-    // Call local find point closest cell for each global point collected
-    for (std::size_t ip = 0; ip < nPoints; ip++){
-
-        const std::array<double,3> & point = points[ip];
-        double & distance = dri_data[ip].distance;
-        int & rank = dri_data[ip].rank;
-        long & id = dri_data[ip].id;
-
-        // Use a maximum distance for each point given by an estimation based on partition
-        // bounding boxes. The distance will be lesser than or equal to the point maximum distance
-        double pointMaxDistance = r[ip];
-        for (int irank = 0; irank < nProcs; irank++){
-            pointMaxDistance = std::min(tree->getPartitionBox(irank).evalPointMaxDistance(point), pointMaxDistance);
+        // Use a maximum distance for each point given by an estimation
+        // based on partition bounding boxes. The distance will be lesser
+        // than or equal to the point maximum distance.
+        double pointMaxDistance = maxDistances[i];
+        for (int rank = 0; rank < nprocs; ++rank) {
+            pointMaxDistance = std::min(tree->getPartitionBox(rank).evalPointMaxDistance(point), pointMaxDistance);
         }
 
-        // Call local find point closest cell with estimated distance used as maximum distance
-        long nDistanceEvaluations = tree->findPointClosestCell(point, pointMaxDistance, &id, &distance);
+        // Get cell distance information
+        bitpit::SkdGlobalCellDistance &globalCellDistance = globalCellDistances[i];
+        int &cellRank = globalCellDistance.getRank();
+        long &cellId = globalCellDistance.getId();
+        double &cellDistance = globalCellDistance.getDistance();
 
-    }
+        // Evaluate local distance from the point
+        bool interiorOnly = true;
+        nDistanceEvaluations += findPointClosestCell(point, tree, pointMaxDistance, interiorOnly, &cellId, &cellDistance);
 
-    // Force distance to numeric limits maximum value for point projected on ghost cells
-    // The desired result id is the local cell id on the ghost owner rank
-    for (std::size_t ip = 0; ip < nPoints; ip++){
-        long cellId = dri_data[ip].id;
-        if(cellId != bitpit::Cell::NULL_ID && !tree->getPatch().getCell(cellId).isInterior()) {
-            dri_data[ip].id = tree->getGhostCellsRemoteIds().at(cellId);
-            dri_data[ip].rank = tree->getPatch().getCellRank(cellId);
+        // Set cell rank
+        if (cellId != bitpit::Cell::NULL_ID) {
+            cellRank = patch.getCellRank(cellId);
         }
     }
 
-    // Communicate the computed distances of the distributed input points to all processes
-    // and retain the indices of the rank owner and the id of the closest cell
-
-    // Prepare MPI custom data type and Operation
-    // The data are of MPI custom data type  with distance, ids and rank as member
-    int blocklengths[3] = {1,1,1};
-    MPI_Aint displacements[3] = {offsetof(bitpit::PatchSkdTree::SkdCellInfo, distance),
-            offsetof(bitpit::PatchSkdTree::SkdCellInfo, rank),
-            offsetof(bitpit::PatchSkdTree::SkdCellInfo, id)};
-    MPI_Datatype types[3] = {MPI_DOUBLE, MPI_INT, MPI_LONG};
-    MPI_Datatype MPI_DRI;
-    MPI_Type_create_struct(3, blocklengths, displacements, types, &MPI_DRI);
-    MPI_Type_commit(&MPI_DRI);
-
-    MPI_Op MPI_MIN_DRI;
-    MPI_Op_create((MPI_User_function *) bitpit::minSkdCellInfo, false, &MPI_MIN_DRI);
-
+    // Exchange distance information
     // Communicate the closest cells distances, ranks and ids by reduce with custom minimum distance operation
     // Reduce only the right portion of data to the right process
-    for (int irank = 0; irank < nProcs; irank++){
-        MPI_Allreduce(MPI_IN_PLACE, dri_data.data(), nPoints, MPI_DRI, MPI_MIN_DRI, tree->getCommunicator());
+    MPI_Datatype globalCellDistanceDatatype = bitpit::SkdGlobalCellDistance::getMPIDatatype();
+    MPI_Op globalCellDistanceMinOp = bitpit::SkdGlobalCellDistance::getMPIMinOperation();
+    bitpit::SkdGlobalCellDistance *globalCellDistance = globalCellDistances.data();
+    for (int irank = 0; irank < nprocs; irank++){
+        MPI_Allreduce(MPI_IN_PLACE, globalCellDistance, nPoints, globalCellDistanceDatatype, globalCellDistanceMinOp, tree->getPatch().getCommunicator());
     }
 
-    // Update distances, rank indices and cell ids
-    for (std::size_t ip = 0; ip < nPoints; ip++){
-        distances[ip] = dri_data[ip].distance;
-        ranks[ip] = dri_data[ip].rank;
-        ids[ip] = dri_data[ip].id;
+    // Update output arguments
+    for (int i = 0; i < nPoints; ++i) {
+        int globalIndex = i;
+        bitpit::SkdGlobalCellDistance &globalCellDistance = globalCellDistances[globalIndex];
+        globalCellDistance.exportData(ranks + i, ids + i, distances + i);
     }
+
+    return nDistanceEvaluations;
 }
-
 #endif
 
 /*!
@@ -1408,6 +1412,9 @@ void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<doub
 * point.
 * \param[in] point is the point
 * \param[in] tree pointer to SkdTree relative to the target volume geometry.
+* \param[in] interiorOnly if set to true, only interior cells will be considered,
+* it will be possible to consider non-interior cells only if the tree has been
+* instantiated with non-interior cells support enabled
 * \param[out] id on output it will contain the id of the cell closest
 * to the point, if the distance between the point and the surface is
 * greater than the specified maximum distance, the id parameter will
@@ -1417,11 +1424,12 @@ void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<doub
 * tree are farther than the maximum distance, the function will return
 * the maximum representable distance.
 */
-long findPointClosestCell(const std::array<double, 3> &point, const bitpit::VolumeSkdTree *tree, long *id, double *distance)
+long findPointClosestCell(const std::array<double, 3> &point, const bitpit::PatchSkdTree *tree, bool interiorOnly, long *id, double *distance)
 {
-    return findPointClosestCell(point, tree, std::numeric_limits<double>::max(), id, distance);
+    return findPointClosestCell(point, tree, std::numeric_limits<double>::max(), interiorOnly, id, distance);
 
 }
+
 /*!
 * Given the specified point find the closest cell contained in a
 * skd-tree and evaluates the distance between that cell and the given
@@ -1431,6 +1439,9 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Volu
 * \param[in] maxDistance all cells whose distance is greater than
 * this parameters will not be considered for the evaluation of the
 * distance
+* \param[in] interiorOnly if set to true, only interior cells will be considered,
+* it will be possible to consider non-interior cells only if the tree has been
+* instantiated with non-interior cells support enabled
 * \param[out] id on output it will contain the id of the closest cell.
 * If all cells contained in the tree are farther than the maximum
 * distance, the argument will be set to the null id
@@ -1439,8 +1450,8 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Volu
 * farther than the maximum distance, the argument will be set to the
 * maximum representable distance
 */
-long findPointClosestCell(const std::array<double, 3> &point, const bitpit::VolumeSkdTree *tree,
-        double maxDistance, long *id, double *distance)
+long findPointClosestCell(const std::array<double, 3> &point, const bitpit::PatchSkdTree *tree,
+        double maxDistance, bool interiorOnly, long *id, double *distance)
 {
 
     // Initialize the cell id
@@ -1449,20 +1460,20 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Volu
     // Initialize the distance with an estimate
     //
     // The real distance will be lesser than or equal to the estimate.
-    std::size_t rootId = 0;
+    long rootId = 0;
     const bitpit::SkdNode &root = tree->getNode(rootId);
     *distance = std::min(root.evalPointMaxDistance(point), maxDistance);
 
     // Get a list of candidates nodes
     //
     // Initialize list of candidates
-    std::vector<std::size_t> candidateIds;
+    std::vector<long> candidateIds;
     std::vector<double> candidateMinDistances;
 
-    std::vector<std::size_t> nodeStack;
+    std::vector<long> nodeStack;
     nodeStack.push_back(rootId);
     while (!nodeStack.empty()) {
-        std::size_t nodeId = nodeStack.back();
+        long nodeId = nodeStack.back();
         const bitpit::SkdNode &node = tree->getNode(nodeId);
         nodeStack.pop_back();
 
@@ -1485,7 +1496,7 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Volu
         bool isLeaf = true;
         for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {
             bitpit::SkdNode::ChildLocation childLocation = static_cast<bitpit::SkdNode::ChildLocation>(i);
-            std::size_t childId = node.getChildId(childLocation);
+            long childId = node.getChildId(childLocation);
             if (childId != bitpit::SkdNode::NULL_ID) {
                 isLeaf = false;
                 nodeStack.push_back(childId);
@@ -1500,7 +1511,7 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Volu
 
     // Process the candidates and find the closest cell
     long nDistanceEvaluations = 0;
-    for (std::size_t k = 0; k < candidateIds.size(); ++k) {
+    for (int k = 0; k < candidateIds.size(); ++k) {
         // Do not consider nodes with a minimum distance greater than
         // the distance estimate
         if (candidateMinDistances[k] > *distance) {
@@ -1508,10 +1519,10 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Volu
         }
 
         // Evaluate the distance
-        std::size_t nodeId = candidateIds[k];
+        long nodeId = candidateIds[k];
         const bitpit::SkdNode &node = tree->getNode(nodeId);
 
-        node.updatePointClosestCell(point, id, distance);
+        node.updatePointClosestCell(point, interiorOnly, id, distance);
         ++nDistanceEvaluations;
     }
 
@@ -1539,130 +1550,119 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Volu
 * \param[out] distances on output it will contain the distances
 * between the points and closest cells
 */
-void findPointClosestGlobalCell(const std::size_t nPoints, const std::array<double, 3> *points,
-        const bitpit::VolumeSkdTree *tree, long *ids, int *ranks, double *distances)
+long findPointClosestGlobalCell(int nPoints, const std::array<double, 3> *points,
+        const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances)
 {
+
+    long nDistanceEvaluations = 0;
+
     std::vector<double> maxDistances(nPoints, std::numeric_limits<double>::max());
 
+    // Early return is the patch is not partitioned
+    const bitpit::PatchKernel &patch = tree->getPatch();
+    if (!patch.isPartitioned()) {
+        for (int i = 0; i < nPoints; ++i) {
+            // Evaluate distance
+            nDistanceEvaluations += findPointClosestCell(points[i], tree, maxDistances[i], ids + i, distances + i);
+
+            // The patch is not partitioned, all cells are local
+            ranks[i] = patch.getRank();
+
+            return nDistanceEvaluations;
+        }
+    }
+
+    // Get MPI communicator
     // Patch is partitioned call the parallel method
     if (!tree->getPatch().isCommunicatorSet()){
         throw std::runtime_error ("There is no communicator set for the patch.");
     }
 
+    MPI_Comm communicator = tree->getPatch().getCommunicator();
     int nprocs = tree->getPatch().getProcessorCount();
     int myRank = tree->getPatch().getRank();
 
-    // Initialize the cell ids and ranks
-    for (std::size_t i = 0; i < nPoints; i++){
-        ids[i] = bitpit::Cell::NULL_ID;
-        ranks[i] = -1;
-    }
-
-    // Communicate all the points to all the processes
-    // Gather number of points multiplied by number of coordinates,
-    // i.e. number of data to communicate
+    // Gather the number of points associated to each process
     std::vector<int> pointsCount(nprocs);
-    MPI_Allgather(&nPoints, 1, MPI_INT, pointsCount.data(), 1, MPI_INT, tree->getCommunicator());
+    MPI_Allgather(&nPoints, 1, MPI_INT, pointsCount.data(), 1, MPI_INT, communicator);
 
-    // Recover points displacements, offset and number of points data per process
-    std::vector<int> pointsDispls(nprocs, 0);
-    std::vector<int> pointsOffsets(nprocs, 0);
-    std::vector<int> pointsCountData(nprocs, 0);
-    pointsCountData[0] = pointsCount[0] * 3;
+    // Evaluate information for data communications
+    std::vector<int> globalPointsDispls(nprocs, 0);
+    std::vector<int> globalPointsOffsets(nprocs, 0);
+    std::vector<int> globalPointsDataCount(nprocs, 0);
+
+    globalPointsDataCount[0] = 3 * pointsCount[0];
     for (int i = 1; i < nprocs; ++i) {
-        pointsDispls[i] = pointsDispls[i - 1] + pointsCount[i - 1] * 3;
-        pointsOffsets[i] = pointsOffsets[i - 1] + pointsCount[i - 1];
-        pointsCountData[i] = pointsCount[i] * 3;
+        globalPointsDispls[i]     = globalPointsDispls[i - 1] + 3 * pointsCount[i - 1];
+        globalPointsOffsets[i]    = globalPointsOffsets[i - 1] + pointsCount[i - 1];
+        globalPointsDataCount[i]  = 3 * pointsCount[i];
     }
 
-    // Sum to global number of points
-    int nGlobalPoints = 0;
-    for (int np : pointsCount){
-        nGlobalPoints += np;
-    }
+    int nGlobalPoints = globalPointsDispls.back() + pointsCount.back();
 
-    // Gather vector with all global points
+    // Gather point coordinates
     std::vector<std::array<double,3>> globalPoints(nGlobalPoints);
-    std::size_t nPointsCountData = nPoints * 3;
-    MPI_Allgatherv(points, nPointsCountData, MPI_DOUBLE, globalPoints.data(),
-            pointsCountData.data(), pointsDispls.data(), MPI_DOUBLE, tree->getCommunicator());
+    int pointsDataCount = 3 * nPoints;
+    MPI_Allgatherv(points, pointsDataCount, MPI_DOUBLE, globalPoints.data(),
+            globalPointsDataCount.data(), globalPointsDispls.data(), MPI_DOUBLE, communicator);
 
     // Gather vector with all maximum distances
     std::vector<double> globalMaxDistances(nGlobalPoints);
     MPI_Allgatherv(maxDistances.data(), nPoints, MPI_DOUBLE, globalMaxDistances.data(),
-            pointsCount.data(), pointsOffsets.data(), MPI_DOUBLE, tree->getCommunicator());
+            pointsCount.data(), globalPointsOffsets.data(), MPI_DOUBLE, communicator);
+
+    // Initialize distance information
+    std::vector<bitpit::SkdGlobalCellDistance> globalCellDistances(nGlobalPoints);
 
     // Call local find point closest cell for each global point collected
+    for (int i = 0; i < nGlobalPoints; ++i) {
+        // Get point information
+        const std::array<double, 3> &point = globalPoints[i];
 
-    // Instantiate global container for distances, ids and ranks (SkdCellInfo)
-    std::vector<bitpit::PatchSkdTree::SkdCellInfo> dri_data(nGlobalPoints, bitpit::PatchSkdTree::SkdCellInfo(std::numeric_limits<double>::max(), myRank, bitpit::Cell::NULL_ID));
-
-    // Call local find point closest cell for each global point collected
-    for (std::size_t ip = 0; ip < nGlobalPoints; ip++){
-
-        const std::array<double,3> & point = globalPoints[ip];
-        double & distance = dri_data[ip].distance;
-        int & rank = dri_data[ip].rank;
-        long & id = dri_data[ip].id;
-
-        // Use a maximum distance for each point given by an estimation based on partition
-        // bounding boxes. The distance will be lesser than or equal to the point maximum distance
-        double pointMaxDistance = globalMaxDistances[ip];
-        for (int irank = 0; irank < nprocs; irank++){
-            pointMaxDistance = std::min(tree->getPartitionBox(irank).evalPointMaxDistance(point), pointMaxDistance);
+        // Use a maximum distance for each point given by an estimation
+        // based on partition bounding boxes. The distance will be lesser
+        // than or equal to the point maximum distance.
+        double pointMaxDistance = globalMaxDistances[i];
+        for (int rank = 0; rank < nprocs; ++rank) {
+            pointMaxDistance = std::min(tree->getPartitionBox(rank).evalPointMaxDistance(point), pointMaxDistance);
         }
 
-        // Call local find point closest cell with estimated distance used as maximum distance
-        long nDistanceEvaluations = findPointClosestCell(point, tree, pointMaxDistance, &id, &distance);
+        // Get cell distance information
+        bitpit::SkdGlobalCellDistance &globalCellDistance = globalCellDistances[i];
+        int &cellRank = globalCellDistance.getRank();
+        long &cellId = globalCellDistance.getId();
+        double &cellDistance = globalCellDistance.getDistance();
 
-    }
+        // Evaluate local distance from the point
+        bool interiorOnly = true;
+        nDistanceEvaluations += findPointClosestCell(point, tree, pointMaxDistance, interiorOnly, &cellId, &cellDistance);
 
-    // Force distance to numeric limits maximum value for point projected on ghost cells
-    // The desired result id is the local cell id on the ghost owner rank
-    for (std::size_t ip = 0; ip < nGlobalPoints; ip++){
-        long cellId = dri_data[ip].id;
-        if(cellId != bitpit::Cell::NULL_ID && !tree->getPatch().getCell(cellId).isInterior()) {
-            dri_data[ip].id = tree->getGhostCellsRemoteIds().at(cellId);
-            dri_data[ip].rank = tree->getPatch().getCellRank(cellId);
+        // Set cell rank
+        if (cellId != bitpit::Cell::NULL_ID) {
+            cellRank = patch.getCellRank(cellId);
         }
     }
 
-    // Communicate the computed distances of the distributed input points to all processes
-    // and retain the indices of the rank owner and the id of the closest cell
-
-    // Prepare MPI custom data type and Operation
-    // The data are of MPI custom data type  with distance, ids and rank as member
-    int blocklengths[3] = {1,1,1};
-    MPI_Aint displacements[3] = {offsetof(bitpit::PatchSkdTree::SkdCellInfo, distance),
-            offsetof(bitpit::PatchSkdTree::SkdCellInfo, rank),
-            offsetof(bitpit::PatchSkdTree::SkdCellInfo, id)};
-    MPI_Datatype types[3] = {MPI_DOUBLE, MPI_INT, MPI_LONG};
-    MPI_Datatype MPI_DRI;
-    MPI_Type_create_struct(3, blocklengths, displacements, types, &MPI_DRI);
-    MPI_Type_commit(&MPI_DRI);
-
-    MPI_Op MPI_MIN_DRI;
-    MPI_Op_create((MPI_User_function *) bitpit::minSkdCellInfo, false, &MPI_MIN_DRI);
-
-    // Communicate the closest cells distances, ranks and ids by reduce with custom minimum distance operation
-    // Reduce only the right portion of data to the right process
-    for (int irank = 0; irank < nprocs; irank++){
-        bitpit::PatchSkdTree::SkdCellInfo *buffer = (dri_data.data() + pointsOffsets[irank]);
-        if (myRank == irank){
-            MPI_Reduce(MPI_IN_PLACE, buffer, pointsCount[irank], MPI_DRI, MPI_MIN_DRI, irank, tree->getCommunicator());
+    // Exchange distance information
+    MPI_Datatype globalCellDistanceDatatype = bitpit::SkdGlobalCellDistance::getMPIDatatype();
+    MPI_Op globalCellDistanceMinOp = bitpit::SkdGlobalCellDistance::getMPIMinOperation();
+    for (int rank = 0; rank < nprocs; ++rank) {
+        bitpit::SkdGlobalCellDistance *globalCellDistance = globalCellDistances.data() + globalPointsOffsets[rank];
+        if (myRank == rank) {
+            MPI_Reduce(MPI_IN_PLACE, globalCellDistance, pointsCount[rank], globalCellDistanceDatatype, globalCellDistanceMinOp, rank, communicator);
         } else {
-            MPI_Reduce(buffer, buffer, pointsCount[irank], MPI_DRI, MPI_MIN_DRI, irank, tree->getCommunicator());
+            MPI_Reduce(globalCellDistance, globalCellDistance, pointsCount[rank], globalCellDistanceDatatype, globalCellDistanceMinOp, rank, communicator);
         }
     }
 
-    // Update distances, rank indices and cell ids
-    for (std::size_t ip = 0; ip < nPoints; ip++){
-        std::size_t globalIndex = ip + pointsOffsets[myRank];
-        distances[ip] = dri_data[globalIndex].distance;
-        ranks[ip] = dri_data[globalIndex].rank;
-        ids[ip] = dri_data[globalIndex].id;
+    // Update output arguments
+    for (int i = 0; i < nPoints; ++i) {
+        int globalIndex = i + globalPointsOffsets[myRank];
+        bitpit::SkdGlobalCellDistance &globalCellDistance = globalCellDistances[globalIndex];
+        globalCellDistance.exportData(ranks + i, ids + i, distances + i);
     }
 
+    return nDistanceEvaluations;
 }
 #endif
 }
