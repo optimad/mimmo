@@ -3875,7 +3875,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 
     //First step check seed list and precalculate distance. If dist >= maxdist
     //the seed candidate is out.
-    std::size_t npoints;
+    int npoints;
     darray3E point;
     dvecarr3E points;
     dvector1D distances;
@@ -3935,7 +3935,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
     }
 
     // Fill seeds (directly in result) if distance < maxdistance
-    for (std::size_t ipoint = 0; ipoint < npoints; ipoint++){
+    for (int ipoint = 0; ipoint < npoints; ipoint++){
         distance = distances[ipoint];
         id = candidates->at(ipoint);
         if(distance < maxdist){
@@ -4002,7 +4002,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
         }
 
         // Fill points inside narrow band in result and their neighbours in stack
-        for (std::size_t ipoint = 0; ipoint < npoints; ipoint++){
+        for (int ipoint = 0; ipoint < npoints; ipoint++){
             distance = distances[ipoint];
             id = stackNeighs[ipoint];
             if(distance < maxdist){
@@ -4079,7 +4079,7 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
 
     //First step check seed list and precalculate distance. If dist >= maxdist
     //the seed candidate is out.
-    std::size_t npoints;
+    int npoints;
     darray3E point;
     dvecarr3E points;
     dvector1D distances;
@@ -4145,7 +4145,7 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
     }
 
     // Fill seed points (directly in result) if distance < maxdistance
-    for (std::size_t ipoint = 0; ipoint < npoints; ipoint++){
+    for (int ipoint = 0; ipoint < npoints; ipoint++){
         distance = distances[ipoint];
         id = candidates->at(ipoint);
         if(distance < maxdist){
@@ -4212,7 +4212,7 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
         }
 
         // Fill points inside narrow band in result and their neighbours in stack
-        for (std::size_t ipoint = 0; ipoint < npoints; ipoint++){
+        for (int ipoint = 0; ipoint < npoints; ipoint++){
             distance = distances[ipoint];
             id = stackNeighs[ipoint];
             if(distance < maxdist){

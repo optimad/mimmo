@@ -38,39 +38,39 @@ namespace skdTreeUtils{
 
     double distance(const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long &id, double r);
     double signedDistance(const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long &id, std::array<double,3> &normal, double r);
-    void distance(std::size_t nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *id, double *distances, double r);
-    void distance(std::size_t nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *id, double *distances, double *r);
-    void signedDistance(std::size_t nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double r);
-    void signedDistance(std::size_t nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double *r);
+    void distance(int nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *id, double *distances, double r);
+    void distance(int nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *id, double *distances, double *r);
+    void signedDistance(int nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double r);
+    void signedDistance(int nP, const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, long *ids, double *distances, std::array<double,3> *normals, double *r);
     std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol = 1.0e-04);
     void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit::SkdNode*> & leafSelection, std::vector<long> &extracted, double tol);
     std::array<double,3> projectPoint(const std::array<double,3> *point, const bitpit::PatchSkdTree *tree, double r = std::numeric_limits<double>::max());
-    void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double r = std::numeric_limits<double>::max());
-    void projectPoint(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double* r);
+    void projectPoint(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double r = std::numeric_limits<double>::max());
+    void projectPoint(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double* r);
     long locatePointOnPatch(const std::array<double, 3> &point, const bitpit::PatchSkdTree *tree);
 
     std::array<double, 3> computePseudoNormal(const std::array<double,3> &point, const bitpit::SurfUnstructured *surface_mesh, long id);
     bool checkPointBelongsToCell(const std::array<double, 3> &point, const bitpit::SurfUnstructured *surface_mesh, long id);
 
 #if MIMMO_ENABLE_MPI
-    void globalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double r, bool shared = false);
-    void globalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double* r, bool shared = false);
-    void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double r, bool shared = false);
-    void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double* r, bool shared = false);
-    void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double r = std::numeric_limits<double>::max(), bool shared = false);
-    void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double* r, bool shared = false);
-    void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, bool shared = false);
+    void globalDistance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double r, bool shared = false);
+    void globalDistance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double* r, bool shared = false);
+    void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double r, bool shared = false);
+    void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, std::array<double,3> *normals, double *distances, double* r, bool shared = false);
+    void projectPointGlobal(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double r = std::numeric_limits<double>::max(), bool shared = false);
+    void projectPointGlobal(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double* r, bool shared = false);
+    void locatePointOnGlobalPatch(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, bool shared = false);
     std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol = 1.0e-04);
     void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBox> &leafSelectionBoxes, std::vector<long> &extracted, double tol);
-    void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double r = std::numeric_limits<double>::max());
-    void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double *r);
+    long findSharedPointClosestGlobalCell(int nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double r = std::numeric_limits<double>::max());
+    long findSharedPointClosestGlobalCell(int nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances, double *r);
 #endif
 
     // Functions to allow the use with volume patches (currently not allowed in bitpit)
-    long findPointClosestCell(const std::array<double,3> &point, const bitpit::VolumeSkdTree *tree, long *id, double *distance);
-    long findPointClosestCell(const std::array<double,3> &point, const bitpit::VolumeSkdTree *tree, double maxDistance, long *id, double *distance);
+    long findPointClosestCell(const std::array<double,3> &point, const bitpit::PatchSkdTree *tree, bool interiorOnly, long *id, double *distance);
+    long findPointClosestCell(const std::array<double,3> &point, const bitpit::PatchSkdTree *tree, double maxDistance, bool interiorOnly, long *id, double *distance);
 #if MIMMO_ENABLE_MPI
-    void findPointClosestGlobalCell(const std::size_t nPoints, const std::array<double, 3> *points, const bitpit::VolumeSkdTree *tree, long *ids, int *ranks, double *distances);
+    long findPointClosestGlobalCell(int nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree, long *ids, int *ranks, double *distances);
 #endif
 
 }; //end namespace skdTreeUtils
