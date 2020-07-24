@@ -153,8 +153,8 @@ void
 BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, MimmoPiercedVector<mpv_t> & data)
 {
 
-	//Check data and geometry linked
-	if (data.size() == 0 || data.getGeometry() == nullptr){
+	//Check data with geometry linked
+	if (data.getGeometry() != geometry){
 		(*m_log) << " Warning: data to write not consistent with geometry in " << m_name << "; skip data" << std::endl;
 		write(geometry);
 		return;
@@ -225,8 +225,8 @@ template<typename mpv_t, typename... Args>
 void
 BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, MimmoPiercedVector<mpv_t> & data, Args ... args)
 {
-	//Check data and geometry linked
-	if (data.size() == 0 || data.getGeometry() == nullptr){
+	//Check data with geometry linked
+	if (data.getGeometry() != geometry){
 		(*m_log) << " Warning: data to write not consistent with geometry in " << m_name << "; skip data" << std::endl;
 		write(geometry, args...);
 		return;
@@ -317,8 +317,8 @@ BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<Mi
 	for (MimmoPiercedVector<mpv_t> & data : vdata)
 	{
 
-		//Check data and geometry linked
-		if (data.size() == 0 || data.getGeometry() == nullptr){
+		//Check data with geometry linked
+		if (data.getGeometry() != geometry){
 			(*m_log) << " Warning: data to write not consistent with geometry in " << m_name << "; skip data" << std::endl;
 			continue;
 		}
@@ -402,8 +402,8 @@ BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<Mi
 	for (MimmoPiercedVector<mpv_t> & data : vdata)
 	{
 
-		//Check data and geometry linked
-		if (data.size() == 0 || data.getGeometry() == nullptr){
+		//Check data with geometry linked
+		if (data.getGeometry() != geometry){
 			(*m_log) << " Warning: data to write not consistent with geometry in " << m_name << "; skip data" << std::endl;
 			continue;
 		}
@@ -487,8 +487,8 @@ BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<Mi
     for (MimmoPiercedVector<mpv_t>* data : vdata)
     {
 
-        //Check data and geometry linked
-        if (data->size() == 0 || data->getGeometry() == nullptr){
+        //Check data with geometry linked
+        if (data->getGeometry() != geometry){
             (*m_log) << " Warning: data to write not consistent with geometry in " << m_name << "; skip data" << std::endl;
             continue;
         }
@@ -572,8 +572,8 @@ BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<Mi
     for (MimmoPiercedVector<mpv_t> * data : vdata)
     {
 
-        //Check data and geometry linked
-        if (data->size() == 0 || data->getGeometry() == nullptr){
+        //Check data with geometry linked
+        if (data->getGeometry() != geometry){
             (*m_log) << " Warning: data to write not consistent with geometry in " << m_name << "; skip data" << std::endl;
             continue;
         }
