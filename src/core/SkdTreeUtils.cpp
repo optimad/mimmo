@@ -614,12 +614,8 @@ checkPointBelongsToCell(const std::array<double, 3> &point, const bitpit::SurfUn
 
 #if MIMMO_ENABLE_MPI
 /*!
- * It computes the unsigned distance of a set of points to a geometry linked in a SkdTree
- * object. The geometry has to be a surface mesh, in particular an object of type
- * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
- * It searches the element with minimum distance in a box of length 2*r, if none
- * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
- * position of the distances array related to the input point.
+ * It computes the unsigned distance of a set of points to a distributed geometry linked in a SkdTree
+ * object. Analogous of serial function skdTreeUtils::distance.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
@@ -637,12 +633,8 @@ void globalDistance(std::size_t nP, const std::array<double,3> *points, const bi
 }
 
 /*!
- * It computes the unsigned distance of a set of points to a geometry linked in a SkdTree
- * object. The geometry has to be a surface mesh, in particular an object of type
- * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
- * It searches the element with minimum distance in a box of length 2*r, if none
- * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
- * position of the distances array related to the input point.
+ * It computes the unsigned distance of a set of points to a distributed geometry linked in a SkdTree
+ * object. Analogous of serial function skdTreeUtils::distance.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
@@ -671,17 +663,9 @@ void globalDistance(std::size_t nP, const std::array<double,3> *points, const bi
 
 }
 
-
 /*!
- * It computes the signed global distance of a set of points to a geometry linked in a SkdTree
- * object. The geometry must be a surface mesh, in particular an object of type
- * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
- * The sign of the distance is provided by the normal to the geometry locally
- * computed. A positive distance means that the point is located, in respect to the
- * surface mesh, on the same side of the outer normal vector.
- * It searches the element with minimum distance in a box of length 2*r, if none
- * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
- * position of the distances array related to the input point.
+ * It computes the signed global distance of a set of points to a distributed geometry linked in a SkdTree
+ * object. Analogous of serial function skdTreeUtils::signedDistance.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
@@ -702,15 +686,8 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
 }
 
 /*!
- * It computes the signed global distance of a set of points to a geometry linked in a SkdTree
- * object. The geometry must be a surface mesh, in particular an object of type
- * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
- * The sign of the distance is provided by the normal to the geometry locally
- * computed. A positive distance means that the point is located, in respect to the
- * surface mesh, on the same side of the outer normal vector.
- * It searches the element with minimum distance in a box of length 2*r, if none
- * is found return a default value of distance equal to std::numeric_limits<double>::max() in the
- * position of the distances array related to the input point.
+ * It computes the signed global distance of a set of points to a distributed geometry linked in a SkdTree
+ * object. Analogous of serial function skdTreeUtils::signedDistance.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
@@ -868,12 +845,8 @@ void signedGlobalDistance(std::size_t nP, const std::array<double,3> *points, co
 }
 
 /*!
- * It computes the projection of a set of points on a geometry linked in a skd-tree
- * object. The geometry must be a surface mesh, in particular an object of type
- * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
- * It searches the elements of the geometry with minimum distance
- * recursively in a sphere of radius r, by increasing the size r at each step
- * until at least one element is found.
+ * It computes the projection of a set of points on a distributed geometry linked in a skd-tree
+ * object. Analogous of serial function skdTreeUtils::projectPoint.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
@@ -890,12 +863,8 @@ void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, cons
 }
 
 /*!
- * It computes the projection of a set of points on a geometry linked in a skd-tree
- * object. The geometry must be a surface mesh, in particular an object of type
- * bitpit::SurfUnstructured (a static cast is hardly coded in the method).
- * It searches the elements of the geometry with minimum distance
- * recursively in a sphere of radius r, by increasing the size r at each step
- * until at least one element is found.
+ * It computes the projection of a set of points on a distributed geometry linked in a skd-tree
+ * object. Analogous of serial function skdTreeUtils::projectPoint.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
@@ -936,8 +905,8 @@ void projectPointGlobal(std::size_t nP, const std::array<double,3> *points, cons
 }
 
 /*!
- * Given the specified set of points find the cells of a surface patch it is into.
- * The method works only with trees generated with bitpit::SurfUnstructured mesh.
+ * Given the specified set of points find the cells of a distributed surface patch it is into.
+ * Analogous of serial function skdTreeUtils::locatePointOnPatch.
  * \param[in] nP Number of input points
  * \param[in] points is the set of points
  * \param[in] tree pointer to SkdTree relative to the target surface geometry.
@@ -1105,8 +1074,9 @@ void locatePointOnGlobalPatch(std::size_t nP, const std::array<double,3> *points
 }
 
 /*!
- * It selects the elements of a geometry stored in a skd-tree by a distance criterion
- * in respect to an other global geometry stored in a different global skd-tree.
+ * It selects the elements of a distributed geometry stored in a skd-tree by a distance criterion
+ * in respect to an other distributed geometry stored in a different global skd-tree.
+ * Analogous of serial function skdTreeUtils::selectByPatch.
  * \param[in] selection Pointer to skd-tree used as selection patch.
  * \param[in] target Pointer to skd-tree that store the target geometry.
  * \param[in] tol Distance threshold used to select the elements of target.
@@ -1235,9 +1205,10 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
 }
 
 /*!
- * It extracts the elements of a leaf node of geometry stored in a skd-tree
- * by a distance criterion in respect to an other geometry stored
- * in a different skd-tree and passed as vector of bounding boxes. It is a method used in selectByGlobalPatch method.
+ * It extracts the elements of a leaf node of a distributed geometry stored in a skd-tree
+ * by a distance criterion in respect to an other distributed geometry stored
+ * in a different skd-tree and passed as vector of bounding boxes.
+ * It is a method used in skdTreeUtils::selectByGlobalPatch method.
  * \param[in] target Pointer to skd-tree that store the target geometry.
  * \param[in] leafSelection Vector of bounding boxes SkdBox of the leaf nodes currently interesting
  * for the selection procedure.
@@ -1305,7 +1276,7 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
 
 /*!
 * Given the specified set of points, considered shared on the processes, find the
-* closest cells contained in the tree and evaluates the distance values
+* closest cells contained in a distributed skd-tree and evaluates the distance values
 * between those cells and the given points.
 * \param[in] nPoints number of the points
 * \param[in] points points coordinates
@@ -1332,7 +1303,7 @@ void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<doub
 
 /*!
 * Given the specified set of points, considered shared on the processes, find the
-* closest cells contained in the tree and evaluates the distance values
+* closest cells contained in a distributed skd-tree and evaluates the distance values
 * between those cells and the given points.
 * \param[in] nPoints number of the points
 * \param[in] points points coordinates
@@ -1432,10 +1403,9 @@ void findSharedPointClosestGlobalCell(std::size_t nPoints, const std::array<doub
 #endif
 
 /*!
-* Given the specified point find the closest cell contained in the
-* three and evaluates the distance between that cell and the given
+* Given the specified point find the closest cell contained in a
+* skd-tree and evaluates the distance between that cell and the given
 * point.
-*
 * \param[in] point is the point
 * \param[in] tree pointer to SkdTree relative to the target volume geometry.
 * \param[out] id on output it will contain the id of the cell closest
@@ -1453,10 +1423,9 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Volu
 
 }
 /*!
-* Given the specified point find the closest cell contained in the
-* three and evaluates the distance between that cell and the given
+* Given the specified point find the closest cell contained in a
+* skd-tree and evaluates the distance between that cell and the given
 * point.
-*
 * \param[in] point is the point
 * \param[in] tree pointer to SkdTree relative to the target volume geometry.
 * \param[in] maxDistance all cells whose distance is greater than
@@ -1558,9 +1527,8 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Volu
 #if MIMMO_ENABLE_MPI
 /*!
 * Given the specified points, considered distributed on the processes, find the
-* closest cells contained in the tree and evaluates the distance values
+* closest cells contained in a distributed skd-tree and evaluates the distance values
 * between those cells and the given points.
-*
 * \param[in] nPoints number of the points
 * \param[in] points points coordinates
 * \param[in] tree pointer to SkdTree relative to the target volume geometry.
