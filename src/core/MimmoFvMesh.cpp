@@ -251,7 +251,13 @@ void MimmoFvMesh::createBoundaryMesh(){
         eltype = bulkInterf[idI].getType();
         PID = long(bulkInterf[idI].getPID());
 
+#if MIMMO_ENABLE_MPI
+        int rank = bulk->getPatch()->getCellRank(bulkInterf[idI].getOwner());
+        temp->addConnectedCell(conn, eltype, PID, idI, rank);
+#else
         temp->addConnectedCell(conn, eltype, PID, idI);
+#endif
+
     }
 
     m_boundary = temp;
@@ -274,13 +280,11 @@ bool  MimmoFvMesh::checkMeshCoherence(){
 
     MimmoSharedPointer<MimmoObject> bulk = getGeometry();
     if(bulk == nullptr)  return false;
-    if(bulk->isEmpty())  return false;
 
     MimmoSharedPointer<MimmoObject> boundary = getBoundaryGeometry();
 
     bool checkBoundaries = true;
     if(boundary == nullptr)  checkBoundaries = false;
-    else if(boundary->isEmpty()) checkBoundaries = false;
 
     if(checkBoundaries){
         if(!bulk->areInterfacesBuilt())  return false;
