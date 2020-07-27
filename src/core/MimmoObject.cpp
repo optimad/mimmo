@@ -3342,7 +3342,7 @@ bool MimmoObject::isClosedLoop(){
  * the cellID list belonging to each subpatches
  *\return list of cellIDs set for each subpatch
  */
-//TODO PARALLEL VERSION
+//TODO PARALLEL VERSION (CURRENTLY USED ONLY IN CLOSEDCURVEINTERPOLATOR OF MIMIC)
 livector2D MimmoObject::decomposeLoop(){
 	if(!areAdjacenciesBuilt())	buildAdjacencies();
 
@@ -4291,21 +4291,25 @@ std::unordered_map<long,long> MimmoObject::getInverseConnectivity(){
 };
 
 /*!
- * Return Vertex-Vertex One Ring of a specified target vertex. Does not work with unconnected meshes (point clouds)
+ * Return Vertex-Vertex One Ring of a specified target vertex. Does not work with unconnected meshes (point clouds).
+ * In case of distributed patches, the input cell must be an interior cell;
+ * in case of ghost cell passed, it returns an empty set.
  * \param[in]    cellId     bitpit::PatchKernel Id of a cell which target belongs to
  * \param[in]    vertexId    bitpit::PatchKernel Id of the target vertex
  * \return        list of all vertex in the One Ring of the target, by their bitpit::PatchKernel Ids
  */
-// TODO PARALLEL VERSION, i.e. work only with local vertices as input
 std::set<long> MimmoObject::findVertexVertexOneRing(const long & cellId, const long & vertexId){
-	std::set<long> result;
-	if(getType() == 3)  return result;
+
+    std::set<long> result;
+    if( getType() == 3 )  return result;
 
 	bitpit::PatchKernel * tri = getPatch();
 	bitpit::Cell &cell =  tri->getCell(cellId);
 
+    if( !cell.isInterior() )  return result;
+
 	int loc_target = cell.findVertex(vertexId);
-	if(loc_target ==bitpit::Vertex::NULL_ID) return result;
+	if(loc_target == bitpit::Vertex::NULL_ID) return result;
 
 	livector1D list = tri->findCellVertexOneRing(cellId, loc_target);
 
@@ -4425,12 +4429,17 @@ MimmoObject::buildPointConnectivity()
 	//No point connectivity for point cloud
 	if(getType() == 3) return;
 
-	m_pointConnectivity.reserve(getNVertices());
+#if MIMMO_ENABLE_MPI
+    m_pointConnectivity.reserve(getNGlobalVertices());
+#else
+    m_pointConnectivity.reserve(getNVertices());
+#endif
 
+    // Surface/volume mesh & 3d curve point connectivity
 	if(getType() == 1 || getType() == 2 || getType() == 4){
-		//Surface/volume mesh & 3d curve point connectivity
 
-		//ONLY EDGE CONNECTIVITY
+		// Edge connectivity
+	    // All cells are considered, both interiors and ghosts
 		std::set<std::pair<long,long> > edges;
 		for (bitpit::Cell & cell : getCells()){
 			int ne = 0;
@@ -4450,7 +4459,7 @@ MimmoObject::buildPointConnectivity()
 				if (m_type == 4)
 					ids = cell.getVertexIds();
 
-				//Always two nodes!?! I think yes...
+				// Edges have always two nodes
 				long id1 = ids[0];
 				long id2 = ids[1];
 				std::pair<long,long> item;
