@@ -4526,82 +4526,89 @@ MimmoObject::triangulate(){
 	}
 
 	// In case of polygons (nVertices > 4) more nodes are added to the mesh.
-	// For Now this slot works only in SERIAL mode.
-#if MIMMO_ENABLE_MPI
-	if (m_nprocs > 1){
-		//TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
-		(*m_log)<< "WARNING  : forced triangulation is not available yet in MPI compilation."<<std::endl;
-	}
-#else
+	// In a distributed patch, new cells and nodes are added in all the partitions.
+	// The connectivity order on two different partitions of the same cell (interior/ghost)
+	// is supposed to be the same on each partition. This allows to add independently cells
+	// on different partitions, even if working on the same physical cell.
+	// The ghosts structures are updated at the end of the methods, by calling setPartitioned method.
+	// Note. The node Ids on different partitions can be different and currently not tracked;
+	// for this reason for now a serialization is forbidden after a refinement.
+
+	// TODO INTRODUCE ADAPTING INFORMATION ON VERTICES AND CELLS WHEN USER INTERFACE IS READY IN BITPIT
 
 	bitpit::PatchKernel * patch = getPatch();
 
-	long maxID, newID, newVertID;
-	const auto orderedCellID = getCells().getIds(true);
-	maxID = orderedCellID[(int)orderedCellID.size()-1];
-	newID = maxID+1;
-	{
-		const auto orderedVertID = getVertices().getIds(true);
-		newVertID = orderedVertID[(int)orderedVertID.size()-1] +1;
-	}
+	if (!isEmpty()){
 
-	bitpit::ElementType eletype;
-	bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
-	livector1D connTriangle(3);
+	    long maxID, newID, newVertID;
+	    const auto orderedCellID = getCells().getIds(true);
+	    maxID = orderedCellID[(int)orderedCellID.size()-1];
+	    newID = maxID+1;
+	    {
+	        const auto orderedVertID = getVertices().getIds(true);
+	        newVertID = orderedVertID[(int)orderedVertID.size()-1] +1;
+	    }
 
-	for(const auto &idcell : orderedCellID){
+	    bitpit::ElementType eletype;
+	    bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
+	    livector1D connTriangle(3);
 
-		livector1D conn = getCellConnectivity(idcell);
-		eletype = patch->getCell(idcell).getType();
-		long pid = patch->getCell(idcell).getPID();
+	    for(const auto &idcell : orderedCellID){
 
-		switch (eletype){
-		case bitpit::ElementType::QUAD:
-		case bitpit::ElementType::PIXEL:
-		{
-			patch->deleteCell(idcell);
-			for(std::size_t i=0; i<2; ++i){
-				connTriangle[0] = conn[0];
-				connTriangle[1] = conn[i+1];
-				connTriangle[2] = conn[i+2];
-				addConnectedCell(connTriangle, eletri, pid, newID);
-				++newID;
-			}
-		}
-		break;
-		case bitpit::ElementType::POLYGON:
-		{
-			std::size_t startIndex = 1;
-			std::size_t nnewTri = conn.size() - startIndex;
-			//calculate barycenter and add it as new vertex
-			darray3E barycenter = patch->evalCellCentroid(idcell);
-			addVertex(barycenter, newVertID);
-			//delete current polygon
-			patch->deleteCell(idcell);
-			//insert new triangles from polygon subdivision
-			for(std::size_t i=0; i<nnewTri; ++i){
-				connTriangle[0] = newVertID;
-				connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
-				connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
-				addConnectedCell(connTriangle, eletri, pid, newID);
-				++newID;
-			}
-			//increment label of vertices
-			++newVertID;
-
-		}
-		break;
-		case bitpit::ElementType::TRIANGLE:
-			//do nothing
-			break;
-		default:
-			throw std::runtime_error("unrecognized cell type in 3D surface mesh of CGNSPidExtractor");
-			break;
-		}
-	}
+	        livector1D conn = getCellConnectivity(idcell);
+	        eletype = patch->getCell(idcell).getType();
+	        long pid = patch->getCell(idcell).getPID();
+	        int rank = -1;
+#if MIMMO_ENABLE_MPI
+	        rank = patch->getCellRank(idcell);
 #endif
+	        switch (eletype){
+	        case bitpit::ElementType::QUAD:
+	        case bitpit::ElementType::PIXEL:
+	        {
+	            patch->deleteCell(idcell);
+	            for(std::size_t i=0; i<2; ++i){
+	                connTriangle[0] = conn[0];
+	                connTriangle[1] = conn[i+1];
+	                connTriangle[2] = conn[i+2];
+	                addConnectedCell(connTriangle, eletri, pid, newID, rank);
+	                ++newID;
+	            }
+	        }
+	        break;
+	        case bitpit::ElementType::POLYGON:
+	        {
+	            std::size_t startIndex = 1;
+	            std::size_t nnewTri = conn.size() - startIndex;
+	            //calculate barycenter and add it as new vertex
+	            darray3E barycenter = patch->evalCellCentroid(idcell);
+	            addVertex(barycenter, newVertID);
+	            //delete current polygon
+	            patch->deleteCell(idcell);
+	            //insert new triangles from polygon subdivision
+	            for(std::size_t i=0; i<nnewTri; ++i){
+	                connTriangle[0] = newVertID;
+	                connTriangle[1] = conn[ startIndex + std::size_t( i % nnewTri) ];
+	                connTriangle[2] = conn[ startIndex + std::size_t( (i+1) % nnewTri ) ];
+	                addConnectedCell(connTriangle, eletri, pid, newID, rank);
+	                ++newID;
+	            }
+	            //increment label of vertices
+	            ++newVertID;
 
-	//TODO clean info sync method
+	        }
+	        break;
+	        case bitpit::ElementType::TRIANGLE:
+	            //do nothing
+	            break;
+	        default:
+	            throw std::runtime_error("unrecognized cell type in 3D surface mesh of CGNSPidExtractor");
+	            break;
+	        }
+	    }
+
+	} // end if patch is not empty
+
 	m_infoSync = false;
 	cleanPointConnectivity();
 	cleanSkdTree();
@@ -4610,21 +4617,11 @@ MimmoObject::triangulate(){
 	resetAdjacencies();
 
 #if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
-	//    //delete orphan ghosts
-	//    buildAdjacencies();
-	//    deleteOrphanGhostCells();
-	//    if(countOrphanVertices() > 0){
-	//       deleteOrphanVertices();
-	//    }
-	//    setPartitioned();
-	//TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
-	//TODO BITPIT NODES ID MANAGING IS NOT READY FOR DISTRIBUTED PATCHES
-	//(*m_log)<< "WARNING " <<m_name <<" : forced triangulation is not available yet in MPI compilation."<<std::endl;
+	cleanAllParallelSync();
+	setPartitioned();
 #endif
 
 }
-
 
 /*!
  * Check the correctness elements of the geometry. Find degenerate elements in terms
@@ -4647,6 +4644,10 @@ MimmoObject::degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degr
     std::vector<long> toDelete;
     std::vector<bitpit::Cell> toInsert;
 
+    // Reserve a tenth of the entire mesh for cells to be insert/delete
+    toDelete.reserve(getNCells()/10);
+    toInsert.reserve(getNCells()/10);
+
     std::unordered_map<long,long> vertexMap;
 
     bool fillCells = false;
@@ -4661,6 +4662,11 @@ MimmoObject::degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degr
         collapsedVertices->clear();
     }
 
+    // Loop on all cells to find the cell to be degraded or deleted
+    // In parallel all the processes do the same things on local/ghost shared cells
+    // The cells are degraded in the same manner and the cells/vertices delted
+    // are the same.
+    // Note. The new cells IDs can be different on different processes (local Id != ghost Id)
     for (bitpit::Cell & cell : getCells()){
 
         long cellId = cell.getId();
@@ -4668,13 +4674,15 @@ MimmoObject::degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degr
         bitpit::ConstProxyVector<long> cellVertexIds = cell.getVertexIds();
         std::vector<long> cellConnectivity;
         std::vector<bitpit::Vertex> cellVertices;
+        cellConnectivity.reserve(cellVertexIds.size());
+        cellVertices.reserve(cellVertexIds.size());
         // Unique vertices cell connectivity
         for (long vertexId : cellVertexIds){
-            bitpit::Vertex candidateVertex = getPatch()->getVertex(vertexId);
+            bitpit::Vertex & candidateVertex = getPatch()->getVertex(vertexId);
             std::vector<bitpit::Vertex>::iterator it = std::find(cellVertices.begin(), cellVertices.end(), candidateVertex);
             if (it == cellVertices.end()){
                 cellConnectivity.push_back(vertexId);
-                cellVertices.push_back(candidateVertex);
+                cellVertices.emplace_back(candidateVertex);
             }
             else{
                 //Collapse vertices
@@ -4713,7 +4721,6 @@ MimmoObject::degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degr
         addCell(cell, cell.getId());
     }
 
-
     // Collapse vertices
     if (!vertexMap.empty()) {
         // Renumber cell vertices
@@ -4722,18 +4729,19 @@ MimmoObject::degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degr
         }
     }
 
-    // Reset info sync (needed?)
+    // Reset info sync
     m_AdjBuilt = false;
     m_IntBuilt = false;
     m_skdTreeSync = false;
     m_kdTreeSync = false;
     m_patchInfo.reset();
     m_infoSync = false;
-#if MIMMO_ENABLE_MPI
-    m_pointGhostExchangeInfoSync = false;
-#endif
     m_pointConnectivitySync = false;
-}
 
+#if MIMMO_ENABLE_MPI
+    cleanAllParallelSync();
+#endif
+
+}
 
 }
