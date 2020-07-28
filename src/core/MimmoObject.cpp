@@ -1148,29 +1148,28 @@ MimmoObject::getCellsIds(bool internalsOnly){
 /*!
  * Return a compact vector with the Ids of local vertices given by
  * bitpit::PatchKernel unique-labeled indexing.
-   \param[in] internalsOnly FOR MPI ONLY: if true method accounts for internal vertices only,
-   if false it includes also ghosts. Serial comp ignore this parameter.
+   \param[in] internalsOnly if true method accounts for internal vertices only,
+   if false it includes also ghosts.
  * \return ids of vertices
  */
 livector1D
 MimmoObject::getVerticesIds(bool internalsOnly){
-    std::vector<long> ids;
 
-#if MIMMO_ENABLE_MPI
-    //MPI version
+    livector1D ids;
+
     if(internalsOnly){
         ids.reserve(getNInternalVertices());
-        for(bitpit::PatchKernel::VertexIterator it = getPatch()->vertexBegin(); it!= getPatch()->vertexEnd(); ++it){
-            if(isPointInterior(it.getId())) ids.push_back(it.getId());
-        }
-    }else{
-        ids = getPatch()->getVertices().getIds();
     }
-#else
-    //SERIAL version
-    BITPIT_UNUSED(internalsOnly);
-    ids = getPatch()->getVertices().getIds();
-#endif
+    else{
+        ids.reserve(getNVertices());
+    }
+
+    for(const bitpit::Vertex & vertex : getVertices()){
+        long vertexId = vertex.getId();
+        if(!internalsOnly || isPointInterior(vertexId)){
+            ids.push_back(vertexId);
+        }
+    }
 
     return ids;
 };
