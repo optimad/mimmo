@@ -194,8 +194,7 @@ MimmoObject::MimmoObject(int type){
 	m_infoSync = true;
 	m_pointConnectivitySync = false;
 
-	m_tolerance = 1.0e-06;
-	m_patch->setTol(m_tolerance);
+	setTolerance(1.0e-06);
 }
 
 /*!
@@ -311,8 +310,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 	m_infoSync = true;
 	m_pointConnectivitySync = false;
 
-	m_tolerance = 1.0e-06;
-    m_patch->setTol(m_tolerance);
+    setTolerance(1.0e-06);
 
 };
 
@@ -448,8 +446,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_infoSync = true;
 	m_pointConnectivitySync = false;
 
-	m_tolerance = 1.0e-06;
-    m_patch->setTol(m_tolerance);
+    setTolerance(1.0e-06);
 
 }
 
@@ -587,8 +584,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	m_infoSync = true;
 	m_pointConnectivitySync = false;
 
-	m_tolerance = 1.0e-06;
-    m_patch->setTol(m_tolerance);
+    setTolerance(1.0e-06);
 
 }
 
@@ -2311,7 +2307,7 @@ void
 MimmoObject::setTolerance(double tol)
 {
 	m_tolerance = std::max(1.0e-15, tol);
-    m_patch->setTol(m_tolerance);
+    getPatch()->setTol(m_tolerance);
 }
 
 
