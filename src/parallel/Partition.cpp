@@ -420,9 +420,9 @@ Partition::computeBoundaryPartition()
 //			}
 
 			m_boundarypartition.clear();
+            getBoundaryGeometry()->buildSkdTree();
 			if (m_rank == 0){
 				m_boundarypartition.reserve(getBoundaryGeometry()->getNCells());
-				getBoundaryGeometry()->buildSkdTree();
                 bitpit::PatchSkdTree *btree = getBoundaryGeometry()->getSkdTree();
 				double tol = 1.0E-12;
                 std::vector<double> distances(getBoundaryGeometry()->getNCells(), std::numeric_limits<double>::max());
