@@ -96,9 +96,8 @@ double signedDistance(const std::array<double,3> *point, const bitpit::PatchSkdT
 
     static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestCell(*point, r, &id, &h);
 
-    normal = computePseudoNormal(*point, spatch, id);
-
-    return h;
+    double s = computePseudoNormal(*point, spatch, id, normal);
+    return s*h;
 
 }
 
@@ -233,7 +232,8 @@ void signedDistance(int nP, const std::array<double,3> *points, const bitpit::Pa
         double *distance = &distances[ip];
         double rpoint = r[ip];
         static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestCell(*point, rpoint, id, distance);
-        normals[ip] = computePseudoNormal(*point, spatch, *id);
+        double s = computePseudoNormal(*point, spatch, *id, normals[ip]);
+        *distance *= s;
     }
 
 }
@@ -503,14 +503,14 @@ long locatePointOnPatch(const std::array<double, 3> &point, const bitpit::PatchS
  * \param[in] point point coordinates
  * \param[in] surface_mesh pointer to surface mesh
  * \param[in] id cell id belong to the input surface mesh
- * \return pseudo-normal components
+ * \param[out] pseudo-normal components
  */
-std::array<double, 3>
-computePseudoNormal(const std::array<double, 3> &point, const bitpit::SurfUnstructured *surface_mesh, long id)
+double
+computePseudoNormal(const std::array<double, 3> &point, const bitpit::SurfUnstructured *surface_mesh, long id, std::array<double, 3> &pseudo_normal)
 {
 
-    std::array<double, 3> pseudo_normal({0.,0.,0.});
-    double h;
+    pseudo_normal.fill(0.);
+    double h, s(std::numeric_limits<double>::max());
 
     //Pseudo normal only for 2D element patches
     if (id != bitpit::Cell::NULL_ID){
@@ -556,7 +556,7 @@ computePseudoNormal(const std::array<double, 3> &point, const bitpit::SurfUnstru
             }
         }
 
-        double s =  sign( dotProduct(normal, point - xP) );
+        s =  sign( dotProduct(normal, point - xP) );
         if(s == 0.0)    s =1.0;
         h = s * h;
         //pseudo-normal (direction P and xP closest point on triangle)
@@ -569,7 +569,7 @@ computePseudoNormal(const std::array<double, 3> &point, const bitpit::SurfUnstru
         }
     }//end if not id null
 
-    return pseudo_normal;
+    return s;
 }
 
 /*!
@@ -705,7 +705,7 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
 {
 
     if(!tree){
-        throw std::runtime_error("Invalid use of skdTreeUtils::signedDistance method: a void tree is detected.");
+        throw std::runtime_error("Invalid use of skdTreeUtils::signedGlobalDistance method: a void tree is detected.");
     }
     const bitpit::SurfUnstructured & spatch = static_cast<const bitpit::SurfUnstructured&>(tree->getPatch());
 
@@ -724,6 +724,10 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
     std::map<int,std::vector<std::array<double,3>>> point_to_rank;
     std::map<int,std::vector<int>> point_index_received_from_rank;
 
+    //Global signs container
+    std::vector<double> signs;
+    if(shared)  signs.resize(nP, std::numeric_limits<double>::max());
+
     // Loop on points
     for (int ip = 0; ip < nP; ip++){
 
@@ -736,7 +740,13 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
         // If the current rank is the the owner of the cell compute normal
         if (cellRank == myrank){
 
-            pseudo_normal = computePseudoNormal(point, &spatch, cellId);
+            double s = computePseudoNormal(point, &spatch, cellId, pseudo_normal);
+            if(cellId != bitpit::Cell::NULL_ID){
+                distance *= s;
+            }
+            if (shared) {
+                signs[ip] = s;
+            }
 
         } else {
 
@@ -765,7 +775,15 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
 
             // If all points are shared between processes all reduce on normal by minimum operation
             MPI_Allreduce(MPI_IN_PLACE, normals, 3*nP, MPI_DOUBLE, MPI_MIN, tree->getPatch().getCommunicator());
-
+            MPI_Allreduce(MPI_IN_PLACE, signs.data(), nP, MPI_DOUBLE, MPI_MIN, tree->getPatch().getCommunicator());
+            for (int ip = 0; ip < nP; ip++){
+                const long & cellId = ids[ip];
+                double & distance = distances[ip];
+                double & s = signs[ip];
+                if(cellId != bitpit::Cell::NULL_ID){
+                    distance *= s;
+                }
+            }
         } else {
 
             // Send/receive number of normals to send to other processes
@@ -802,21 +820,26 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
 
             // Compute pseudo-normal for each received point from each rank
             std::map<int, std::vector<std::array<double,3>>> normal_to_rank;
+            std::map<int, std::vector<double>> sign_to_rank;
+
             for (int irank = 0; irank < nProcessors; irank++){
                 normal_to_rank[irank].resize(n_send_to_rank[irank], std::array<double,3>({std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max()}));
+                sign_to_rank[irank].resize(n_send_to_rank[irank], 1.);
                 for (int ip = 0; ip < n_send_to_rank[irank]; ip++){
 
                     const std::array<double,3> & point = point_from_rank[irank][ip];
                     const long & cellId = send_to_rank[irank][ip];
                     std::array<double,3> & pseudo_normal = normal_to_rank[irank][ip];
+                    double & s = sign_to_rank[irank][ip];
 
-                    pseudo_normal = computePseudoNormal(point, &spatch, cellId);
+                    s = computePseudoNormal(point, &spatch, cellId, pseudo_normal);
 
                 } // end loop on points received
             }  // end loop on ranks
 
             // Communicate back the computed pseudonormals
             std::map<int, std::vector<std::array<double,3>>> normal_from_rank;
+            std::map<int, std::vector<double>> sign_from_rank;
 
             for (int irank = 0; irank < nProcessors; irank++){
                 if (myrank == irank){
@@ -826,10 +849,14 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
                             normal_from_rank[jrank].resize(n_ask_to_current_rank);
                             MPI_Recv(normal_from_rank[jrank].data(), n_ask_to_current_rank*3, MPI_DOUBLE, jrank, 102, tree->getPatch().getCommunicator(), MPI_STATUS_IGNORE);
 
+                            sign_from_rank[jrank].resize(n_ask_to_current_rank);
+                            MPI_Recv(sign_from_rank[jrank].data(), n_ask_to_current_rank, MPI_DOUBLE, jrank, 103, tree->getPatch().getCommunicator(), MPI_STATUS_IGNORE);
                             // Fill normals output with the correct received pseudonormals (TODO move out of communications scope?)
+
                             for (int ip = 0; ip < n_ask_to_current_rank; ip++){
                                 int point_index = point_index_received_from_rank[jrank][ip];
                                 normals[point_index] = normal_from_rank[jrank][ip];
+                                distances[point_index] *= sign_from_rank[jrank][ip];
                             }
 
                         }
@@ -837,6 +864,7 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
                 } else {
                     int n_send_to_current_rank = n_send_to_rank[irank];
                     MPI_Send(normal_to_rank[irank].data(), n_send_to_current_rank*3, MPI_DOUBLE, irank, 102, tree->getPatch().getCommunicator());
+                    MPI_Send(sign_to_rank[irank].data(), n_send_to_current_rank, MPI_DOUBLE, irank, 103, tree->getPatch().getCommunicator());
                 }
             }
 
