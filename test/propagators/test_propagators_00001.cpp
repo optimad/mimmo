@@ -98,6 +98,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(std::vector<l
 
     mesh->buildAdjacencies();
     mesh->buildInterfaces();
+    mesh->update();
 
     bcdir1_vertlist.clear();
     bcdir2_vertlist.clear();
@@ -110,6 +111,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(std::vector<l
             bcdir2_vertlist.push_back((nr+1)*(nt+1)*k + (nr+1)*nt + i);
         }
     }
+
     return mesh;
 }
 
@@ -152,6 +154,8 @@ int test1() {
     }
 
     bdirMesh->buildAdjacencies();
+    bdirMesh->update();
+
     bool check = false;
     long targetNode =  (10 +1)*(6+1)*3 + (6+1)*5 + 3;
 

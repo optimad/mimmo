@@ -100,6 +100,7 @@ bool createMimmoMesh(MimmoObject * mesh){
     }
 
     mesh->buildAdjacencies();
+    mesh->update();
 
     bool check = true;
     if (mesh->getRank() == 0){

@@ -1549,12 +1549,12 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	if (isPartitioned()){
 
 		//Fill the nodes of the targets
-		for (const auto &entry : m_patch->getGhostExchangeTargets()) {
+		for (const auto &entry : getPatch()->getGhostExchangeTargets()) {
 			int ghostRank = entry.first;
 			std::vector<long> ghostIds = entry.second;
 			std::unordered_set<long> ghostVertices;
 			for (long cellId : ghostIds){
-				for (long vertexId : m_patch->getCell(cellId).getVertexIds()){
+				for (long vertexId : getPatch()->getCell(cellId).getVertexIds()){
 					ghostVertices.insert(vertexId);
 				}
 			}
@@ -1562,12 +1562,12 @@ void MimmoObject::updatePointGhostExchangeInfo()
 		}
 
 		//Fill the nodes of the sources
-		for (const auto &entry : m_patch->getGhostExchangeSources()) {
+		for (const auto &entry : getPatch()->getGhostExchangeSources()) {
 			int recvRank = entry.first;
 			std::vector<long> localIds = entry.second;
 			std::unordered_set<long> localVertices;
 			for (long cellId : localIds){
-				for (long vertexId : m_patch->getCell(cellId).getVertexIds()){
+				for (long vertexId : getPatch()->getCell(cellId).getVertexIds()){
 					localVertices.insert(vertexId);
 				}
 			}
@@ -2698,7 +2698,7 @@ MimmoObject::resyncPID(){
 MimmoSharedPointer<MimmoObject> MimmoObject::clone() const {
 
 	//first step clone the internal bitpit patch.
-	std::unique_ptr<bitpit::PatchKernel> clonedPatch = m_patch->clone();
+	std::unique_ptr<bitpit::PatchKernel> clonedPatch = getPatch()->clone();
 
 	//build the cloned mimmoObject using the custom constructor
 	MimmoSharedPointer<MimmoObject> result (new MimmoObject(m_type, clonedPatch));
@@ -3273,6 +3273,25 @@ void MimmoObject::buildPatchInfo(){
 	m_patchInfo.update();
 	m_infoSync = true;
 	return;
+}
+
+/*!
+ * Update the MimmoObject after a manipulation, i.e. a mesh adaption, a cells/vertices insertion/delete or
+ * a generic manipulation.
+ * Note. To update parallel information the cell adjacencies have to be built.
+ */
+// TODO Insert build adjacencies, interfaces and other info????
+void MimmoObject::update()
+{
+
+#if MIMMO_ENABLE_MPI
+    // Update parallel information by calling setPartitioned method
+    setPartitioned();
+#endif
+
+    // Update patch bounding box
+    getPatch()->updateBoundingBox(true);
+
 }
 
 /*!
@@ -4636,7 +4655,6 @@ MimmoObject::triangulate(){
  * \param[out] collapsedVertices If not a null pointer the pointed vector is filled
                with the original collapsed (i.e. deleted) vertices
  */
-//TODO PARALLEL VERSION
 void
 MimmoObject::degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degradedDeletedCells,
                                        bitpit::PiercedVector<bitpit::Vertex>* collapsedVertices)
