@@ -850,7 +850,7 @@ MimmoObject::getNInternals() const {
 long
 MimmoObject::getNInternalVertices(){
 #if MIMMO_ENABLE_MPI
-	if (!getPatch()->isPartitioned())
+	if (!isPartitioned())
 #endif
 		return getNVertices();
 #if MIMMO_ENABLE_MPI
@@ -1221,7 +1221,7 @@ lilimap
 MimmoObject::getMapDataInv(bool withghosts){
 	lilimap mapDataInv;
 #if MIMMO_ENABLE_MPI
-	if (getPatch()->isPartitioned()){
+	if (isPartitioned()){
 		for (auto val : m_pointConsecutiveId){
 			if (!withghosts && !isPointInterior(val.first)){
 				continue;
@@ -1432,7 +1432,7 @@ MimmoObject::isPointInterior(long id)
 #if MIMMO_ENABLE_MPI
 
 	//If not partitioned return true
-	if (!getPatch()->isPartitioned())
+	if (!isPartitioned())
 		return true;
 
 	return m_isPointInterior.at(id);
@@ -1546,7 +1546,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	}
 
 	//Start update structure if partitioned
-	if (getPatch()->isPartitioned()){
+	if (isPartitioned()){
 
 		//Fill the nodes of the targets
 		for (const auto &entry : m_patch->getGhostExchangeTargets()) {
@@ -1674,7 +1674,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	}
 
 	//Start update structure if partitioned
-	if (getPatch()->isPartitioned()){
+	if (isPartitioned()){
 
 		// A process can have a non-internal point in sources list. It has to push to owner process of this point that it has to communicate
 		// with its target rank. The same it has to push to target rank to add the real source rank of this shared point.
@@ -2233,6 +2233,31 @@ MimmoObject::setPartitioned()
 
     buildPatchInfo();
     updatePointGhostExchangeInfo();
+
+}
+
+/*!
+ * Give if the patch is really partitioned, i.e. not owned entirely by a single master process.
+ * Note. In mimmo the master process is considered rank = 0, so a patch entirely
+ * owned by a process with rank != 0 is considered really partitioned.
+ */
+bool
+MimmoObject::isPartitioned()
+{
+    if (getPatch() == nullptr){
+        return false;
+    }
+
+    if (!getPatch()->isPartitioned()){
+        return false;
+    }
+
+    bool partitioned = false;
+    partitioned = (getNGlobalCells() != getNCells());
+
+    MPI_Bcast(&partitioned, 1, MPI_C_BOOL, 0, m_communicator);
+
+    return partitioned;
 
 }
 

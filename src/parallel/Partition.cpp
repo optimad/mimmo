@@ -186,7 +186,7 @@ Partition::execute(){
 	}
 
 	if (m_nprocs>1){
-		if ((m_mode == PartitionMethod::PARTGEOM && !(getGeometry()->getPatch()->isPartitioned())) || (m_mode == PartitionMethod::SERIALIZE && (getGeometry()->getPatch()->isPartitioned())))
+		if ((m_mode == PartitionMethod::PARTGEOM && !(getGeometry()->isPartitioned())) || (m_mode == PartitionMethod::SERIALIZE && (getGeometry()->isPartitioned())))
 		{
 
 			if (!getGeometry()->areAdjacenciesBuilt()){
@@ -298,7 +298,7 @@ Partition::computePartition(){
 void
 Partition::parmetisPartGeom(){
 
-	if ((m_nprocs>1) && !(getGeometry()->getPatch()->isPartitioned())){
+	if ((m_nprocs>1) && !(getGeometry()->isPartitioned())){
 
 		lilimap mapcell = getGeometry()->getMapCell();
 		lilimap mapcellinv = getGeometry()->getMapCellInv();
@@ -379,7 +379,7 @@ Partition::serialPartition(){
 		getGeometry()->getPatch()->setCommunicator(m_communicator);
 	}
 
-	if ((m_nprocs>1) && (getGeometry()->getPatch()->isPartitioned())){
+	if ((m_nprocs>1) && (getGeometry()->isPartitioned())){
 		//Build partition to send to zero
 		long ncells = getGeometry()->getPatch()->getInternalCount();
 		m_partition.clear();
@@ -400,7 +400,7 @@ Partition::computeBoundaryPartition()
 {
 
 	if (m_mode == PartitionMethod::SERIALIZE){
-		if ((m_nprocs>1) && getBoundaryGeometry()->getPatch()->isPartitioned()){
+		if ((m_nprocs>1) && getBoundaryGeometry()->isPartitioned()){
 			//Build partition to send to zero
 			long ncells = getBoundaryGeometry()->getPatch()->getInternalCount();
 			m_boundarypartition.clear();
@@ -412,7 +412,7 @@ Partition::computeBoundaryPartition()
 	}
 	else{
 
-		if ((m_nprocs>1) && !(getBoundaryGeometry()->getPatch()->isPartitioned())){
+		if ((m_nprocs>1) && !(getBoundaryGeometry()->isPartitioned())){
 
 //			if (!getGeometry()->areInterfacesBuilt()){
 //				m_interfacesReset = true;

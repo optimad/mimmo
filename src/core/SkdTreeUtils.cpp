@@ -1116,12 +1116,14 @@ void locatePointOnGlobalPatch(int nP, const std::array<double,3> *points, const 
  */
 std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol){
 
-    if (!selection->getPatch().isCommunicatorSet() || !target->getPatch().isCommunicatorSet()){
-        throw std::runtime_error("Error: at least one PatchSkdTree communicator not set in selectByGlobalPatch");
+    if (!selection->getPatch().isPartitioned() || !target->getPatch().isPartitioned()){
+        throw std::runtime_error("Error: the two PatchSkdTree communicators not set in selectByGlobalPatch");
     }
-    if (!selection->getPatch().isPartitioned() && !target->getPatch().isPartitioned()){
-        return(selectByPatch(selection, target, tol));
-    }
+
+    //TODO USE THE REAL IS DISTRIBUTED PATCH IN BITPIT WHEN READY !!!!
+//    if (!selection->getPatch().isPartitioned() && !target->getPatch().isPartitioned()){
+//        return(selectByPatch(selection, target, tol));
+//    }
 
     // Leaf selection nodes of current rank initialized for each rank of target bounding box
     int nprocs = selection->getPatch().getProcessorCount();
