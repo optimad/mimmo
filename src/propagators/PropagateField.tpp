@@ -1356,7 +1356,7 @@ PropagateField<NCOMP>::communicateGhostData(MimmoPiercedVector<std::array<double
         throw std::runtime_error("Propagate Class ::communicateGhostData no ref Geometry in mpv data!");
     }
     //if geo is not partitioned you have nothing to communicate.
-    if (!geo->getPatch()->isPartitioned()) return;
+    if (!geo->isPartitioned()) return;
 
     //check for communicator on geometry, if not exists create it
     m_ghostTags[geo] = createGhostCommunicator(geo, true);
@@ -1393,7 +1393,7 @@ PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<std::array<d
         throw std::runtime_error("Propagate Class ::communicatePointGhostData no ref Geometry in mpv data!");
     }
     //if geo is not partitioned you have nothing to communicate.
-    if (!geo->getPatch()->isPartitioned()) return;
+    if (!geo->isPartitioned()) return;
 
     //check for communicator on geometry, if not exists create it
     m_pointGhostTags[geo] = createPointGhostCommunicator(geo, true);
