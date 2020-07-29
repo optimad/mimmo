@@ -188,6 +188,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh( mimmo::Mimmo
 
     mesh->buildAdjacencies();
     mesh->buildInterfaces();
+    mesh->update();
 
     livector1D borderverts = mesh->extractBoundaryVertexID();
 
@@ -243,6 +244,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh( mimmo::Mimmo
         boundary->addConnectedCell(std::vector<long>(&conn[0], &conn[connsize]), et, *it,it.getId());
     }
     boundary->buildAdjacencies();
+    boundary->update();
 
     return mesh;
 }

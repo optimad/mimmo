@@ -296,6 +296,8 @@ public:
     void    	cleanKdTree();
     void    	cleanSkdTree();
 
+    void        update();
+
     bool        areAdjacenciesBuilt();
     bool        areInterfacesBuilt();
     bool        isClosedLoop();

@@ -101,6 +101,7 @@ bool createMimmoMesh(MimmoObject * mesh, std::array<double,3> origin = std::arra
     }
 
     mesh->buildAdjacencies();
+    mesh->update();
 
     bool check = true;
     if (mesh->getRank() == 0){
