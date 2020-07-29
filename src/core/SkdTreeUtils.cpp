@@ -717,7 +717,9 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
         static_cast<const bitpit::SurfaceSkdTree*>(tree)->findPointClosestGlobalCell(nP, points, r, ids, ranks, distances);
     }
 
+
     int myrank = spatch.getRank();
+
 
     // Map with rank to ask info in case of distributed points
     std::map<int,std::vector<long>> ask_to_rank;
@@ -770,7 +772,7 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
 
     int nProcessors = spatch.getProcessorCount();
 
-    if (nProcessors > 1 && spatch.isPartitioned()){
+    if (nProcessors > 1 && spatch.isCommunicatorSet()){
         if (shared){
 
             // If all points are shared between processes all reduce on normal by minimum operation
@@ -824,7 +826,7 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
 
             for (int irank = 0; irank < nProcessors; irank++){
                 normal_to_rank[irank].resize(n_send_to_rank[irank], std::array<double,3>({std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max()}));
-                sign_to_rank[irank].resize(n_send_to_rank[irank], 1.);
+                sign_to_rank[irank].resize(n_send_to_rank[irank], std::numeric_limits<double>::max());
                 for (int ip = 0; ip < n_send_to_rank[irank]; ip++){
 
                     const std::array<double,3> & point = point_from_rank[irank][ip];
