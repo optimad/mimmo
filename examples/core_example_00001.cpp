@@ -35,17 +35,8 @@
 
 	\brief Example of interpolating data over an unstructured non-homogeneous mesh.
 
-*/
-#if MIMMO_ENABLE_MPI
-/*!
-    Using: MimmoGeometry, MimmoPiercedVector, Partition
- */
-#else
-/*!
     Using: MimmoGeometry, MimmoPiercedVector
- */
-#endif
-/*!
+
 	<b>To run</b>: ./core_example_00001 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
