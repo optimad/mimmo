@@ -333,10 +333,10 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 		throw std::runtime_error ("MimmoObject : unrecognized mesh type or nullptr argument in class construction");
 	}
 	if (geometry->getVertexCount() ==0){
-		(*m_log)<<"Error MimmoObject: no points detected in the linked mesh."<<std::endl;
+		(*m_log)<<"Warning MimmoObject: no points detected in the linked mesh."<<std::endl;
 	}
 	if (geometry->getCellCount() ==0){
-		(*m_log)<<"Error MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
+		(*m_log)<<"Warning MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
 	}
 
 	m_internalPatch = false;
@@ -470,10 +470,10 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 		throw std::runtime_error ("MimmoObject : unrecognized mesh type or nullptr argument in class construction");
 	}
 	if (geometry->getVertexCount() ==0){
-		(*m_log)<<"Error MimmoObject: no points detected in the linked mesh."<<std::endl;
+		(*m_log)<<"Warning MimmoObject: no points detected in the linked mesh."<<std::endl;
 	}
 	if (geometry->getCellCount() ==0){
-		(*m_log)<<"Error MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
+		(*m_log)<<"Warning MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
 	}
 
 	//check among elements if they are coherent with the type currently hold by the linked mesh.
