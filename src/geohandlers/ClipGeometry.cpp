@@ -33,7 +33,7 @@ ClipGeometry::ClipGeometry(){
     m_origin.fill(0.0);
     m_normal.fill(0.0);
     m_insideout = false;
-    m_patch.reset();
+    m_clipped.reset();
     m_implicit = false;
 };
 
@@ -46,7 +46,7 @@ ClipGeometry::ClipGeometry(const bitpit::Config::Section & rootXML){
     m_name = "mimmo.ClipGeometry";
     m_plane.fill(0.0);
     m_insideout = false;
-    m_patch.reset();
+    m_clipped.reset();
     m_origin.fill(0.0);
     m_normal.fill(0.0);
     m_implicit = false;
@@ -109,7 +109,7 @@ ClipGeometry::isInsideOut(){
  */
 MimmoSharedPointer<MimmoObject>
 ClipGeometry::getClippedPatch(){
-    return(m_patch);
+    return(m_clipped);
 };
 
 /*!
@@ -185,7 +185,7 @@ ClipGeometry::setInsideOut(bool flag){
 };
 
 /*!
- * Execution command. Clip geometry and save result in m_patch member.
+ * Execution command. Clip geometry and save result in m_clipped member.
  */
 void
 ClipGeometry::execute(){
@@ -204,7 +204,7 @@ ClipGeometry::execute(){
      */
     if (!m_implicit) setClipPlane(m_origin, m_normal);
 
-    m_patch.reset();
+    m_clipped.reset();
 
     livector1D extracted = clipPlane();
     if(extracted.empty()){
@@ -250,24 +250,23 @@ ClipGeometry::execute(){
         temp->setPIDName(val, originalmap[val]);
     }
 
-    m_patch = temp;
+    m_clipped = temp;
 
 #if MIMMO_ENABLE_MPI
     // if the mesh is not  a point cloud
     if (getGeometry()->getType() != 3){
 
-        m_patch->buildAdjacencies();
+        m_clipped->buildAdjacencies();
         //delete orphan ghosts
-        m_patch->deleteOrphanGhostCells();
-        if(m_patch->getPatch()->countOrphanVertices() > 0){
-            m_patch->getPatch()->deleteOrphanVertices();
+        m_clipped->deleteOrphanGhostCells();
+        if(m_clipped->getPatch()->countOrphanVertices() > 0){
+            m_clipped->getPatch()->deleteOrphanVertices();
         }
-        //fixed ghosts you will claim this patch partitioned.
-        m_patch->setPartitioned();
     }
 #endif
 
-
+    // Update mesh. This will update even parallel structures if needed
+    m_clipped->update();
 
 };
 
