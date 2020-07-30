@@ -113,6 +113,8 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createMIOMesh(){
 
     }
 
+    mesh->update();
+
 	return mesh;
 }
 
