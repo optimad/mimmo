@@ -112,7 +112,6 @@ public:
 protected:
     void plotOptionalResults();
     void swap(ControlDeformMaxDistance & x) noexcept;
-
 };
 
 REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_,__CONTROLDEFORMMAXDISTANCE_HPP__)

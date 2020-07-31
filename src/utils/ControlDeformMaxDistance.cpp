@@ -81,8 +81,6 @@ ControlDeformMaxDistance & ControlDeformMaxDistance::operator=(ControlDeformMaxD
 void ControlDeformMaxDistance::swap(ControlDeformMaxDistance & x) noexcept
 {
     std::swap(m_maxDist, x.m_maxDist);
-//     std::swap(m_violationField, x.m_violationField);
-//     std::swap(m_defField, x.m_defField);
     m_violationField.swap(x.m_violationField);
     m_defField.swap(x.m_defField);
     BaseManipulation::swap(x);
@@ -117,7 +115,9 @@ ControlDeformMaxDistance::getViolation(){
     for(const auto & val : m_violationField){
         result = std::fmax(result, val);
     }
-
+#if MIMMO_ENABLE_MPI
+    MPI_Allreduce(MPI_IN_PLACE, &result, 1, MPI_DOUBLE, MPI_MAX, m_communicator);
+#endif
     return    result;
 };
 
@@ -177,74 +177,82 @@ ControlDeformMaxDistance::execute(){
 
     MimmoSharedPointer<MimmoObject> geo = getGeometry();
     if(geo == nullptr){
-        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
-        throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
+        (*m_log)<<"Error "+m_name + " : null pointer to linked geometry found"<<std::endl;
+        throw std::runtime_error("Error "+m_name + " : null pointer to linked geometry found");
     }
 
     if(geo->isEmpty()){
-        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-        return;
+        (*m_log)<<"Warning in " + m_name + " : empty linked geometry found"<<std::endl;
     }
-
 
     bool check = m_defField.getGeometry() == geo;
     check = check && m_defField.getDataLocation() == MPVLocation::POINT;
-    check = check && m_defField.completeMissingData({{0.0,0.0,0.0}});
     if(!check){
-        (*m_log)<<"Error in "<<m_name<<": Unsuitable deformation field linked"<<std::endl;
-        throw std::runtime_error (m_name + " : Unsuitable deformation field linked.");
+        (*m_log)<<"Warning in "<<m_name<<": Unsuitable deformation field linked"<<std::endl;
     }
-
-    m_violationField.clear();
+    m_defField.completeMissingData({{0.0,0.0,0.0}});
 
     if(!(geo->isSkdTreeSync()))    geo->buildSkdTree();
 
-    dmpvecarr3E points;
-    dmpvector1D normDef;
-    long int ID;
-    for (const auto & v : geo->getVertices()){
-        ID = v.getId();
-        points.insert(ID, geo->getVertexCoords(ID) + m_defField[ID] );
-        normDef.insert(ID, norm2(m_defField[ID]));
-        m_violationField.insert(ID, -1.0*std::numeric_limits<double>::max());
+    m_violationField.clear();
+    m_violationField.initialize(geo, MPVLocation::POINT, -1.0*std::numeric_limits<double>::max());
+
+    std::vector<long> mapIDV = geo->getVerticesIds(); //take all internals and ghosts if partitioned mesh.
+    //set points structure
+    std::vector<std::array<double,3> > points;
+    std::vector<double> normDef;
+    points.reserve(mapIDV.size());
+    normDef.resize(mapIDV.size(), 1.0E-08);
+
+    int counter = 0;
+    for (long idV : mapIDV){
+        points.push_back(geo->getVertexCoords(idV) + m_defField[idV] );
+        normDef[counter] = std::max(normDef[counter], 1.2*norm2(m_defField[idV]) );
+        ++counter;
     }
 
-    double dist;
-    double radius ;
-    double rate = 0.05;
-    int kmax = 200;
-    int kiter;
-    bool flag;
-    long int IDC;
-    for(const auto &ID : points.getIds()){
-        dist = std::numeric_limits<double>::max();
-        kiter = 0;
-        flag = true;
-        radius = std::fmax(1.0E-8, normDef[ID]);
-        while(flag && kiter < kmax){
-            dist = skdTreeUtils::distance(&points[ID], geo->getSkdTree(), IDC, radius);
-            flag = (dist == std::numeric_limits<double>::max());
-            if(flag){
-                radius *= (1.0 + rate);
-            }
-            kiter++;
-        }
-        if(kiter == kmax)    dist = m_maxDist - dist;
-        m_violationField[ID] =  (dist - m_maxDist);
+    std::vector<double> distances(mapIDV.size());
+    std::vector<long> suppCellIds(mapIDV.size());
+
+#if MIMMO_ENABLE_MPI
+    if (geo->getPatch()->isCommunicatorSet()){
+        std::vector<int> suppCellRanks(mapIDV.size());
+        skdTreeUtils::globalDistance(points.size(), points.data(), geo->getSkdTree(), suppCellIds.data(), suppCellRanks.data(), distances.data(), normDef.data(), false);
+    }
+    else
+#endif
+    {
+        skdTreeUtils::distance(points.size(), points.data(), geo->getSkdTree(), suppCellIds.data(), distances.data(), normDef.data());
     }
 
-    m_violationField.setGeometry(getGeometry());
-    m_violationField.setDataLocation(MPVLocation::POINT);
+    //transfer distance value inside m_violation field.(parallel case, ghost are already in)
+    //Final value of violation is local distance of deformed point minus the offset m_maxDist
+    // fixed by the user
+    counter = 0;
+    for( long id : mapIDV){
+        m_violationField[id] =  (distances[counter] - m_maxDist);
+        ++counter;
+    }
 
-    //write log
-    std::string logname = m_name+std::to_string(getId())+"_violation.log";
-    std::ofstream log;
-    log.open(logname);
-    log<<"mimmo "<<m_name<<" resume file"<<std::endl;
-    log<<std::endl;
-    log<<std::endl;
-    log<<" violation value : " << getViolation() << std::endl;
-    log.close();
+
+    double violationMax = getViolation();
+    //write resume file: in case of parallel version, only rank 0 writes.
+#if MIMMO_ENABLE_MPI
+    if(m_rank == 0){
+#endif
+        std::string logname = m_name+std::to_string(getId())+"_violation.log";
+        std::ofstream log;
+        log.open(logname);
+        log<<"mimmo "<<m_name<<" resume file"<<std::endl;
+        log<<std::endl;
+        log<<std::endl;
+        log<<" violation value : " << violationMax << std::endl;
+        log.close();
+
+#if MIMMO_ENABLE_MPI
+    }
+    MPI_Barrier(m_communicator); // other ranks stalled here, waiting 0 to finish writing.
+#endif
 
 };
 
