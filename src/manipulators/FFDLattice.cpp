@@ -1432,11 +1432,15 @@ FFDLattice::plotOptionalResults(){
     std::string nameGridD  = m_name+"GRID_deformed";
     //    std::string nameCloudD = m_name+"CLOUD_deformed";
 
-
-    plotGrid(dir, nameGrid, getId(), true, false );
-    //    plotCloud(dir, nameCloud, getClassCounter(), true, false );
-    plotGrid(dir, nameGridD, getId(), true, true );
-    //    plotCloud(dir, nameCloudD, getClassCounter(), true, true );
+#if MIMMO_ENABLE_MPI
+    // Only master rank writes the lattice mesh
+    if (getRank() == 0){
+        plotGrid(dir, nameGrid, getId(), true, false );
+        //    plotCloud(dir, nameCloud, getClassCounter(), true, false );
+        plotGrid(dir, nameGridD, getId(), true, true );
+        //    plotCloud(dir, nameCloudD, getClassCounter(), true, true );
+    }
+#endif
 }
 
 /*! Recover full displacements vector from DOF.
