@@ -23,6 +23,9 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_geohandlers.hpp"
+#if MIMMO_ENABLE_MPI
+#include "mimmo_parallel.hpp"
+#endif
 
 // =================================================================================== //
 /*!
@@ -66,6 +69,20 @@ void test00002() {
     mimmo2->setWriteFileType(FileType::STL);
     mimmo2->setWriteFilename("geohandlers_output_00002.0002");
 
+#if MIMMO_ENABLE_MPI
+    /* Instantiation of a Partition object with default partition method space filling curve.
+     * Plot Optional results during execution active for Partition block.
+     */
+    mimmo::Partition* partition0 = new mimmo::Partition();
+    partition0->setPlotInExecution(true);
+
+    /* Instantiation of a Partition object with default patition method space filling curve.
+     * Plot Optional results during execution active for Partition block.
+     */
+    mimmo::Partition* partition1 = new mimmo::Partition();
+    partition1->setPlotInExecution(true);
+#endif
+
     /* Instantiation of a Stitcher Geometry block.
      * Plot Optional results during execution active for Stitcher block.
      */
@@ -75,8 +92,15 @@ void test00002() {
 
     /* Setup pin connections.
      */
-	mimmo::pin::addPin(mimmo0, stitcher, M_GEOM, M_GEOM);
+#if MIMMO_ENABLE_MPI
+    mimmo::pin::addPin(mimmo0, partition0, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partition0, stitcher, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo1, partition1, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partition1, stitcher, M_GEOM, M_GEOM);
+#else
+    mimmo::pin::addPin(mimmo0, stitcher, M_GEOM, M_GEOM);
 	mimmo::pin::addPin(mimmo1, stitcher, M_GEOM, M_GEOM);
+#endif
 	mimmo::pin::addPin(stitcher, mimmo2, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
@@ -84,6 +108,10 @@ void test00002() {
 	mimmo::Chain ch0;
 	ch0.addObject(mimmo0);
 	ch0.addObject(mimmo1);
+#if MIMMO_ENABLE_MPI
+    ch0.addObject(partition0);
+    ch0.addObject(partition1);
+#endif
 	ch0.addObject(stitcher);
 	ch0.addObject(mimmo2);
 
@@ -96,11 +124,19 @@ void test00002() {
      */
     delete mimmo0;
     delete mimmo1;
+#if MIMMO_ENABLE_MPI
+    delete partition0;
+    delete partition1;
+#endif
     delete mimmo2;
     delete stitcher;
 
     mimmo0 = NULL;
     mimmo1 = NULL;
+#if MIMMO_ENABLE_MPI
+    partition0 = NULL;
+    partition1 = NULL;
+#endif
     mimmo2 = NULL;
 	stitcher = NULL;
 

@@ -362,7 +362,6 @@ list(APPEND MIMMO_MODULEDISABLED_LIST "utils")
 # Modules dependecies
 #------------------------------------------------------------------------------------#
 set(CORE_DEPS "common")
-set(GEOHANDLERS_DEPS "core;common;iogeneric")
 set(IOCGNS_DEPS "core;common")
 set(IOGENERIC_DEPS "core;common")
 set(IOVTK_DEPS "core;common")
@@ -371,8 +370,10 @@ set(MANIPULATORS_DEPS "core;common")
 set(UTILS_DEPS "core;common;iogeneric")
 if(ENABLE_MPI)
     set(PARALLEL_DEPS "common;core")
+    set(GEOHANDLERS_DEPS "core;common;iogeneric;parallel")
     set(PROPAGATORS_DEPS "common;core;parallel")
 else()
+    set(GEOHANDLERS_DEPS "core;common;iogeneric")
     set(PROPAGATORS_DEPS "common;core")
 endif()
 
