@@ -388,9 +388,9 @@ FVGenericSelection::execute(){
     m_volpatch->cleanGeometry();
     m_bndpatch->cleanGeometry();
     m_intbndpatch->cleanGeometry();
-//    m_volpatch->update();
-//    m_bndpatch->update();
-//    m_intbndpatch->update();
+    m_volpatch->update();
+    m_bndpatch->update();
+    m_intbndpatch->update();
 
 };
 

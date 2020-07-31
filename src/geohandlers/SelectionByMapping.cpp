@@ -410,7 +410,7 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
     geo->setBuildSkdTree(true);
     geo->execute();
 
-    if(geo->getGeometry()->getNVertices() == 0 || geo->getGeometry()->getNCells() == 0 || geo->getGeometry()->getType() == 3 ){
+    if(geo->getGeometry()->getType() == 3 ){
         m_log->setPriority(bitpit::log::NORMAL);
         (*m_log)<< m_name << " failed to read or unsuitable geometry in SelectionByMapping::getProximity"<<std::endl;
         m_log->setPriority(bitpit::log::DEBUG);

@@ -252,20 +252,8 @@ ClipGeometry::execute(){
 
     m_clipped = temp;
 
-#if MIMMO_ENABLE_MPI
-    // if the mesh is not  a point cloud
-    if (getGeometry()->getType() != 3){
-
-        m_clipped->buildAdjacencies();
-        //delete orphan ghosts
-        m_clipped->deleteOrphanGhostCells();
-        if(m_clipped->getPatch()->countOrphanVertices() > 0){
-            m_clipped->getPatch()->deleteOrphanVertices();
-        }
-    }
-#endif
-
-    // Update mesh. This will update even parallel structures if needed
+    // Clean and Update mesh. This will update even parallel structures if needed
+    m_clipped->cleanGeometry();
     m_clipped->update();
 
 };
