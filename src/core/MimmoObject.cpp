@@ -2738,6 +2738,14 @@ MimmoObject::cleanGeometry(){
 	auto patch = getPatch();
 	patch->deleteCoincidentVertices();
 
+#if MIMMO_ENABLE_MPI
+    // Delete orphan ghosts cells
+    deleteOrphanGhostCells();
+    if(getPatch()->countOrphanVertices() > 0){
+        getPatch()->deleteOrphanVertices();
+    }
+#endif
+
 	m_kdTreeSync = false;
 	m_infoSync = false;
 #if MIMMO_ENABLE_MPI
@@ -3286,6 +3294,8 @@ void MimmoObject::update()
 
 #if MIMMO_ENABLE_MPI
     // Update parallel information by calling setPartitioned method
+    // The adjacencies are needed to call partition method in bitpit
+    buildAdjacencies();
     setPartitioned();
 #endif
 
