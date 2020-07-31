@@ -129,8 +129,6 @@ Partition::setBoundaryGeometry(MimmoSharedPointer<MimmoObject> geo){
 void
 Partition::setPartition(std::unordered_map<long, int> partition){
 	m_partition = partition;
-	if (m_partition.size() != m_geometry->getNCells())
-		throw std::runtime_error(m_name + " : partition size different from number of cells");
 };
 
 /*!
@@ -180,6 +178,11 @@ Partition::execute(){
 		throw std::runtime_error(m_name + " : non empty linked geometry found on non-zero processors during geometric partition.");
 	};
 
+    if(!m_partition.empty()){
+    if (m_partition.size() != m_geometry->getNCells())
+		throw std::runtime_error(m_name + " : partition size different from number of cells");
+    }
+    
 	//Set communicator in case is not set
 	if (!getGeometry()->getPatch()->isCommunicatorSet()){
 		getGeometry()->getPatch()->setCommunicator(m_communicator);
@@ -194,7 +197,9 @@ Partition::execute(){
             }
 
 			//Compute partition
-			computePartition();
+            if(m_partition.empty()){
+                computePartition();
+            }
 			if (getBoundaryGeometry() != nullptr){
 				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 					//Set communicator if not already set

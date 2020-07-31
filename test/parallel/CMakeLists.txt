@@ -32,6 +32,7 @@ get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 set(TESTS "")
 list(APPEND TESTS "test_parallel_00000:2")
 list(APPEND TESTS "test_parallel_00001:2")
+list(APPEND TESTS "test_parallel_00002:2")
 
 # Test extra libraries
 set(TEST_EXTRA_LIBRARIES "")
