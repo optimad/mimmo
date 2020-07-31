@@ -23,6 +23,9 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_geohandlers.hpp"
+#if MIMMO_ENABLE_MPI
+#include "mimmo_parallel.hpp"
+#endif
 #include <bitpit_common.hpp>
 
 // =================================================================================== //
@@ -51,7 +54,7 @@ void test00001() {
     mimmo0->setName("mimmo0");
     mimmo0->setReadDir("./geodata");
     mimmo0->setReadFileType(FileType::STL);
-    mimmo0->setReadFilename("sphere2");
+    mimmo0->setReadFilename("sphere3");
     mimmo0->setWriteDir("./");
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00001.0000");
@@ -65,6 +68,14 @@ void test00001() {
     mimmo2->setWriteDir(".");
     mimmo2->setWriteFileType(FileType::STL);
     mimmo2->setWriteFilename("geohandlers_output_00001.0002");
+
+#if MIMMO_ENABLE_MPI
+    /* Instantiation of a Partition object with default partition method space filling curve.
+     * Plot Optional results during execution active for Partition block.
+     */
+    mimmo::Partition* partition = new mimmo::Partition();
+    partition->setPlotInExecution(true);
+#endif
 
     /* Instantiation of a Selection By Box block.
      * Setup of span and origin of cube.
@@ -90,9 +101,16 @@ void test00001() {
 
     /* Setup pin connections.
      */
+#if MIMMO_ENABLE_MPI
+    mimmo::pin::addPin(mimmo0, partition, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partition, refine, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partition, boxSel, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partition, sphSel, M_GEOM, M_GEOM);
+#else
     mimmo::pin::addPin(mimmo0, refine, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, boxSel, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, sphSel, M_GEOM, M_GEOM);
+#endif
     mimmo::pin::addPin(boxSel, mimmo1, M_GEOM, M_GEOM);
     mimmo::pin::addPin(sphSel, mimmo2, M_GEOM, M_GEOM);
 
@@ -100,6 +118,9 @@ void test00001() {
      */
     mimmo::Chain ch0;
     ch0.addObject(mimmo0);
+#if MIMMO_ENABLE_MPI
+    ch0.addObject(partition);
+#endif
     ch0.addObject(refine);
     ch0.addObject(boxSel);
     ch0.addObject(sphSel);
@@ -116,6 +137,9 @@ void test00001() {
 	delete boxSel;
 	delete sphSel;
     delete mimmo0;
+#if MIMMO_ENABLE_MPI
+    delete partition;
+#endif
     delete refine;
     delete mimmo1;
     delete mimmo2;
@@ -123,6 +147,9 @@ void test00001() {
     boxSel = NULL;
     sphSel = NULL;
     mimmo0 = NULL;
+#if MIMMO_ENABLE_MPI
+    partition = NULL;
+#endif
     refine = NULL;
     mimmo1 = NULL;
     mimmo2 = NULL;
