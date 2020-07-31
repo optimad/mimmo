@@ -39,6 +39,8 @@ namespace mimmo{
  * ControlDeformExtSurface is derived from BaseManipulation class.
  * It needs one or more external surface meshes, representing the
    constraint of your deformed object.
+   External surfaces can be provided through ports or be read from filesystem
+   directly, with the current block. First option is recommended, for MPI versions.
  * It returns a double value V, namely the maximum signed distance from constraint
    surfaces amongst all deformed geometry nodes, reporting how much the current
    deformation violates the constraint itself.
@@ -58,6 +60,7 @@ namespace mimmo{
     | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
     | M_GDISPLS| setDefField       | (MC_SCALAR, MD_MPVECARR3FLOAT_)       |
     | M_GEOM   | setGeometry       | (MC_SCALAR, MD_MIMMO_)        |
+    | M_GEOM2  | addConstraint     | (MC_SCALAR, MD_MIMMO_)        |
 
 
     |Port Output | | |
@@ -78,22 +81,23 @@ namespace mimmo{
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>Files</B>: external constraint surfaces list of file: \n\n
+ * - <B>Files</B>: external constraint surfaces list provided from file instead of ports: \n\n
  *   <tt> <B>\<Files\></B> \n
  *   &nbsp;&nbsp;&nbsp;<B>\<file0\></B> \n
  *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<fullpath\></B> full path to file <B>\</fullpath\></B> \n
  *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<tag\></B> tag extension of your file (see MimmoGeometry general doxy) <B>\</tag\></B> \n
- *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<tolerance\></B> offset to control violation (float value) <B>\</tolerance\></B> \n
  *   &nbsp;&nbsp;&nbsp;<B>\</file0\></B> \n
  *   &nbsp;&nbsp;&nbsp;<B>\<file1\></B> \n
  *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<fullpath\></B> full path to file <B>\</fullpath\></B> \n
  *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<tag\></B> tag extension of your file (see MimmoGeometry general doxy) <B>\</tag\></B> \n
- *   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>\<tolerance\></B> offset to control violation (float value) <B>\</tolerance\></B> \n
  *   &nbsp;&nbsp;&nbsp;<B>\</file1\></B> \n
  *   &nbsp;&nbsp;&nbsp;<B>...</B> \n
  *   &nbsp;&nbsp;&nbsp;<B>...</B> \n
  *   <B>\</Files\></B> </tt> \n\n
- * - <B>BGDetails</B>: OPTIONAL define spacing of background grid, dividing diagonal of AABBox containing geometries by this factor (int);
+ *  - <B>Tolerance</B>: double(>0 or <0) proximity tolerance from external constraint surfaces. It defines an offset threshold
+                        from constraint surfaces. A violation is detected if a deformed point of the target surface exceeds
+                        this threshold, no matter if the target has already collided the constraint or not. This parameter allow to control
+                        when the violation occurs, since the distance calculation is sometimes prone to approximations.
  *
  * Geometry and deformation field have to be mandatorily passed through port.
  *
@@ -104,17 +108,18 @@ public:
     \ingroup typedefs
     \{
     */
-    typedef std::unordered_map<std::string, std::pair<double, int> > fileListWithType; /**< custom typedef for a structure hosting a list of filenames with a double and int values attached on it*/
+    typedef std::unordered_map<std::string, int> fileListWithType; /**< custom typedef for a structure hosting a list of filenames with a double and int values attached on it*/
     /*
     \}
     */
 
 private:
-    fileListWithType        m_geolist;        /**< list of file for geometrical proximity check*/
-    dmpvector1D             m_violationField; /**<Violation Field as distance from constraint */
-    dmpvecarr3E             m_defField;       /**<Deformation field*/
-    int                     m_cellBackground; /**< Number of cells N to determine background grid spacing */
-    std::unordered_set<int> m_allowed;        /**< list of currently file format supported by the class*/
+    fileListWithType                                m_geoFileList; /**< list of external constraints for proximity check, passed by file*/
+    std::unordered_set<MimmoSharedPointer<MimmoObject>> m_geoList; /**< list of external constraints for proximity check*/
+    dmpvector1D                                  m_violationField; /**<Violation Field as distance from constraint */
+    dmpvecarr3E                                        m_defField; /**<Deformation field*/
+    std::unordered_set<int>                             m_allowed; /**< list of currently file format supported by the class*/
+    double                                            m_tolerance; /**< proximity tolerance offset */
 
 public:
     ControlDeformExtSurface();
@@ -128,18 +133,20 @@ public:
 
     double                        getViolation();
     dmpvector1D *                 getViolationField();
-    double                        getToleranceWithinViolation(std::string);
-    int                           getBackgroundDetails();
-    const    fileListWithType &   getFiles() const;
+    double                        getTolerance();
+    const    fileListWithType &   getConstraintFiles() const;
 
-    void     setDefField(dmpvecarr3E *field);
-    void     setGeometry(MimmoSharedPointer<MimmoObject> geo);
-    void     setBackgroundDetails(int nCell=50);
-    void     setFiles(fileListWithType list );
-    void     addFile(std::string file, double tol, int format);
-    void     addFile(std::string file, double tol, FileType format);
-    void     removeFile(std::string);
-    void     removeFiles();
+    void    setDefField(dmpvecarr3E *field);
+    void    setGeometry(MimmoSharedPointer<MimmoObject> geo);
+    void    setTolerance(double tol);
+
+    void    addConstraint(MimmoSharedPointer<MimmoObject> geo);
+
+    void    setConstraintFiles(fileListWithType list );
+    void    addConstraintFile(std::string file, int format);
+    void    addConstraintFile(std::string file, FileType format);
+    void    removeConstraintFile(std::string);
+    void    removeConstraintFiles();
 
     void    clear();
     void    execute();
@@ -152,14 +159,17 @@ protected:
     void swap(ControlDeformExtSurface & x) noexcept;
 
 private:
-    void readGeometries(std::vector<std::unique_ptr<MimmoGeometry> > & extGeo, std::vector<double> & tols);
+    void readFileConstraints(std::vector<MimmoSharedPointer<MimmoObject> > & extFileGeos);
     svector1D extractInfo(std::string file);
-    double evaluateSignedDistance(darray3E &point, mimmo::MimmoObject * geo, long & id, darray3E & normal, double &initRadius);
+    void evaluateSignedDistance(const std::vector<darray3E> &points, MimmoSharedPointer<MimmoObject> &geo, double initRadius, dvector1D & distances);
     void writeLog();
+    void getGlobalBoundingBox(MimmoSharedPointer<MimmoObject> & geo, darray3E & bMin, darray3E & bMax);
+
 };
 
 REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_,__CONTROLDEFORMEXTSURFACE_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__CONTROLDEFORMEXTSURFACE_HPP__)
+REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_,__CONTROLDEFORMEXTSURFACE_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__CONTROLDEFORMEXTSURFACE_HPP__)
 REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_,__CONTROLDEFORMEXTSURFACE_HPP__)
 
