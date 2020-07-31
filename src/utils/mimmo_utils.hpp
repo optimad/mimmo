@@ -40,7 +40,6 @@
 #include "MeshChecker.hpp"
 #include "OBBox.hpp"
 #include "Proj3DCurveOnSurface.hpp"
-#include "ProjectCloud.hpp"
 #include "ProjPatchOnSurface.hpp"
 #include "ProjSegmentOnSurface.hpp"
 #include "RBFBox.hpp"
