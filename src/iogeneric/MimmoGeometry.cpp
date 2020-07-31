@@ -952,21 +952,32 @@ MimmoGeometry::read(){
 void
 MimmoGeometry::execute(){
     bool check = true;
-    if (m_read) check = read();
-    if (!check){
-        (*m_log) << m_name << " error: file not found : "<< m_rinfo.fname << std::endl;
-        (*m_log) << " " << std::endl;
-        throw std::runtime_error (m_name + " : file not found : " + m_rinfo.fname);
+    // Read geometry
+    if (m_read){
+        check = read();
+        if (!check){
+            (*m_log) << m_name << " error: file not found : "<< m_rinfo.fname << std::endl;
+            (*m_log) << " " << std::endl;
+            throw std::runtime_error (m_name + " : file not found : " + m_rinfo.fname);
+        }
+#if MIMMO_ENABLE_MPI
+        // Force build adjacencies to update parallel information
+        getGeometry()->buildAdjacencies();
+        getGeometry()->update();
+#endif
+        if (m_buildSkdTree) getGeometry()->buildSkdTree();
+        if (m_buildKdTree) getGeometry()->buildKdTree();
     }
     check = true;
-    if (m_write) check = write();
-    if (!check){
-        (*m_log) << m_name << " error: write not done : geometry not linked " << std::endl;
-        (*m_log) << " " << std::endl;
-        return;
+    // Write geometry
+    if (m_write){
+        check = write();
+        if (!check){
+            (*m_log) << m_name << " error: write not done : geometry not linked " << std::endl;
+            (*m_log) << " " << std::endl;
+            return;
+        }
     }
-    if (m_buildSkdTree) getGeometry()->buildSkdTree();
-    if (m_buildKdTree) getGeometry()->buildKdTree();
 }
 
 /*!
