@@ -207,15 +207,11 @@ OBBox::setGeometry(MimmoSharedPointer<MimmoObject> geo){
         return;
     }
 
-    if (geo->isEmpty())    {
-        (*m_log)<<"warning: "<<m_name<<" empty Geometry set. Doing nothing"<<std::endl;
-        return;
-    }
-
     if (geo->getType() == 2 )    {
         (*m_log)<<"warning: "<<m_name<<" does not support volumetric tessellation. Geometry not set"<<std::endl;
         return;
     }
+
     m_listgeo.insert(std::make_pair(geo, geo->getType()));
 };
 
@@ -246,6 +242,9 @@ OBBox::setWriteInfo(bool flag){
 void
 OBBox::plot(std::string directory, std::string filename,int counter, bool binary){
 
+#if MIMMO_ENABLE_MPI
+    if(m_rank == 0){
+#endif
 
     dvecarr3E activeP(8);
 
@@ -283,7 +282,13 @@ OBBox::plot(std::string directory, std::string filename,int counter, bool binary
     if(counter>=0){vtk.setCounter(counter);}
 
     vtk.write();
-};
+
+#if MIMMO_ENABLE_MPI
+    }
+    MPI_Barrier(m_communicator);
+#endif
+
+}
 
 
 /*!Execute your object, calculate the OBBox of your geometry.
@@ -294,9 +299,11 @@ void
 OBBox::execute(){
 
     darray3E pmin, pmax;
-    pmin.fill(1.e18);
-    pmax.fill(-1.e18);
+    pmin.fill(std::numeric_limits<double>::max());
+    pmax.fill(-1.0*std::numeric_limits<double>::max());
     double val;
+
+    //create an eye [1,0,0] [0,1,0] [0,0,1] matrix and set m_axes to it.
     dmatrix33E eye;
     {
         int count = 0;
@@ -311,35 +318,40 @@ OBBox::execute(){
     if(m_listgeo.empty()){
         m_span.fill(0.0);
         m_origin.fill(0.0);
+        *m_log<<"Warning in "<<m_name<<" : no external geometry provided"<<std::endl;
         return;
     };
 
-    std::unordered_map<MimmoSharedPointer<MimmoObject>, int>::iterator itB = m_listgeo.begin();
-    //if one geometry at least is a cloud point, solve all them as cloud points.
+    //if one geometry at least is a cloud point, solve them all as point clouds.
     bool allCloud = false;
-    while(itB != m_listgeo.end() && !allCloud){
-        allCloud = (itB->second == 3 || itB->second == 4);
-        itB++;
+    for(auto & tuple : m_listgeo){
+        allCloud = allCloud || (tuple.second == 3 || tuple.second == 4);
     }
 
+    std::vector<MimmoSharedPointer<MimmoObject>> vector_listgeo = getGeometries();
+
+    //calculate the right system of axes
+    // if i'm not forcing to get the global AABB ...
     if(!m_forceAABB){
 
         dmatrix33E covariance;
         darray3E spectrum;
 
         if(allCloud){
-            covariance = evaluatePointsCovarianceMatrix(getGeometries());
+            covariance = evaluatePointsCovarianceMatrix(vector_listgeo); //global collective for MPI
         }else{
-            covariance = evaluateElementsCovarianceMatrix(getGeometries());
+            covariance = evaluateElementsCovarianceMatrix(vector_listgeo); //global collective for MPI
         }
+
         m_axes = eigenVectors(covariance, spectrum);
         adjustBasis(m_axes, spectrum);
     }
 
-
-    for(auto ptr : getGeometries()){
-        for(auto & vert: ptr->getVertices()){
-            darray3E coord = vert.getCoords();
+    //calculate local bounding box
+    for(MimmoSharedPointer<MimmoObject> &ptr : vector_listgeo){
+        livector1D vertIds = ptr->getVerticesIds(true); //only internals.
+        for(long id: vertIds){
+            darray3E coord =ptr->getVertexCoords(id);
             for(int i=0;i<3; ++i){
                 val = dotProduct(coord, m_axes[i]);
                 pmin[i] = std::fmin(pmin[i], val);
@@ -348,6 +360,13 @@ OBBox::execute(){
         }
     }
 
+#if MIMMO_ENABLE_MPI
+    //reduce bbox data all over the ranks
+    MPI_Allreduce(MPI_IN_PLACE, pmin.data(), 3, MPI_DOUBLE, MPI_MIN, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, pmax.data(), 3, MPI_DOUBLE, MPI_MAX, m_communicator);
+#endif
+
+    //recover m_span and m_origin of the current box
     dmatrix33E inv = inverse(m_axes);
     m_span = pmax - pmin;
     //check if one of the span goes to 0;
@@ -364,9 +383,15 @@ OBBox::execute(){
         m_origin[i] = dotProduct(originLoc, inv[i]);
     }
 
+    if (!m_writeInfo) return;
 
-    if (m_writeInfo){
-
+    //OK, write the resume file.
+    long idClass = getId();
+#if MIMMO_ENABLE_MPI
+    //allow only rank-0 to write the resume file
+    if(m_rank == 0)
+    {
+#endif
         std::ofstream out;
         out.open(m_outputPlot+"/"+m_name+std::to_string(getId())+"_INFO.dat");
         if(out.is_open()){
@@ -380,10 +405,13 @@ OBBox::execute(){
             out<<"Axis 2: "<<std::scientific<<m_axes[2]<<std::endl;
             out<<std::endl;
             out<<"Span:   "<<std::scientific<<m_span<<std::endl;
-
             out.close();
         }
+#if MIMMO_ENABLE_MPI
     }
+    MPI_Barrier(m_communicator); //force all other ranks to wait rank0 here.
+#endif
+
 };
 
 /*!
@@ -449,43 +477,53 @@ OBBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 
 
 /*!
- * Assembly covariance matrix of various target geometries treated as cloud points.
+ * Assembly covariance matrix of various target geometries treated as point clouds.
+   For MPI version, the covariance will be assembled globally, over all ranks.
  * \param[in] list    list of geometries
  * \return covariance matrix;
  */
 dmatrix33E
 OBBox::evaluatePointsCovarianceMatrix(std::vector<MimmoSharedPointer<MimmoObject> > list){
 
+    std::unordered_map<MimmoSharedPointer<MimmoObject>, std::vector<long>> vertIds;
+
     //evaluate the mass center first;
     darray3E masscenter = {{0.0,0.0,0.0}};
-    int countVert = 0;
-    for(auto geo: list){
-        for(auto & vert: geo->getVertices()){
-            masscenter += vert.getCoords();
-            ++countVert;
+    long countvert = 0;
+    for(MimmoSharedPointer<MimmoObject>& geo: list){
+        vertIds[geo] = geo->getVerticesIds(true); //only internals
+        for(long id : vertIds[geo]){
+            masscenter += geo->getVertexCoords(id);
         }
+        countvert += long(vertIds[geo].size());
     }
 
-    masscenter /= double(countVert);
+#if MIMMO_ENABLE_MPI
+    //communicate the vert count and the partial masscenter throughout the ranks
+    MPI_Allreduce(MPI_IN_PLACE, &countvert, 1, MPI_LONG, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, masscenter.data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+#endif
+    //evaluate the mass center.
+    masscenter /= double(countvert);
 
-    //assembly covariance matrix node by node.
+
+    //assembly locally covariance matrix node by node.
     dmatrix33E loc;
     dmatrix33E covariance;
     for(auto & val:covariance)    val.fill(0.0);
 
     darray3E temp;
-    for(auto geo: list){
-        for(auto & val:loc)    val.fill(0.0);
+    for(MimmoSharedPointer<MimmoObject>& geo: list){
         //evaluate local contributes to covariance
-        for(auto & vert: geo->getVertices()){
-            temp = vert.getCoords() - masscenter;
+        for(long id : vertIds[geo]){
+            temp = geo->getVertexCoords(id) - masscenter;
             for(int j=0; j<3; ++j){
                 for(int k=j; k<3; ++k){
                     loc[j][k] += temp[j]*temp[k];
                 }
             }
         }
-        //store temporarely in covContributes
+        //store temporarely in covariance
         int counter = 0;
         for(auto & val: covariance){
             val += loc[counter];
@@ -493,12 +531,20 @@ OBBox::evaluatePointsCovarianceMatrix(std::vector<MimmoSharedPointer<MimmoObject
         }
     }
 
-    int counter = 0;
+#if MIMMO_ENABLE_MPI
+    //reduce summing up the covariance matrix mong the ranks
+    MPI_Allreduce(MPI_IN_PLACE, covariance[0].data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, covariance[1].data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, covariance[2].data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+#endif
+
+    //divide by countvert, element by element - countvert already calculated earlier.
     for(auto & val: covariance){
-        val /= double(countVert);
-        ++counter;
+        val /= double(countvert);
     }
 
+
+    //just ot be sure and to avoid tiny floating diffs, enforce diagonal simmetry to the matrix.
     covariance[1][0] = covariance[0][1];
     covariance[2][0] = covariance[0][2];
     covariance[2][1] = covariance[1][2];
@@ -509,7 +555,9 @@ OBBox::evaluatePointsCovarianceMatrix(std::vector<MimmoSharedPointer<MimmoObject
 
 /*!
  * Assembly covariance matrix of various target surface geometries treated as tesselations.
- * Here are excluded 3DCurve, Point Clouds and Volume meshes
+ * Here are excluded 3DCurve and Point Clouds. So the list of geometries must be an homogeneous list of
+   surface meshes.
+   For MPI version, the covariance will be assembled globally, over all ranks.
  * \param[in] list    list of geometries
  * \return covariance matrix;
  */
@@ -530,10 +578,14 @@ OBBox::evaluateElementsCovarianceMatrix(std::vector<MimmoSharedPointer<MimmoObje
     darray3E p,q,r, centroid;
     double areatri, areatot(0.0);
 
-    for(auto geo: list){
-        for(auto & cell: geo->getCells()){
+    //locally calculate the masscenter and the moments matrix
+    for(MimmoSharedPointer<MimmoObject>& geo: list){
 
-            std::array<long,3> vids = get3RepPoints(cell.getId(), geo);
+        livector1D cellIds = geo->getCellsIds(true); //only internals
+
+        for(long id : cellIds){
+
+            std::array<long,3> vids = get3RepPoints(id, geo);
             if(vids[0] < 0){
                 continue;
             }
@@ -559,13 +611,23 @@ OBBox::evaluateElementsCovarianceMatrix(std::vector<MimmoSharedPointer<MimmoObje
         }
     }// end of cell by cell loop.
 
-    //normalize masscenter
-    masscenter /= areatot;
-
-    // moments are symmetric
+    // ensure symmetry in the moments matrix
     moments[1][0] = moments[0][1];
     moments[2][0] = moments[0][2];
     moments[2][1] = moments[1][2];
+
+
+#if MIMMO_ENABLE_MPI
+    // reduce masscenter, areatot and moments all over the ranks
+    MPI_Allreduce(MPI_IN_PLACE, &areatot, 1, MPI_DOUBLE, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, masscenter.data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, moments[0].data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, moments[1].data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, moments[2].data(), 3, MPI_DOUBLE, MPI_SUM, m_communicator);
+#endif
+
+    //normalize masscenter
+    masscenter /= areatot;
 
     //get final covariance matrix
     dmatrix33E covariance;
@@ -729,7 +791,7 @@ dmatrix33E OBBox::inverse(const dmatrix33E & mat){
 
 /*!
     Get first 3, non-aligned representative point ids of a 2D cell of a certain geometry.
-    Works only for surface mesh (mimmoObject type 2);
+    Works only for surface mesh (mimmoObject type 1);
     \param[in] cellID id of the target cell.
     \param[in] geo pointer to reference geometry (must be always of mimmoObject type 1)
     \return ids of vertices composing the representative triangle.Return -1,-1,-1 for unsupported cell elements
