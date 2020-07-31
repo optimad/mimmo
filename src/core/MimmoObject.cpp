@@ -2214,7 +2214,7 @@ bool MimmoObject::cleanAllParallelSync(){
 void
 MimmoObject::setPartitioned()
 {
-    if (getPatch() == nullptr || m_type == 3){
+    if (getPatch() == nullptr){
         return;
     }
 
@@ -3431,10 +3431,8 @@ livector2D MimmoObject::decomposeLoop(){
  * Force the class to build cell-cell adjacency connectivity.
  */
 void MimmoObject::buildAdjacencies(){
-	if(m_type !=3){
-		getPatch()->buildAdjacencies();
-		m_AdjBuilt = true;
-	}
+    getPatch()->buildAdjacencies();
+    m_AdjBuilt = true;
 };
 
 /*!
@@ -3443,32 +3441,27 @@ void MimmoObject::buildAdjacencies(){
  * does nothing.
  */
 void MimmoObject::buildInterfaces(){
-	if(m_type !=3){
-		if(!areAdjacenciesBuilt()) buildAdjacencies();
-		getPatch()->buildInterfaces();
-		m_IntBuilt = true;
-	}
+    if(!areAdjacenciesBuilt()) buildAdjacencies();
+    getPatch()->buildInterfaces();
+    m_IntBuilt = true;
 };
 
 /*!
  * Force the class to reset cell-cell adjacency connectivity.
  */
 void MimmoObject::resetAdjacencies(){
-	if(m_type !=3){
-		//do not use delete from bitpit::Cell!!!! PatchKernel does not track them.
-		getPatch()->clearAdjacencies();
-		m_AdjBuilt = false;
-	}
+    //do not use delete from bitpit::Cell!!!! PatchKernel does not track them.
+    getPatch()->clearAdjacencies();
+    m_AdjBuilt = false;
 };
 
 /*!
  * Force the class to reset Interfaces connectivity.
  */
 void MimmoObject::resetInterfaces(){
-	if(m_type !=3){
-		getPatch()->clearInterfaces(); // is the same as getPatch()->resetInterfaces
-		m_IntBuilt = false;
-	}
+    getPatch()->clearInterfaces(); // is the same as getPatch()->resetInterfaces
+    m_IntBuilt = false;
+
 };
 
 /*!
