@@ -1116,8 +1116,11 @@ void locatePointOnGlobalPatch(int nP, const std::array<double,3> *points, const 
  */
 std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSkdTree *target, double tol){
 
-    if (!selection->getPatch().isPartitioned() || !target->getPatch().isPartitioned()){
-        throw std::runtime_error("Error: the two PatchSkdTree communicators not set in selectByGlobalPatch");
+    if (!selection->getPatch().isPartitioned()){
+        throw std::runtime_error("Error: selection PatchSkdTree communicators not set in selectByGlobalPatch");
+    }
+    if (!target->getPatch().isPartitioned()){
+        throw std::runtime_error("Error: target PatchSkdTree communicators not set in selectByGlobalPatch");
     }
 
     //TODO USE THE REAL IS DISTRIBUTED PATCH IN BITPIT WHEN READY !!!!
