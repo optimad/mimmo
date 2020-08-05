@@ -412,7 +412,7 @@ void projectPoint(int nP, const std::array<double,3> *points, const bitpit::Patc
  */
 void projectPoint(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double *r )
 {
-
+    if(nP == 0) return;
     // Initialize ids and ranks
     for (int ip = 0; ip < nP; ip++){
         ids[ip] = bitpit::Cell::NULL_ID;
@@ -906,28 +906,79 @@ void projectPointGlobal(int nP, const std::array<double,3> *points, const bitpit
  */
 void projectPointGlobal(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double *r, bool shared )
 {
-
     // Initialize ids and ranks
     for (int ip = 0; ip < nP; ip++){
         ids[ip] = bitpit::Cell::NULL_ID;
         ranks[ip] = -1;
         r[ip] = std::max(r[ip], tree->getPatch().getTol());
     }
-    std::vector<darray3E>    normals(nP);
 
-    std::vector<double> dist(nP, std::numeric_limits<double>::max());
-    double max_dist = std::numeric_limits<double>::max();
-    while (max_dist >= std::numeric_limits<double>::max()){
-        //use method sphere by default
-        signedGlobalDistance(nP, points, tree, ids, ranks, normals.data(), dist.data(), r, shared);
-        for (int ip = 0; ip < nP; ip++){
-            if (std::abs(dist[ip]) >= max_dist){
-                r[ip] *= 1.5;
-            }
-        }
-        max_dist = std::abs(*std::max_element(dist.begin(), dist.end()));
-        max_dist = std::max(max_dist, std::abs(*std::min_element(dist.begin(), dist.end())));
+    bool checkEmptyList = (nP == 0);
+    MPI_Allreduce(MPI_IN_PLACE, &checkEmptyList, 1, MPI_C_BOOL, MPI_LAND, tree->getPatch().getCommunicator());
+
+    std::vector<darray3E> workpoints(points, points+nP);
+    std::vector<long> workids(ids, ids+nP);
+    std::vector<int> workranks(ranks, ranks+nP);
+    std::vector<double> workradius(r, r+nP);
+    std::unordered_map<std::size_t,std::size_t> mapPosIndex;
+    for(std::size_t i=0; i<std::size_t(nP); ++i){
+        mapPosIndex[i] = i;
     }
+    std::vector<darray3E>    normals(nP), workNormals(nP);
+    std::vector<double> dist(nP, std::numeric_limits<double>::max()), workDist(nP);
+
+    int kmax(1000);
+    int kiter(0);
+
+
+    while (!checkEmptyList && kiter < kmax){
+        //use method sphere by default
+        signedGlobalDistance(workpoints.size(), workpoints.data(), tree, workids.data(), workranks.data(), workNormals.data(), workDist.data(), workradius.data(), shared);
+
+        //get all points with distances not calculated.
+        std::vector<std::array<double,3>> failedPoints;
+        std::vector<double> failedRadii;
+        std::unordered_map<std::size_t, std::size_t> failedPosIndex;
+        failedPoints.reserve(workpoints.size());
+        failedRadii.reserve(workpoints.size());
+        int count(0);
+        for(long & val : workids){
+            if(val == bitpit::Cell::NULL_ID){
+                failedPoints.push_back(workpoints[count]);
+                failedPosIndex[failedPoints.size()-1] = mapPosIndex[count];
+                failedRadii.push_back(workradius[count]);
+            }else{
+                dist[mapPosIndex[count]] = workDist[count];
+                normals[mapPosIndex[count]] = workNormals[count];
+                ids[mapPosIndex[count]] = workids[count];
+                ranks[mapPosIndex[count]] = workranks[count];
+                r[mapPosIndex[count]] = workradius[count];
+            }
+            ++count;
+        }
+
+        std::swap(failedPoints, workpoints);
+        std::swap(failedPosIndex, mapPosIndex);
+        std::swap(failedRadii, workradius);
+
+        workDist.resize(failedPoints.size());
+        workNormals.resize(failedPoints.size());
+        workids.resize(failedPoints.size());
+        workranks.resize(failedPoints.size());
+
+        checkEmptyList = workpoints.empty();
+        MPI_Allreduce(MPI_IN_PLACE, &checkEmptyList, 1, MPI_C_BOOL, MPI_LAND, tree->getPatch().getCommunicator());
+
+        //augment workradius of 1.5 factor
+        if(kiter <= kmax-1){
+            std::vector<double> temp(workradius.size(), std::numeric_limits<double>::max());
+            std::swap(temp, workradius);
+        }else{
+            workradius *= 1.5;
+        }
+        // increment iteration
+        ++kiter;
+    }//end while.
 
     for (int ip = 0; ip < nP; ip++){
         projected_points[ip] = points[ip] - dist[ip] * normals[ip];
