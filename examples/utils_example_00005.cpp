@@ -23,6 +23,9 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_utils.hpp"
+#if MIMMO_ENABLE_MPI
+    #include "Partition.hpp"
+#endif
 
 // =================================================================================== //
 /*!
@@ -30,7 +33,7 @@
 
 	\brief Project external curve on the Stanford Bunny surface.
 
-	Using: MimmoGeometry, Proj3DCurveOnSurface
+	Using: MimmoGeometry, ProjPatchOnSurface
 
 	<b>To run</b>: ./utils_example_00005 \n
 
@@ -43,6 +46,8 @@ void test00005() {
     /* Reading target surface (bunny)
      */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
+    bitpit::Logger & log = mimmo0->getLog();
+    log.setPriority(bitpit::log::Priority::NORMAL);
 
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::STL);
@@ -66,25 +71,59 @@ void test00005() {
     mimmo1->setWriteFilename("utils_mesh_00005_curve");
     mimmo1->execute();
 
+
+    log<<"read geometries from file"<<std::endl;
+
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> curve3D;
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> targetSurf;
+
+#if MIMMO_ENABLE_MPI
+    //partition of bunny and 3D curve
+    mimmo::Partition * part0 = new mimmo::Partition();
+    part0->setGeometry(mimmo0->getGeometry());
+    part0->setPlotInExecution(true);
+    part0->exec();
+
+    //partition of bunny and 3D curve
+    mimmo::Partition * part1 = new mimmo::Partition();
+    part1->setGeometry(mimmo1->getGeometry());
+    part1->setPlotInExecution(true);
+    part1->exec();
+
+    curve3D = part1->getGeometry();
+    targetSurf = part0->getGeometry();
+
+    log<<"geometries distributed on rank"<<std::endl;
+
+#else
+    curve3D = mimmo1->getGeometry();
+    targetSurf = mimmo0->getGeometry();
+#endif
     /*
         Project the curve onto target surface
      */
-    mimmo::Proj3DCurveOnSurface * proj = new mimmo::Proj3DCurveOnSurface();
-    proj->setGeometry(mimmo0->getGeometry());
-    proj->setConnectedPoints(mimmo1->getGeometry());
-    proj->setClosedLoop(false);
-    proj->setProjElementTargetNCells(1300);
+    mimmo::ProjPatchOnSurface * proj = new mimmo::ProjPatchOnSurface();
+    proj->setGeometry(targetSurf);
+    proj->setPatch(curve3D);
+    proj->setWorkingOnTarget(false);
     proj->execute();
 
     //write projected curve
     proj->getProjectedElement()->getPatch()->write("utils_example_00005_projectedCurve");
 
+    log<<"curve projected on bunny"<<std::endl;
 
     /* Clean up & exit;
      */
     delete mimmo0;
     delete mimmo1;
+#if MIMMO_ENABLE_MPI
+    delete part0;
+    delete part1;
+#endif
     delete proj;
+
+
     return;
 
 }
