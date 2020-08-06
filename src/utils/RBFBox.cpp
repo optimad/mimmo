@@ -31,7 +31,7 @@ namespace mimmo{
 RBFBox::RBFBox(){
     m_name = "mimmo.RBFBox";
     m_origin.fill(0.0);
-    m_span.fill(1.0);
+    m_span.fill(0.0);
     m_suppR = 0.0;
 };
 
@@ -43,7 +43,7 @@ RBFBox::RBFBox(const bitpit::Config::Section & rootXML){
 
     m_name = "mimmo.RBFBox";
     m_origin.fill(0.0);
-    m_span.fill(1.0);
+    m_span.fill(0.0);
     m_suppR = 0.0;
 
 
@@ -66,7 +66,6 @@ RBFBox::~RBFBox(){};
 RBFBox::RBFBox(const RBFBox & other):BaseManipulation(other){
     m_origin = other.m_origin;
     m_span   = other.m_span;
-    m_nodes = other.m_nodes;
     m_suppR = other.m_suppR;
 };
 
@@ -78,7 +77,6 @@ void RBFBox::swap(RBFBox & x) noexcept
 {
     std::swap(m_origin, x.m_origin);
     std::swap(m_span  , x.m_span);
-    std::swap(m_nodes, x.m_nodes);
     std::swap(m_suppR, x.m_suppR);
     BaseManipulation::swap(x);
 }
@@ -90,7 +88,7 @@ RBFBox::buildPorts(){
 
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, RBFBox>(this, &mimmo::RBFBox::setNode, M_COORDS, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, RBFBox>(this, &mimmo::RBFBox::setGeometry, M_GEOM, true));
     built = (built && createPortIn<double, RBFBox>(this, &mimmo::RBFBox::setSupportRadius, M_VALUED));
 
     built = (built && createPortOut<darray3E, RBFBox>(this, &mimmo::RBFBox::getOrigin, M_POINT));
@@ -104,8 +102,7 @@ void
 RBFBox::clearRBFBox(){
     clear(); //base manipulation stuff clear
     m_origin.fill(0.0);
-    m_span.fill(1.0);
-    m_nodes.clear();
+    m_span.fill(0.0);
     m_suppR = 0.0;
 
 };
@@ -139,11 +136,13 @@ RBFBox::getAABB(darray3E & bMin,darray3E & bMax ){
 }
 
 
-/*!Set a list of RBF points as control nodes.
- * \param[in] nodes coordinates of control points.
+/*!Set a Point Cloud MimmoObject as reference target rbfs.
+ * \param[in] cloud set of rbf nodes.
  */
-void RBFBox::setNode(dvecarr3E nodes){
-    m_nodes = nodes;
+void RBFBox::setGeometry(MimmoSharedPointer<MimmoObject> cloud){
+    if(cloud == nullptr)    return;
+    if(cloud->getType() != 3)   return;
+    BaseManipulation::setGeometry(cloud);
     return;
 };
 
@@ -164,6 +163,10 @@ RBFBox::setSupportRadius(double suppR_){
  */
 void
 RBFBox::plot(std::string directory, std::string filename,int counter, bool binary){
+
+#if MIMMO_ENABLE_MPI
+    if(m_rank == 0){
+#endif
 
     dvecarr3E activeP(8, darray3E({{0.0,0.0,0.0}}));
 
@@ -191,6 +194,10 @@ RBFBox::plot(std::string directory, std::string filename,int counter, bool binar
     if(counter>=0){vtk.setCounter(counter);}
 
     vtk.write();
+#if MIMMO_ENABLE_MPI
+    }
+    MPI_Barrier(m_communicator);
+#endif
 };
 
 
@@ -201,27 +208,34 @@ RBFBox::plot(std::string directory, std::string filename,int counter, bool binar
 void
 RBFBox::execute(){
 
-    int np = m_nodes.size();
-    if(np < 1){
-        m_origin.fill(0.0);
-        m_span.fill(0.0);
-        return;
+    MimmoSharedPointer<MimmoObject> pc = getGeometry();
+    if (pc == nullptr)    {
+        (*m_log)<<"Error in : "<<m_name<<" not valid point cloud linked."<<std::endl;
+        throw std::runtime_error(m_name+" not valid point cloud linked.");
     }
 
-    darray3E min(m_nodes[0]), max(m_nodes[0]);
+    darray3E pMin, pMax;
+    pMin.fill(std::numeric_limits<double>::max());
+    pMax.fill(-1.0*std::numeric_limits<double>::max());
 
-    for(darray3E & val : m_nodes){
-        for(int j=0; j<3; j++){
-            double checkMin = val[j] - m_suppR*1.01;
-            double checkMax = val[j] + m_suppR*1.01;
-
-            if (checkMin < min[j]) min[j] = checkMin;
-            if (checkMax > max[j]) max[j] = checkMax;
+    int count;
+    for(const bitpit::Vertex & vert : pc->getVertices()){
+        count = 0;
+        for(double val : vert.getCoords()){
+            pMin[count] = std::min(pMin[count], (val - m_suppR*1.01));
+            pMax[count] = std::max(pMax[count], (val + m_suppR*1.01));
+            ++count;
         }
     }
 
-    m_span = max - min;
-    m_origin = min + m_span * 0.5;
+#if MIMMO_ENABLE_MPI
+    //reduce bbox data all over the ranks
+    MPI_Allreduce(MPI_IN_PLACE, pMin.data(), 3, MPI_DOUBLE, MPI_MIN, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, pMax.data(), 3, MPI_DOUBLE, MPI_MAX, m_communicator);
+#endif
+
+    m_span = pMax - pMin;
+    m_origin = pMin + m_span * 0.5;
 
 };
 
@@ -230,10 +244,7 @@ RBFBox::execute(){
  */
 void
 RBFBox::plotOptionalResults(){
-
-    std::string dir = m_outputPlot ;
-    std::string nameGrid  = m_name;
-    plot(dir, nameGrid, getId(), true );
+    plot(m_outputPlot, m_name, getId(), true );
 }
 
 /*!

@@ -44,7 +44,7 @@ namespace mimmo{
      | Port Input |  | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_COORDS    | setNode                               | (MC_VECARR3, MD_FLOAT)      |
+     | M_GEOM      | setGeometry                           | (MC_SCALAR, MD_MIMMO_)      |
      | M_VALUED    | setSupportRadius                      | (MC_SCALAR, MD_FLOAT)       |
 
 
@@ -76,7 +76,6 @@ class RBFBox: public BaseManipulation {
 protected:
     darray3E    m_origin;        /**< Origin of the BB.*/
     darray3E    m_span;         /**< Span of the BB. */
-    dvecarr3E   m_nodes;        /**<Radial Basis Functions control points.*/
     double      m_suppR;        /**<Support radius value of RBFs.*/
 
 
@@ -97,7 +96,7 @@ public:
     darray3E    getOrigin();
     darray3E    getSpan();
     void        getAABB(darray3E & bMin, darray3E & bMax);
-    void        setNode(dvecarr3E);
+    void        setGeometry(MimmoSharedPointer<MimmoObject> cloud);
     void        setSupportRadius(double suppR_);
 
     //plotting wrappers
@@ -115,10 +114,9 @@ protected:
     void swap(RBFBox & x) noexcept;
 };
 
-REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__RBFBox_HPP__)
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__RBFBox_HPP__)
 REGISTER_PORT(M_VALUED, MC_SCALAR, MD_FLOAT,__RBFBox_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__RBFBox_HPP__)
-REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT,__RBFBox_HPP__)
 REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT,__RBFBox_HPP__)
 
 
