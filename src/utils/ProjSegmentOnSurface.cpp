@@ -34,7 +34,9 @@
 
 #include "ProjSegmentOnSurface.hpp"
 #include <SkdTreeUtils.hpp>
-
+#if MIMMO_ENABLE_MPI
+    #include "Partition.hpp"
+#endif
 namespace mimmo{
 
 /*!
@@ -242,30 +244,18 @@ void ProjSegmentOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, st
 void
 ProjSegmentOnSurface::projection(){
 
-    int counter = 0;
-    MimmoSharedPointer<MimmoObject> dum(new MimmoObject(4));
-    //reserving memory
-    dum->getPatch()->reserveVertices(m_nC+1);
-    dum->getPatch()->reserveCells(m_nC);
-
-    //start filling connectivity of your object.
-    bitpit::ElementType eltype = bitpit::ElementType::LINE;
-
-    for(int i=0; i<m_nC; ++i){
-        livector1D conn(2);
-        conn[0] = i;
-        conn[1] = i+1;
-        dum->addConnectedCell(conn, eltype);
-    }
-
-    //create points ...
-    dvecarr3E points((m_nC + 1));
+    //create points on segment first ...
+    dvecarr3E points;
+#if MIMMO_ENABLE_MPI
+    if(m_rank == 0)
+#endif
     {
         //create the vertices array, ordered from pointA to pointB
-        auto dx = (m_pointB - m_pointA);
+        points.resize(m_nC+1);
+        darray3E dx = (m_pointB - m_pointA);
         dx /= double(m_nC);
-        counter = 0;
-        for( auto && ele : points){
+        int counter = 0;
+        for( darray3E & ele : points){
             ele  = m_pointA + double(counter)*dx;
             ++counter;
         }
@@ -277,24 +267,59 @@ ProjSegmentOnSurface::projection(){
     std::size_t npoints = points.size();
     dvecarr3E projs(npoints);
     livector1D ids(npoints);
+    ivector1D ranks(npoints,0);
 #if MIMMO_ENABLE_MPI
-    ivector1D ranks(npoints);
     double radius =  std::numeric_limits<double>::max();
-    bool shared = true;
-    skdTreeUtils::projectPointGlobal(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data(), ranks.data(), radius, shared);
+    skdTreeUtils::projectPointGlobal(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data(), ranks.data(), radius, false);
 #else
     skdTreeUtils::projectPoint(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data());
 #endif
 
-    //storing the projected points in the MImmoObject:
-    long idS = 0;
-    for(const auto & vv : projs){
-        dum->addVertex(vv, idS);
-        ++idS;
+    //you have now on master 0 ranks where points project, and projected values.
+    //istantiate object and fill data of 3D curve
+    {
+        MimmoSharedPointer<MimmoObject> dum(new MimmoObject(4));
+        m_patch = dum;
     }
 
-    dum->cleanGeometry();
-    m_patch = dum;
+#if MIMMO_ENABLE_MPI
+    //take track of a partition map using ranks of projection.
+    std::unordered_map<long, int> partMap;
+    if (m_rank ==0) //with rank 0 only in MPI
+#endif
+    {
+        //reserving memory
+        m_patch->getPatch()->reserveVertices(m_nC+1);
+        m_patch->getPatch()->reserveCells(m_nC);
+
+        //storing the projected points
+        long id(0);
+        for(darray3E & vv : projs){
+            m_patch->addVertex(vv, id);
+            ++id;
+        }
+
+
+        //start filling connectivity of your object.
+        bitpit::ElementType eltype = bitpit::ElementType::LINE;
+        id = 0;
+        for(int i=0; i<m_nC; ++i){
+            m_patch->addConnectedCell(livector1D({{i, i+1}}), eltype, 0, id, 0);
+            partMap[id]= std::min(ranks[i], ranks[i+1]);
+            ++id;
+        }
+    }
+
+    m_patch->buildAdjacencies();
+
+#if MIMMO_ENABLE_MPI
+    m_patch->setPartitioned();
+    std::unique_ptr<mimmo::Partition> part(new mimmo::Partition);
+    part->setGeometry(m_patch);
+    part->setPartition(partMap);
+    part->execute();
+    //m_patch will return partitioned and operative.
+#endif
 
 };
 
