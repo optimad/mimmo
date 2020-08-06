@@ -23,8 +23,9 @@
 \*---------------------------------------------------------------------------*/
 
 #include "RefineGeometry.hpp"
-#include <unordered_map>
-#include <unordered_set>
+#if MIMMO_ENABLE_MPI
+#include "mimmo_parallel.hpp"
+#endif
 
 namespace mimmo{
 
@@ -184,15 +185,15 @@ RefineGeometry::execute(){
 		(*m_log)<<m_name + " : data structure type different from Surface "<<std::endl;
 		throw std::runtime_error (m_name + " : data structure type different from Surface");
 	}
-    // For Now this method works only in SERIAL mode.
-#if MIMMO_ENABLE_MPI
-        //TODO review implementation in MPI version of the class. See more details
-        // ternary and redgreen engines
-        (*m_log)<< "WARNING " <<m_name <<" : is not available yet in parallel/MPI version."<<std::endl;
-#else
 
 	// Initialize active cells with all geometry cells
-	m_activecells = getGeometry()->getCellsIds();
+//    m_activecells = getGeometry()->getCellsIds();
+	for (long cellId : getGeometry()->getCellsIds()){
+	    if (cellId == 600){
+	        std::cout << cellId << std::endl;
+	        m_activecells.push_back(cellId);
+	    }
+	}
 
 	if (m_type == RefineType::TERNARY){
 		for (int i=0; i<m_refinements; i++)
@@ -206,7 +207,6 @@ RefineGeometry::execute(){
 	if (m_steps>0)
 		smoothing();
 
-#endif
 }
 
 /*!
@@ -300,15 +300,16 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 	//TERNARY REFINEMENT
 
 	// Ternary refinement force the geometry to be a triangulation by placing a new vertex
-	// on the mean point of each cell (the cells have to be convex)
+	// on the mean point of each cell (the cells have to be convex).
 
-	// For Now this method works only in SERIAL mode.
+    // It works in parallel, supposing the cell refined in the same manner
+    // if local or ghost on the owner process or on the near process.
+    // The ids are not maintained unique between all the processes
 #if MIMMO_ENABLE_MPI
 	if (m_nprocs > 1){
-		//TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
-		(*m_log)<< "WARNING " <<m_name <<" : is not available yet in parallel process."<<std::endl;
+		(*m_log)<< "WARNING " <<m_name <<" : uniqueness of cell/vertex ids among processes is not maintained during parallel geometry refinement."<<std::endl;
 	}
-#else
+#endif
 
 	mimmo::MimmoSharedPointer<MimmoObject> geometry = getGeometry();
 	std::unordered_set<long> newCells;
@@ -368,10 +369,13 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 //		if (coarsepatch != nullptr)
 //			coarsepatch->cleanGeometry();
 
-		// Force build adjacencies
-		getGeometry()->buildAdjacencies();
-		if (coarsepatch != nullptr)
-			coarsepatch->buildAdjacencies();
+		// Force build adjacencies and update
+        getGeometry()->buildAdjacencies();
+        getGeometry()->update();
+		if (coarsepatch != nullptr){
+            coarsepatch->buildAdjacencies();
+            coarsepatch->update();
+		}
 	}
 
 	// Add vertices and cells to refine patch
@@ -384,12 +388,11 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 				refinepatch->addVertex(vertex, vertexId);
 			}
 		}
-		// Clean refine patch
-//		refinepatch->cleanGeometry();
-		refinepatch->buildAdjacencies();
+		// Force build adjacencies and update refine patch
+        refinepatch->buildAdjacencies();
+        refinepatch->update();
 	}
 
-#endif
 }
 
 
@@ -400,7 +403,7 @@ std::vector<long>
 RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit::Vertex> & vertices, const std::array<double,3> & center)
 {
 
-	long newID, newVertID;
+    long newID, newVertID;
 
 	std::vector<long> newCellIDs;
 
@@ -410,6 +413,7 @@ RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit:
 
 	eletype = getGeometry()->getPatch()->getCell(cellId).getType();
 	long pid = getGeometry()->getPatch()->getCell(cellId).getPID();
+    int rank = -1;
 
 	//Number of new triangles is the number of the perimetral vertices
 	std::size_t nnewTri = vertices.size();
@@ -423,7 +427,11 @@ RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit:
 		connTriangle[0] = newVertID;
 		connTriangle[1] = vertices[ std::size_t( i % nnewTri) ].getId();
 		connTriangle[2] = vertices[ std::size_t( (i+1) % nnewTri ) ].getId();
-		newCellIDs.push_back(getGeometry()->addConnectedCell(connTriangle, eletri, pid, bitpit::Cell::NULL_ID));
+#if MIMMO_ENABLE_MPI
+		// Recover cell rank
+		rank = getGeometry()->getPatch()->getCellRank(cellId);
+#endif
+        newCellIDs.push_back(getGeometry()->addConnectedCell(connTriangle, eletri, pid, bitpit::Cell::NULL_ID, rank));
 	}
 
 	return newCellIDs;
@@ -457,21 +465,21 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 		}
 	}
 
-
-	// For Now this method works only in SERIAL mode.
+    // It works in parallel, supposing the cell refined in the same manner
+    // if local or ghost on the owner process or on the near process.
+    // The ids are not maintained unique between all the processes
 #if MIMMO_ENABLE_MPI
-//	if (m_nprocs > 1){
-		//TODO provide implementation to deal with insertion/deletion of vertices and cells in parallel
-		(*m_log)<< "WARNING " <<m_name <<" : is not available yet in parallel process."<<std::endl;
-//	}
-#else
+    if (m_nprocs > 1){
+        (*m_log)<< "WARNING " <<m_name <<" : uniqueness of cell/vertex ids among processes is not maintained during parallel geometry refinement."<<std::endl;
+    }
+#endif
 
 	mimmo::MimmoSharedPointer<MimmoObject> geometry = getGeometry();
 	std::unordered_set<long> newCells;
 	std::unordered_set<long> toDelete;
 
 	// Initialize tag Red, Green structure (0=no refinement, 1=green, 2=red) to 0 for all the cells
-	std::unordered_map<long, int> refinementTag;
+    std::unordered_map<long, int> refinementTag;
 	for(const long cellId : geometry->getCellsIds()){
 		refinementTag[cellId] = 0;
 	}
@@ -486,6 +494,13 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 	// Create map green cells -> index edge to be splitted
 	std::unordered_map<long,int> greenSplitFaceIndex;
 
+#if MIMMO_ENABLE_MPI
+        // In case of distributed mesh initialize data
+        // of newreds boolean to update new reds that are
+        // ghosts for other ranks
+        MimmoPiercedVector<bool> isnewred;
+        isnewred.initialize(geometry, MPVLocation::CELL, false);
+#endif
 	{
 		// Build adjacencies
 		if (!geometry->areAdjacenciesBuilt()){
@@ -502,92 +517,212 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 			newreds.push_back(cellId);
 		}
 
-		// If active cells are all the cells, propagate red-gree refinement
+#if MIMMO_ENABLE_MPI
+		// In case of distributed mesh initialize data
+		// of newreds boolean to update new reds that are
+		// ghosts for other ranks
+		MimmoPiercedVector<bool> isnewred;
+		isnewred.initialize(geometry, MPVLocation::CELL, false);
+
+        // Instantiate refinement tags container used only for communications
+        MimmoPiercedVector<int> refinementTagCommunicated;
+
+        // Instantiate green split face container used only for communications
+        MimmoPiercedVector<int> greenSplitFaceIndexCommunicated;
+
+        // Fill initial sources and targets values
+        for (auto source_tuple : geometry->getPatch()->getGhostExchangeSources()){
+            int rank = source_tuple.first;
+            for (long id : source_tuple.second){
+                if (!refinementTagCommunicated.exists(id)){
+                    refinementTagCommunicated.insert(id,-1);
+                    greenSplitFaceIndexCommunicated.insert(id,-1);
+                }
+            }
+        }
+        for (auto target_tuple : geometry->getPatch()->getGhostExchangeTargets()){
+            int rank = target_tuple.first;
+            for (long id : target_tuple.second){
+                // Initialize targets (ghosts) to -1
+                if (!refinementTagCommunicated.exists(id)){
+                    refinementTagCommunicated.insert(id, -1);
+                    greenSplitFaceIndexCommunicated.insert(id, -1);
+                }
+            }
+        }
+
+        // Initialize communication structures for tags and split face index
+        GhostCommunicator ghostCommunicator(geometry->getPatch());
+        ghostCommunicator.setRecvsContinuous(true);
+        ListBufferStreamer<MimmoPiercedVector<int>,int> tagGhostStreamer(&refinementTagCommunicated);
+        ListBufferStreamer<MimmoPiercedVector<int>,int> splitGhostStreamer(&greenSplitFaceIndexCommunicated);
+        ghostCommunicator.addData(&tagGhostStreamer);
+        ghostCommunicator.addData(&splitGhostStreamer);
+
+#endif
+
+		// If active cells are all the cells, propagate red-green refinement
 		// even if all the cells are reds, in order to build edges structure
-		bool check = false;
+		bool check = newreds.empty();
+
+#if MIMMO_ENABLE_MPI
+		// While global newreds stack is not empty. See below for details on local new reds.
+		// Initialized to false to enter always in while loop at least one time
+        bool global_check = false;
+
+        while (!global_check){
+#endif
+
+            // While newreds stack is not empty:
+            // - serch neighbors of newreds elements
+            // - check in tag map if each neighbor currently it's no,green or red element
+            // - if 0-> promote to green (1), if green->promote to red (2) and insert in newreds, if red->skip neighbour
+            while (!check){
+                long redId = newreds.front();
+                newreds.pop_front();
+
+                bitpit::Cell redCell = geometry->getPatch()->getCell(redId);
+
+                //Only for triangles!!!
+                if (redCell.getType() == bitpit::ElementType::TRIANGLE){
+
+                    for (int iface = 0; iface < 3; iface++){
+
+                        if (!redCell.isFaceBorder(iface)){
+
+                            // Find face neighbours (only one in conform case)
+                            std::vector<long> neighs = geometry->getPatch()->findCellFaceNeighs(redId, iface);
+                            for (long neighId : neighs){
+
+                                // Increase tag (at the end the red elements have a tag >=2)
+                                refinementTag[neighId]++;
+
+                                // Insert edge between current red and neighbor
+                                // The edges structure is a set, so each edge will be not duplicated
+                                // Recover interface
+                                long interfaceId = geometry->getPatch()->getCell(redId).getInterface(iface);
+                                bitpit::Interface & interface = geometry->getPatch()->getInterface(interfaceId);
+                                edges.insert(interfaceId);
+
+                                if (refinementTag[neighId] > 2){
+                                    continue;
+                                } // if neigh already red
 
 
-		// While newreds stack is not empty:
-		// - serch neighbors of newreds elements
-		// - check in tag map if each neighbor currently it's no,green or red element
-		// - if 0-> promote to green (1), if green->promote to red (2) and insert in newreds, if red->skip neighbour
-		while (!check){
-			long redId = newreds.front();
-			newreds.pop_front();
+                                if (refinementTag[neighId] == 2){
 
-			bitpit::Cell redCell = geometry->getPatch()->getCell(redId);
+                                    // Push neigh to new reds
+                                    newreds.push_back(neighId);
 
-			//Only for triangles!!!
-			if (redCell.getType() == bitpit::ElementType::TRIANGLE){
+                                    // Destroy green entry with splitting edge index
+                                    greenSplitFaceIndex.erase(neighId);
 
-			    for (int iface = 0; iface < 3; iface++){
+                                } // If is neigh is new red
+                                else if (refinementTag[neighId] == 1){
 
-			        if (!redCell.isFaceBorder(iface)){
+                                    // Get if neighbor is owner of neigh
+                                    bool isOwner = (interface.getOwner() == neighId);
 
-			            // Find face neighbours (only one in conform case)
-			            std::vector<long> neighs = geometry->getPatch()->findCellFaceNeighs(redId, iface);
-			            for (long neighId : neighs){
+                                    // Recover splitting face index of the neighbor
+                                    int splitface;
+                                    if (isOwner){
+                                        splitface = interface.getOwnerFace();
+                                    }
+                                    else{
+                                        splitface = interface.getNeighFace();
+                                    }
+                                    greenSplitFaceIndex[neighId] = splitface;
 
-			                // Increase tag (at the end the red elements have a tag >=2)
-			                refinementTag[neighId]++;
+                                } // Else if neigh is green
+                            } // end loop on neighs
+                        } // end if not border face
+                        else{
 
-			                // Insert edge between current red and neighbor
-			                // The edges structure is a set, so each edge will be not duplicated
-			                // Recover interface
-			                long interfaceId = geometry->getPatch()->getCell(redId).getInterface(iface);
-			                bitpit::Interface & interface = geometry->getPatch()->getInterface(interfaceId);
-			                edges.insert(interfaceId);
+                            // If border face the edge is to be refined
+                            // Recover border interface
+                            long interfaceId = redCell.getInterface(iface);
+                            edges.insert(interfaceId);
 
-			                if (refinementTag[neighId] > 2){
-			                    continue;
-			                } // if neigh already red
+                        }// end if border face
 
+                    }// End loop on face
 
-			                if (refinementTag[neighId] == 2){
+                } // if triangle
 
-			                    // Push neigh to new reds
-			                    newreds.push_back(neighId);
+                check = newreds.empty();
 
-			                    // Destroy green entry with splitting edge index
-			                    greenSplitFaceIndex.erase(neighId);
+            } // end while stack
 
-			                } // If is neigh is new red
-			                else if (refinementTag[neighId] == 1){
+#if MIMMO_ENABLE_MPI
+            // In case of not partitioned patch use local check
+            global_check = check;
 
-			                    // Get if neighbor is owner of neigh
-			                    bool isOwner = (interface.getOwner() == neighId);
+            if (geometry->getPatch()->isPartitioned()){
 
-			                    // Recover splitting face index of the neighbor
-			                    int splitface;
-			                    if (isOwner){
-			                        splitface = interface.getOwnerFace();
-			                    }
-			                    else{
-			                        splitface = interface.getNeighFace();
-			                    }
-			                    greenSplitFaceIndex[neighId] = splitface;
+                // Update ghost refinement tags
+                // The if needed insert new edges and put new reds in stack
+                // Fill with sources and targets values
+                for (auto source_tuple : geometry->getPatch()->getGhostExchangeSources()){
+                    int rank = source_tuple.first;
+                    for (long id : source_tuple.second){
+                        refinementTagCommunicated.at(id) = refinementTag.at(id);
+                        if (greenSplitFaceIndex.count(id)){
+                            greenSplitFaceIndexCommunicated.at(id) = greenSplitFaceIndex.at(id);
+                        }
+                        else{
+                            greenSplitFaceIndexCommunicated.at(id) = -1;
+                        }
+                    }
+                }
+                for (auto target_tuple : geometry->getPatch()->getGhostExchangeTargets()){
+                    int rank = target_tuple.first;
+                    for (long id : target_tuple.second){
+                        // Initialize targets (ghosts) to -1
+                        refinementTagCommunicated.at(id) = -1;
+                        greenSplitFaceIndexCommunicated.at(id) = -1;
+                    }
+                }
 
-			                } // Else if neigh is green
-			            } // end loop on neighs
-			        } // end if not border face
-			        else{
+                // Send data
+                ghostCommunicator.startAllExchanges();
+                // Receive data
+                ghostCommunicator.completeAllExchanges();
 
-			            // If border face the edge is to be refined
-			            // Recover border interface
-			            long interfaceId = redCell.getInterface(iface);
-			            edges.insert(interfaceId);
+                // Update refinement tags if different from communicated
+                for (auto ghostIt = geometry->getPatch()->ghostConstBegin(); ghostIt != geometry->getPatch()->ghostConstEnd(); ghostIt++){
+                    long ghostId = ghostIt->getId();
 
-			        }// end if border face
+                    // Maximum communicated tag to 2
+                    refinementTagCommunicated[ghostId] = std::min(2, refinementTagCommunicated[ghostId]);
 
-			    }// End loop on face
+                    // If communicated tag is different from local one update it if greater
+                    if (refinementTagCommunicated[ghostId] > refinementTag[ghostId]){
+                        refinementTag[ghostId] = refinementTagCommunicated[ghostId];
 
-			} // if triangle
+                        if (refinementTag[ghostId] == 1){
+                            // If green refinement insert splitFaceIndex
+                            greenSplitFaceIndex[ghostId] = greenSplitFaceIndexCommunicated[ghostId];
+                        }
+                        else if (refinementTag[ghostId] >= 2){
+                            // Push ghost to new reds
+                            newreds.push_back(ghostId);
+                            // Destroy green entry with splitting edge index
+                            greenSplitFaceIndex.erase(ghostId);
+                        }
+                    }
+                } // end ghost iteration
 
-			check = newreds.empty();
-		} // end while stack
+                // Update global stack check
+                global_check = newreds.empty();
+                MPI_Allreduce(MPI_IN_PLACE, &global_check, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+            }
+
+        } // end while global stack
+#endif
 
 	} // Scope to destroy temporary containers
 
+//    geometry->update();
 
 	// Insert new vertices
 	for (long interfaceId : edges){
@@ -662,19 +797,20 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 
 	} // end loop on refinement tag
 
+
 	//Delete cells and clean geometries
 	{
 		for (const long cellId : toDelete){
 			getGeometry()->getPatch()->deleteCell(cellId);
 		}
 
-		// Force build adjacencies
-		getGeometry()->resetInterfaces();
-		getGeometry()->resetAdjacencies();
-		getGeometry()->buildAdjacencies();
-		if (coarsepatch != nullptr)
-			coarsepatch->buildAdjacencies();
+		// Update geometry
+        getGeometry()->update();
 
+        // Update coarse patch
+		if (coarsepatch != nullptr){
+            coarsepatch->update();
+		}
 	}
 
 	// Add vertices and cells to refine patch
@@ -687,27 +823,10 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 				refinepatch->addVertex(vertex, vertexId);
 			}
 		}
-		// Clean refine patch
-//		refinepatch->cleanGeometry();
-		refinepatch->buildAdjacencies();
+		// Update refine patch
+        refinepatch->update();
 	}
 
-	// Add vertices and cells to refine patch
-	if (refinepatch != nullptr){
-		for (long newcellId : newCells){
-			bitpit::Cell cell = getGeometry()->getPatch()->getCell(newcellId);
-			refinepatch->addCell(cell, newcellId);
-			for (long vertexId : cell.getVertexIds()){
-				bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
-				refinepatch->addVertex(vertex, vertexId);
-			}
-		}
-		// Clean refine patch
-//		refinepatch->cleanGeometry();
-		refinepatch->buildAdjacencies();
-	}
-
-#endif
 }
 
 /*!
@@ -735,6 +854,11 @@ RefineGeometry::redRefineCell(const long & cellId, const std::vector<long> & new
 	}
 
 	long pid = cell.getPID();
+	int rank = -1;
+#if MIMMO_ENABLE_MPI
+    // Recover cell rank
+    rank = getGeometry()->getPatch()->getCellRank(cellId);
+#endif
 
 	//Number of new triangles is 4
 	std::size_t sizeEle = 3;
@@ -746,7 +870,7 @@ RefineGeometry::redRefineCell(const long & cellId, const std::vector<long> & new
 	connTriangle[0] = newVertexIds[0];
 	connTriangle[1] = newVertexIds[1];
 	connTriangle[2] = newVertexIds[2];
-	newCellIDs.push_back(getGeometry()->addConnectedCell(connTriangle, eletri, pid, bitpit::Cell::NULL_ID));
+	newCellIDs.push_back(getGeometry()->addConnectedCell(connTriangle, eletri, pid, bitpit::Cell::NULL_ID, rank));
 
 	// Insert three vertex related triangles
 	// Note. start from refined triangle placed on vertex index 1 of coarse triangle
@@ -754,7 +878,7 @@ RefineGeometry::redRefineCell(const long & cellId, const std::vector<long> & new
 		connTriangle[0] = cell.getVertexId( int( (i+1) % sizeEle) );
 		connTriangle[1] = newVertexIds[ std::size_t( (i+1) % sizeEle) ];
 		connTriangle[2] = newVertexIds[ std::size_t( (i) % sizeEle ) ];
-		newCellIDs.emplace_back(getGeometry()->addConnectedCell(connTriangle, eletri, pid, bitpit::Cell::NULL_ID));
+		newCellIDs.emplace_back(getGeometry()->addConnectedCell(connTriangle, eletri, pid, bitpit::Cell::NULL_ID, rank));
 	}
 
 	return newCellIDs;
@@ -786,6 +910,11 @@ RefineGeometry::greenRefineCell(const long & cellId, const long newVertexId, int
 	}
 
 	long pid = cell.getPID();
+	int rank = -1;
+#if MIMMO_ENABLE_MPI
+    // Recover cell rank
+    rank = getGeometry()->getPatch()->getCellRank(cellId);
+#endif
 
 	//Number of new triangles is 2
 	std::size_t sizeEle = 3;
@@ -797,7 +926,7 @@ RefineGeometry::greenRefineCell(const long & cellId, const long newVertexId, int
 		connTriangle[0] = newVertexId;
 		connTriangle[1] = cell.getVertexId( int( (splitEdgeIndex+1+i) % sizeEle) );
 		connTriangle[2] = cell.getVertexId( int( (splitEdgeIndex+2+i) % sizeEle) );
-		newCellIDs.emplace_back(getGeometry()->addConnectedCell(connTriangle, eletri, pid, bitpit::Cell::NULL_ID));
+		newCellIDs.emplace_back(getGeometry()->addConnectedCell(connTriangle, eletri, pid, bitpit::Cell::NULL_ID, rank));
 	}
 
 	return newCellIDs;
