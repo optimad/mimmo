@@ -39,6 +39,7 @@ Partition::Partition(){
 	m_partition.clear();
 	m_boundary.reset();
 	m_interfacesReset = false;
+	m_externalPartition = false;
 };
 
 /*!
@@ -52,6 +53,7 @@ Partition::Partition(const bitpit::Config::Section & rootXML){
 	m_boundary.reset();
 	m_partition.clear();
 	m_interfacesReset = false;
+	m_externalPartition = false;
 
 	std::string fallback_name = "ClassNONE";
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -75,6 +77,7 @@ Partition::Partition(const Partition & other):BaseManipulation(other){
 	m_partition = other.m_partition;
 	m_boundary = other.m_boundary;
 	m_interfacesReset = other.m_interfacesReset;
+	m_externalPartition = other.m_externalPartition;
 };
 
 /*! It builds the input/output ports of the object
@@ -129,6 +132,7 @@ Partition::setBoundaryGeometry(MimmoSharedPointer<MimmoObject> geo){
 void
 Partition::setPartition(std::unordered_map<long, int> partition){
 	m_partition = partition;
+	m_externalPartition = true;
 };
 
 /*!
@@ -178,9 +182,9 @@ Partition::execute(){
 		throw std::runtime_error(m_name + " : non empty linked geometry found on non-zero processors during geometric partition.");
 	};
 
-    if(!m_partition.empty()){
-    if (m_partition.size() != m_geometry->getNCells())
-		throw std::runtime_error(m_name + " : partition size different from number of cells");
+    if(m_externalPartition){
+	    if (m_partition.size() != m_geometry->getNCells())
+			throw std::runtime_error(m_name + " : partition size different from number of cells");
     }
     
 	//Set communicator in case is not set
@@ -197,7 +201,7 @@ Partition::execute(){
             }
 
 			//Compute partition
-            if(m_partition.empty()){
+            if(!m_externalPartition){
                 computePartition();
             }
 			if (getBoundaryGeometry() != nullptr){

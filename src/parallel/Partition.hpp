@@ -96,6 +96,7 @@ private:
     std::unordered_map<long, int>   m_boundarypartition;    /**<Partition structure for boundary geometry, i-th term is the final rank of the i-th cell after partitioning.*/
 
     bool                            m_interfacesReset;
+    bool                            m_externalPartition;
 
 public:
     Partition();
