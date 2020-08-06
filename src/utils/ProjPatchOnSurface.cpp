@@ -42,8 +42,9 @@ namespace mimmo{
  */
 ProjPatchOnSurface::ProjPatchOnSurface(){
     m_name         = "mimmo.ProjPatchOnSurface";
-    m_topo     = 2;
+    m_topo     = 2; //2D- surface tessellation
     m_cobj = nullptr;
+    m_workingOnTarget = false;
 };
 
 /*!
@@ -53,8 +54,9 @@ ProjPatchOnSurface::ProjPatchOnSurface(){
 ProjPatchOnSurface::ProjPatchOnSurface(const bitpit::Config::Section & rootXML){
 
     m_name         = "mimmo.ProjPatchOnSurface";
-    m_topo     = 2;
+    m_topo     = 2; //2D- surface tessellation
     m_cobj = nullptr;
+    m_workingOnTarget = false;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -77,6 +79,7 @@ ProjPatchOnSurface::~ProjPatchOnSurface(){
  */
 ProjPatchOnSurface::ProjPatchOnSurface(const ProjPatchOnSurface & other):ProjPrimitivesOnSurfaces(other){
     m_cobj = other.m_cobj;
+    m_workingOnTarget = other.m_workingOnTarget;
 
 };
 
@@ -95,6 +98,7 @@ ProjPatchOnSurface & ProjPatchOnSurface::operator=(ProjPatchOnSurface other){
 void ProjPatchOnSurface::swap(ProjPatchOnSurface &x) noexcept
 {
     std::swap(m_cobj, x.m_cobj);
+    std::swap(m_workingOnTarget, x.m_workingOnTarget);
     ProjPrimitivesOnSurfaces::swap(x);
 }
 
@@ -105,6 +109,7 @@ void
 ProjPatchOnSurface::clear(){
     ProjPrimitivesOnSurfaces::clear();
     m_cobj = nullptr;
+    m_workingOnTarget = false;
 }
 
 /*!
@@ -116,9 +121,31 @@ void
 ProjPatchOnSurface::setPatch(MimmoSharedPointer<MimmoObject> geo){
 
     if(geo == nullptr)    return;
-    auto type = geo->getType();
-    if(type != 1 )    return;
+    int type = geo->getType();
+    if(type != 1 && type !=3 ) return;
     m_cobj = geo;
+    m_topo = 2;
+    if(type == 3) m_topo = 0;
+}
+
+/*!
+    Return true, if the class will apply the modifications directly to the target surface
+    container linked with setPatch. False, if projection is returned in an indipendent container.
+    \return true or false if is working on target.
+*/
+bool
+ProjPatchOnSurface::isWorkingOnTarget(){
+    return m_workingOnTarget;
+}
+
+/*!
+    Set to true, if the class will apply the modifications directly to the target surface
+    container linked with setPatch. To False instead, if projection is returned in an indipendent container.
+    param[in] flag true or false to set class working on target.
+*/
+void
+ProjPatchOnSurface::setWorkingOnTarget(bool flag){
+    m_workingOnTarget = flag;
 }
 
 
@@ -135,17 +162,7 @@ void ProjPatchOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXM
 
     BaseManipulation::absorbSectionXML(slotXML, name);
 
-    if(slotXML.hasOption("BvTree")){
-        input = slotXML.get("BvTree");
-        bool value = false;
-        if(!input.empty()){
-            std::stringstream ss(bitpit::utils::string::trim(input));
-            ss >> value;
-        }
-        setBuildSkdTree(value);
-    };
-
-    if(slotXML.hasOption("SkdTree")){
+     if(slotXML.hasOption("SkdTree")){
         input = slotXML.get("SkdTree");
         bool value = false;
         if(!input.empty()){
@@ -164,6 +181,16 @@ void ProjPatchOnSurface::absorbSectionXML(const bitpit::Config::Section & slotXM
         }
         setBuildKdTree(value);
     };
+
+    if(slotXML.hasOption("WorkingOnTarget")){
+       input = slotXML.get("WorkingOnTarget");
+       bool value = false;
+       if(!input.empty()){
+           std::stringstream ss(bitpit::utils::string::trim(input));
+           ss >> value;
+       }
+       setWorkingOnTarget(value);
+   };
 
 };
 
@@ -185,6 +212,7 @@ void ProjPatchOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std:
     if(m_buildKdTree){
         slotXML.set("KdTree", std::to_string(m_buildKdTree));
     }
+    slotXML.set("WorkingOnTarget", std::to_string(m_workingOnTarget));
 
 };
 
@@ -194,11 +222,11 @@ void ProjPatchOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std:
  */
 void
 ProjPatchOnSurface::buildPorts(){
-    bool built = true;
+    ProjPrimitivesOnSurfaces::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, ProjPatchOnSurface>(this, &mimmo::ProjPatchOnSurface::setPatch, M_GEOM2, true));
     m_arePortsBuilt = built;
-    ProjPrimitivesOnSurfaces::buildPorts();
 }
 
 
@@ -207,32 +235,46 @@ ProjPatchOnSurface::buildPorts(){
  */
 void
 ProjPatchOnSurface::projection(){
-    MimmoSharedPointer<MimmoObject> dum = m_cobj->clone();
+    if(m_workingOnTarget){
+        m_patch = m_cobj;
+    }else{
+        m_patch = m_cobj->clone();
+    }
     //...and projecting them onto target surface
     if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
-    bitpit::PiercedVector<bitpit::Vertex> & verts = dum->getVertices();
+
     dvecarr3E points;
-    points.reserve(verts.size());
-    for(auto it = verts.begin(); it != verts.end(); ++it){
-        points.push_back(it->getCoords());
+    livector1D originalIds;
+    points.reserve(m_patch->getNVertices());
+    originalIds.reserve(points.size());
+    for(bitpit::Vertex & vert : m_patch->getVertices()){
+        points.push_back(vert.getCoords());
+        originalIds.push_back(vert.getId());
      }
+
     std::size_t npoints = points.size();
     dvecarr3E projs(npoints);
-    livector1D ids(npoints);
+    livector1D cell_ids(npoints);
 #if MIMMO_ENABLE_MPI
     ivector1D ranks(npoints);
     double radius =  std::numeric_limits<double>::max();
-    bool shared = true;
-    skdTreeUtils::projectPointGlobal(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data(), ranks.data(), radius, shared);
+    skdTreeUtils::projectPointGlobal(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), cell_ids.data(), ranks.data(), radius, false);
 #else
-    skdTreeUtils::projectPoint(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data());
+    skdTreeUtils::projectPoint(npoints, points.data(), getGeometry()->getSkdTree(), projs.data(), cell_ids.data());
 #endif
+
     std::size_t counter = 0;
-    for(auto it = verts.begin(); it != verts.end(); ++it){
-        it->setCoords(projs[0]);
+    for(long id: originalIds){
+        m_patch->modifyVertex(projs[counter], id);
         counter++;
     }
-    m_patch = dum;
+
+#if MIMMO_ENABLE_MPI
+    if(m_patch->getPatch()->isPartitioned()){
+        m_patch->updatePointGhostExchangeInfo();
+    }
+#endif
+
 };
 
 
