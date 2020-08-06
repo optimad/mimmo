@@ -41,12 +41,14 @@ namespace mimmo{
 /*!
  * \class ProjPatchOnSurface
  * \ingroup utils
- * \brief Executable block class capable of projecting a 3D surface patch
+ * \brief Executable block class capable of projecting a 3D surface patch or 3D Point Cloud
  *  on another 3D surface, both defined as MimmoObject.
  *
- * ProjPatchOnSurface project a 3D surface tessellation on a given 3D surface mesh and return it in a
+ * ProjPatchOnSurface project a 3D surface tessellation/point cloud on a given 3D surface mesh and return it in a
  * in MimmoObject container.
  *
+  For 3D Curve projection use Proj3DCurveOnSurface block instead.
+
  * Ports available in ProjPatchOnSurface Class :
  *
  *    =========================================================
@@ -84,8 +86,11 @@ namespace mimmo{
  * - <B>OutputPlot</B> : target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>SkdTree</B> : evaluate skdTree true 1/false 0;
+ * - <B>SkdTree</B> : evaluate skdTree true 1/false 0; this parameter is useless if the
+                     target surface to project is a PointCloud.
  * - <B>KdTree</B> : evaluate kdTree true 1/false 0;
+ * - <B>WorkingOnTarget</B> : true 1/ 0 false to store projected target in the same container or and independent one;
+
  *
  *
  * Geometry has to be mandatorily passed through port.
@@ -95,7 +100,8 @@ namespace mimmo{
 class ProjPatchOnSurface: public ProjPrimitivesOnSurfaces{
 
 protected:
-    MimmoSharedPointer<MimmoObject>             m_cobj;        /**<object to deal with patch */
+    MimmoSharedPointer<MimmoObject>    m_cobj;        /**<object to deal with patch */
+    bool                              m_workingOnTarget; /**< true, store projected results in the same target container */
 
 public:
     ProjPatchOnSurface();
@@ -109,6 +115,9 @@ public:
 
     void         setPatch(MimmoSharedPointer<MimmoObject> geo);
 
+    bool isWorkingOnTarget();
+    void setWorkingOnTarget(bool);
+
     void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
@@ -117,6 +126,13 @@ public:
 protected:
     void projection();
     void swap(ProjPatchOnSurface & x) noexcept;
+
+private:
+    //disabling inteface methods
+    int getProjElementTargetNCells(){return 0;};
+    void setProjElementTargetNCells(int nC){BITPIT_UNUSED(nC);};
+
+
 
 };
 
