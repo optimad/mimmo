@@ -37,6 +37,8 @@ SpecularPoints::SpecularPoints(){
     m_origin.fill(0.0);
     m_normal.fill(0.0);
     m_implicit = false;
+    m_scalar = nullptr;
+    m_vector = nullptr;
 };
 
 /*!
@@ -52,6 +54,8 @@ SpecularPoints::SpecularPoints(const bitpit::Config::Section & rootXML){
     m_origin.fill(0.0);
     m_normal.fill(0.0);
     m_implicit = false;
+    m_scalar = nullptr;
+    m_vector = nullptr;
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -69,7 +73,7 @@ SpecularPoints::~SpecularPoints(){};
 
 /*!Copy constructor of SpecularPoints. No result are copied.
  */
-SpecularPoints::SpecularPoints(const SpecularPoints & other):ProjectCloud(other){
+SpecularPoints::SpecularPoints(const SpecularPoints & other):ProjPatchOnSurface(other){
     m_plane = other.m_plane;
     m_scalar = other.m_scalar;
     m_vector = other.m_vector;
@@ -78,6 +82,7 @@ SpecularPoints::SpecularPoints(const SpecularPoints & other):ProjectCloud(other)
     m_origin = other.m_origin;
     m_normal = other.m_normal;
     m_implicit = other.m_implicit;
+    m_pc = other.m_pc;
 };
 
 /*!
@@ -104,8 +109,9 @@ void SpecularPoints::swap(SpecularPoints & x) noexcept
     std::swap(m_implicit, x.m_implicit);
     std::swap(m_scalarMirrored, x.m_scalarMirrored);
     std::swap(m_vectorMirrored, x.m_vectorMirrored);
-    std::swap(m_labelsMirrored, x.m_labelsMirrored);
-    ProjectCloud::swap(x);
+    std::swap(m_pc,x.m_pc);
+
+    ProjPatchOnSurface::swap(x);
 }
 /*! It builds the input/output ports of the object
  */
@@ -113,80 +119,98 @@ void
 SpecularPoints::buildPorts(){
     bool built = true;
 
-    built = (built && createPortIn<dvecarr3E, SpecularPoints>(this,&mimmo::SpecularPoints::setCoords, M_COORDS, true));
-    built = (built && createPortIn<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::setVectorData, M_DISPLS));
-    built = (built && createPortIn<dvector1D, SpecularPoints>(this, &mimmo::SpecularPoints::setScalarData, M_DATAFIELD));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, SpecularPoints>(this,&mimmo::SpecularPoints::setPointCloud, M_GEOM2, true));
+    built = (built && createPortIn<dmpvecarr3E*, SpecularPoints>(this, &mimmo::SpecularPoints::setVectorData, M_VECTORFIELD));
+    built = (built && createPortIn<dmpvector1D*, SpecularPoints>(this, &mimmo::SpecularPoints::setScalarData, M_DATAFIELD));
     built = (built && createPortIn<darray4E, SpecularPoints>(this, &mimmo::SpecularPoints::setPlane, M_PLANE));
     built = (built && createPortIn<darray3E, SpecularPoints>(this, &mimmo::SpecularPoints::setOrigin, M_POINT));
     built = (built && createPortIn<darray3E, SpecularPoints>(this, &mimmo::SpecularPoints::setNormal, M_AXIS));
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, SpecularPoints>(this, &mimmo::SpecularPoints::setGeometry, M_GEOM));
 
-    built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getMirroredCoords, M_COORDS));
-    built = (built && createPortOut<dvecarr3E, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudVectorData, M_DISPLS));
-    built = (built && createPortOut<dvector1D, SpecularPoints>(this, &mimmo::SpecularPoints::getCloudScalarData, M_DATAFIELD));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, SpecularPoints>(this, &mimmo::SpecularPoints::getMirroredPointCloud, M_GEOM));
+    built = (built && createPortOut<dmpvecarr3E*, SpecularPoints>(this, &mimmo::SpecularPoints::getMirroredVectorData, M_VECTORFIELD));
+    built = (built && createPortOut<dmpvector1D*, SpecularPoints>(this, &mimmo::SpecularPoints::getMirroredScalarData, M_SCALARFIELD));
     m_arePortsBuilt = built;
 };
 
 /*!
- * Returns the original scalar data field attached to cloud points
+ * Returns pointer to the original scalar data field attached to cloud points
  * \returns input scalar field
  */
-dvector1D
+dmpvector1D *
 SpecularPoints::getOriginalScalarData(){
-    return(m_scalar);
+    return m_scalar;
 };
 
 /*!
- * Returns the original vector data field attached to cloud points
+ * Returns pointer to the original vector data field attached to cloud points
  * \returns input vector field
  */
-dvecarr3E
+dmpvecarr3E *
 SpecularPoints::getOriginalVectorData(){
-    return(m_vector);
+    return m_vector;
 };
 
 /*!
- * Returns the resulting scalar data field attached to mirrored cloud points
+ * Returns pointer to the scalar data field attached to mirrored cloud points
  * \returns output scalar field
  */
-dvector1D
-SpecularPoints::getCloudScalarData(){
-    return(m_scalarMirrored);
+dmpvector1D *
+SpecularPoints::getMirroredScalarData(){
+    return &m_scalarMirrored;
 };
 
 /*!
- * Returns the resulting vector data field attached to mirrored cloud points
+ * Returns pointer to the vector data field attached to mirrored cloud points
  * \returns output vector field
  */
-dvecarr3E
-SpecularPoints::getCloudVectorData(){
-    return(m_vectorMirrored);
+dmpvecarr3E *
+SpecularPoints::getMirroredVectorData(){
+    return &m_vectorMirrored;
 };
 
 
 /*!
-    It gets the resulting mirrored points after class functionality execution
- * \return projected points stored in the object.
+    It gets the coordinates of the mirrored point cloud. Meaningful after execution.
+ * \return raw list of coordinates of local point cloud.
  */
 dvecarr3E
-SpecularPoints::getMirroredCoords(){
-    return getMirroredCoords(nullptr);
-};
+SpecularPoints::getMirroredRawCoords(){
 
-/*!
-    It gets the resulting mirrored points after class functionality execution
-    \param[out] labels return also the labels attached to points if structure is not null.
- * \return projected points stored in the object.
- */
-dvecarr3E
-SpecularPoints::getMirroredCoords(livector1D * labels){
-
-    if(labels){
-        *labels = m_labelsMirrored;
-         labels->resize(m_proj.size());
+    dvecarr3E points;
+    if(m_patch != nullptr){
+        points.reserve(m_patch->getNVertices());
+        for(bitpit::Vertex & vert : m_patch->getVertices()){
+            points.push_back(vert.getCoords());
+        }
     }
-    return  m_proj;
+    return points;
 };
+
+/*!
+    It gets the labels associated to the list of getMirroredRawCoords. Meaningful after execution.
+ * \return labels of mirrored raw point cloud coordinates.
+ */
+livector1D
+SpecularPoints::getMirroredLabels(){
+
+    livector1D labels;
+    if(m_patch != nullptr){
+        labels.reserve(m_patch->getNVertices());
+        for(bitpit::Vertex & vert : m_patch->getVertices()){
+            labels.push_back(vert.getId());
+        }
+    }
+    return labels;
+};
+
+/*!
+    \return final mirrored point cloud.
+*/
+MimmoSharedPointer<MimmoObject>
+SpecularPoints::getMirroredPointCloud(){
+    return m_patch;
+}
 
 /*!
  * Returns plane set up in the class, for mirroring
@@ -194,7 +218,7 @@ SpecularPoints::getMirroredCoords(livector1D * labels){
  */
 darray4E
 SpecularPoints::getPlane(){
-    return(m_plane);
+    return  m_plane;
 };
 
 /*!
@@ -209,41 +233,48 @@ SpecularPoints::isInsideOut(){
 
 /*!
  * Returns if even the points belonging to the symmetry
- * plane are mirrored (i.e. duplicated).
- * \returns duplicate points on symmetry plane?
+ * plane has to be mirrored (i.e. duplicated).
+ * \returns true if points on symmetry plane has to be duplicated
  */
 bool
-SpecularPoints::isForce(){
+SpecularPoints::isForced(){
     return m_force;
 }
 
 
 /*!
-   It sets the coordinates of original points to be processed.
- * \param[in] coords coordinates of points to be used .
+   It sets the target point cloud to be processed.
+ * \param[in] targetpatch point cloud to be mirrored .
  */
 void
-SpecularPoints::setCoords(dvecarr3E coords){
-    ProjectCloud::setCoords(coords);
+SpecularPoints::setPointCloud(MimmoSharedPointer<MimmoObject> targetpatch){
+
+    if(targetpatch == nullptr) return;
+    if(targetpatch->getType() !=3) return;
+    m_pc = targetpatch;
 };
 
 
 /*!
- * Set the original scalar data field attached to points that needs to be mirrored
- * \param[in] data scalar field;
+ * Set the original scalar data field attached to target point cloud
+ * \param[in] scalardata scalar field pointer;
  */
 void
-SpecularPoints::setScalarData(dvector1D data){
-    m_scalar = data;
+SpecularPoints::setScalarData(dmpvector1D * scalardata){
+    if(scalardata == nullptr) return;
+    if(scalardata->getDataLocation() != MPVLocation::POINT)  return;
+    m_scalar = scalardata;
 };
 
 /*!
- * Set the original field data field attached to points that needs to be mirrored
- * \param[in] data vector field;
+ * Set the original vector data field attached to target point cloud
+ * \param[in] vectordata vector field pointer;
  */
 void
-SpecularPoints::setVectorData(dvecarr3E data){
-    m_vector = data;
+SpecularPoints::setVectorData(dmpvecarr3E * vectordata){
+    if(vectordata == nullptr) return;
+    if(vectordata->getDataLocation() != MPVLocation::POINT)  return;
+    m_vector = vectordata;
 };
 
 /*!
@@ -265,20 +296,20 @@ SpecularPoints::setPlane(darray4E plane){
 void
 SpecularPoints::setPlane(darray3E origin, darray3E normal){
 
-    normal /= norm2(normal);
-    double b = -1.0*dotProduct(origin, normal);
+    double normx=norm2(normal);
+    if(normx > std::numeric_limits<double>::min())  normal /= normx;
 
     m_plane[0] = normal[0];
     m_plane[1] = normal[1];
     m_plane[2] = normal[2];
-    m_plane[3] = b;
+    m_plane[3] = -1.0*dotProduct(origin, normal);
 
     m_implicit = true;
 
 };
 
 /*!
- * It sets origin of clipping plane
+ * It sets origin of mirroring plane
  * \param[in] origin point belonging to plane
  *
  */
@@ -288,7 +319,7 @@ SpecularPoints::setOrigin(darray3E origin){
 };
 
 /*!
- * It sets normal of clipping plane
+ * It sets normal of mirroring plane
  * \param[in] normal plane normal
  *
  */
@@ -323,108 +354,180 @@ SpecularPoints::setForce(bool flag){
 void
 SpecularPoints::execute(){
 
-    /* If an implicit definition is not present it has to be computed
+    //check if there is a valid a point cloud
+    if (m_pc == nullptr){
+        (*m_log)<<"Error in "<<m_name << " : nullptr pointer to target point cloud"<<std::endl;
+        throw std::runtime_error (m_name + " : nullptr pointer to target point cloud");
+    }
+
+    //clone it into the internal member m_cobj (mother class ProjPatchOnSurface)
+    m_cobj = m_pc->clone();
+    //initialize mirrored data;
+    m_scalarMirrored.clear();
+    m_vectorMirrored.clear();
+    m_scalarMirrored.initialize(m_cobj, MPVLocation::POINT, 0.);
+    m_scalarMirrored.setName("MirroredScalarData");
+    m_vectorMirrored.initialize(m_cobj, MPVLocation::POINT, {{0.0,0.0,0.0}});
+    m_vectorMirrored.setName("MirroredVectorData");
+
+
+    /* Check the plane stuff and if an implicit definition is not present it has to be computed
      * by using origin and normal.
      */
     if (!m_implicit) setPlane(m_origin, m_normal);
 
     darray3E norm;
-    double offset;
+    double offsetPlane;
     for(int i=0; i<3; ++i)    norm[i] = m_plane[i];
-    offset = m_plane[3];
+    offsetPlane = m_plane[3];
     double normPlane = norm2(norm);
-    if(normPlane <= std::numeric_limits<double>::min() || m_points.empty()){
-        (*m_log)<< "Warning: "<<m_name <<" : no valid plane normal or empty list of points to be mirrored"<<std::endl;
+
+    //if normal is 0 there is nothing to do
+    if(normPlane <= std::numeric_limits<double>::min()){
+        (*m_log)<< "Error: "<<m_name <<" : no valid plane normal found"<<std::endl;
+        m_patch = m_cobj;
         return;
     }
+
+    //adjust the normal to be unitary in modulus
     norm /= normPlane;
+
+    //see if need to project the cloud on a surface geometry: set bool project as active.
     bool project = false;
+    int cellcount(0);
     if (getGeometry() != nullptr){
-        if (!getGeometry()->isEmpty()) project = true;
+        cellcount = getGeometry()->getNCells();
+#if MIMMO_ENABLE_MPI
+        MPI_Allreduce(MPI_IN_PLACE, &cellcount, 1, MPI_INT, MPI_SUM, m_communicator);
+#endif
+        project = (cellcount > 0);
     }
 
-    //choosing margin for plane offset
-    double margin = 1.e-12;
-    if(project && getGeometry()->getType() == 1){
-        double aTot = 0.0;
-        int cellSize = getGeometry()->getNCells();
+
+    //calculate a reasonable margin for defining the plane offset. This is
+    // done to distinguish quickly points which lies on plane or not.
+    double margin = 1.0E-12;
+    if(project){
+        double areaTot = 0.0;
         bitpit::SurfaceKernel * tri = static_cast<bitpit::SurfaceKernel * >(getGeometry()->getPatch());
-        for(const auto &cell: tri->getCells()){
-            aTot += tri->evalCellArea(cell.getId());
+        for(auto it = tri->internalBegin(); it != tri->internalEnd(); ++it ){
+            areaTot += tri->evalCellArea(it.getId());
         }
-
-        if(aTot > 0.0) {margin =  1.2*std::pow(aTot/((double)cellSize),0.5);}
+#if MIMMO_ENABLE_MPI
+        MPI_Allreduce(MPI_IN_PLACE, &areaTot, 1, MPI_DOUBLE, MPI_SUM, m_communicator);
+#endif
+        if(areaTot > std::numeric_limits<double>::min()) {
+            margin =  1.2*std::pow(areaTot/((double)cellcount),0.5);
+        }
     }
-    // THIS CLASS CANNOT WORK YET WITH PROJECTION ON VOLUME MESHES. THIS PORTION IS USELESS RIGHT NOW.
-    // }else if(project && getGeometry()->getType() == 2){
-    //     double vTot = 0.0;
-    //     int cellSize = getGeometry()->getNCells();
-    //     bitpit::VolumeKernel * tetra = static_cast<bitpit::VolumeKernel * >(getGeometry()->getPatch());
-    //     for(const auto &cell: tetra->getCells()){
-    //         vTot += tetra->evalCellVolume(cell.getId());
-    //     }
-    //
-    //     if(vTot > 0.0) {margin =  1.2*std::pow(vTot/((double)cellSize),0.5);}
-    // }
 
-
+    //take into account the right emiplane with insideout given by the User.
     double sig = (1.0  - 2.0*((int)m_insideout));
-    double distance;
 
-    //mirroring.
-    m_scalar.resize(m_points.size());
-    m_vector.resize(m_points.size());
+    //before mirroring, evaluate starting offsets for labeling new vertices to be added.
 
-    int counterProj = m_points.size();
-    int counterData = 0;
+    livector1D localVertIds = m_cobj->getVerticesIds();
+    int nPCvert = int(localVertIds.size());
 
-    m_proj = m_points;
-    m_scalarMirrored = m_scalar;
-    m_vectorMirrored = m_vector;
-    m_labelsMirrored = m_labels;
-
-    long maxLabel(0);
-    if(!m_labels.empty()){
-        maxLabel = *(std::max_element(m_labels.begin(),m_labels.end()));
+    long offsetVertLabel(0);
+    if(!localVertIds.empty())
+        offsetVertLabel = *(std::max_element(localVertIds.begin(), localVertIds.end())) + 1;
+    long offsetCellLabel(0);
+    {
+        livector1D localCellIds = m_cobj->getCellsIds();
+        if(!localCellIds.empty())
+            offsetCellLabel = *(std::max_element(localCellIds.begin(), localCellIds.end())) + 1;
     }
 
-    m_proj.resize(2*counterProj);
-    m_scalarMirrored.resize(2*counterProj);
-    m_vectorMirrored.resize(2*counterProj);
-    m_labelsMirrored.resize(2*counterProj);
 
-    for(const auto &val: m_points){
-        distance = sig*(dotProduct(norm, val) + offset);
-        if(distance > margin || m_force){
-            m_proj[counterProj] = val - 2.0*distance*sig*norm;
-            m_scalarMirrored[counterProj] = m_scalar[counterData];
-            m_vectorMirrored[counterProj] = m_vector[counterData] -2.0*dotProduct(m_vector[counterData], sig*norm)*sig*norm;
-            m_labelsMirrored[counterProj] = m_labels[counterData] + maxLabel + 1;
-            counterProj++;
+#if MIMMO_ENABLE_MPI
+    std::vector<int> rankPCSize (m_nprocs, 0);
+    rankPCSize[m_rank] = nPCvert;
+    MPI_Allreduce(MPI_IN_PLACE, &offsetVertLabel, 1, MPI_LONG, MPI_MAX, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, &offsetCellLabel, 1, MPI_LONG, MPI_MAX, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, rankPCSize.data(), m_nprocs, MPI_INT, MPI_MAX, m_communicator);
+
+    for(int i=0; i<m_rank; ++i) {
+        offsetVertLabel += long(rankPCSize[i]);
+        offsetCellLabel += long(rankPCSize[i]);
+    }
+#endif
+
+    //copy data of scalar and vector (if any) into mirrored twin structures
+    //(that are already initialized to default 0 value) and reserve them
+    //for new vertices insertion
+    if(m_scalar){
+        for(long id: localVertIds){
+            if(m_scalar->exists(id)){
+                m_scalarMirrored[id] = m_scalar->at(id);
+            }
         }
-        counterData++;
+        m_scalarMirrored.reserve(2*nPCvert);
     }
 
-    m_proj.resize(counterProj);
-    m_scalarMirrored.resize(counterProj);
-    m_vectorMirrored.resize(counterProj);
-    m_labelsMirrored.resize(counterProj);
+    if(m_vector){
+        for(long id: localVertIds){
+            if(m_vector->exists(id)){
+                m_vectorMirrored[id] = m_vector->at(id);
+            }
+        }
+        m_vectorMirrored.reserve(2*nPCvert);
+    }
+
+    m_cobj->getPatch()->reserveVertices(2*nPCvert);
+    m_cobj->getPatch()->reserveCells(2*nPCvert);
+
+
+    //FINALLY mirror the points, scalar and vector fields.
+    darray3E vert;
+    bitpit::ElementType type = bitpit::ElementType::VERTEX;
+    for (long id: localVertIds){
+        vert = m_cobj->getVertexCoords(id);
+        double distance = sig*(dotProduct(norm, vert) + offsetPlane);
+
+        if(distance > margin || m_force){
+
+            m_cobj->addVertex( (vert - 2.0*distance*sig*norm), offsetVertLabel);
+            m_cobj->addConnectedCell(std::vector<long>(1, offsetVertLabel), type, 0, offsetCellLabel, m_rank);
+
+            m_scalarMirrored.insert(offsetVertLabel, m_scalarMirrored[id] );
+            m_vectorMirrored.insert(offsetVertLabel, (m_vectorMirrored[id] -2.0*dotProduct(m_vectorMirrored[id], sig*norm)*sig*norm) );
+
+            ++offsetVertLabel;
+            ++offsetCellLabel;
+        }
+    }
 
     if(project){
-        if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
+        //this chunk will project the original cloud onto the target surface
+        //m_cobj is filled up before.
+        m_workingOnTarget = true;
+        //final m_patch is m_cobj itself;
+        projection();
+        //for MPI version, this method already update the patch.
+    }else{
+        m_patch = m_cobj;
 
-        // In place use of project point
-        std::size_t npoints = m_proj.size();
-        livector1D ids(npoints);
-    #if MIMMO_ENABLE_MPI
-        ivector1D ranks(npoints);
-        double radius =  std::numeric_limits<double>::max();
-        bool shared = true;
-        skdTreeUtils::projectPointGlobal(npoints, m_proj.data(), getGeometry()->getSkdTree(), m_proj.data(), ids.data(), ranks.data(), radius, shared);
-    #else
-        skdTreeUtils::projectPoint(npoints, m_proj.data(), getGeometry()->getSkdTree(), m_proj.data(), ids.data());
-    #endif
+#if MIMMO_ENABLE_MPI
 
+        if(m_patch->getPatch()->isPartitioned()){
+            m_patch->updatePointGhostExchangeInfo();
+        }
+#endif
+
+    }
+
+    //squeeze stuff out
+    m_patch->getPatch()->squeezeVertices();
+    m_patch->getPatch()->squeezeCells();
+    m_scalarMirrored.shrinkToFit();
+    m_vectorMirrored.shrinkToFit();
+
+    //evaluate kdtree if required by the class
+    if(m_patch){
+        if(m_buildKdTree)    m_patch->buildKdTree();
+    }else{
+        (*m_log)<<m_name << " : failed mirroring Point Cloud"<<std::endl;
     }
 };
 
@@ -433,12 +536,11 @@ SpecularPoints::execute(){
  */
 void
 SpecularPoints::clear(){
-    ProjectCloud::clear();
-    m_scalar.clear();
-    m_vector.clear();
+    ProjPatchOnSurface::clear();
+    m_scalar = nullptr;
+    m_vector = nullptr;
     m_scalarMirrored.clear();
     m_vectorMirrored.clear();
-    m_labelsMirrored.clear();
     m_plane.fill(0.0);
     m_insideout = false;
 };
@@ -454,7 +556,7 @@ SpecularPoints::absorbSectionXML(const bitpit::Config::Section & slotXML, std::s
     BITPIT_UNUSED(name);
 
     //start absorbing
-    BaseManipulation::absorbSectionXML(slotXML, name);
+    ProjPatchOnSurface::absorbSectionXML(slotXML, name);
 
     if(slotXML.hasOption("Force")){
         std::string input = slotXML.get("Force");
@@ -512,7 +614,7 @@ SpecularPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string n
 
     BITPIT_UNUSED(name);
 
-    BaseManipulation::flushSectionXML(slotXML, name);
+    ProjPatchOnSurface::flushSectionXML(slotXML, name);
 
     int value = m_force;
     slotXML.set("Force", std::to_string(value));
@@ -553,30 +655,7 @@ SpecularPoints::flushSectionXML(bitpit::Config::Section & slotXML, std::string n
  */
 void
 SpecularPoints::plotOptionalResults(){
-    bitpit::VTKFormat codex = bitpit::VTKFormat::APPENDED;
-
-    int size = m_proj.size();
-    ivector1D conn(size);
-    for(int i=0; i<size; i++){
-        conn[i] = i;
-    }
-    std::string dir = "./";
-    std::string file = m_name + "_" + std::to_string(getId());
-
-    bitpit::VTKUnstructuredGrid vtk(dir, file, bitpit::VTKElementType::VERTEX);
-    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, m_proj) ;
-    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
-    vtk.addData("labels", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_labelsMirrored);
-    vtk.setDimensions(size, size);
-    vtk.setCodex(codex);
-
-    std::string scalarfield = "ScalarData";
-    std::string vectorfield = "VectorData";
-
-    vtk.addData( scalarfield, bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_scalarMirrored ) ;
-    vtk.addData( vectorfield, bitpit::VTKFieldType::VECTOR, bitpit::VTKLocation::POINT, m_vectorMirrored ) ;
-
-    vtk.write();
+    write(m_patch, m_scalarMirrored, m_vectorMirrored);
 };
 
 }
