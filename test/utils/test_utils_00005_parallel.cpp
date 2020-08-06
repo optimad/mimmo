@@ -28,61 +28,44 @@
 
 // =================================================================================== //
 /*
- * Test: testing ProjPatchOnSurface utility in multi procs
+ * Test: testing ProjSegmentOnSurface utility in multi procs
  */
-int test4() {
+int test5() {
 
 
     mimmo::MimmoGeometry * reader1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     bitpit::Logger & log = reader1->getLog();
     log.setPriority(bitpit::log::Priority::NORMAL);
-    log<<"reading files "<<std::endl;
+    log<<"reading from file "<<std::endl;
 
     reader1->setReadDir("geodata");
     reader1->setReadFilename("sphere2");
     reader1->setReadFileType(FileType::STL);
     reader1->execute();
 
-    mimmo::MimmoGeometry * reader2 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
-    reader2->setReadDir("geodata");
-    reader2->setReadFilename("projectPlane");
-    reader2->setReadFileType(FileType::STL);
-    reader2->execute();
-
-    log.setPriority(bitpit::log::Priority::NORMAL);
-    log<<"partitioning and distributing geometries "<<std::endl;
+    log<<"partitioning and distributing geometry "<<std::endl;
 
     mimmo::Partition * partReader1 = new mimmo::Partition();
     partReader1->setGeometry(reader1->getGeometry());
     partReader1->setPlotInExecution(true);
     partReader1->exec();
 
-    mimmo::Partition * partReader2 = new mimmo::Partition();
-    partReader2->setGeometry(reader2->getGeometry());
-    partReader2->setPlotInExecution(true);
-    partReader2->exec();
+    log<<"projecting segment "<<std::endl;
 
-    log.setPriority(bitpit::log::Priority::NORMAL);
-    log<<"projecting patch "<<std::endl;
-
-    mimmo::ProjPatchOnSurface * pproj = new mimmo::ProjPatchOnSurface();
-    pproj->setName("test_utils_00004_parallel_ProjectedPatch");
+    mimmo::ProjSegmentOnSurface * pproj = new mimmo::ProjSegmentOnSurface();
+    pproj->setName("test_utils_00005_parallel_ProjectedSegment");
     pproj->setGeometry(partReader1->getGeometry());
-    pproj->setPatch(partReader2->getGeometry());
-    pproj->setWorkingOnTarget(true);
+    pproj->setSegment({{-0.8,0.6,0.3}}, {{0.8,0.6,0.3}} );
+    pproj->setProjElementTargetNCells(320);
     pproj->setPlotInExecution(true);
     pproj->exec();
 
 
     int check = 0;
-    log.setPriority(bitpit::log::Priority::NORMAL);
     log<<"test passed "<<std::endl;
 
     delete reader1;
-    delete reader2;
     delete partReader1;
-    delete partReader2;
-
     delete pproj;
 
     return check;
@@ -103,10 +86,10 @@ int main( int argc, char *argv[] ) {
 
 		/**<Calling mimmo Test routines*/
         try{
-            val = test4() ;
+            val = test5() ;
         }
         catch(std::exception & e){
-            std::cout<<"test_utils_00004_parallel exited with an error of type : "<<e.what()<<std::endl;
+            std::cout<<"test_utils_00005_parallel exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
 #if MIMMO_ENABLE_MPI

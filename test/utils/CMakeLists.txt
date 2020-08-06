@@ -38,6 +38,7 @@ if (ENABLE_MPI)
     list(APPEND TESTS "test_utils_00001_parallel:2")
     list(APPEND TESTS "test_utils_00003_parallel:2") ##:x number of procs
     list(APPEND TESTS "test_utils_00004_parallel:3") ##:x number of procs
+    list(APPEND TESTS "test_utils_00005_parallel:3") ##:x number of procs
 
 endif ()
 
@@ -67,5 +68,10 @@ if (ENABLE_MPI)
          TARGET "test_utils_00004_parallel" PRE_BUILD
          COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/projectPlane.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/projectPlane.stl"
          COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
-         )
+        )
+    add_custom_command(
+        TARGET "test_utils_00005_parallel" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+        )
+
 endif ()
