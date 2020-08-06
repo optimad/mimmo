@@ -24,7 +24,7 @@
 #ifndef __SPECULARPOINTS_HPP__
 #define __SPECULARPOINTS_HPP__
 
-#include "ProjectCloud.hpp"
+#include "ProjPatchOnSurface.hpp"
 
 namespace mimmo{
 
@@ -34,9 +34,10 @@ namespace mimmo{
  *  \brief SpecularPoints is a class that mirrors a point cloud w.r.t. a
              reference plane, on a target surface geometry if any
  *
- *  SpecularPoints is derived from ProjectCloud class. Given a certain number of points and a reference plane,
- *  the class mirrors such points with respect to this plane. If a surface geometry is linked,
-    it projects mirrored points on it. \n
+ *  SpecularPoints is a custom derivation of ProjPatchOnSurface class, specialized for Point Clouds.
+    Given a point cloud and a reference plane, the class mirrors such points with
+    respect to this plane. If a surface geometry is linked,
+    it projects the final mirrored points on it. \n
  *  Any data attached, as scalar/vector float data format, are mirrored as well.
  *
  * Ports available in SpecularPoints Class :
@@ -46,30 +47,20 @@ namespace mimmo{
  |Port Input | | |
  |-|-|-|
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
- | M_DISPLS      | setVectorData     | (MC_VECARR3, MD_FLOAT)          |
- | M_DATAFIELD   | setScalarData     | (MC_VECTOR, MD_FLOAT)           |
+ | M_GEOM2       | setPointCloud     | (MC_SCALAR, MD_MIMMO_)     |
+ | M_GEOM        | setGeometry       | (MC_SCALAR, MD_MIMMO_)     |
+ | M_VECTORFIELD | setVectorData     | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
+ | M_SCALARFIELD | setScalarData     | (MC_SCALAR, MD_MPVECFLOAT_)     |
  | M_PLANE       | setPlane          | (MC_ARRAY4, MD_FLOAT)           |
  | M_POINT       | setOrigin         | (MC_ARRAY3, MD_FLOAT)           |
  | M_AXIS        | setNormal         | (MC_ARRAY3, MD_FLOAT)           |
 
  |Port Output | | |
  |-|-|-|
- | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
- | M_DISPLS      | getCloudVectorData| (MC_VECARR3, MD_FLOAT)       |
- | M_DATAFIELD   | getCloudScalarData| (MC_VECTOR, MD_FLOAT)        |
-
- Inherited from ProjectCloud:
-
-  |Port Input | | |
-  |-|-|-|
-  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-  | M_COORDS | setCoords         | (MC_VECARR3, MD_FLOAT)    |
-  | M_GEOM        | setGeometry       | (MC_SCALAR, MD_MIMMO_)    |
-
-  |Port Output | | |
-  |-|-|-|
-  | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>              |
-  | M_COORDS | getProjectedCoords    | (MC_VECARR3, MD_FLOAT)    |
+ | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>           |
+ | M_VECTORFIELD | getMirroredVectorData  | (MC_SCALAR, MD_MPVECARR3FLOAT_) |
+ | M_SCALARFIELD | getMirroredScalarData | (MC_SCALAR, MD_MPVECFLOAT_)     |
+ | M_GEOM        | getMirroredPointCloud  | (MC_SCALAR, MD_MIMMO_)      |
 
 
  *    =========================================================
@@ -81,10 +72,13 @@ namespace mimmo{
  * - <B>Priority</B>: uint marking priority in multi-chain execution;
  * - <B>PlotInExecution</B>: boolean 0/1 print optional results of the class;
  * - <B>OutputPlot</B>: target directory for optional results writing.
+
+ * Inherited from ProjPatchOnSurface:
+ * - <B>KdTree</B> : evaluate kdTree true 1/false 0 for final Point Cloud;
  *
  * Proper of the class:
  * - <B>Force</B>: boolean 0/1. If true, force mirroring of points that lies on the plane;
- * - <B>InsideOut</B>: boolean 0/1 to align/reverse direction of clipping according to given plane normal;
+ * - <B>InsideOut</B>: boolean 0/1 to align/reverse mirroring with/against the plane normal;
  * - <B>Plane</B>: section defining the plane's normal and a point belonging to it : \n\n
  *   <tt> <B>\<Plane\></B> \n
  *   &nbsp;&nbsp;&nbsp;<B>\<Point\></B> 0.0 0.0 0.0 <B>\</Point\></B> \n
@@ -94,20 +88,20 @@ namespace mimmo{
  * Points list and data have to be mandatorily passed through port.
  *
  */
-class SpecularPoints: public ProjectCloud{
+class SpecularPoints: public ProjPatchOnSurface{
 
 private:
     bool        m_insideout;        /**< plane direction for mirroring */
     bool        m_force;            /**< if true force the mirroring of points that belong to the symmetry plane. */
     darray4E    m_plane;            /**< reference plane */
-    dvector1D   m_scalar;           /**< float scalar data attached to original points*/
-    dvecarr3E   m_vector;           /**< float vector data attached to original points*/
-    dvector1D   m_scalarMirrored;   /**< resulting float scalar data after mirroring*/
-    dvecarr3E   m_vectorMirrored;   /**< resulting float scalar data after mirroring*/
     darray3E    m_origin;           /**<Origin of plane. */
     darray3E    m_normal;           /**<Normal of plane. */
     bool        m_implicit;         /**<True if an implicit definition of plane is set. */
-    livector1D  m_labelsMirrored;   /**< labels of the points mirrored */
+    dmpvector1D * m_scalar;           /**< pointer to original float scalar data attached to original PointCloud*/
+    dmpvecarr3E * m_vector;           /**< pointer to original float vector data attached to original PointCloud*/
+    dmpvector1D   m_scalarMirrored;   /**< resulting mirrored Scalar Data*/
+    dmpvecarr3E   m_vectorMirrored;   /**< resulting mirrored Vector Data*/
+    MimmoSharedPointer<MimmoObject> m_pc; /**<original point cloud */
 
 public:
     SpecularPoints();
@@ -118,21 +112,22 @@ public:
     SpecularPoints& operator=(SpecularPoints other);
     void    buildPorts();
 
-    dvector1D getOriginalScalarData();
-    dvecarr3E getOriginalVectorData();
+    dmpvector1D * getOriginalScalarData();
+    dmpvecarr3E * getOriginalVectorData();
 
-    dvector1D getCloudScalarData();
-    dvecarr3E getCloudVectorData();
-    dvecarr3E getMirroredCoords();
-    dvecarr3E getMirroredCoords(livector1D *labels);
+    dmpvector1D * getMirroredScalarData();
+    dmpvecarr3E * getMirroredVectorData();
+    dvecarr3E  getMirroredRawCoords();
+    livector1D getMirroredLabels();
+    MimmoSharedPointer<MimmoObject> getMirroredPointCloud();
 
     darray4E  getPlane();
     bool      isInsideOut();
-    bool      isForce();
+    bool      isForced();
 
-    void    setVectorData(dvecarr3E data);
-    void    setScalarData(dvector1D data);
-    void    setCoords(dvecarr3E points);
+    void    setVectorData(dmpvecarr3E * vdata);
+    void    setScalarData(dmpvector1D * data);
+    void    setPointCloud(MimmoSharedPointer<MimmoObject> targetpatch);
     void    setPlane(darray4E plane);
     void    setPlane(darray3E origin, darray3E normal);
     void    setOrigin(darray3E origin);
@@ -152,15 +147,19 @@ protected:
     void swap(SpecularPoints & x) noexcept;
 
 private:
-    void setCoords(MimmoSharedPointer<MimmoObject>);
-    MimmoSharedPointer<MimmoObject> getProjectedCloud();
-    dvecarr3E    getProjectedCoords();
-    dvecarr3E    getProjectedCoords(livector1D *);
+    //interface method disabling
+    void setPatch(MimmoSharedPointer<MimmoObject>geo){ProjPatchOnSurface::setPatch(geo);};
+    MimmoSharedPointer<MimmoObject> getProjectedElement(){return ProjPatchOnSurface::getProjectedElement();};
+    void setBuildSkdTree(bool build){ProjPrimitivesOnSurfaces::setBuildSkdTree(false);};
+    void setWorkingOnTarget(bool flag){ProjPatchOnSurface::setWorkingOnTarget(flag);}
+    bool isWorkingOnTarget(){return ProjPatchOnSurface::isWorkingOnTarget();}
 
 };
 
-REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT,__SPECULARPOINTS_HPP__)
-REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT,__SPECULARPOINTS_HPP__)
+REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_,__SPECULARPOINTS_HPP__)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_,__SPECULARPOINTS_HPP__)
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__SPECULARPOINTS_HPP__)
+REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_,__SPECULARPOINTS_HPP__)
 REGISTER_PORT(M_PLANE, MC_ARRAY4, MD_FLOAT,__SPECULARPOINTS_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__SPECULARPOINTS_HPP__)
 REGISTER_PORT(M_AXIS, MC_ARRAY3, MD_FLOAT,__SPECULARPOINTS_HPP__)
