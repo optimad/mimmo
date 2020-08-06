@@ -57,26 +57,26 @@ private:
     void setItemSize(const size_t &itemSize);
 
 };
-//
-//template<typename container_t, typename value_t = typename container_t::value_type>
-//class ListBufferStreamer : public ExchangeBufferStreamer
-//{
-//
-//public:
-//    typedef value_t value_type;
-//
-//    ListBufferStreamer(container_t *container);
-//    ListBufferStreamer(container_t *container, const size_t &itemSize);
-//
-//    container_t & getContainer();
-//
-//    void read(const int &rank, bitpit::RecvBuffer &buffer, const std::vector<long> &list = std::vector<long>());
-//    void write(const int &rank, bitpit::SendBuffer &buffer, const std::vector<long> &list = std::vector<long>());
-//
-//protected:
-//    container_t *m_container;
-//
-//};
+
+template<typename container_t, typename value_t = typename container_t::value_type>
+class ListBufferStreamer : public ExchangeBufferStreamer
+{
+
+public:
+    typedef value_t value_type;
+
+    ListBufferStreamer(container_t *container);
+    ListBufferStreamer(container_t *container, const size_t &itemSize);
+
+    container_t & getContainer();
+
+    void read(const int &rank, bitpit::RecvBuffer &buffer, const std::vector<long> &list = std::vector<long>());
+    void write(const int &rank, bitpit::SendBuffer &buffer, const std::vector<long> &list = std::vector<long>());
+
+protected:
+    container_t *m_container;
+
+};
 
 class ListCommunicator : public bitpit::DataCommunicator
 {
