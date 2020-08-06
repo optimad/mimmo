@@ -23,6 +23,9 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_utils.hpp"
+#if MIMMO_ENABLE_MPI
+    #include "Partition.hpp"
+#endif
 
 // =================================================================================== //
 /*!
@@ -44,32 +47,93 @@ void test00002() {
     /* reading target stanford Bunny
      */
     mimmo::MimmoGeometry * bunny = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
-
+    bitpit::Logger & log = bunny->getLog();
+    bunny->setName("ReaderStanfordBunny");
     bunny->setReadDir("geodata");
     bunny->setReadFileType(FileType::STL);
     bunny->setReadFilename("stanfordBunny2");
     bunny->exec();
 
+    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"Target Bunny read"<<std::endl;
+    log.setPriority(bitpit::log::Priority::DEBUG);
+    /* reading constraint inclinedPlane
+     */
+    mimmo::MimmoGeometry * incplane = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
+    incplane->setName("ReaderInclinedPlaneConstraint");
+    incplane->setReadDir("geodata");
+    incplane->setReadFileType(FileType::STL);
+    incplane->setReadFilename("inclinedPlane");
+    incplane->exec();
+
+    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"Inclined plane constraint read"<<std::endl;
+    log.setPriority(bitpit::log::Priority::DEBUG);
+
+#if MIMMO_ENABLE_MPI
+     /* Partitioner of the bunny.
+     */
+     mimmo::Partition* partbunny = new mimmo::Partition();
+     partbunny->setName("PartitionerBunny");
+     partbunny->setGeometry(bunny->getGeometry());
+     partbunny->setPlotInExecution(true);
+     partbunny->exec();
+
+     log.setPriority(bitpit::log::Priority::NORMAL);
+     log<<"Target Bunny partitioned"<<std::endl;
+     log.setPriority(bitpit::log::Priority::DEBUG);
+
+     /* Partitioner of the inclined plane.
+     */
+     mimmo::Partition* partincplane = new mimmo::Partition();
+     partincplane->setName("PartitionerInclinedPlane");
+     partincplane->setGeometry(incplane->getGeometry());
+     partincplane->setPlotInExecution(true);
+     partincplane->exec();
+
+     log.setPriority(bitpit::log::Priority::NORMAL);
+     log<<"Inclined plane constraint partitioned"<<std::endl;
+     log.setPriority(bitpit::log::Priority::DEBUG);
+
+#endif
+
+
     /*Creation of violation/penetration field calculator
      */
-    mimmo::ControlDeformExtSurface * cdes = new mimmo::ControlDeformExtSurface();
-    cdes->setGeometry(bunny->getGeometry());
+#if MIMMO_ENABLE_MPI
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> target = partbunny->getGeometry();
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> constraint = partincplane->getGeometry();
+#else
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> target = bunny->getGeometry();
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> constraint = incplane->getGeometry();
+#endif
 
-    mimmo::dmpvecarr3E def(bunny->getGeometry(), mimmo::MPVLocation::POINT);
-    def.reserve(bunny->getGeometry()->getPatch()->getVertexCount());
-    for(auto it=bunny->getGeometry()->getPatch()->vertexBegin(); it!=bunny->getGeometry()->getPatch()->vertexEnd(); ++it){
-        def.insert(it.getId(), {{0.0,0.0,0.0}});
-    }
+    mimmo::dmpvecarr3E def;
+    def.initialize(target, mimmo::MPVLocation::POINT, {{0.0,0.0,0.0}});
+
+    mimmo::ControlDeformExtSurface * cdes = new mimmo::ControlDeformExtSurface();
+    cdes->setGeometry(target);
+    cdes->addConstraint(constraint);
+    cdes->addConstraintFile("geodata/openBox.stl", FileType::STL);
     cdes->setDefField(&def);
-    cdes->addFile("geodata/openBox.stl", 0.0, FileType::STL);
-    cdes->setBackgroundDetails();
+    cdes->setTolerance(0.0);
     cdes->setPlotInExecution(true);
     cdes->exec();
+
+    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"Violation field calculated"<<std::endl;
+    log.setPriority(bitpit::log::Priority::DEBUG);
+
 
     /* Clean up & exit;
      */
     delete bunny;
+    delete incplane;
     delete cdes;
+#if MIMMO_ENABLE_MPI
+    delete partbunny;
+    delete partincplane;
+#endif
     return;
 
 }

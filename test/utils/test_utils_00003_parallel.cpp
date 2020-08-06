@@ -23,11 +23,12 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_utils.hpp"
+#include "Partition.hpp"
 #include <exception>
 
 // =================================================================================== //
 /*
- * Test: testing OBbox utility
+ * Test: testing OBbox utility in multi procs
  */
 int test3() {
 
@@ -44,9 +45,19 @@ int test3() {
     reader2->setReadFileType(FileType::STL);
     reader2->execute();
 
+    mimmo::Partition * partReader1 = new mimmo::Partition();
+    partReader1->setGeometry(reader1->getGeometry());
+    partReader1->setPlotInExecution(true);
+    partReader1->exec();
+
+    mimmo::Partition * partReader2 = new mimmo::Partition();
+    partReader2->setGeometry(reader2->getGeometry());
+    partReader2->setPlotInExecution(true);
+    partReader2->exec();
+
     mimmo::OBBox * box1 = new mimmo::OBBox();
-    box1->setGeometry(reader1->getGeometry());
-    box1->setGeometry(reader2->getGeometry());
+    box1->setGeometry(partReader1->getGeometry());
+    box1->setGeometry(partReader2->getGeometry());
 
     box1->exec();
     box1->plot(".","obbox", 0, false);
@@ -80,10 +91,12 @@ int test3() {
 
     delete reader1;
     delete reader2;
+    delete partReader1;
+    delete partReader2;
+
     delete box1;
 
     return check;
-
 }
 
 // =================================================================================== //

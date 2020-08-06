@@ -206,6 +206,7 @@ if(BUILD_EXAMPLES)
             TARGET "utils_example_00002" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/openBox.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/openBox.stl"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/inclinedPlane.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/inclinedPlane.stl"
         )
     endif()
 

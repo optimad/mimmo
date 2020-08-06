@@ -27,7 +27,9 @@
 #include "ReconstructFields.hpp"
 #include "MRBF.hpp"
 #include "Apply.hpp"
-
+#if MIMMO_ENABLE_MPI
+    #include "Partition.hpp"
+#endif
 // =================================================================================== //
 /*!
 	\example utils_example_00003.cpp
@@ -59,20 +61,48 @@ void test00003() {
     mimmo0->setWriteFileType(FileType::SURFVTU);
     mimmo0->setWriteFilename("utils_mesh_00003.0000");
 
-    //create 4 rbf points on a y-plane at {{0.0,-0.6,0.0}}
-    dvecarr3E rbfpoints(4, {{0.0,-0.6,0.0}});
-    rbfpoints[1][0] = -0.1;
-    rbfpoints[2][0] = 0.1;  rbfpoints[2][2] = 0.12;
-    rbfpoints[3][0] = -0.03;  rbfpoints[3][2] = -0.1;
+#if MIMMO_ENABLE_MPI
+    /* Instantiation of a Partition object for target mesh partitioning.
+    */
+    mimmo::Partition* partitioner = new mimmo::Partition();
+    partitioner->setName("mimmo.Partitioner");
+    partitioner->setPlotInExecution(true);
+#endif
 
-    //declare a support Radius for them
+    //declare a support Radius for RBF cloud
     double suppR = 0.2;
 
-    //create a set of displacements for rbf points
-    dvecarr3E rbfdispls(4, {{0.0,-0.1,0.0}});
-    rbfdispls[1][0] = -0.15;
-    rbfdispls[2][0] = 0.08;  rbfdispls[2][2] = 0.2;
-    rbfdispls[3][0] = -0.2;  rbfdispls[3][2] = -0.09;
+    //create a RBF cloud with a set of displacements.
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> rbfPointCloud(new mimmo::MimmoObject(3));
+    mimmo::MimmoPiercedVector<darray3E> rbfDispls(rbfPointCloud, mimmo::MPVLocation::POINT);
+
+#if MIMMO_ENABLE_MPI
+    if(rbfPointCloud->getRank() == 0)
+    {
+#endif
+
+    //create 4 points on a y-plane at {{0.0,-0.6,0.0}}
+    rbfPointCloud->addVertex({{0.0,-0.6,0.0}}, 0);
+    rbfPointCloud->addVertex({{-0.1,-0.6,0.0}}, 1);
+    rbfPointCloud->addVertex({{0.1,-0.6,0.12}}, 2);
+    rbfPointCloud->addVertex({{-0.03,-0.6,-0.1}}, 3);
+
+    rbfPointCloud->addConnectedCell(std::vector<long>(1,0), bitpit::ElementType::VERTEX, 0, 10, 0);
+    rbfPointCloud->addConnectedCell(std::vector<long>(1,1), bitpit::ElementType::VERTEX, 0, 11, 0);
+    rbfPointCloud->addConnectedCell(std::vector<long>(1,2), bitpit::ElementType::VERTEX, 0, 12, 0);
+    rbfPointCloud->addConnectedCell(std::vector<long>(1,3), bitpit::ElementType::VERTEX, 0, 13, 0);
+
+    // insert displacements for POINTS
+    rbfDispls.insert(0, {{0.0,-0.2,0.0}});
+    rbfDispls.insert(1, {{-0.6,-0.2,0.0}});
+    rbfDispls.insert(2, {{0.16,-0.2,0.4}});
+    rbfDispls.insert(3, {{-0.4,-0.2,-0.18}});
+
+#if MIMMO_ENABLE_MPI
+    }
+    rbfPointCloud->buildAdjacencies();
+    rbfPointCloud->setPartitioned();
+#endif
 
     /*
         Project onto surface and mirror these rbf points with their displacements attached
@@ -80,13 +110,14 @@ void test00003() {
     */
     mimmo::SpecularPoints * spec = new mimmo::SpecularPoints();
     spec->setName("MirroringRBF");
-    spec->setCoords(rbfpoints);
-    spec->setVectorData(rbfdispls);
+    spec->setPointCloud(rbfPointCloud);
+    spec->setVectorData(&rbfDispls);
     spec->setOrigin({{0.0,0.0,0.0}});
     spec->setNormal({{0.0,1.0,0.0}});
     spec->setInsideOut(true);
     spec->setForce(false);
     spec->setPlotInExecution(true);
+
 
     /*
         Calculate AABB of the Mirrored RBF set accounting for the current support
@@ -112,6 +143,8 @@ void test00003() {
     mimmo::MRBF * manip = new mimmo::MRBF();
     manip->setName("RBFManipulator");
     manip->setSupportRadiusReal(suppR);
+    manip->setNode(rbfPointCloud);
+    manip->setDisplacements(&rbfDispls);
 
     /*
         Reconstruct the deformation field on the whole body
@@ -127,7 +160,7 @@ void test00003() {
     */
     mimmo::ControlDeformMaxDistance * isolevelCheck = new mimmo::ControlDeformMaxDistance();
     isolevelCheck->setName("IsoLevelCheckCollision");
-    isolevelCheck->setLimitDistance(0.25);
+    isolevelCheck->setLimitDistance(0.5);
     isolevelCheck->setPlotInExecution(true);
 
     /*
@@ -135,61 +168,92 @@ void test00003() {
     */
     mimmo::Apply * applier = new mimmo::Apply();
 
+#if MIMMO_ENABLE_MPI
+    /* Instantiation of a Partition object for target mesh reserialization.
+    */
+    mimmo::Partition* serialize = new mimmo::Partition();
+    serialize->setName("mimmo.Serialization");
+    serialize->setPlotInExecution(false);
+    serialize->setPartitionMethod(mimmo::PartitionMethod::SERIALIZE);
+#endif
+
+
+
 
     /* Setup pin connections.
      */
     // original geometry passed to spec
+#if MIMMO_ENABLE_MPI
+    //read target geometry, partition it  and distribute it to the other subblocks
+    mimmo::pin::addPin(mimmo0, partitioner, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partitioner, spec, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partitioner, sel, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partitioner, recon, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partitioner, isolevelCheck, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partitioner, applier, M_GEOM, M_GEOM);
+
+#else
+    //read target geometry and distribute it to the other subblocks
     mimmo::pin::addPin(mimmo0, spec, M_GEOM, M_GEOM);
-
-    // spec passing projected and mirrored rbf points to rbfbox
-    mimmo::pin::addPin(spec, rbfbox, M_COORDS, M_COORDS);
-
-    // sel receiving original geometry from mimmo0, and origin and span
-    // of bounding box from rbfbox
     mimmo::pin::addPin(mimmo0, sel, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, recon, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, isolevelCheck, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
+
+#endif
+    //passing mirrored pc to rbfbox
+    mimmo::pin::addPin(spec, rbfbox, M_GEOM, M_GEOM);
+
+    //passing box dimension from rbfbox to box selection
     mimmo::pin::addPin(rbfbox, sel, M_POINT, M_POINT);
     mimmo::pin::addPin(rbfbox, sel, M_SPAN, M_SPAN);
 
     // manip get as working geometry the selected patch of sel.
-    // rbf set of points and displacements are provided by spec
+    // rbf point cloud and displacements are provided by spec
     mimmo::pin::addPin(sel, manip, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(spec, manip, M_COORDS, M_COORDS);
-    mimmo::pin::addPin(spec, manip, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(spec, manip, M_GEOM, M_GEOM2);
+    mimmo::pin::addPin(spec, manip, M_VECTORFIELD, M_VECTORFIELD);
 
-    // recon reconstruct the deformation on the whole geometry
-    // taking it from mimmo0, while the deformation is provided from manip
-    //(on a selected subportion)
-    mimmo::pin::addPin(mimmo0, recon, M_GEOM, M_GEOM);
+    //pass the deformation field of manip to reconstructor
     mimmo::pin::addPin(manip, recon, M_GDISPLS, M_VECTORFIELD);
 
-    // pass original geometry and reconstructed deformation to isolevelCheck
-    mimmo::pin::addPin(mimmo0, isolevelCheck, M_GEOM, M_GEOM);
+    //pass the reconstructed deformation field to isolevelCheck
     mimmo::pin::addPin(recon, isolevelCheck, M_VECTORFIELD, M_GDISPLS);
 
-    // pass original geometry and reconstructed deformation to applier
-    mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
+    // pass the reconstructed deformation to applier
     mimmo::pin::addPin(recon, applier, M_VECTORFIELD, M_GDISPLS);
 
-
+#if MIMMO_ENABLE_MPI
+    //add serialization
+    mimmo::pin::addPin(applier, serialize, M_GEOM, M_GEOM);
+#endif
     /* Setup execution chain.
      */
     mimmo::Chain ch0;
     ch0.addObject(mimmo0);
+    ch0.addObject(manip);
     ch0.addObject(spec);
     ch0.addObject(rbfbox);
     ch0.addObject(sel);
-    ch0.addObject(manip);
     ch0.addObject(recon);
     ch0.addObject(isolevelCheck);
     ch0.addObject(applier);
+#if MIMMO_ENABLE_MPI
+    ch0.addObject(partitioner);
+    ch0.addObject(serialize);
+#endif
 
     /* Execution of chain.
      * Use debug flag false to avoid to print out the execution steps on console.
      */
     ch0.exec(true);
 
-    //Last step write deformed original geometry in vtu
+   //Last step write deformed original geometry in vtu
+#if MIMMO_ENABLE_MPI
     mimmo0->getGeometry()->getPatch()->write("utils_mesh_00003.0001");
+#else
+    serialize->getGeometry()->getPatch()->write("utils_mesh_00003.0001");
+#endif
 
     /* Clean up & exit;
      */
@@ -201,7 +265,10 @@ void test00003() {
     delete recon;
     delete isolevelCheck;
     delete applier;
-
+#if MIMMO_ENABLE_MPI
+    delete partitioner;
+    delete serialize;
+#endif
     return;
 
 }
