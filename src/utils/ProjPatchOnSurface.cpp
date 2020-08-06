@@ -113,19 +113,22 @@ ProjPatchOnSurface::clear(){
 }
 
 /*!
- * Link as reference surface Patch an external surface mesh passed in a MimmoObject container.
- * If the MimmoObject is not a surface (type 1), nothing will be linked.
- * \param[in] geo pointer to geometry container
+ * Link the target Patch to be projected on the reference surface.
+ * Any patch type is allowed, except for volume meshes (MimmoObject of type 2).
+   In that case nothing will be linked.
+ * \param[in] geo pointer to patch that need to be projected
  */
 void
 ProjPatchOnSurface::setPatch(MimmoSharedPointer<MimmoObject> geo){
 
     if(geo == nullptr)    return;
     int type = geo->getType();
-    if(type != 1 && type !=3 ) return;
+    if(type == 2 ) return;
     m_cobj = geo;
     m_topo = 2;
     if(type == 3) m_topo = 0;
+    if(type == 4) m_topo = 1;
+
 }
 
 /*!
