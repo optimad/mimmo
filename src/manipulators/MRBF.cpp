@@ -1067,20 +1067,7 @@ MRBF::setMode(MRBFSol solver){
 bool
 MRBF::initRBFwGeometry(){
 
-    // Insert rbf nodes by rbf geometry
-    removeAllNodes();
-
-    if (m_rbfgeometry->isEmpty()){
-        (*m_log)<<m_name + " : empty rbf geometry found. Skip object."<<std::endl;
-        return false;
-    }
-    dvecarr3E vertex = m_rbfgeometry->getVerticesCoords();
-    RBF::addNode(vertex);
-
-    // Init rbf nodes displacements
-    removeAllData();
-
-    // If not linked geometry skip
+    // If displacementes have unlinked geometry skip
     if (!m_rbfdispl->getGeometry()){
         (*m_log)<<m_name + " : null RBF geometry linked by displacements vector. Skip object."<<std::endl;
         return false;
@@ -1089,16 +1076,111 @@ MRBF::initRBFwGeometry(){
         (*m_log)<<m_name + " : RBF displacements not linked to RBF geometry. Skip object."<<std::endl;
         return false;
     }
-    int size = m_rbfdispl->size();
-    dvector1D temp(size);
-    for(int loc=0; loc<3; ++loc){
-        std::size_t i = 0;
-        // Loop on geometry vertex ids
-        for(long id : m_rbfgeometry->getVerticesIds()){
-            temp[i] = m_rbfdispl->at(id)[loc];
-            i++;
+
+    //clear the previous data into MRBF
+    removeAllNodes();
+    removeAllData();
+
+    //fill data locally from m_rbfgeometry and m_rbfdispl
+    std::map<long, std::array<double,3> > nodes, displs;
+    for(const bitpit::Vertex & vert : m_rbfgeometry->getVertices()){
+        long id = vert.getId();
+        nodes[id] = vert.getCoords();
+        if(m_rbfdispl->exists(id))    displs[id] = m_rbfdispl->at(id);
+    }
+
+
+#if MIMMO_ENABLE_MPI
+    //MPI stuffs - serialize nodes and displs data so that
+    // every rank has exactly the same data chunks.
+
+    //Send my own and receive mpvres from others.
+
+    //prepare my own send buffer.
+    mimmo::OBinaryStream myrankNodeDataBuffer, myrankDisplDataBuffer;
+    myrankNodeDataBuffer << (std::size_t)nodes.size();
+    for (auto& tuple: nodes){
+        myrankNodeDataBuffer << tuple.first;
+        myrankNodeDataBuffer << tuple.second;
+    }
+    myrankDisplDataBuffer << (std::size_t)displs.size();
+    for (auto& tuple: displs){
+        myrankDisplDataBuffer << tuple.first;
+        myrankDisplDataBuffer << tuple.second;
+    }
+
+    long myrankNodeDataBufferSize = myrankNodeDataBuffer.getSize();
+    long myrankDisplDataBufferSize = myrankDisplDataBuffer.getSize();
+
+    for (int sendRank=0; sendRank<m_nprocs; sendRank++){
+
+        if (m_rank != sendRank){
+
+            std::size_t nP;
+            std::array<double,3> val;
+            long int id;
+
+            // receive node data from other ranks.
+            long nodeBufferSize;
+            MPI_Recv(&nodeBufferSize, 1, MPI_LONG, sendRank, 900, m_communicator, MPI_STATUS_IGNORE);
+            mimmo::IBinaryStream nodeBuffer(nodeBufferSize);
+            MPI_Recv(nodeBuffer.data(), nodeBuffer.getSize(), MPI_CHAR, sendRank, 910, m_communicator, MPI_STATUS_IGNORE);
+
+            nodeBuffer >> nP;
+            for (std::size_t i = 0; i < nP; ++i) {
+                nodeBuffer >> id;
+                nodeBuffer >> val;
+                if(nodes.count(id) == 0)    nodes.insert({{id, val}});
+            }
+
+            // receive displ data from other ranks.
+            long displBufferSize;
+            MPI_Recv(&displBufferSize, 1, MPI_LONG, sendRank, 920, m_communicator, MPI_STATUS_IGNORE);
+            mimmo::IBinaryStream displBuffer(displBufferSize);
+            MPI_Recv(displBuffer.data(), displBuffer.getSize(), MPI_CHAR, sendRank, 930, m_communicator, MPI_STATUS_IGNORE);
+
+            displBuffer >> nP;
+            for (std::size_t i = 0; i < nP; ++i) {
+                displBuffer >> id;
+                displBuffer >> val;
+                if(displs.count(id) == 0)    displs.insert({{id, val}});
+            }
+        }else{
+            //send to all other except me the def data.
+            for (int recvRank=0; recvRank<m_nprocs; recvRank++){
+                if (m_rank != recvRank){
+                    MPI_Send(&myrankNodeDataBufferSize, 1, MPI_LONG, recvRank, 900, m_communicator);
+                    MPI_Send(myrankNodeDataBuffer.data(), myrankNodeDataBuffer.getSize(), MPI_CHAR, recvRank, 910, m_communicator);
+                    MPI_Send(&myrankDisplDataBufferSize, 1, MPI_LONG, recvRank, 920, m_communicator);
+                    MPI_Send(myrankDisplDataBuffer.data(), myrankDisplDataBuffer.getSize(), MPI_CHAR, recvRank, 930, m_communicator);
+                }
+            }
         }
-        addData(temp);
+    }// end external sendrank loop
+
+    MPI_Barrier(m_communicator);
+#endif
+
+    dvecarr3E nodeRawList(nodes.size());
+    std::array<std::vector<double>,3> displList;
+    displList.fill(dvector1D(nodes.size(), 0.));
+
+
+    int count(0);
+    for(auto & tuple : nodes){
+        long id = tuple.first;
+        nodeRawList[count] = tuple.second;
+        if(displs.count(id) > 0){
+            for(int k=0; k<3; ++k){
+                displList[k][count] = displs[id][k];
+            }
+        }
+        ++count;
+    }
+
+    RBF::addNode(nodeRawList);
+    for(int loc=0; loc<3; ++loc){
+        addData(displList[loc]);
     }
 
     // Return valid initialization
