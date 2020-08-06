@@ -103,7 +103,7 @@ ProjPrimitivesOnSurfaces::buildPorts(){
 
 
 /*!
- * Return the topology of the primitive element support. 1-1D, 2-2D
+ * Return the topology of the primitive element support. 0-0D(point clouds), 1-1D(3D curve), 2-2D (3D surfaces)
  * \return topology of the primitive element
  */
 int
@@ -141,7 +141,6 @@ ProjPrimitivesOnSurfaces::getProjectedElement(){
 void
 ProjPrimitivesOnSurfaces::setGeometry(MimmoSharedPointer<MimmoObject> geo){
     if(geo == nullptr) return;
-    if(geo->isEmpty()) return;
     if(geo->getType() != 1)    return;
     m_geometry = geo;
 };
@@ -202,16 +201,17 @@ void
 ProjPrimitivesOnSurfaces::execute(){
 
     if (m_geometry == nullptr){
+        (*m_log)<<"Error in "<<m_name << " : nullptr pointer to linked geometry"<<std::endl;
         throw std::runtime_error (m_name + " : nullptr pointer to linked geometry");
     }
 
     projection();
 
-    if(!isEmpty()){
-        if(m_buildSkdTree)    m_patch->buildSkdTree();
+    if(m_patch){
+        if(m_buildSkdTree)   m_patch->buildSkdTree();
         if(m_buildKdTree)    m_patch->buildKdTree();
     }else{
-        (*m_log)<<m_name << " : found empty projected 3D curve object"<<std::endl;
+        (*m_log)<<m_name << " : failed projecting object on target surface"<<std::endl;
     }
 };
 
