@@ -41,13 +41,12 @@ namespace mimmo{
 /*!
  * \class ProjPatchOnSurface
  * \ingroup utils
- * \brief Executable block class capable of projecting a 3D surface patch or 3D Point Cloud
- *  on another 3D surface, both defined as MimmoObject.
+ * \brief Executable block class capable of projecting a surface patch, 3DCurve or PointCloud
+ *  on a 3D surface, both defined as MimmoObject.
  *
- * ProjPatchOnSurface project a 3D surface tessellation/point cloud on a given 3D surface mesh and return it in a
- * in MimmoObject container.
- *
-  For 3D Curve projection use Proj3DCurveOnSurface block instead.
+ * ProjPatchOnSurface project a 3D surface tessellations, 3DCurve tesselations or point clouds
+   on a reference 3D surface mesh and return it in a MimmoObject container.
+   Class does not support volume meshes projection.
 
  * Ports available in ProjPatchOnSurface Class :
  *
@@ -131,8 +130,6 @@ private:
     //disabling inteface methods
     int getProjElementTargetNCells(){return 0;};
     void setProjElementTargetNCells(int nC){BITPIT_UNUSED(nC);};
-
-
 
 };
 
