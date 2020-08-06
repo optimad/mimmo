@@ -117,7 +117,7 @@ int main( int argc, char *argv[] ) {
             val = test3() ;
         }
         catch(std::exception & e){
-            std::cout<<"test_utils_00003 exited with an error of type : "<<e.what()<<std::endl;
+            std::cout<<"test_utils_00003_parallel exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
 #if MIMMO_ENABLE_MPI
