@@ -92,7 +92,7 @@ void test00007() {
      * geometry as output of this block.
      *
      */
-    mimmo::ProjectCloud* proj = new mimmo::ProjectCloud();
+    mimmo::ProjPatchOnSurface* proj = new mimmo::ProjPatchOnSurface();
 
     /* Instantiation of a MRBF object with a distribution of 10 random control nodes projected
      * ont he input surface.
