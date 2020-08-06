@@ -24,6 +24,9 @@
 
 #include "mimmo_utils.hpp"
 #include "FFDLattice.hpp"
+#if MIMMO_ENABLE_MPI
+    #include "Partition.hpp"
+#endif
 
 // =================================================================================== //
 /*!
@@ -51,6 +54,14 @@ void test00004() {
     mimmo0->setWriteDir(".");
     mimmo0->setWriteFileType(FileType::SURFVTU);
     mimmo0->setWriteFilename("utils_mesh_00004.0000");
+
+#if MIMMO_ENABLE_MPI
+    /* Partitionate  StanfordBunny.
+     */
+	mimmo::Partition * mimmo0part = new mimmo::Partition();
+    mimmo0part->setName("StanfordBunnyPartitioner");
+    mimmo0part->setPlotInExecution(true);
+#endif
 
     /*
         Calculate the OBB the original StanfordBunny
@@ -105,13 +116,19 @@ void test00004() {
     latt->setPlotInExecution(true);
 
     // create connections
-    // original geoemetry passed to obb
+    // original geoemetry passed to obb and lattice
+#if MIMMO_ENABLE_MPI
+    mimmo::pin::addPin(mimmo0, mimmo0part, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0part, obb_original, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0part, latt, M_GEOM, M_GEOM);
+#else
     mimmo::pin::addPin(mimmo0, obb_original, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(mimmo0, latt, M_GEOM, M_GEOM);
+#endif
 
-    // origin, axes and original geometry passed to lattice
+    // origin, axes passed to lattice
     mimmo::pin::addPin(translp, latt, M_POINT, M_POINT);
     mimmo::pin::addPin(rot_axes, latt, M_AXES, M_AXES);
-    mimmo::pin::addPin(mimmo0, latt, M_GEOM, M_GEOM);
 
     // pass deformed geoemetry to obb_deformed
     mimmo::pin::addPin(latt, obb_deformed, M_GEOM, M_GEOM);
@@ -121,6 +138,9 @@ void test00004() {
     mimmo::Chain ch0,ch1;
     ch0.addObject(mimmo0);
     ch0.addObject(obb_original);
+#if MIMMO_ENABLE_MPI
+    ch0.addObject(mimmo0part);
+#endif
 
     ch1.addObject(translp);
     ch1.addObject(rot_axes);
@@ -147,7 +167,9 @@ void test00004() {
     delete obb_original;
     delete obb_deformed;
     delete latt;
-
+#if MIMMO_ENABLE_MPI
+    delete mimmo0part;
+#endif
     return;
 }
 
@@ -162,10 +184,6 @@ int main(int argc, char *argv[]) {
 
     {
 #endif
-
-        /**<Change the name of mimmo logger file (default mimmo.log)
-         * before initialization of BaseManipulation objects*/
-        mimmo::setLogger("mimmo");
 
         /**<Calling mimmo Test routines*/
         try{

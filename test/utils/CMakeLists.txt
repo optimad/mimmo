@@ -34,9 +34,12 @@ list(APPEND TESTS "test_utils_00001")
 list(APPEND TESTS "test_utils_00002")
 list(APPEND TESTS "test_utils_00003")
 
-# if (ENABLE_MPI)
-# 	list(APPEND TESTS "test_utils_parallel_00001:3") ##:x number of procs
-# endif ()
+if (ENABLE_MPI)
+    list(APPEND TESTS "test_utils_00001_parallel:2")
+    list(APPEND TESTS "test_utils_00003_parallel:2") ##:x number of procs
+    list(APPEND TESTS "test_utils_00004_parallel:3") ##:x number of procs
+
+endif ()
 
 # Test extra libraries
 set(TEST_EXTRA_LIBRARIES "")
@@ -51,3 +54,18 @@ unset(TESTS)
      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
      )
 
+if (ENABLE_MPI)
+
+    add_custom_command(
+         TARGET "test_utils_00003_parallel" PRE_BUILD
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+        )
+
+
+    add_custom_command(
+         TARGET "test_utils_00004_parallel" PRE_BUILD
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/projectPlane.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/projectPlane.stl"
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+         )
+endif ()

@@ -23,67 +23,69 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_utils.hpp"
+#include "Partition.hpp"
 #include <exception>
 
 // =================================================================================== //
 /*
- * Test: testing OBbox utility
+ * Test: testing ProjPatchOnSurface utility in multi procs
  */
-int test3() {
+int test4() {
+
 
     mimmo::MimmoGeometry * reader1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     bitpit::Logger & log = reader1->getLog();
+    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"reading files "<<std::endl;
+
     reader1->setReadDir("geodata");
-    reader1->setReadFilename("stanfordBunny2");
+    reader1->setReadFilename("sphere2");
     reader1->setReadFileType(FileType::STL);
     reader1->execute();
 
     mimmo::MimmoGeometry * reader2 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     reader2->setReadDir("geodata");
-    reader2->setReadFilename("sphere2");
+    reader2->setReadFilename("projectPlane");
     reader2->setReadFileType(FileType::STL);
     reader2->execute();
 
-    mimmo::OBBox * box1 = new mimmo::OBBox();
-    box1->setGeometry(reader1->getGeometry());
-    box1->setGeometry(reader2->getGeometry());
+    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"partitioning and distributing geometries "<<std::endl;
 
-    box1->exec();
-    box1->plot(".","obbox", 0, false);
+    mimmo::Partition * partReader1 = new mimmo::Partition();
+    partReader1->setGeometry(reader1->getGeometry());
+    partReader1->setPlotInExecution(true);
+    partReader1->exec();
 
-    darray3E span1 = box1->getSpan();
-
-    box1->setForceAABB(true);
-    box1->exec();
-    box1->plot(".","obbox", 1, false);
-
-    darray3E span2 = box1->getSpan();
-
-
-    double AABBvol = span2[0]*span2[1]*span2[2];
-    double OBBvol = span1[0]*span1[1]*span1[2];
-
-    double AABBvol_exp = 2.17084;
-    double OBBvol_exp = 2.08764;
+    mimmo::Partition * partReader2 = new mimmo::Partition();
+    partReader2->setGeometry(reader2->getGeometry());
+    partReader2->setPlotInExecution(true);
+    partReader2->exec();
 
     log.setPriority(bitpit::log::Priority::NORMAL);
-    log<<"AABB volume: "<<AABBvol<< " vs Expected : "<< AABBvol_exp<<std::endl;
-    log<<"OBB volume:  "<<OBBvol<< " vs Expected : "<< OBBvol_exp<<std::endl;
+    log<<"projecting patch "<<std::endl;
+
+    mimmo::ProjPatchOnSurface * pproj = new mimmo::ProjPatchOnSurface();
+    pproj->setName("test_utils_00004_parallel_ProjectedPatch");
+    pproj->setGeometry(partReader1->getGeometry());
+    pproj->setPatch(partReader2->getGeometry());
+    pproj->setWorkingOnTarget(true);
+    pproj->setPlotInExecution(true);
+    pproj->exec();
+
 
     int check = 0;
-    if( std::abs(AABBvol - AABBvol_exp) >1.E-04 &&  std::abs(OBBvol - OBBvol_exp) >1.E-04){
-        check = 1;
-        log<<"test failed "<<std::endl;
-    }else{
-        log<<"test passed "<<std::endl;
-    }
+    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"test passed "<<std::endl;
 
     delete reader1;
     delete reader2;
-    delete box1;
+    delete partReader1;
+    delete partReader2;
+
+    delete pproj;
 
     return check;
-
 }
 
 // =================================================================================== //
@@ -101,10 +103,10 @@ int main( int argc, char *argv[] ) {
 
 		/**<Calling mimmo Test routines*/
         try{
-            val = test3() ;
+            val = test4() ;
         }
         catch(std::exception & e){
-            std::cout<<"test_utils_00003 exited with an error of type : "<<e.what()<<std::endl;
+            std::cout<<"test_utils_00004 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
 #if MIMMO_ENABLE_MPI

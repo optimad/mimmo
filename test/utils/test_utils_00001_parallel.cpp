@@ -23,6 +23,9 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_utils.hpp"
+#include "Partition.hpp"
+#include <exception>
+#include <random>
 
 // =================================================================================== //
 /*
@@ -30,35 +33,65 @@
  */
 int test1() {
 
+    mimmo::Partition * part = new mimmo::Partition();
+    bitpit::Logger & log =part->getLog();
+    log.setPriority(bitpit::log::Priority::NORMAL);
+
+    //create the mesh
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> pc(new mimmo::MimmoObject(3));
-    pc->addVertex({{0,1,0}}, 1);
-    pc->addConnectedCell(std::vector<long>(1, 1), bitpit::ElementType::VERTEX);
+    long np = 20;
+    int rank = pc->getRank();
+    int nprocs = pc->getProcessorCount();
+    double rate = double(np)/double(nprocs);
+    std::unordered_map<long, int> partitionMap;
 
+    if(rank == 0){
+        std::random_device rd;
+        unsigned int seed = rd(); //fix it up to any unsigned int for reproducibility issue.
+        std::mt19937_64 rgen(seed);
+        std::uniform_real_distribution<double> distr(0.0, 1.0);
+        for(long i=0; i<np; ++i){
+            pc->addVertex({{distr(rgen),1.,distr(rgen)}}, i);
+            pc->addConnectedCell(std::vector<long>(1, i), bitpit::ElementType::VERTEX, 0, i, rank);
+            partitionMap[i] = std::min(10, int(double(i)/rate));
+        }
+    }
 
+    pc->buildAdjacencies();
+    pc->setPartitioned();
+
+    //fill and execute partition
+    part->setGeometry(pc);
+    part->setPartition(partitionMap);
+    part->exec();
+
+    //create the data
     mimmo::MimmoPiercedVector<darray3E> data;
-    data.initialize(pc,mimmo::MPVLocation::POINT, {{1,2,3}});
+    data.initialize(part->getGeometry(),mimmo::MPVLocation::POINT, {{1,2,3}});
+
+//    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"Mirroring points in parallel..."<<std::endl;
 
     mimmo::SpecularPoints * sp = new mimmo::SpecularPoints();
-    sp->setName("test_00001_SpecularPoints");
-    sp->setPointCloud(pc);
+    sp->setName("test_00001_SpecularPoints_parallel");
+    sp->setPointCloud(part->getGeometry());
     sp->setVectorData(&data);
     sp->setPlane({{0,0,0}},{{0,1,0}});
     sp->setPlotInExecution(true);
     sp->exec();
 
-    dvecarr3E coords = sp->getMirroredRawCoords();
-    mimmo::MimmoPiercedVector<darray3E> * datas = sp->getMirroredVectorData();
+//    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"Mirroring points in parallel... done"<<std::endl;
 
-    bool check = ((coords.size() ==2 ) && (datas->size() ==2) );
+    bool check = (sp->getMirroredPointCloud()->getNGlobalCells() == 2*np );
     if(!check)  {
-        delete sp;
-        return 1;
+        log<<"test failed "<<std::endl;
+    }else{
+        log<<"test passed "<<std::endl;
     }
-    check  = ( std::abs(coords[0][1] + coords[1][1])  < 1.E-18 );
-    std::cout<<"test passed : "<<check<<std::endl;
 
     delete sp;
-
+    delete part;
     return int(!check);
 }
 
@@ -79,7 +112,7 @@ int main( int argc, char *argv[] ) {
         }
 
         catch(std::exception & e){
-            std::cout<<"test_utils_00001 exited with an error of type : "<<e.what()<<std::endl;
+            std::cout<<"test_utils_00001_parallel exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
 
