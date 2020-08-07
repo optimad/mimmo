@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- #                                                                           
+ #
  #  mimmo
  #
  #  Copyright (C) 2015-2017 OPTIMAD engineering Srl
@@ -40,5 +40,5 @@
 #include "IOCloudPoints.hpp"
 #include "MimmoGeometry.hpp"
 #include "IOWavefrontOBJ.hpp"
-
+#include "CreatePointCloud.hpp"
 #endif
