@@ -34,7 +34,7 @@
 	\brief Example of usage of radial basis function block to manipulate an input geometry.
 
     Geometry deformation block used: MRBF.
-    Utils block used: ProjectCloud.
+    Utils block used: ProjPatchOnSurface.
 
 	<b>To run</b>: ./manipulators_example_00006 \n
 
@@ -78,24 +78,6 @@ void test00006() {
     mimmo::GenericInput* inputn = new mimmo::GenericInput();
     inputn->setInput(rbfNodes);
 
-    /* Creation of a projection block aimed to project
-     * the point cloud previously defined over the input geometry.
-     * The rbf control nodes will be defined on the surface of the
-     * geometry as output of this block.
-     *
-     */
-    mimmo::ProjPatchOnSurface* proj = new mimmo::ProjPatchOnSurface();
-
-    /* Instantiation of a MRBF object with a distribution of 10 random control nodes projected
-     * ont he input surface.
-     * Plot Optional results during execution active for MRBF block.
-     */
-    mimmo::MRBF* mrbf = new mimmo::MRBF(mimmo::MRBFSol::NONE);
-    mrbf->setFunction(bitpit::RBFBasisFunction::WENDLANDC2);
-    mrbf->setSupportRadiusLocal(0.05);
-    mrbf->setPlotInExecution(true);
-
-
     /* Creation of a set of displacements of the control nodes of the radial basis functions.
      * Use a radial displacements from a center point placed in axes origin.
      */
@@ -113,19 +95,27 @@ void test00006() {
     mimmo::GenericInput* input = new mimmo::GenericInput();
     input->setInput(displ);
 
-    /* Set Generic output block to write the
-     * nodes defined above.
-     */
-    mimmo::GenericOutput * outputn = new mimmo::GenericOutput();
-    outputn->setFilename("manipulators_output_00006n.csv");
-    outputn->setCSV(true);
+    //take rbf nodes and displ to a Point Cloud creator
+    mimmo::CreatePointCloud * rbfPC = new mimmo::CreatePointCloud();
 
-    /* Set Generic output block to write the
-     * displacements defined above.
+    /* Creation of a projection block aimed to project
+     * the point cloud previously defined over the input geometry.
+     * The rbf control nodes will be defined on the surface of the
+     * geometry as output of this block.
+     *
      */
-    mimmo::GenericOutput * outputd = new mimmo::GenericOutput();
-    outputd->setFilename("manipulators_output_00006d.csv");
-    outputd->setCSV(true);
+    mimmo::ProjPatchOnSurface* proj = new mimmo::ProjPatchOnSurface();
+    proj->setWorkingOnTarget(true);
+    proj->setPlotInExecution(true);
+
+    /* Instantiation of a MRBF object with a distribution of 10 random control nodes projected
+     * ont he input surface.
+     * Plot Optional results during execution active for MRBF block.
+     */
+    mimmo::MRBF* mrbf = new mimmo::MRBF(mimmo::MRBFSol::NONE);
+    mrbf->setFunction(bitpit::RBFBasisFunction::WENDLANDC2);
+    mrbf->setSupportRadiusLocal(0.05);
+    mrbf->setPlotInExecution(true);
 
     /* Create applier block.
      * It applies the deformation displacements to the original input geometry.
@@ -137,11 +127,11 @@ void test00006() {
     mimmo::pin::addPin(mimmo0, mrbf, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, proj, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(inputn, proj, M_COORDS, M_COORDS);
-    mimmo::pin::addPin(proj, mrbf, M_COORDS, M_COORDS);
-    mimmo::pin::addPin(proj, outputn, M_COORDS, M_COORDS);
-    mimmo::pin::addPin(input, mrbf, M_DISPLS, M_DISPLS);
-    mimmo::pin::addPin(input, outputd, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(inputn, rbfPC, M_COORDS, M_COORDS);
+    mimmo::pin::addPin(input, rbfPC, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(rbfPC, proj, M_GEOM, M_GEOM2);
+    mimmo::pin::addPin(rbfPC, mrbf, M_VECTORFIELD, M_VECTORFIELD);
+    mimmo::pin::addPin(proj, mrbf, M_GEOM, M_GEOM2);
     mimmo::pin::addPin(mrbf, applier, M_GDISPLS, M_GDISPLS);
     mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
@@ -153,8 +143,7 @@ void test00006() {
     mimmo::Chain ch0;
     ch0.addObject(input);
     ch0.addObject(inputn);
-    ch0.addObject(outputn);
-    ch0.addObject(outputd);
+    ch0.addObject(rbfPC);
     ch0.addObject(mimmo0);
     ch0.addObject(proj);
     ch0.addObject(applier);
@@ -172,19 +161,9 @@ void test00006() {
     delete proj;
     delete applier;
     delete input;
-    delete outputn;
-    delete outputd;
+    delete rbfPC;
     delete mimmo0;
     delete mimmo1;
-
-    proj    = NULL;
-    mrbf    = NULL;
-    applier = NULL;
-    input   = NULL;
-    outputn = NULL;
-    outputd = NULL;
-    mimmo0  = NULL;
-    mimmo1  = NULL;
 
     return;
 }
