@@ -480,6 +480,7 @@ IOOFOAM::read(){
 
 	//prepare my bulk geometry container
 	bitpit::PatchKernel* mesh(new mimmo::MimmoVolUnstructured(3));
+	mesh->partition(getCommunicator(), false);
 	mesh->reserveVertices(std::size_t(foamMesh->nPoints()));
 	mesh->reserveCells(std::size_t(foamMesh->nCells()));
 
