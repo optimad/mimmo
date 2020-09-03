@@ -54,7 +54,7 @@ void test00001() {
     mimmo0->setName("mimmo0");
     mimmo0->setReadDir("./geodata");
     mimmo0->setReadFileType(FileType::STL);
-    mimmo0->setReadFilename("sphere3");
+    mimmo0->setReadFilename("sphere2");
     mimmo0->setWriteDir("./");
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00001.0000");
