@@ -717,7 +717,7 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSha
 
 #if MIMMO_ENABLE_MPI
     // Set partitioned patch to build parallel information
-    tempSurface->setPartitioned();
+    tempSurface->update();
 #endif
 
     uniSurf = std::move(tempSurface);
