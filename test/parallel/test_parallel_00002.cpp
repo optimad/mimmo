@@ -68,7 +68,7 @@ bool createMimmoPCMesh(int np, bitpit::Logger & log, mimmo::MimmoObject * mesh){
 
     mesh->buildAdjacencies();
     mesh->buildInterfaces();
-    mesh->setPartitioned();
+    mesh->update();
 
     bool check = true;
     if (mesh->getRank() == 0){
