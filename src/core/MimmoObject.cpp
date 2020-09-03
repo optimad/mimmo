@@ -719,14 +719,14 @@ MimmoObject::initializeParallel(){
 	if (!initialized)
 		MPI_Init(nullptr, nullptr);
 
-	//Recover or fix communicator
+	// Recover communicator or partition patch
 	if (m_internalPatch){
-		if (m_patch->isCommunicatorSet()){
+		if (m_patch->isPartitioned()){
 			MPI_Comm_dup(m_patch->getCommunicator(), &m_communicator);
 		}
 		else{
 			MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
-			m_patch->setCommunicator(m_communicator);
+			m_patch->partition(m_communicator, false);
 		}
 	}
 	else{
@@ -735,7 +735,7 @@ MimmoObject::initializeParallel(){
 		}
 		else{
 			MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
-			m_extpatch->setCommunicator(m_communicator);
+			m_extpatch->partition(m_communicator, false);
 		}
 	}
 
@@ -2205,38 +2205,6 @@ bool MimmoObject::cleanAllParallelSync(){
 }
 
 /*!
- * Set the patch partitioned.
-   It performs a fake partitioning by leaving the partition unaltered.
-   More importantly, it builds adjacencies if not built/synchronized, to deal with
-   bitpit::PatchKernel::partition method dizziness.
-   The method is not available for point clouds (type 3) at the moment.
- */
-void
-MimmoObject::setPartitioned()
-{
-    if (getPatch() == nullptr){
-        return;
-    }
-
-    std::unordered_map<long,int> partition;
-    for (bitpit::Cell & cell : getCells()){
-        if (cell.isInterior()){
-            partition[cell.getId()] = getRank();
-        }
-    }
-
-    if(!areAdjacenciesBuilt()) {
-        buildAdjacencies();
-    }
-
-    getPatch()->partition(partition,false,true);
-
-    buildPatchInfo();
-    updatePointGhostExchangeInfo();
-
-}
-
-/*!
  * Give if the patch is really partitioned, i.e. not owned entirely by a single master process.
  * Note. In mimmo the master process is considered rank = 0, so a patch entirely
  * owned by a process with rank != 0 is considered really partitioned.
@@ -3292,15 +3260,29 @@ void MimmoObject::buildPatchInfo(){
 void MimmoObject::update()
 {
 
+//#if MIMMO_ENABLE_MPI
+//    cleanAllParallelSync();
+//#endif
+
 #if MIMMO_ENABLE_MPI
-    // Update parallel information by calling setPartitioned method
-    // The adjacencies are needed to call partition method in bitpit
+    // The adjacencies are needed in parallel case to update the patch in bitpit
     buildAdjacencies();
-    setPartitioned();
 #endif
 
-    // Update patch bounding box
-    getPatch()->updateBoundingBox(true);
+    // Update patch
+    getPatch()->update();
+
+    //    // Update patch bounding box
+//    getPatch()->updateBoundingBox(true);
+
+//    // update info sync
+//    m_patchinfo.update();
+//    m_infosync = true;
+
+    // Update point ghost exchange information.
+#if MIMMO_ENABLE_MPI
+    updatePointGhostExchangeInfo();
+#endif
 
 }
 
@@ -3451,7 +3433,7 @@ void MimmoObject::buildInterfaces(){
  */
 void MimmoObject::resetAdjacencies(){
     //do not use delete from bitpit::Cell!!!! PatchKernel does not track them.
-    getPatch()->clearAdjacencies();
+    getPatch()->destroyAdjacencies();
     m_AdjBuilt = false;
 };
 
@@ -3459,7 +3441,7 @@ void MimmoObject::resetAdjacencies(){
  * Force the class to reset Interfaces connectivity.
  */
 void MimmoObject::resetInterfaces(){
-    getPatch()->clearInterfaces(); // is the same as getPatch()->resetInterfaces
+    getPatch()->destroyInterfaces(); // is the same as getPatch()->resetInterfaces
     m_IntBuilt = false;
 
 };
@@ -4640,7 +4622,7 @@ MimmoObject::triangulate(){
 
 #if MIMMO_ENABLE_MPI
 	cleanAllParallelSync();
-	setPartitioned();
+	update();
 #endif
 
 }
