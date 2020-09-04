@@ -313,7 +313,7 @@ ProjSegmentOnSurface::projection(){
     m_patch->buildAdjacencies();
 
 #if MIMMO_ENABLE_MPI
-    m_patch->setPartitioned();
+    m_patch->update();
     std::unique_ptr<mimmo::Partition> part(new mimmo::Partition);
     part->setGeometry(m_patch);
     part->setPartition(partMap);
