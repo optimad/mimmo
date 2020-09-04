@@ -480,7 +480,7 @@ Partition::computeBoundaryPartition()
 			}
 
 //			if (m_interfacesReset)
-//				getGeometry()->resetInterfaces();
+//				getGeometry()->destroyInterfaces();
 
 		}
 	}
@@ -629,8 +629,8 @@ Partition::serialize(MimmoSharedPointer<MimmoObject> & geometry, bool isBoundary
 	if (m_rank == 0){
 
 		//Clear adjacencies and interfaces
-		geometry->resetInterfaces();
-		geometry->resetAdjacencies();
+		geometry->destroyInterfaces();
+		geometry->destroyAdjacencies();
 
 		//fill serialized geometry
 		for (bitpit::Vertex vertex : geometry->getVertices()){
@@ -703,8 +703,8 @@ Partition::serialize(MimmoSharedPointer<MimmoObject> & geometry, bool isBoundary
 		//Send local vertices and local cells to rank 0
 
 		//Clear adjacencies and interfaces
-		geometry->resetInterfaces();
-		geometry->resetAdjacencies();
+		geometry->destroyInterfaces();
+		geometry->destroyAdjacencies();
 
 	    //
 	    // Send vertex data

@@ -290,8 +290,8 @@ public:
     void		buildPatchInfo();
 	void        buildAdjacencies();
     void        buildInterfaces();
-	void        resetAdjacencies();
-    void        resetInterfaces();
+	void        destroyAdjacencies();
+    void        destroyInterfaces();
     void		resetPatch();
     void    	cleanKdTree();
     void    	cleanSkdTree();
