@@ -510,7 +510,7 @@ SpecularPoints::execute(){
 
 #if MIMMO_ENABLE_MPI
 
-        if(m_patch->getPatch()->isPartitioned()){
+        if(m_patch->isParallel()){
             m_patch->updatePointGhostExchangeInfo();
         }
 #endif
