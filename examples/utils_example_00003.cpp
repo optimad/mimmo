@@ -101,7 +101,7 @@ void test00003() {
 #if MIMMO_ENABLE_MPI
     }
     rbfPointCloud->buildAdjacencies();
-    rbfPointCloud->setPartitioned();
+    rbfPointCloud->update();
 #endif
 
     /*
