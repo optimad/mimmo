@@ -1005,7 +1005,7 @@ IOCGNS::read(const std::string & file){
         } //end of looping bcs.
         flaggedBCConns.clear();
         //clean up adjacencies. These portion is local, you need to append this structure to the real mesh manager after.
-        if(patchVol->areAdjacenciesBuilt()) patchVol->resetAdjacencies();
+        if(patchVol->areAdjacenciesBuilt()) patchVol->destroyAdjacencies();
 
         //reversing patchVol inside volmesh .
         for(auto it=patchVol->getPatch()->vertexBegin(); it != patchVol->getPatch()->vertexEnd(); ++it){

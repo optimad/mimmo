@@ -961,7 +961,7 @@ void ManipulateWFOBJData::computeNormals(){
 
     //recover modifications if any to the mother mesh.
     if(deleteMotherAdjacency){
-        mother->resetAdjacencies();
+        mother->destroyAdjacencies();
     }
 
 }
