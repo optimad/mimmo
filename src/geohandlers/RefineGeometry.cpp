@@ -657,7 +657,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
             // In case of not partitioned patch use local check
             global_check = check;
 
-            if (geometry->getPatch()->isPartitioned()){
+            if (geometry->isParallel()){
 
                 // Update ghost refinement tags
                 // The if needed insert new edges and put new reds in stack
