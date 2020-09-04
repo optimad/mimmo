@@ -222,6 +222,7 @@ public:
     bool isPointInterior(long id);
 #if MIMMO_ENABLE_MPI
 	const MPI_Comm & getCommunicator() const;
+    bool isParallel();
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeSources() const;
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeTargets() const;
     bool arePointGhostExchangeInfoSync();

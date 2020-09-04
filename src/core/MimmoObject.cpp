@@ -730,7 +730,7 @@ MimmoObject::initializeParallel(){
 		}
 	}
 	else{
-		if (m_extpatch->isCommunicatorSet()){
+		if (m_extpatch->isPartitioned()){
 			MPI_Comm_dup(m_extpatch->getCommunicator(), &m_communicator);
 		}
 		else{
@@ -866,7 +866,7 @@ MimmoObject::getNInternalVertices(){
  */
 long
 MimmoObject::getNGlobalVertices(){
-	if (!getPatch()->isPartitioned()){
+	if (!isParallel()){
 		const auto p = getPatch();
 		return p->getVertexCount();
 	}
@@ -881,7 +881,7 @@ MimmoObject::getNGlobalVertices(){
  */
 long
 MimmoObject::getNGlobalCells() {
-	if (!getPatch()->isPartitioned())
+	if (!isParallel())
 		return getNCells();
 
 	if (!isInfoSync())
@@ -897,7 +897,7 @@ MimmoObject::getNGlobalCells() {
  */
 long
 MimmoObject::getPointGlobalCountOffset(){
-	if (!getPatch()->isPartitioned())
+	if (!isParallel())
 		return 0;
 
 	return m_globaloffset;
@@ -1484,6 +1484,19 @@ const MPI_Comm & MimmoObject::getCommunicator() const
 	return m_communicator;
 }
 
+/*!
+ * Give if the patch is a parallel patch, i.e. it has a communicator set and it can
+ * be distributed over the processes (see isDistributed() method).
+ */
+bool
+MimmoObject::isParallel()
+{
+    if (getPatch() == nullptr){
+        return false;
+    }
+
+    return getPatch()->isPartitioned();
+}
 
 /*!
 	Gets a constant reference to the ghost targets needed for point data exchange.
@@ -3917,7 +3930,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
         // Create candidates with new (delete when not more needed outside the scope!)
         candidates = new livector1D;
 #if MIMMO_ENABLE_MPI
-        if (surface.getPatch()->isPartitioned()){
+        if (surface.isParallel()){
             *candidates = skdTreeUtils::selectByGlobalPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
         } else
 #endif
@@ -3938,7 +3951,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 
     // Compute distances from surface
 #if MIMMO_ENABLE_MPI
-    if (surface.getPatch()->isPartitioned()){
+    if (surface.isParallel()){
         ivector1D surface_ranks(npoints, -1);
         skdTreeUtils::globalDistance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), surface_ranks.data(), distances.data(), maxdistance);
     } else
@@ -3983,7 +3996,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 	// In case of parallel and partitioned test the global stack size
 	bool stackEmpty = stackNeighs.empty();
 #if MIMMO_ENABLE_MPI
-    if (getPatch()->isPartitioned()){
+    if (isParallel()){
         MPI_Allreduce(MPI_IN_PLACE, &stackEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
     }
 #endif
@@ -4005,7 +4018,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
         }
 
 #if MIMMO_ENABLE_MPI
-        if (surface.getPatch()->isPartitioned()){
+        if (surface.isParallel()){
             ivector1D surface_ranks(npoints, -1);
             skdTreeUtils::globalDistance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), surface_ranks.data(), distances.data(), maxdistance);
         } else
@@ -4036,7 +4049,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 
         stackEmpty = stackNeighs.empty();
 #if MIMMO_ENABLE_MPI
-        if (getPatch()->isPartitioned()){
+        if (isParallel()){
             MPI_Allreduce(MPI_IN_PLACE, &stackEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
         }
 #endif
@@ -4125,7 +4138,7 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
         // Create cell candidates structure
         livector1D cell_candidates;
 #if MIMMO_ENABLE_MPI
-        if (surface.getPatch()->isPartitioned()){
+        if (surface.isParallel()){
             cell_candidates = skdTreeUtils::selectByGlobalPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
         } else
 #endif
@@ -4148,7 +4161,7 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
     surface_ids.resize(npoints, bitpit::Cell::NULL_ID);
     // Compute distances from surface
 #if MIMMO_ENABLE_MPI
-    if (surface.getPatch()->isPartitioned()){
+    if (surface.isParallel()){
         ivector1D surface_ranks(npoints, -1);
         skdTreeUtils::globalDistance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), surface_ranks.data(), distances.data(), maxdistance);
     } else
@@ -4193,7 +4206,7 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
     // In case of parallel and partitioned test the global stack size
     bool stackEmpty = stackNeighs.empty();
 #if MIMMO_ENABLE_MPI
-    if (getPatch()->isPartitioned()){
+    if (isParallel()){
         MPI_Allreduce(MPI_IN_PLACE, &stackEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
     }
 #endif
@@ -4215,7 +4228,7 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
         }
 
 #if MIMMO_ENABLE_MPI
-        if (surface.getPatch()->isPartitioned()){
+        if (surface.isParallel()){
             ivector1D surface_ranks(npoints, -1);
             skdTreeUtils::globalDistance(npoints, points.data(), surface.getSkdTree(), surface_ids.data(), surface_ranks.data(), distances.data(), maxdistance);
         } else
@@ -4246,7 +4259,7 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
 
         stackEmpty = stackNeighs.empty();
 #if MIMMO_ENABLE_MPI
-        if (getPatch()->isPartitioned()){
+        if (isParallel()){
             MPI_Allreduce(MPI_IN_PLACE, &stackEmpty, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
         }
 #endif
