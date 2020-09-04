@@ -41,4 +41,5 @@
 #include "MimmoGeometry.hpp"
 #include "IOWavefrontOBJ.hpp"
 #include "CreatePointCloud.hpp"
+#include "Create3DCurve.hpp"
 #endif
