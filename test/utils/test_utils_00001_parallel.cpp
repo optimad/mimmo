@@ -58,7 +58,7 @@ int test1() {
     }
 
     pc->buildAdjacencies();
-    pc->setPartitioned();
+    pc->update();
 
     //fill and execute partition
     part->setGeometry(pc);
