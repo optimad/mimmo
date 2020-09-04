@@ -273,7 +273,7 @@ CreatePointCloud::execute(){
 
     m_geometry->buildAdjacencies();
 #if MIMMO_ENABLE_MPI
-    m_geometry->setPartitioned();
+    m_geometry->update();
 #endif
 };
 
