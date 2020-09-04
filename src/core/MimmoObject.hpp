@@ -235,7 +235,7 @@ public:
     bool cleanParallelInfoSync();
     bool cleanParallelPointGhostExchangeInfoSync();
     bool cleanAllParallelSync();
-    bool isPartitioned();
+    bool isDistributed();
     void deleteOrphanGhostCells();
 #endif
 
