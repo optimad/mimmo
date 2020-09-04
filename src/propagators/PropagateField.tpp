@@ -952,7 +952,7 @@ PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * la
 
 #if MIMMO_ENABLE_MPI==1
 	//instantiate the SparseMatrix
-	bitpit::SparseMatrix matrix(m_communicator, getGeometry()->getPatch()->isPartitioned(), nDOFs, nDOFs, nNZ);
+	bitpit::SparseMatrix matrix(m_communicator, getGeometry()->isParallel(), nDOFs, nDOFs, nNZ);
 #else
 	//instantiate the SparseMatrix
 	bitpit::SparseMatrix matrix(nDOFs, nDOFs, nNZ);
@@ -1015,7 +1015,7 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
 
 #if MIMMO_ENABLE_MPI==1
 	//instantiate the SparseMatrix
-	bitpit::SparseMatrix upelements(m_communicator, getGeometry()->getPatch()->isPartitioned(), nupdate, nDOFs, nNZ);
+	bitpit::SparseMatrix upelements(m_communicator, getGeometry()->isParallel(), nupdate, nDOFs, nNZ);
 #else
 	//instantiate the SparseMatrix
 	bitpit::SparseMatrix upelements(nupdate, nDOFs, nNZ);
