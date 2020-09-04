@@ -715,7 +715,7 @@ ControlDeformExtSurface::getGlobalBoundingBox(MimmoSharedPointer<MimmoObject> & 
 #if MIMMO_ENABLE_MPI
     //TODO : this FIX WILL be useless once rank0-only mesh in multiproc MPI 
     //will return always the global bb among all ranks.
-    if(geo->getPatch()->isCommunicatorSet() && !geo->getPatch()->isPartitioned()){
+    if(geo->getPatch()->isCommunicatorSet() && !geo->isParallel()){
         MPI_Allreduce(MPI_IN_PLACE, bMin.data(), 3, MPI_DOUBLE, MPI_MIN, geo->getPatch()->getCommunicator());
         MPI_Allreduce(MPI_IN_PLACE, bMax.data(), 3, MPI_DOUBLE, MPI_MAX, geo->getPatch()->getCommunicator());
     }
