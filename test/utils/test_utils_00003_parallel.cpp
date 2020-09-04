@@ -45,6 +45,9 @@ int test3() {
     reader2->setReadFileType(FileType::STL);
     reader2->execute();
 
+    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"reading geometries"<<std::endl;
+
     mimmo::Partition * partReader1 = new mimmo::Partition();
     partReader1->setGeometry(reader1->getGeometry());
     partReader1->setPlotInExecution(true);
@@ -55,6 +58,9 @@ int test3() {
     partReader2->setPlotInExecution(true);
     partReader2->exec();
 
+    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"partitioning geometries"<<std::endl;
+
     mimmo::OBBox * box1 = new mimmo::OBBox();
     box1->setGeometry(partReader1->getGeometry());
     box1->setGeometry(partReader2->getGeometry());
@@ -64,11 +70,17 @@ int test3() {
 
     darray3E span1 = box1->getSpan();
 
+    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"evaluated OBB"<<std::endl;
+
     box1->setForceAABB(true);
     box1->exec();
     box1->plot(".","obbox", 1, false);
 
     darray3E span2 = box1->getSpan();
+
+    log.setPriority(bitpit::log::Priority::NORMAL);
+    log<<"evaluated AABB"<<std::endl;
 
 
     double AABBvol = span2[0]*span2[1]*span2[2];
