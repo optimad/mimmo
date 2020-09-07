@@ -99,6 +99,7 @@ bool createMimmoMesh(MimmoObject * mesh){
     bool check = (mesh->getNCells() == 48) && (mesh->getNVertices() == 35);
 
     mesh->buildAdjacencies();
+    mesh->update();
     mesh->getPatch()->write("support");
     return check;
 }
@@ -113,7 +114,6 @@ int test2() {
         return 1;
     }
     darray3E normal = {{0,0,1}};
-
     CreateSeedsOnSurface * cseed = new CreateSeedsOnSurface();
     cseed->setGeometry(m1);
     cseed->setSeed({{0.0,0.0,0.0}});
