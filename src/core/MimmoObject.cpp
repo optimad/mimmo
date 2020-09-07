@@ -178,11 +178,19 @@ MimmoObject::MimmoObject(int type){
 	m_internalPatch = true;
 	m_extpatch = nullptr;
 
-	m_skdTreeSupported = (m_type != 3);
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
-	m_AdjBuilt = false;
-	m_IntBuilt = false;
+    // Set skdTreeSync and kdTreeSync to none
+    m_skdTreeSync = SyncStatus::NONE;
+    m_kdTreeSync = SyncStatus::NONE;
+
+    // Set skdTreeSync to unsupported for point cloud
+    if (m_type == 3){
+        m_skdTreeSync = SyncStatus::NOTSUPPORTED;
+    }
+
+    // Set AdjSync and IntSync to none
+    m_AdjSync = SyncStatus::NONE;
+	m_IntSync = SyncStatus::NONE;
+
 #if MIMMO_ENABLE_MPI
 	initializeParallel();
 #else
@@ -191,8 +199,8 @@ MimmoObject::MimmoObject(int type){
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
-	m_infoSync = true;
-	m_pointConnectivitySync = false;
+	m_infoSync = SyncStatus::SYNC;
+	m_pointConnectivitySync = SyncStatus::NONE;
 
 	setTolerance(1.0e-06);
 }
@@ -267,11 +275,18 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 	m_internalPatch = true;
 	m_extpatch = nullptr;
 
-	m_skdTreeSupported = (m_type != 3);
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
-	m_AdjBuilt = false;
-	m_IntBuilt = false;
+    // Set skdTreeSync and kdTreeSync to none
+    m_skdTreeSync = SyncStatus::NONE;
+    m_kdTreeSync = SyncStatus::NONE;
+
+    // Set skdTreeSync to unsupported for point cloud
+    if (m_type != 3){
+        m_skdTreeSync = SyncStatus::NOTSUPPORTED;
+    }
+
+    // Set AdjSync and IntSync to none
+    m_AdjSync = SyncStatus::NONE;
+    m_IntSync = SyncStatus::NONE;
 
 	bitpit::ElementType eltype;
 	std::size_t sizeVert = vertex.size();
@@ -307,8 +322,8 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
-	m_infoSync = true;
-	m_pointConnectivitySync = false;
+	m_infoSync = SyncStatus::NONE;
+	m_pointConnectivitySync = SyncStatus::NONE;
 
     setTolerance(1.0e-06);
 
@@ -421,12 +436,29 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 		break;
 	}
 
-	m_skdTreeSupported = (m_type != 3);
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
+    // Set skdTreeSync and kdTreeSync to none
+    m_skdTreeSync = SyncStatus::NONE;
+    m_kdTreeSync = SyncStatus::NONE;
 
-	m_AdjBuilt = geometry->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
-	m_IntBuilt = geometry->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
+    // Set skdTreeSync to unsupported for point cloud
+    if (m_type == 3){
+        m_skdTreeSync = SyncStatus::NOTSUPPORTED;
+    }
+
+    // Check if adjacencies and interfaces are built.(Patch called it BuildStrategy -- NONE is unbuilt)
+    if (geometry->getAdjacenciesBuildStrategy() == bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE){
+        m_AdjSync = SyncStatus::NONE;
+    }
+    else{
+        m_AdjSync = SyncStatus::SYNC;
+    }
+
+    if (geometry->getInterfacesBuildStrategy() == bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE){
+        m_IntSync = SyncStatus::NONE;
+    }
+    else{
+        m_IntSync = SyncStatus::SYNC;
+    }
 
 	//recover cell PID
 	for(const auto &cell : getPatch()->getCells()){
@@ -443,8 +475,8 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 #endif
 	m_patchInfo.setPatch(m_extpatch);
 	m_patchInfo.update();
-	m_infoSync = true;
-	m_pointConnectivitySync = false;
+	m_infoSync = SyncStatus::SYNC;
+	m_pointConnectivitySync = SyncStatus::NONE;
 
     setTolerance(1.0e-06);
 
@@ -558,13 +590,29 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	m_extpatch = nullptr;
 	m_patch = std::move(geometry);
 
-	m_skdTreeSupported = (m_type != 3);
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
+    // Set skdTreeSync and kdTreeSync to none
+    m_skdTreeSync = SyncStatus::NONE;
+    m_kdTreeSync = SyncStatus::NONE;
 
-	//check if adjacencies and interfaces are built.(Patch called it BuildStrategy -- NONE is unbuilt)
-	m_AdjBuilt = m_patch->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
-	m_IntBuilt = m_patch->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
+    // Set skdTreeSync to unsupported for point cloud
+    if (m_type == 3){
+        m_skdTreeSync = SyncStatus::NOTSUPPORTED;
+    }
+
+    // Check if adjacencies and interfaces are built.(Patch called it BuildStrategy -- NONE is unbuilt)
+    if (getPatch()->getAdjacenciesBuildStrategy() == bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE){
+        m_AdjSync = SyncStatus::NONE;
+    }
+    else{
+        m_AdjSync = SyncStatus::SYNC;
+    }
+
+    if (getPatch()->getInterfacesBuildStrategy() == bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE){
+        m_IntSync = SyncStatus::NONE;
+    }
+    else{
+        m_IntSync = SyncStatus::SYNC;
+    }
 
 	//recover cell PID
 	for(const auto &cell : getPatch()->getCells()){
@@ -581,8 +629,8 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
-	m_infoSync = true;
-	m_pointConnectivitySync = false;
+	m_infoSync = SyncStatus::SYNC;
+	m_pointConnectivitySync = SyncStatus::NONE;
 
     setTolerance(1.0e-06);
 
@@ -613,13 +661,12 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 	m_type              = other.m_type;
 	m_pidsType          = other.m_pidsType;
 	m_pidsTypeWNames    = other.m_pidsTypeWNames;
-	m_skdTreeSupported  = other.m_skdTreeSupported;
-	m_AdjBuilt          = other.m_AdjBuilt;
-	m_IntBuilt          = other.m_IntBuilt;
+	m_AdjSync          = other.m_AdjSync;
+	m_IntSync          = other.m_IntSync;
 	m_infoSync 			= other.m_infoSync;
 
-	m_skdTreeSync    = false;
-	m_kdTreeSync    = false;
+	m_skdTreeSync   = SyncStatus::NONE;
+	m_kdTreeSync    = SyncStatus::NONE;
 
 	//instantiate empty trees:
 	switch(m_type){
@@ -648,13 +695,13 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 	m_nprocs = other.m_nprocs;
 	MPI_Comm_dup(other.m_communicator, &m_communicator);
 	m_nglobalvertices = other.m_nglobalvertices;
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::NONE;
 #else
 	m_rank = 0;
 	m_nprocs=1;
 #endif
 
-	m_pointConnectivitySync = false;
+	m_pointConnectivitySync = SyncStatus::NONE;
 
 	m_tolerance = other.m_tolerance;
 
@@ -685,9 +732,8 @@ void MimmoObject::swap(MimmoObject & x) noexcept
 	std::swap(m_type, x.m_type);
 	std::swap(m_pidsType, x.m_pidsType);
 	std::swap(m_pidsTypeWNames, x.m_pidsTypeWNames);
-	std::swap(m_skdTreeSupported, x.m_skdTreeSupported);
-	std::swap(m_AdjBuilt, x.m_AdjBuilt);
-	std::swap(m_IntBuilt, x.m_IntBuilt);
+	std::swap(m_AdjSync, x.m_AdjSync);
+	std::swap(m_IntSync, x.m_IntSync);
 	std::swap(m_skdTree, x.m_skdTree);
 	std::swap(m_kdTree, x.m_kdTree);
 	std::swap(m_skdTreeSync, x.m_skdTreeSync);
@@ -698,9 +744,9 @@ void MimmoObject::swap(MimmoObject & x) noexcept
 	std::swap(m_rank, x.m_rank);
 	std::swap(m_nprocs, x.m_nprocs);
 	std::swap(m_nglobalvertices, x.m_nglobalvertices);
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::NONE;
 #endif
-	m_pointConnectivitySync = false; //point connectivity is not copied
+	m_pointConnectivitySync = SyncStatus::NONE; //point connectivity is not copied
 
 	std::swap(m_tolerance, x.m_tolerance);
 
@@ -742,7 +788,7 @@ MimmoObject::initializeParallel(){
 	MPI_Comm_rank(m_communicator, &m_rank);
 	MPI_Comm_size(m_communicator, &m_nprocs);
 
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::NONE;
 
 }
 #endif
@@ -776,7 +822,7 @@ MimmoObject::isEmpty(){
  */
 bool
 MimmoObject::isSkdTreeSupported(){
-	return m_skdTreeSupported;
+	return (getSkdTreeSyncStatus() != SyncStatus::NOTSUPPORTED);
 };
 
 /*!
@@ -884,7 +930,7 @@ MimmoObject::getNGlobalCells() {
 	if (!isParallel())
 		return getNCells();
 
-	if (!isInfoSync())
+	if (getInfoSyncStatus() != SyncStatus::NONE)
 		buildPatchInfo();
 
 	return getPatchInfo()->getCellGlobalCount();
@@ -1251,7 +1297,7 @@ MimmoObject::getMapDataInv(bool withghosts){
 lilimap
 MimmoObject::getMapCell(bool withghosts){
 	lilimap mapCell;
-	if (!isInfoSync()) buildPatchInfo();
+	if (getInfoSyncStatus() != SyncStatus::SYNC) buildPatchInfo();
 	for (auto const & cell : getCells()){
 		long id = cell.getId();
 		if (!withghosts && !cell.isInterior()){
@@ -1272,7 +1318,7 @@ MimmoObject::getMapCell(bool withghosts){
  */
 lilimap
 MimmoObject::getMapCellInv(bool withghosts){
-	if (!isInfoSync()) buildPatchInfo();
+    if (getInfoSyncStatus() != SyncStatus::SYNC) buildPatchInfo();
 	lilimap mapCellInv = getPatchInfo()->getCellConsecutiveMap();
 	if (!withghosts){
 		std::vector<long> todelete;
@@ -1356,40 +1402,35 @@ MimmoObject::getPID() {
 	return(result);
 };
 
-
 /*!
- * Return if the skdTree ordering structure for cells is built/synchronized
- * \return true if the skdTree ordering structure for cells is built/synchronized
- * with your current geometry.
+ * Return the synchronization status of the skdTree ordering structure for cells
+ * \return synchronization status of the skdTree with your current geometry.
  */
-bool
-MimmoObject::isSkdTreeSync(){
+SyncStatus
+MimmoObject::getSkdTreeSyncStatus(){
 	return m_skdTreeSync;
 }
 
 /*!
- * Return true if the patch numbering info structure for cells is built/synchronized.
- * with your current geometry
- * In distributed archs, this method will check throughout all the current MimmoObject partitions.
- * \return if the cell Info are synchronized.
+ * Return the synchronization status of the patch numbering info structure for cells
+ * \return synchronization status of the patch numbering info with your current geometry.
  */
-bool
-MimmoObject::isInfoSync(){
+SyncStatus
+MimmoObject::getInfoSyncStatus(){
 #if MIMMO_ENABLE_MPI
 	MPI_Barrier(m_communicator);
-	MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_LONG, MPI_MIN, m_communicator);
 #endif
 	return m_infoSync;
 }
-
 
 /*!
  * \return pointer to geometry skdTree search structure
  */
 bitpit::PatchSkdTree*
 MimmoObject::getSkdTree(){
-	if (!m_skdTreeSupported) return nullptr;
-	if (!isSkdTreeSync()) buildSkdTree();
+	if (!isSkdTreeSupported()) return nullptr;
+	if (getSkdTreeSyncStatus() != SyncStatus::SYNC) buildSkdTree();
 	return m_skdTree.get();
 }
 
@@ -1401,14 +1442,12 @@ MimmoObject::getPatchInfo(){
 	return &m_patchInfo;
 }
 
-
 /*!
- * Return if the kdTree ordering structure for vertices is built/synchronized
- * \return true if the kdTree vertices ordering structure is
- * built/synchronized with your current geometry
+ * Return the synchronization status of the kdTree ordering structure for cells
+ * \return synchronization status of the kdTree with your current geometry.
  */
-bool
-MimmoObject::isKdTreeSync(){
+SyncStatus
+MimmoObject::getKdTreeSyncStatus(){
 	return m_kdTreeSync;
 }
 
@@ -1417,7 +1456,7 @@ MimmoObject::isKdTreeSync(){
  */
 bitpit::KdTree<3, bitpit::Vertex, long >*
 MimmoObject::getKdTree(){
-	if (!m_kdTreeSync) buildKdTree();
+	if (getKdTreeSyncStatus() != SyncStatus::SYNC) buildKdTree();
 	return m_kdTree.get();
 }
 
@@ -1522,14 +1561,14 @@ const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExc
 
 
 /*!
-	Checks if the ghost exchange information are dirty.
-	\return  true if the ghost exchange information on points are dirty, false
-	otherwise.
+	Get the ghost exchange information synchronization status with the geometry.
+	\return  ghost exchange information synchronization status.
  */
-bool MimmoObject::arePointGhostExchangeInfoSync()
+SyncStatus
+MimmoObject::getPointGhostExchangeInfoSyncStatus()
 {
 	MPI_Barrier(m_communicator);
-	MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+	MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_LONG, MPI_MIN, m_communicator);
 	return m_pointGhostExchangeInfoSync;
 }
 
@@ -2043,7 +2082,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 	}//end update structure if partitioned
 
 	// Exchange info are now updated
-	m_pointGhostExchangeInfoSync = true;
+	m_pointGhostExchangeInfoSync = SyncStatus::SYNC;
 }
 
 /*!
@@ -2073,148 +2112,154 @@ void MimmoObject::resetPointGhostExchangeInfo()
 	//Reset consecutive map for vertices
 	m_pointConsecutiveId.clear();
 
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::NONE;
 }
 
 /*!
     General checker for SkdTree status throughout all procs. If at least one partition
     has not-syncronized SkdTree set all the other procs to not syncronized and free the structure eventually.
-    \return true if the structure was reset, false if nothing was done.
+    \return synchronization status of skd tree.
  */
-bool MimmoObject::cleanParallelSkdTreeSync(){
-	//make sure all procs arrive at this point.
-	MPI_Barrier(m_communicator);
-	MPI_Allreduce(MPI_IN_PLACE, &m_skdTreeSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+SyncStatus
+MimmoObject::cleanParallelSkdTreeSync(){
 
-	//if the boolen is false you need to reset
-	if(!m_skdTreeSync){
+	MPI_Allreduce(MPI_IN_PLACE, &m_skdTreeSync, 1, MPI_LONG, MPI_MIN, m_communicator);
+
+	if(getSkdTreeSyncStatus() != SyncStatus::SYNC){
 		cleanSkdTree();
 	}
-	//return true clean if the boolean was false, and viceversa.
-	return (!m_skdTreeSync);
+
+	return m_skdTreeSync;
 }
 
 /*!
     General checker for KdTree status throughout all procs. If at least one partition
     has not-syncronized KdTree set all the other procs to not syncronized and free the structure eventually.
-    \return true if the structure was reset, false if nothing was done.
+    \return synchronization status of kdtree
  */
-bool MimmoObject::cleanParallelKdTreeSync(){
-	//make sure all procs arrive at this point.
-	MPI_Barrier(m_communicator);
-	MPI_Allreduce(MPI_IN_PLACE, &m_kdTreeSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+SyncStatus
+MimmoObject::cleanParallelKdTreeSync(){
 
-	//if the boolen is false you need to reset
-	if(!m_kdTreeSync){
+	MPI_Allreduce(MPI_IN_PLACE, &m_kdTreeSync, 1, MPI_LONG, MPI_MIN, m_communicator);
+
+	if(getKdTreeSyncStatus() != SyncStatus::SYNC){
 		cleanKdTree();
 	}
-	//return true clean if the boolean was false, and viceversa.
-	return (!m_kdTreeSync);
+
+	return (m_kdTreeSync);
 }
 /*!
     General checker for Adjacencies status throughout all procs. If at least one partition
-    has not-syncronized Adj set all the other procs to not syncronized and free the structure eventually.
-    \return true if the structure was reset, false if nothing was done.
+    has not-syncronized Adj set all the other procs to not syncronized.
+    If one partition has the adjacencies not build free the structure.
+    \return Synchronization status of adjacencies
  */
-bool MimmoObject::cleanParallelAdjacenciesSync(){
-	//make sure all procs arrive at this point.
-	MPI_Barrier(m_communicator);
-	MPI_Allreduce(MPI_IN_PLACE, &m_AdjBuilt, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+SyncStatus
+MimmoObject::cleanParallelAdjacenciesSync(){
 
-	//if the boolen is false you need to reset
-	if(!m_AdjBuilt){
+    // Reduce by using the minimum sync status
+	MPI_Allreduce(MPI_IN_PLACE, &m_AdjSync, 1, MPI_LONG, MPI_MIN, m_communicator);
+
+	//if status is not sync destroy adjacencies
+	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC){
 		destroyAdjacencies();
 	}
-	//return true clean if the boolean was false, and viceversa.
-	return (!m_AdjBuilt);
+
+	return (m_AdjSync);
 }
 
 /*!
     General checker for Interfaces status throughout all procs. If at least one partition
-    has not-syncronized Interfaces set all the other procs to not syncronized and free the structure eventually.
-    \return true if the structure was reset, false if nothing was done.
+    has not-syncronized Interfaces set all the other procs to not syncronized.
+    If one partition has the Interfaces not build free the structure.
+    \return synchronization status of interfaces.
  */
-bool MimmoObject::cleanParallelInterfacesSync(){
-	//make sure all procs arrive at this point.
-	MPI_Barrier(m_communicator);
-	MPI_Allreduce(MPI_IN_PLACE, &m_IntBuilt, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+SyncStatus
+MimmoObject::cleanParallelInterfacesSync(){
 
-	//if the boolen is false you need to reset
-	if(!m_IntBuilt){
+	// Reduce by using the minimum sync status
+	MPI_Allreduce(MPI_IN_PLACE, &m_IntSync, 1, MPI_LONG, MPI_MIN, m_communicator);
+
+    //if status is not sync destroy interfaces
+	if(getInterfacesSyncStatus() != SyncStatus::SYNC){
 		destroyInterfaces();
 	}
-	//return true clean if the boolean was false, and viceversa.
-	return (!m_IntBuilt);
+
+	return (m_IntSync);
 }
 
 /*!
     General checker for PointConnectivity status throughout all procs. If at least one partition
-    has not-syncronized PointConnectivity set all the other procs to not syncronized and free the structure eventually.
-    \return true if the structure was reset, false if nothing was done.
+    has not-syncronized PointConnectivity set all the other procs to not syncronized.
+    If one partition has the PointConnectivity not build free the structure.
+    \return Synchronization status of point connectivity
  */
-bool MimmoObject::cleanParallelPointConnectivitySync(){
-	//make sure all procs arrive at this point.
-	MPI_Barrier(m_communicator);
-	MPI_Allreduce(MPI_IN_PLACE, &m_pointConnectivitySync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+SyncStatus
+MimmoObject::cleanParallelPointConnectivitySync(){
 
-	//if the boolen is false you need to reset
-	if(!m_pointConnectivitySync){
+    // Reduce by using the minimum sync status
+	MPI_Allreduce(MPI_IN_PLACE, &m_pointConnectivitySync, 1, MPI_LONG, MPI_MIN, m_communicator);
+
+    //if status is not sync destroy
+	if(getPointConnectivitySyncStatus() != SyncStatus::SYNC){
 		cleanPointConnectivity();
 	}
-	//return true clean if the boolean was false, and viceversa.
-	return (!m_pointConnectivitySync);
+
+	return (m_pointConnectivitySync);
 }
 /*!
-    General checker for Interfaces status throughout all procs. If at least one partition
-    has not-syncronized Interfaces set all the other procs to not syncronized and free the structure eventually.
-    \return true if the structure was reset, false if nothing was done.
+    General checker for patch numbering info status throughout all procs. If at least one partition
+    has not-syncronized patch numbering info set all the other procs to not syncronized.
+    If one partition has the patch numbering info not build free the structure.
+    \return Synchronization status of patch info.
  */
-bool MimmoObject::cleanParallelInfoSync(){
-	//make sure all procs arrive at this point.
-	MPI_Barrier(m_communicator);
-	MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+SyncStatus
+MimmoObject::cleanParallelInfoSync(){
 
-	//if the boolen is false you need to reset
-	if(!m_infoSync){
+    // Reduce by using the minimum sync status
+	MPI_Allreduce(MPI_IN_PLACE, &m_infoSync, 1, MPI_LONG, MPI_MIN, m_communicator);
+
+    //if status is not sync destroy
+	if(getInfoSyncStatus() != SyncStatus::SYNC){
 		m_patchInfo.reset();
 	}
-	//return true clean if the boolean was false, and viceversa.
-	return (!m_infoSync);
+
+	return (m_infoSync);
 }
 /*!
-    General checker for Interfaces status throughout all procs. If at least one partition
-    has not-syncronized Interfaces set all the other procs to not syncronized and free the structure eventually.
-    \return true if the structure was reset, false if nothing was done.
+    General checker for point ghost exchange info status throughout all procs. If at least one partition
+    has not-syncronized point ghost exchange info set all the other procs to not syncronized.
+    If one partition has the point ghost exchange info not build free the structure.
+    \return Synchronization status of point exchange info.
  */
-bool MimmoObject::cleanParallelPointGhostExchangeInfoSync(){
-	//make sure all procs arrive at this point.
-	MPI_Barrier(m_communicator);
-	MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+SyncStatus
+MimmoObject::cleanParallelPointGhostExchangeInfoSync(){
 
-	//if the boolen is false you need to reset
-	if(!m_pointGhostExchangeInfoSync){
+    // Reduce by using the minimum sync status
+	MPI_Allreduce(MPI_IN_PLACE, &m_pointGhostExchangeInfoSync, 1, MPI_LONG, MPI_MIN, m_communicator);
+
+    //if status is not sync destroy
+	if(getPointGhostExchangeInfoSyncStatus() != SyncStatus::SYNC){
 		resetPointGhostExchangeInfo();
 	}
-	//return true clean if the boolean was false, and viceversa.
-	return (!m_pointGhostExchangeInfoSync);
+
+	return (m_pointGhostExchangeInfoSync);
 }
 
 /*!
     General checker for all InfoSync status throughout all procs. If at least one partition
     has one not-syncronized InfoSync set all the other procs to not syncronized for this InfoSync
     and free the structure eventually.
-    \return true if at least the structure was reset, false if nothing was done.
- */
-bool MimmoObject::cleanAllParallelSync(){
-    bool reset = false;
-    reset |= cleanParallelSkdTreeSync();
-    reset |= cleanParallelKdTreeSync();
-    reset |= cleanParallelAdjacenciesSync();
-    reset |= cleanParallelInterfacesSync();
-    reset |= cleanParallelPointConnectivitySync();
-    reset |= cleanParallelInfoSync();
-    reset |= cleanParallelPointGhostExchangeInfoSync();
-    return reset;
+*/
+void
+MimmoObject::cleanAllParallelSync(){
+    cleanParallelSkdTreeSync();
+    cleanParallelKdTreeSync();
+    cleanParallelAdjacenciesSync();
+    cleanParallelInterfacesSync();
+    cleanParallelPointConnectivitySync();
+    cleanParallelInfoSync();
+    cleanParallelPointGhostExchangeInfoSync();
 }
 
 /*!
@@ -2255,7 +2300,7 @@ void MimmoObject::deleteOrphanGhostCells(){
 
 	//build temporarely adjacencies to get orphans.
 	bool checkResetAdjacencies = false;
-	if(!areAdjacenciesBuilt()){
+	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC){
 		buildAdjacencies();
 		checkResetAdjacencies = true;
 	}
@@ -2331,13 +2376,13 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
 
 	long id = it->getId();
 
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
-	m_infoSync = false;
+	m_skdTreeSync = SyncStatus::UNSYNC;
+	m_kdTreeSync = SyncStatus::UNSYNC;
+	m_infoSync = SyncStatus::UNSYNC;
 #if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::UNSYNC;
 #endif
-	m_pointConnectivitySync = false;
+	m_pointConnectivitySync = SyncStatus::UNSYNC;
 	return id;
 };
 
@@ -2367,13 +2412,13 @@ MimmoObject::addVertex(const bitpit::Vertex & vertex, const long idtag){
 
 	long id = it->getId();
 
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
-	m_infoSync = false;
+	m_skdTreeSync = SyncStatus::UNSYNC;
+	m_kdTreeSync = SyncStatus::UNSYNC;
+	m_infoSync = SyncStatus::UNSYNC;
 #if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::UNSYNC;
 #endif
-	m_pointConnectivitySync = false;
+	m_pointConnectivitySync = SyncStatus::UNSYNC;
 	return id;
 };
 
@@ -2390,11 +2435,11 @@ MimmoObject::modifyVertex(const darray3E & vertex, const long & id){
 	if(!(getVertices().exists(id))) return false;
 	bitpit::Vertex &vert = getPatch()->getVertex(id);
 	vert.setCoords(vertex);
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
-	m_infoSync = false;
+	m_skdTreeSync = SyncStatus::UNSYNC;
+	m_kdTreeSync = SyncStatus::UNSYNC;
+	m_infoSync = SyncStatus::UNSYNC;
 #if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::UNSYNC;
 #endif
 	return true;
 };
@@ -2471,14 +2516,14 @@ MimmoObject::addConnectedCell(const livector1D & conn, bitpit::ElementType type,
 
 	setPIDCell(checkedID, PID);
 
-	m_skdTreeSync = false;
-	m_AdjBuilt = false;
-	m_IntBuilt = false;
-	m_infoSync = false;
+	m_skdTreeSync = SyncStatus::UNSYNC;
+	m_AdjSync = SyncStatus::UNSYNC;
+	m_IntSync = SyncStatus::UNSYNC;
+	m_infoSync = SyncStatus::UNSYNC;
 #if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::UNSYNC;
 #endif
-	m_pointConnectivitySync = false;
+	m_pointConnectivitySync = SyncStatus::UNSYNC;
 	return checkedID;
 };
 
@@ -2539,16 +2584,16 @@ MimmoObject::addCell(bitpit::Cell & cell, const long idtag, int rank){
 
 	setPIDCell(checkedID, cell.getPID());
 
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
-	m_infoSync = false;
-	m_AdjBuilt = false;
-	m_IntBuilt = false;
+	m_skdTreeSync = SyncStatus::UNSYNC;
+	m_kdTreeSync = SyncStatus::UNSYNC;
+	m_infoSync = SyncStatus::UNSYNC;
+	m_AdjSync = SyncStatus::UNSYNC;
+	m_IntSync = SyncStatus::UNSYNC;
 
 #if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::UNSYNC;
 #endif
-	m_pointConnectivitySync = false;
+	m_pointConnectivitySync = SyncStatus::UNSYNC;
 	return checkedID;
 };
 
@@ -2683,17 +2728,17 @@ MimmoSharedPointer<MimmoObject> MimmoObject::clone() const {
 	}
 
 	// 2) check if trees are built here locally and force build to result eventually;
-	if(m_kdTreeSync)    result->buildKdTree();
-	if(m_skdTreeSync)   result->buildSkdTree();
+	if(m_kdTreeSync != SyncStatus::SYNC)    result->buildKdTree();
+	if(m_skdTreeSync != SyncStatus::SYNC)   result->buildSkdTree();
 
 #if MIMMO_ENABLE_MPI
 	//rank, nprocs and communicator managed inside initializeParallel call  of the MimmoObject constructor
 	//3) check if PointGhost are synchronized, if they are, update point ghost of result
-	if(m_pointGhostExchangeInfoSync)    result->updatePointGhostExchangeInfo();
+	if(m_pointGhostExchangeInfoSync != SyncStatus::SYNC)    result->updatePointGhostExchangeInfo();
 #endif
 
 	//4) check if pointConnectivity is built here locally, if it is, force build to result.
-	if(m_pointConnectivitySync)    result->buildPointConnectivity();
+	if(m_pointConnectivitySync != SyncStatus::SYNC)    result->buildPointConnectivity();
 
 	return result;
 };
@@ -2716,10 +2761,10 @@ MimmoObject::cleanGeometry(){
     }
 #endif
 
-	m_kdTreeSync = false;
-	m_infoSync = false;
+	m_kdTreeSync = SyncStatus::UNSYNC;
+	m_infoSync = SyncStatus::UNSYNC;
 #if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::UNSYNC;
 #endif
 	cleanPointConnectivity();
 	return true;
@@ -2761,7 +2806,7 @@ livector1D MimmoObject::getVertexFromCellList(const livector1D &cellList){
 livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList, bool all){
 	if(isEmpty() || getType() == 3)   return livector1D(0);
 
-	if(!areInterfacesBuilt())   buildInterfaces();
+	if(getInterfacesSyncStatus() != SyncStatus::SYNC)   buildInterfaces();
 	livector1D result;
 	std::unordered_set<long int> ordV;
 	auto patch = getPatch();
@@ -2847,7 +2892,7 @@ livector1D MimmoObject::getCellFromVertexList(const livector1D & vertexList, boo
 livector1D MimmoObject::getInterfaceFromVertexList(const livector1D & vertexList, bool strict, bool border){
 	if(isEmpty() || getType() == 3)   return livector1D(0);
 
-	if(!areInterfacesBuilt())   buildInterfaces();
+	if(getInterfacesSyncStatus() != SyncStatus::SYNC)   buildInterfaces();
 
 	livector1D result;
 	std::unordered_set<long int> ordV, ordI;
@@ -2916,7 +2961,7 @@ livector1D 	MimmoObject::extractBoundaryVertexID(bool ghost){
 livector1D  MimmoObject::extractBoundaryCellID(bool ghost){
 
 	if(isEmpty() || m_type==3)   return livector1D(0);
-	if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
+	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)   getPatch()->buildAdjacencies();
 
 	std::unordered_set<long> container;
 	container.reserve(getPatch()->getCellCount());
@@ -2955,7 +3000,7 @@ std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID
 
 	std::unordered_map<long, std::set<int> > result;
 	if(isEmpty() || m_type ==3)   return result;
-	if(!areAdjacenciesBuilt())   getPatch()->buildAdjacencies();
+	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)   getPatch()->buildAdjacencies();
 
 	auto itBegin = getPatch()->internalBegin();
 	auto itEnd = getPatch()->internalEnd();
@@ -3016,7 +3061,7 @@ livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::s
 livector1D  MimmoObject::extractBoundaryInterfaceID(bool ghost){
 
 	if(isEmpty() || m_type==3)   return livector1D(0);
-	if(!areInterfacesBuilt())   buildInterfaces();
+	if(getInterfacesSyncStatus() != SyncStatus::SYNC)   buildInterfaces();
 
 	std::unordered_set<long> container;
 	container.reserve(getPatch()->getInterfaceCount());
@@ -3190,12 +3235,12 @@ void MimmoObject::getBoundingBox(std::array<double,3> & pmin, std::array<double,
  *\param[in] value build the minimum leaf of the tree as a bounding box containing value elements at most.
  */
 void MimmoObject::buildSkdTree(std::size_t value){
-	if(!m_skdTreeSupported)   return;
+	if(!isSkdTreeSupported())   return;
 
-	if (!m_skdTreeSync){
+	if (m_skdTreeSync != SyncStatus::SYNC){
 		m_skdTree->clear();
 		m_skdTree->build(value);
-		m_skdTreeSync = true;
+		m_skdTreeSync = SyncStatus::SYNC;
 	}
 	return;
 }
@@ -3208,7 +3253,7 @@ void MimmoObject::buildKdTree(){
 	if( getNVertices() == 0)  return;
 	long label;
 
-	if (!m_kdTreeSync){
+	if (m_kdTreeSync != SyncStatus::SYNC){
 		cleanKdTree();
 		//TODO Why : + m_kdTree->MAXSTK ?
 		m_kdTree->nodes.resize(getNVertices() + m_kdTree->MAXSTK);
@@ -3217,7 +3262,7 @@ void MimmoObject::buildKdTree(){
 			label = val.getId();
 			m_kdTree->insert(&val, label);
 		}
-		m_kdTreeSync = true;
+		m_kdTreeSync = SyncStatus::SYNC;
 	}
 	return;
 }
@@ -3228,7 +3273,7 @@ void MimmoObject::buildKdTree(){
 void	MimmoObject::cleanKdTree(){
 	m_kdTree->n_nodes = 0;
 	m_kdTree->nodes.clear();
-	m_kdTreeSync = false;
+	m_kdTreeSync = SyncStatus::UNSYNC;
 }
 
 /*!
@@ -3236,7 +3281,7 @@ void	MimmoObject::cleanKdTree(){
  */
 void	MimmoObject::cleanSkdTree(){
 	m_skdTree->clear();
-	m_skdTreeSync = false;
+	m_skdTreeSync = SyncStatus::UNSYNC;
 }
 
 /*!
@@ -3249,7 +3294,7 @@ void MimmoObject::buildPatchInfo(){
 	else
 		m_patchInfo.setPatch(m_extpatch);
 	m_patchInfo.update();
-	m_infoSync = true;
+	m_infoSync = SyncStatus::SYNC;
 	return;
 }
 
@@ -3289,31 +3334,31 @@ void MimmoObject::update()
 }
 
 /*!
- * Return if cell-cell adjacency is built for your current mesh.
- * \return true if local adjacencies are built.
+ * Return cell-cell adjacency synchronization status for your current mesh.
+ * \return synchronization status of adjacencies.
  */
-bool MimmoObject::areAdjacenciesBuilt(){
+SyncStatus MimmoObject::getAdjacenciesSyncStatus(){
 
 	//check if you are synchronized with patch
-	bool patchAdjBuilt = getPatch()->getAdjacenciesBuildStrategy() != bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE;
-	if(m_AdjBuilt != patchAdjBuilt ){
-        m_AdjBuilt = false;
+	if (getPatch()->getAdjacenciesBuildStrategy() == bitpit::PatchKernel::AdjacenciesBuildStrategy::ADJACENCIES_NONE){
+	    m_AdjSync = SyncStatus::NONE;
 	}
-	return  m_AdjBuilt;
+
+	return m_AdjSync;
 };
 
 /*!
- * Return if Interfaces are built for your current mesh.
- * \return true if interfaces are built.
+ * Return cell-cell interfaces synchronization status for your current mesh.
+ * \return synchronization status of interfaces.
  */
-bool MimmoObject::areInterfacesBuilt(){
-	//check if you are synchronized with patch
-	bool patchIntBuilt = getPatch()->getInterfacesBuildStrategy() != bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE;
-	if(m_IntBuilt != patchIntBuilt ){
-		m_IntBuilt = false;
-	}
+SyncStatus MimmoObject::getInterfacesSyncStatus(){
 
-	return  m_IntBuilt;
+    //check if you are synchronized with patch
+    if (getPatch()->getInterfacesBuildStrategy() == bitpit::PatchKernel::InterfacesBuildStrategy::INTERFACES_NONE){
+        m_IntSync = SyncStatus::NONE;
+    }
+
+    return m_IntSync;
 };
 
 /*!
@@ -3323,7 +3368,7 @@ bool MimmoObject::areInterfacesBuilt(){
  */
 bool MimmoObject::isClosedLoop(){
 
-	if(!areAdjacenciesBuilt())	buildAdjacencies();
+	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)	buildAdjacencies();
 	bool check = true;
 
 	auto itp = getCells().cbegin();
@@ -3357,7 +3402,7 @@ bool MimmoObject::isClosedLoop(){
  */
 //TODO PARALLEL VERSION (CURRENTLY USED ONLY IN CLOSEDCURVEINTERPOLATOR OF MIMIC)
 livector2D MimmoObject::decomposeLoop(){
-	if(!areAdjacenciesBuilt())	buildAdjacencies();
+	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)	buildAdjacencies();
 
 	livector2D result;
 	livector1D globalcellids = getCells().getIds();
@@ -3416,7 +3461,7 @@ livector2D MimmoObject::decomposeLoop(){
  */
 void MimmoObject::buildAdjacencies(){
     getPatch()->buildAdjacencies();
-    m_AdjBuilt = true;
+    m_AdjSync = SyncStatus::SYNC;
 };
 
 /*!
@@ -3425,9 +3470,28 @@ void MimmoObject::buildAdjacencies(){
  * does nothing.
  */
 void MimmoObject::buildInterfaces(){
-    if(!areAdjacenciesBuilt()) buildAdjacencies();
+    if(getAdjacenciesSyncStatus() != SyncStatus::SYNC) buildAdjacencies();
     getPatch()->buildInterfaces();
-    m_IntBuilt = true;
+    m_IntSync = SyncStatus::SYNC;
+};
+
+/*!
+ * Force the class to update cell-cell adjacency connectivity.
+ */
+void MimmoObject::updateAdjacencies(){
+    getPatch()->updateAdjacencies();
+    m_AdjSync = SyncStatus::SYNC;
+};
+
+/*!
+ * Force the class to update Interfaces connectivity.
+ * If MimmoObject does not support connectivity (as Point Clouds do)
+ * does nothing.
+ */
+void MimmoObject::updateInterfaces(){
+    if(getAdjacenciesSyncStatus() != SyncStatus::SYNC) buildAdjacencies();
+    getPatch()->updateInterfaces();
+    m_IntSync = SyncStatus::SYNC;
 };
 
 /*!
@@ -3435,7 +3499,7 @@ void MimmoObject::buildInterfaces(){
  */
 void MimmoObject::destroyAdjacencies(){
     getPatch()->destroyAdjacencies();
-    m_AdjBuilt = false;
+    m_AdjSync = SyncStatus::NONE;
 };
 
 /*!
@@ -3443,7 +3507,7 @@ void MimmoObject::destroyAdjacencies(){
  */
 void MimmoObject::destroyInterfaces(){
     getPatch()->destroyInterfaces(); // is the same as getPatch()->destroyInterfaces
-    m_IntBuilt = false;
+    m_IntSync = SyncStatus::NONE;
 
 };
 
@@ -3452,16 +3516,16 @@ void MimmoObject::destroyInterfaces(){
  */
 void MimmoObject::resetPatch(){
 	getPatch()->reset();
-	m_AdjBuilt = false;
-	m_IntBuilt = false;
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
+	m_AdjSync = SyncStatus::NONE;
+	m_IntSync = SyncStatus::NONE;
+	m_skdTreeSync = SyncStatus::NONE;
+	m_kdTreeSync = SyncStatus::NONE;
 	m_patchInfo.reset();
-	m_infoSync = false;
+	m_infoSync = SyncStatus::NONE;
 #if MIMMO_ENABLE_MPI
-	m_pointGhostExchangeInfoSync = false;
+	m_pointGhostExchangeInfoSync = SyncStatus::NONE;
 #endif
-	m_pointConnectivitySync = false;
+	m_pointConnectivitySync = SyncStatus::NONE;
 };
 
 /*!
@@ -3556,17 +3620,25 @@ void MimmoObject::reset(int type){
 	m_internalPatch = true;
 	m_extpatch = nullptr;
 
-	m_skdTreeSupported = (m_type != 3);
-	m_skdTreeSync = false;
-	m_kdTreeSync = false;
-	m_AdjBuilt = false;
-	m_IntBuilt = false;
+    // Set skdTreeSync and kdTreeSync to none
+    m_skdTreeSync = SyncStatus::NONE;
+    m_kdTreeSync = SyncStatus::NONE;
+
+    // Set skdTreeSync to unsupported for point cloud
+    if (m_type == 3){
+        m_skdTreeSync = SyncStatus::NOTSUPPORTED;
+    }
+
+    // Set AdjSync and IntSync to none
+    m_AdjSync = SyncStatus::NONE;
+    m_IntSync = SyncStatus::NONE;
+
 #if MIMMO_ENABLE_MPI
 	initializeParallel();
 #endif
 	m_patchInfo.setPatch(m_patch.get());
-	m_infoSync = false;
-	m_pointConnectivitySync = false;
+	m_infoSync = SyncStatus::NONE;
+	m_pointConnectivitySync = SyncStatus::NONE;
 }
 
 /*!
@@ -3598,8 +3670,8 @@ void MimmoObject::dump(std::ostream & stream){
 	//write other variables
 	bitpit::utils::binary::write(stream,pid);
 	bitpit::utils::binary::write(stream,sspid);
-	bitpit::utils::binary::write(stream,m_AdjBuilt);
-	bitpit::utils::binary::write(stream,m_IntBuilt);
+	bitpit::utils::binary::write(stream,m_AdjSync);
+	bitpit::utils::binary::write(stream,m_IntSync);
 	bitpit::utils::binary::write(stream,m_pointConnectivitySync);
 
 	//write the patch
@@ -3632,20 +3704,19 @@ void MimmoObject::restore(std::istream & stream){
 	//absorb the other data
 	std::vector<long> pid;
 	std::vector<std::string> sspid;
-	bool connpointsync;
 
 	bitpit::utils::binary::read(stream,pid);
 	bitpit::utils::binary::read(stream,sspid);
-	bitpit::utils::binary::read(stream,m_AdjBuilt);
-	bitpit::utils::binary::read(stream,m_IntBuilt);
-	bitpit::utils::binary::read(stream,connpointsync);
+	bitpit::utils::binary::read(stream,m_AdjSync);
+	bitpit::utils::binary::read(stream,m_IntSync);
+	bitpit::utils::binary::read(stream,m_pointConnectivitySync);
 
 	getPatch()->restore(stream);
 
 	//m_patchInfo has already the pointer to the patch set during reset(type)
 	//update it.
 	m_patchInfo.update();
-	m_infoSync = true;
+	m_infoSync = SyncStatus::SYNC;
 
 	//rebuild the point ghost exchange information.
 #if MIMMO_ENABLE_MPI
@@ -3653,7 +3724,7 @@ void MimmoObject::restore(std::istream & stream){
 #endif
 
 	//check point connectivity, if true build it, otherwise leave it as reset put it, i.e. false.
-	if(connpointsync){
+	if(m_pointConnectivitySync == SyncStatus::SYNC){
 		this->buildPointConnectivity();
 	}
 
@@ -3736,7 +3807,7 @@ MimmoObject::evalCellAspectRatio(bitpit::PiercedVector<double> & ARs){
 	{   //Following the example of OpenFoam, the AR index is calculated as
 		// the ratio S between total surface and hydraulic surface of an equilater
 		//   cylinder (h=2*r) of the same volume, that is S_hyd = 1/6.0 * (V^(2/3)).
-		if(!areInterfacesBuilt())   buildInterfaces();
+		if(getInterfacesSyncStatus() != SyncStatus::SYNC)   buildInterfaces();
 		bitpit::VolUnstructured * p = static_cast<bitpit::VolUnstructured *>(getPatch());
 
 		//calculate interface area
@@ -3817,7 +3888,7 @@ MimmoObject::evalCellAspectRatio(const long & id){
 		//Following the example of OpenFoam, the AR index is calculated as
 		// the ratio S between total surface and hydraulic surface of an equilater
 		//   cylinder (h=2*r) of the same volume, that is S_hyd = 1/6.0 * (V^(2/3)).
-		if(!areInterfacesBuilt())   buildInterfaces();
+		if(getInterfacesSyncStatus() != SyncStatus::SYNC)   buildInterfaces();
 		bitpit::VolUnstructured * p = static_cast<bitpit::VolUnstructured *>(getPatch());
 
 		double sumArea = 0.0;
@@ -3884,11 +3955,11 @@ MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double 
 bitpit::PiercedVector<double>
 MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
 
-    if(!surface.areAdjacenciesBuilt()){
+    if(surface.getAdjacenciesSyncStatus() != SyncStatus::SYNC){
         surface.buildAdjacencies();
     }
 
-    if (!surface.isSkdTreeSync())
+    if (surface.getSkdTreeSyncStatus() != SyncStatus::SYNC)
         surface.buildSkdTree();
 
     bitpit::PiercedVector<double> result;
@@ -4090,14 +4161,15 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
     bitpit::PiercedVector<double> result;
     if(surface.getType() != 1) return result;
 
-    if(!surface.areAdjacenciesBuilt()){
+    if(surface.getAdjacenciesSyncStatus() != SyncStatus::SYNC){
         surface.buildAdjacencies();
     }
 
-    if (!surface.isSkdTreeSync())
+    if (surface.getSkdTreeSyncStatus() != SyncStatus::SYNC)
         surface.buildSkdTree();
 
-    if(!isPointConnectivitySync())    buildPointConnectivity();
+    if(getPointConnectivitySyncStatus() != SyncStatus::SYNC)
+        buildPointConnectivity();
 
     //use a stack-based search on ring vertex neighbors of some prescribed seed vertex.
     //You need at least one vertex to be near enough to surface
@@ -4346,9 +4418,10 @@ std::array<double,3> MimmoObject::evalCellCentroid(const long & id){
  */
 std::array<double,3> MimmoObject::evalInterfaceCentroid(const long & id){
 	std::array<double,3> result = {{0.0,0.0,0.0}};
-	if(areInterfacesBuilt()){
-		result = getPatch()->evalInterfaceCentroid(id);
-	}
+	if(getInterfacesSyncStatus() != SyncStatus::SYNC) return result;
+
+	result = getPatch()->evalInterfaceCentroid(id);
+
 	return result;
 }
 
@@ -4363,7 +4436,7 @@ std::array<double,3> MimmoObject::evalInterfaceCentroid(const long & id){
  */
 std::array<double,3> MimmoObject::evalInterfaceNormal(const long & id){
 	std::array<double,3> result ({0.0,0.0,0.0});
-	if(!areInterfacesBuilt())  return result;
+	if(getInterfacesSyncStatus() != SyncStatus::SYNC)  return result;
 
 	switch(m_type){
 	case 1:
@@ -4401,7 +4474,7 @@ std::array<double,3> MimmoObject::evalInterfaceNormal(const long & id){
  */
 double MimmoObject::evalInterfaceArea(const long & id){
 	double result (0.0);
-	if(!areInterfacesBuilt())  return result;
+	if(getInterfacesSyncStatus() != SyncStatus::SYNC)  return result;
 
 	switch(m_type){
 	case 1:
@@ -4485,7 +4558,7 @@ MimmoObject::buildPointConnectivity()
 		return;
 	}
 
-	m_pointConnectivitySync = true;
+	m_pointConnectivitySync = SyncStatus::SYNC;
 }
 
 /*!
@@ -4495,7 +4568,7 @@ void
 MimmoObject::cleanPointConnectivity()
 {
 	std::unordered_map<long, std::unordered_set<long> >().swap(m_pointConnectivity);
-	m_pointConnectivitySync = false;
+	m_pointConnectivitySync = SyncStatus::NONE;
 }
 
 /*!
@@ -4511,10 +4584,10 @@ MimmoObject::getPointConnectivity(const long & id)
 }
 
 /*!
-    \return true if the node-node connectivity is built.
+    \return the node-node connectivity sync status.
  */
-bool
-MimmoObject::isPointConnectivitySync(){
+SyncStatus
+MimmoObject::getPointConnectivitySyncStatus(){
 	return m_pointConnectivitySync;
 }
 
@@ -4614,7 +4687,7 @@ MimmoObject::triangulate(){
 
 	} // end if patch is not empty
 
-	m_infoSync = false;
+	m_infoSync = SyncStatus::NONE;
 	cleanPointConnectivity();
 	cleanSkdTree();
 	cleanKdTree();
@@ -4734,13 +4807,13 @@ MimmoObject::degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degr
     }
 
     // Reset info sync
-    m_AdjBuilt = false;
-    m_IntBuilt = false;
-    m_skdTreeSync = false;
-    m_kdTreeSync = false;
+    m_AdjSync = SyncStatus::NONE;
+    m_IntSync = SyncStatus::NONE;
+    m_skdTreeSync = SyncStatus::NONE;
+    m_kdTreeSync = SyncStatus::NONE;
     m_patchInfo.reset();
-    m_infoSync = false;
-    m_pointConnectivitySync = false;
+    m_infoSync = SyncStatus::NONE;
+    m_pointConnectivitySync = SyncStatus::NONE;
 
 #if MIMMO_ENABLE_MPI
     cleanAllParallelSync();

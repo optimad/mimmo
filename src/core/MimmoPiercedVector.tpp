@@ -639,7 +639,7 @@ MimmoPiercedVector<mpv_t>::initialize(MimmoSharedPointer<MimmoObject> geo, MPVLo
 		}
 		break;
 	case MPVLocation::INTERFACE :
-		if(!geo->areInterfacesBuilt()){
+		if(geo->getInterfacesSyncStatus() != SyncStatus::SYNC){
 			(*m_log)<<"MimmoPiercedVector warning: geometry interfaces are not built"<<std::endl;
 		}
 		{

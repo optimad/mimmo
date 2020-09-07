@@ -360,7 +360,7 @@ livector1D BasicShape::includeGeometry(MimmoSharedPointer<MimmoObject> geo ){
 	if(!(geo->isSkdTreeSupported()))	return livector1D(0);
 
 	//create BvTree and fill it w/ cell list
-	if(!(geo->isSkdTreeSync()))	geo->buildSkdTree();
+	if(geo->getSkdTreeSyncStatus() != SyncStatus::SYNC)	geo->buildSkdTree();
 	//get recursively all the list element in the shape
 	livector1D elements;
 	searchBvTreeMatches(*(geo->getSkdTree()), geo->getPatch(), elements);
@@ -556,7 +556,7 @@ livector1D BasicShape::includeCloudPoints(MimmoSharedPointer<MimmoObject> geo ){
 
 	livector1D elements;
 	//create BvTree and fill it w/ cell list
-	if(!(geo->isKdTreeSync()))	geo->buildKdTree();
+	if(geo->getKdTreeSyncStatus() != SyncStatus::SYNC)	geo->buildKdTree();
 
 	getTempBBox();
 	//get recursively all the list element in the shape

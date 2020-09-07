@@ -196,7 +196,7 @@ Partition::execute(){
 		if ((m_mode == PartitionMethod::PARTGEOM && !(getGeometry()->isDistributed())) || (m_mode == PartitionMethod::SERIALIZE && (getGeometry()->isDistributed())))
 		{
 
-			if (!getGeometry()->areAdjacenciesBuilt()){
+			if (getGeometry()->getAdjacenciesSyncStatus() != SyncStatus::SYNC){
 				getGeometry()->buildAdjacencies();
             }
 
@@ -245,7 +245,7 @@ Partition::execute(){
 			if (getBoundaryGeometry() != nullptr){
 				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
-					if (!getBoundaryGeometry()->areAdjacenciesBuilt())
+					if (getBoundaryGeometry()->getAdjacenciesSyncStatus() != SyncStatus::SYNC)
 						getBoundaryGeometry()->buildAdjacencies();
 
 					//Clean potential point connectivity
