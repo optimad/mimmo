@@ -97,6 +97,16 @@ protected:
     MimmoPointCloud(const MimmoPointCloud &) = default;
 };
 
+/*!
+   \ingroup core
+ * \brief Define status of mimmo object structures like adjacencies, interfaces, etc.
+ */
+enum class SyncStatus: long {
+    NOTSUPPORTED = -1,     /**< structure not supported */
+    NONE = 0,              /**< structure not built */
+    UNSYNC = 1,            /**< structure unsynchronized with geometry status */
+    SYNC = 2               /**< structure synchronized with geometry status */
+};
 
 /*!
 * \class MimmoObject
@@ -127,12 +137,11 @@ protected:
     std::unordered_map<long, std::string>                   m_pidsTypeWNames;  /**< pid type available for your geometry, with name attached */
     std::unique_ptr<bitpit::PatchSkdTree>                   m_skdTree;         /**< ordered tree of geometry simplicies for fast searching purposes */
     std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> > m_kdTree;          /**< ordered tree of geometry vertices for fast searching purposes */
-    bool                                                    m_skdTreeSync;     /**< track correct building of bvtree. Set false if any geometry modifications occur */
-    bool                                                    m_kdTreeSync;      /**< track correct building of kdtree. Set false if any geometry modifications occur*/
-    bool                                                    m_skdTreeSupported;/**< Flag for geometries not supporting skdTree building*/
+    SyncStatus                                              m_skdTreeSync;     /**< Synchronization status of bvtree. */
+    SyncStatus                                              m_kdTreeSync;      /**< Synchronization status of kdtree. */
 
-    bool                                                    m_AdjBuilt;     /**< track correct building of adjacencies along with geometry modifications */
-    bool                                                    m_IntBuilt;     /**< track correct building of interfaces  along with geometry modifications */
+    SyncStatus                                              m_AdjSync;      /**< Synchronization status of adjacencies along with geometry modifications */
+    SyncStatus                                              m_IntSync;      /**< Synchronization status of interfaces  along with geometry modifications */
     bitpit::Logger*                                         m_log;          /**< Pointer to logger.*/
 
     int							m_nprocs;									/**< Total number of processors.*/
@@ -149,15 +158,15 @@ protected:
 	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeShared;	/**< List of Ids of the local points that are shared with each other processor.*/
 	std::unordered_map<long, bool> m_isPointInterior;						/**< True or False if the current rank is considered the real owner (the lower rank for shared points) or not of the id-th (key) point. */
 	std::unordered_map<long, long> m_pointConsecutiveId;					/**< Map id->consecutive id for vertices. */
-	bool						m_pointGhostExchangeInfoSync;				/**< Track correct building of point ghost exchange info along with geometry modifications */
+	SyncStatus					m_pointGhostExchangeInfoSync;				/**< Synchronization status of point ghost exchange info along with geometry modifications */
 
 #endif
 
  	bitpit::PatchNumberingInfo	m_patchInfo;			/**< Patch Numbering Info structure for cells.*/
-    bool                        m_infoSync;				/**< Track correct building of patch info along with geometry modifications */
+ 	SyncStatus                  m_infoSync;				/**< Synchronization status of patch info along with geometry modifications */
 
     std::unordered_map<long, std::unordered_set<long> >	m_pointConnectivity;		/**< Point-Point connectivity. 1-Ring neighbours of each vertex.*/
-    bool                        						m_pointConnectivitySync;	/**< Track correct building of points connectivity along with geometry modifications */
+    SyncStatus                     						m_pointConnectivitySync;	/**< Track correct building of points connectivity along with geometry modifications */
 
 public:
     MimmoObject(int type = 1);
@@ -210,9 +219,9 @@ public:
     bitpit::PatchSkdTree*                           getSkdTree();
     bitpit::KdTree<3, bitpit::Vertex, long> *       getKdTree();
     bitpit::PatchNumberingInfo*                     getPatchInfo();
-    bool                          isSkdTreeSync();
-    bool                          isKdTreeSync();
-    bool                          isInfoSync();
+    SyncStatus                          getSkdTreeSyncStatus();
+    SyncStatus                          getKdTreeSyncStatus();
+    SyncStatus                          getInfoSyncStatus();
 
     double getTolerance();
 
@@ -225,17 +234,17 @@ public:
     bool isParallel();
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeSources() const;
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeTargets() const;
-    bool arePointGhostExchangeInfoSync();
+    SyncStatus getPointGhostExchangeInfoSyncStatus();
     void updatePointGhostExchangeInfo();
     void resetPointGhostExchangeInfo();
-    bool cleanParallelSkdTreeSync();
-    bool cleanParallelKdTreeSync();
-    bool cleanParallelAdjacenciesSync();
-    bool cleanParallelInterfacesSync();
-    bool cleanParallelPointConnectivitySync();
-    bool cleanParallelInfoSync();
-    bool cleanParallelPointGhostExchangeInfoSync();
-    bool cleanAllParallelSync();
+    SyncStatus cleanParallelSkdTreeSync();
+    SyncStatus cleanParallelKdTreeSync();
+    SyncStatus cleanParallelAdjacenciesSync();
+    SyncStatus cleanParallelInterfacesSync();
+    SyncStatus cleanParallelPointConnectivitySync();
+    SyncStatus cleanParallelInfoSync();
+    SyncStatus cleanParallelPointGhostExchangeInfoSync();
+    void cleanAllParallelSync();
     bool isDistributed();
     void deleteOrphanGhostCells();
 #endif
@@ -281,15 +290,17 @@ public:
 
     lilimap      getMapData(bool withghosts=false);
     lilimap      getMapDataInv(bool withghosts=true);
-    lilimap	    getMapCell(bool withghosts=true);
+    lilimap	     getMapCell(bool withghosts=true);
     lilimap      getMapCellInv(bool withghosts=true);
 
     void        getBoundingBox(std::array<double,3> & pmin, std::array<double,3> & pmax, bool global = true);
     void        buildSkdTree(std::size_t value = 1);
     void        buildKdTree();
     void		buildPatchInfo();
-	void        buildAdjacencies();
+    void        buildAdjacencies();
     void        buildInterfaces();
+    void        updateAdjacencies();
+    void        updateInterfaces();
 	void        destroyAdjacencies();
     void        destroyInterfaces();
     void		resetPatch();
@@ -298,8 +309,8 @@ public:
 
     void        update();
 
-    bool        areAdjacenciesBuilt();
-    bool        areInterfacesBuilt();
+    SyncStatus        getAdjacenciesSyncStatus();
+    SyncStatus        getInterfacesSyncStatus();
     bool        isClosedLoop();
 
     std::vector<std::vector<long> > decomposeLoop();
@@ -341,7 +352,7 @@ public:
     void						buildPointConnectivity();
     void						cleanPointConnectivity();
     std::unordered_set<long> &	getPointConnectivity(const long & id);
-    bool						isPointConnectivitySync();
+    SyncStatus  				getPointConnectivitySyncStatus();
 
     void						triangulate();
 

@@ -595,8 +595,12 @@ FFDLattice::execute(){
     m_gdispl.setGeometry(getGeometry());
 
     //build trees
-    if(container->isSkdTreeSupported() && !container->isSkdTreeSync())    container->buildSkdTree();
-    else if(!container->isKdTreeSync())                                container->buildKdTree();
+    if(container->isSkdTreeSupported() && container->getSkdTreeSyncStatus() != SyncStatus::SYNC){
+        container->buildSkdTree();
+    }
+    else if(container->getKdTreeSyncStatus() != SyncStatus::SYNC){
+        container->buildKdTree();
+    }
 
     if(!isBuilt()){
         build();

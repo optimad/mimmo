@@ -881,7 +881,7 @@ void ManipulateWFOBJData::computeNormals(){
 
     //track if i'm forcing the mother to build adjacencies.
     bool deleteMotherAdjacency=false;
-    if(!mother->areAdjacenciesBuilt()){
+    if(mother->getAdjacenciesSyncStatus() != SyncStatus::SYNC){
         mother->buildAdjacencies();
         deleteMotherAdjacency = true;
     }
@@ -1870,7 +1870,7 @@ void IOWavefrontOBJ::write(const std::string & filename){
         (*m_log)<<"WARNING: no geometry linked in "<<m_name<<". Nothing to write on file "<<filename<<'\n';
         return;
     }
-    if(!m_geometry->areAdjacenciesBuilt())  m_geometry->buildAdjacencies();
+    if(m_geometry->getAdjacenciesSyncStatus() != SyncStatus::SYNC)  m_geometry->buildAdjacencies();
 
     // Use internal or external data object
     WavefrontOBJData* objData = getData();

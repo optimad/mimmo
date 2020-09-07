@@ -213,7 +213,7 @@ void MimmoFvMesh::flushSectionXML(bitpit::Config::Section & slotXML, std::string
 void MimmoFvMesh::createBoundaryMesh(){
 
     MimmoSharedPointer<MimmoObject> bulk = getGeometry();
-    if (!bulk->areInterfacesBuilt()) bulk->buildInterfaces();
+    if (bulk->getInterfacesSyncStatus() != SyncStatus::SYNC) bulk->buildInterfaces();
 
     std::set<long> boundaryInterfaces;
     std::set<long> boundaryVertices;
@@ -287,7 +287,7 @@ bool  MimmoFvMesh::checkMeshCoherence(){
     if(boundary == nullptr)  checkBoundaries = false;
 
     if(checkBoundaries){
-        if(!bulk->areInterfacesBuilt())  return false;
+        if(bulk->getInterfacesSyncStatus() != SyncStatus::SYNC)  return false;
         std::string key = std::to_string(bulk->getType()) + std::to_string(boundary->getType());
         if(key !="21" && key !="14")    return false;
 
