@@ -213,7 +213,7 @@ void MimmoFvMesh::flushSectionXML(bitpit::Config::Section & slotXML, std::string
 void MimmoFvMesh::createBoundaryMesh(){
 
     MimmoSharedPointer<MimmoObject> bulk = getGeometry();
-    if (bulk->getInterfacesSyncStatus() != SyncStatus::SYNC) bulk->buildInterfaces();
+    bulk->updateInterfaces();
 
     std::set<long> boundaryInterfaces;
     std::set<long> boundaryVertices;

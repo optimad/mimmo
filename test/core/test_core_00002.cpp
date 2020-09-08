@@ -118,7 +118,7 @@ bool createMimmoMesh(mimmo::MimmoObject * mesh, livector1D & list){
 
 	bool check = (mesh->getNCells() == 48) && (mesh->getNVertices() == 35);
 
-	mesh->buildAdjacencies();
+	mesh->updateAdjacencies();
 	return check;
 }
 
@@ -148,7 +148,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createSubMesh(mimmo::MimmoObject *
 		result->addConnectedCell(original->getCellConnectivity(val), eltype, pid, val);
 	}
 
-	result->buildAdjacencies();
+	result->updateAdjacencies();
 
 	return std::move(result);
 }

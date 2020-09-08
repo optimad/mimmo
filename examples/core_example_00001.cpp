@@ -141,7 +141,7 @@ void test00001() {
 	/*
 	 * Interpolation of synthetic point field on boundary interfaces.
 	 */
-	mimmo0->getGeometry()->buildInterfaces();
+	mimmo0->getGeometry()->updateInterfaces();
 	p = 5.;
 	mimmo::MimmoPiercedVector<double> interfaceField = pointField.pointDataToBoundaryInterfaceData(p);
 	{

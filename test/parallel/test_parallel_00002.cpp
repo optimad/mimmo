@@ -66,8 +66,8 @@ bool createMimmoPCMesh(int np, bitpit::Logger & log, mimmo::MimmoObject * mesh){
         }
     }
 
-    mesh->buildAdjacencies();
-    mesh->buildInterfaces();
+    mesh->updateAdjacencies();
+    mesh->updateInterfaces();
     mesh->update();
 
     bool check = true;

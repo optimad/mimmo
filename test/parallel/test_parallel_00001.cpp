@@ -100,7 +100,7 @@ bool createMimmoMesh(MimmoObject * mesh, std::array<double,3> origin = std::arra
         }
     }
 
-    mesh->buildAdjacencies();
+    mesh->updateAdjacencies();
     mesh->update();
 
     bool check = true;

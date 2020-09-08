@@ -99,7 +99,7 @@ bool createMimmoMesh(MimmoObject * mesh){
         }
     }
 
-    mesh->buildAdjacencies();
+    mesh->updateAdjacencies();
     mesh->update();
 
     bool check = true;
