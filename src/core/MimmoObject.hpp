@@ -297,8 +297,6 @@ public:
     void        buildSkdTree(std::size_t value = 1);
     void        buildKdTree();
     void		buildPatchInfo();
-    void        buildAdjacencies();
-    void        buildInterfaces();
     void        updateAdjacencies();
     void        updateInterfaces();
 	void        destroyAdjacencies();

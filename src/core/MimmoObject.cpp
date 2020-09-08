@@ -2301,7 +2301,7 @@ void MimmoObject::deleteOrphanGhostCells(){
 	//build temporarely adjacencies to get orphans.
 	bool checkResetAdjacencies = false;
 	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC){
-		buildAdjacencies();
+		updateAdjacencies();
 		checkResetAdjacencies = true;
 	}
 	std::vector<long> markToDelete;
@@ -2806,7 +2806,7 @@ livector1D MimmoObject::getVertexFromCellList(const livector1D &cellList){
 livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList, bool all){
 	if(isEmpty() || getType() == 3)   return livector1D(0);
 
-	if(getInterfacesSyncStatus() != SyncStatus::SYNC)   buildInterfaces();
+	updateInterfaces();
 	livector1D result;
 	std::unordered_set<long int> ordV;
 	auto patch = getPatch();
@@ -2892,7 +2892,7 @@ livector1D MimmoObject::getCellFromVertexList(const livector1D & vertexList, boo
 livector1D MimmoObject::getInterfaceFromVertexList(const livector1D & vertexList, bool strict, bool border){
 	if(isEmpty() || getType() == 3)   return livector1D(0);
 
-	if(getInterfacesSyncStatus() != SyncStatus::SYNC)   buildInterfaces();
+	updateInterfaces();
 
 	livector1D result;
 	std::unordered_set<long int> ordV, ordI;
@@ -2961,7 +2961,7 @@ livector1D 	MimmoObject::extractBoundaryVertexID(bool ghost){
 livector1D  MimmoObject::extractBoundaryCellID(bool ghost){
 
 	if(isEmpty() || m_type==3)   return livector1D(0);
-	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)   getPatch()->buildAdjacencies();
+	updateAdjacencies();
 
 	std::unordered_set<long> container;
 	container.reserve(getPatch()->getCellCount());
@@ -3000,7 +3000,7 @@ std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID
 
 	std::unordered_map<long, std::set<int> > result;
 	if(isEmpty() || m_type ==3)   return result;
-	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)   getPatch()->buildAdjacencies();
+	updateAdjacencies();
 
 	auto itBegin = getPatch()->internalBegin();
 	auto itEnd = getPatch()->internalEnd();
@@ -3061,7 +3061,7 @@ livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::s
 livector1D  MimmoObject::extractBoundaryInterfaceID(bool ghost){
 
 	if(isEmpty() || m_type==3)   return livector1D(0);
-	if(getInterfacesSyncStatus() != SyncStatus::SYNC)   buildInterfaces();
+	updateInterfaces();
 
 	std::unordered_set<long> container;
 	container.reserve(getPatch()->getInterfaceCount());
@@ -3313,7 +3313,7 @@ void MimmoObject::update()
 
 #if MIMMO_ENABLE_MPI
     // The adjacencies are needed in parallel case to update the patch in bitpit
-    buildAdjacencies();
+    updateAdjacencies();
 #endif
 
     // Update patch
@@ -3368,7 +3368,7 @@ SyncStatus MimmoObject::getInterfacesSyncStatus(){
  */
 bool MimmoObject::isClosedLoop(){
 
-	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)	buildAdjacencies();
+	updateAdjacencies();
 	bool check = true;
 
 	auto itp = getCells().cbegin();
@@ -3402,7 +3402,7 @@ bool MimmoObject::isClosedLoop(){
  */
 //TODO PARALLEL VERSION (CURRENTLY USED ONLY IN CLOSEDCURVEINTERPOLATOR OF MIMIC)
 livector2D MimmoObject::decomposeLoop(){
-	if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)	buildAdjacencies();
+	updateAdjacencies();
 
 	livector2D result;
 	livector1D globalcellids = getCells().getIds();
@@ -3457,41 +3457,62 @@ livector2D MimmoObject::decomposeLoop(){
 }
 
 /*!
- * Force the class to build cell-cell adjacency connectivity.
- */
-void MimmoObject::buildAdjacencies(){
-    getPatch()->buildAdjacencies();
-    m_AdjSync = SyncStatus::SYNC;
-};
-
-/*!
- * Force the class to build Interfaces connectivity.
- * If MimmoObject does not support connectivity (as Point Clouds do)
- * does nothing.
- */
-void MimmoObject::buildInterfaces(){
-    if(getAdjacenciesSyncStatus() != SyncStatus::SYNC) buildAdjacencies();
-    getPatch()->buildInterfaces();
-    m_IntSync = SyncStatus::SYNC;
-};
-
-/*!
  * Force the class to update cell-cell adjacency connectivity.
  */
 void MimmoObject::updateAdjacencies(){
-    getPatch()->updateAdjacencies();
+
+    switch(getAdjacenciesSyncStatus()){
+    case SyncStatus::NOTSUPPORTED:
+        return;
+        break;
+    case SyncStatus::NONE:
+        getPatch()->buildAdjacencies();
+        break;
+    case SyncStatus::UNSYNC:
+        getPatch()->updateAdjacencies();
+        break;
+    case SyncStatus::SYNC:
+        return;
+        break;
+    default:
+        return;
+        break;
+    }
     m_AdjSync = SyncStatus::SYNC;
+
 };
 
 /*!
- * Force the class to update Interfaces connectivity.
+ * Force the class to update Interfaces connectivity. If needed the adjacencies
+ * are updated too.
  * If MimmoObject does not support connectivity (as Point Clouds do)
  * does nothing.
  */
 void MimmoObject::updateInterfaces(){
-    if(getAdjacenciesSyncStatus() != SyncStatus::SYNC) buildAdjacencies();
-    getPatch()->updateInterfaces();
+
+    if(getAdjacenciesSyncStatus() != SyncStatus::SYNC){
+        updateAdjacencies();
+    }
+
+    switch(getInterfacesSyncStatus()){
+    case SyncStatus::NOTSUPPORTED:
+        return;
+        break;
+    case SyncStatus::NONE:
+        getPatch()->buildInterfaces();
+        break;
+    case SyncStatus::UNSYNC:
+        getPatch()->updateInterfaces();
+        break;
+    case SyncStatus::SYNC:
+        return;
+        break;
+    default:
+        return;
+        break;
+    }
     m_IntSync = SyncStatus::SYNC;
+
 };
 
 /*!
@@ -3807,7 +3828,7 @@ MimmoObject::evalCellAspectRatio(bitpit::PiercedVector<double> & ARs){
 	{   //Following the example of OpenFoam, the AR index is calculated as
 		// the ratio S between total surface and hydraulic surface of an equilater
 		//   cylinder (h=2*r) of the same volume, that is S_hyd = 1/6.0 * (V^(2/3)).
-		if(getInterfacesSyncStatus() != SyncStatus::SYNC)   buildInterfaces();
+	    updateInterfaces();
 		bitpit::VolUnstructured * p = static_cast<bitpit::VolUnstructured *>(getPatch());
 
 		//calculate interface area
@@ -3888,7 +3909,7 @@ MimmoObject::evalCellAspectRatio(const long & id){
 		//Following the example of OpenFoam, the AR index is calculated as
 		// the ratio S between total surface and hydraulic surface of an equilater
 		//   cylinder (h=2*r) of the same volume, that is S_hyd = 1/6.0 * (V^(2/3)).
-		if(getInterfacesSyncStatus() != SyncStatus::SYNC)   buildInterfaces();
+	    updateInterfaces();
 		bitpit::VolUnstructured * p = static_cast<bitpit::VolUnstructured *>(getPatch());
 
 		double sumArea = 0.0;
@@ -3955,9 +3976,7 @@ MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double 
 bitpit::PiercedVector<double>
 MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
 
-    if(surface.getAdjacenciesSyncStatus() != SyncStatus::SYNC){
-        surface.buildAdjacencies();
-    }
+    surface.updateAdjacencies();
 
     if (surface.getSkdTreeSyncStatus() != SyncStatus::SYNC)
         surface.buildSkdTree();
@@ -4161,9 +4180,7 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
     bitpit::PiercedVector<double> result;
     if(surface.getType() != 1) return result;
 
-    if(surface.getAdjacenciesSyncStatus() != SyncStatus::SYNC){
-        surface.buildAdjacencies();
-    }
+    surface.updateAdjacencies();
 
     if (surface.getSkdTreeSyncStatus() != SyncStatus::SYNC)
         surface.buildSkdTree();

@@ -102,7 +102,7 @@ bool createMimmoMesh(mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh){
 
 	bool check = (mesh->getNCells() == 48) && (mesh->getNVertices() == 35);
 
-	mesh->buildAdjacencies();
+	mesh->updateAdjacencies();
 	return check;
 }
 
@@ -132,7 +132,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createSubMesh(mimmo::MimmoSharedPo
 		result->addConnectedCell(original->getCellConnectivity(val), eltype, pid, val);
 	}
 
-	result->buildAdjacencies();
+	result->updateAdjacencies();
 
 	return result;
 }
