@@ -23,11 +23,7 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_utils.hpp"
-#include "MimmoSharedPointer.hpp"
 #include <exception>
-using namespace std;
-using namespace bitpit;
-using namespace mimmo;
 
 
 /*
@@ -35,7 +31,7 @@ using namespace mimmo;
  * \param[in,out] mesh pointer to a MimmoObject mesh to fill.
  * \return true if successfully created mesh
  */
-bool createMimmoMesh(MimmoObject * mesh){
+bool createMimmoMesh(mimmo::MimmoObject * mesh){
 
     double dx = 0.25, dy = 0.25;
     int nV, nC;
@@ -109,29 +105,33 @@ bool createMimmoMesh(MimmoObject * mesh){
  */
 int test2() {
 
-    MimmoSharedPointer<MimmoObject> m1(new MimmoObject());
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> m1(new mimmo::MimmoObject());
     if(!createMimmoMesh(m1.get())) {
         return 1;
     }
     darray3E normal = {{0,0,1}};
-    CreateSeedsOnSurface * cseed = new CreateSeedsOnSurface();
+    mimmo::CreateSeedsOnSurface * cseed = new mimmo::CreateSeedsOnSurface();
     cseed->setGeometry(m1);
     cseed->setSeed({{0.0,0.0,0.0}});
-    cseed->setNPoints(2);
-    cseed->setEngine(0);
-    cseed->exec();
+    cseed->setNPoints(16);
+    cseed->setEngine(2);
     cseed->setPlotInExecution(true);
 
+
+    cseed->exec();
+//    cseed->getLog().setPriority(bitpit::log::Priority::NORMAL);
+//    cseed->solve(true);
     bool check = std::abs(dotProduct(cseed->getPoints()[1], normal)) < 1.e-18;
 
-//     std::cout<<cseed->getPoints()[1]<<std::endl;
+    // std::cout<<cseed->getPoints()[1]<<std::endl;
 
     cseed->setEngine(1);
+    cseed->setPlotInExecution(false);
     cseed->exec();
 
     darray3E target = {{1.5,1.0,0.0}};
 
-//     std::cout<<cseed->getPoints()[1]<<std::endl;
+    //std::cout<<cseed->getPoints()[1]<<std::endl;
 
     check = check && (norm2(cseed->getPoints()[1]- target) < 1.e-18);
 
