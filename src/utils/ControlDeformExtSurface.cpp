@@ -367,7 +367,7 @@ ControlDeformExtSurface::execute(){
     for(MimmoSharedPointer<MimmoObject> localg : constraint_geos){
 
         //check constraint skdtree
-        if(!(localg->isSkdTreeSync()))    localg->buildSkdTree();
+        localg->buildSkdTree();
         //get the global bounding box of the constraint surface
         getGlobalBoundingBox(localg, bbMin, bbMax);
         //evaluate a guess of the search radius as distance using AABBs of the global
@@ -526,8 +526,8 @@ ControlDeformExtSurface::readFileConstraints(std::vector<MimmoSharedPointer<Mimm
 
         extFileGeos[counter] = locMesh;
 
-        if (!extFileGeos[counter]->areAdjacenciesBuilt()) extFileGeos[counter]->buildAdjacencies();
-        if (!extFileGeos[counter]->isSkdTreeSync()) extFileGeos[counter]->buildSkdTree();
+        extFileGeos[counter]->updateAdjacencies();
+        extFileGeos[counter]->buildSkdTree();
 
         ++counter;
     }
@@ -577,7 +577,7 @@ ControlDeformExtSurface::evaluateSignedDistance(const std::vector<darray3E> &poi
                                                 double initRadius, std::vector<double> & distances)
 {
 
-    if(!geo->isSkdTreeSync())    geo->buildSkdTree();
+    geo->buildSkdTree();
 
     double dist = std::numeric_limits<double>::max();
     double rate = 0.05;
@@ -713,7 +713,7 @@ ControlDeformExtSurface::getGlobalBoundingBox(MimmoSharedPointer<MimmoObject> & 
     geo->getBoundingBox(bMin, bMax, true);
 
 #if MIMMO_ENABLE_MPI
-    //TODO : this FIX WILL be useless once rank0-only mesh in multiproc MPI 
+    //TODO : this FIX WILL be useless once rank0-only mesh in multiproc MPI
     //will return always the global bb among all ranks.
     if(geo->getPatch()->isCommunicatorSet() && !geo->isParallel()){
         MPI_Allreduce(MPI_IN_PLACE, bMin.data(), 3, MPI_DOUBLE, MPI_MIN, geo->getPatch()->getCommunicator());

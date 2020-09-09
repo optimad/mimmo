@@ -93,7 +93,7 @@ bool createMimmoMesh(mimmo::MimmoObject * mesh){
         }
     }
 
-    mesh->buildAdjacencies();
+    mesh->updateAdjacencies();
     mesh->update();
 
     bool check = (mesh->getNGlobalCells() == 48) && (mesh->getNGlobalVertices() == 35);

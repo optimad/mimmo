@@ -463,9 +463,8 @@ CreateSeedsOnSurface::solveLSet(bool debug){
         worksensitivity = m_sensitivity;
     }
 
-    //TODO use new sync method
-    if(!(workgeo->areAdjacenciesBuilt()) ) workgeo->buildAdjacencies();
-//    if(!(workgeo->isSkdTreeSync())) workgeo->buildSkdTree();
+    workgeo->updateAdjacencies();
+    workgeo->buildSkdTree();
     bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(workgeo->getPatch());
 
 
@@ -1585,8 +1584,7 @@ CreateSeedsOnSurface::createTriangulation(){
             if(!originalPV.exists(it.getId()))  missingIds.push_back(it.getId());
         }
 
-        //TODO convert in updateAdjacencies
-        temp->buildAdjacencies();
+        temp->updateAdjacencies();
         std::unordered_map<long,long> invConn = getInverseConn(*(temp->getPatch()));
         darray3E pcoord;
         for(long id : missingIds){

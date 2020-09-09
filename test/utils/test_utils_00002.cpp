@@ -94,7 +94,7 @@ bool createMimmoMesh(mimmo::MimmoObject * mesh){
 
     bool check = (mesh->getNCells() == 48) && (mesh->getNVertices() == 35);
 
-    mesh->buildAdjacencies();
+    mesh->updateAdjacencies();
     mesh->update();
     mesh->getPatch()->write("support");
     return check;
