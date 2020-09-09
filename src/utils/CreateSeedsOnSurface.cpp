@@ -26,6 +26,8 @@
 #include "Lattice.hpp"
 #include "SkdTreeUtils.hpp"
 
+#include <CG.hpp>
+
 #include <stdlib.h>
 #include <time.h>
 #include <set>
@@ -45,9 +47,7 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(){
     m_seedbaricenter = false;
     m_randomFixed = false;
     m_randomSignature = 1;
-    std::unique_ptr<mimmo::OBBox> box(new mimmo::OBBox());
-    bbox = std::move(box);
-
+    m_bbox = std::unique_ptr<mimmo::OBBox> (new mimmo::OBBox());
 };
 
 /*!
@@ -64,8 +64,7 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(const bitpit::Config::Section & rootX
     m_seedbaricenter = false;
     m_randomFixed = false;
     m_randomSignature = 1;
-    std::unique_ptr<mimmo::OBBox> box(new mimmo::OBBox());
-    bbox = std::move(box);
+    m_bbox = std::unique_ptr<mimmo::OBBox> (new mimmo::OBBox());
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -80,11 +79,11 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(const bitpit::Config::Section & rootX
 /*!
  * Destructor;
  */
-CreateSeedsOnSurface::~CreateSeedsOnSurface(){
-};
+CreateSeedsOnSurface::~CreateSeedsOnSurface(){};
 
 /*!
- * Copy constructor
+ * Copy constructor. Retain only meaningful inputs
+   \param[in] other class to copy from
  */
 CreateSeedsOnSurface::CreateSeedsOnSurface(const CreateSeedsOnSurface & other):BaseManipulation(other){
     m_points = other.m_points;
@@ -95,13 +94,13 @@ CreateSeedsOnSurface::CreateSeedsOnSurface(const CreateSeedsOnSurface & other):B
     m_seedbaricenter = other.m_seedbaricenter;
     m_randomFixed = other.m_randomFixed;
     m_randomSignature = other.m_randomSignature;
-    m_deads = other.m_deads;
     m_sensitivity = other.m_sensitivity;
-    bbox = std::move(std::unique_ptr<mimmo::OBBox>(new mimmo::OBBox(*(other.bbox.get()))));
+    m_bbox = std::unique_ptr<mimmo::OBBox>(new mimmo::OBBox(*(other.m_bbox.get())));
 };
 
 /*!
  * Assignment operator
+   \param[in] other class to copy from
  */
 CreateSeedsOnSurface & CreateSeedsOnSurface::operator=(CreateSeedsOnSurface other){
     swap(other);
@@ -123,9 +122,10 @@ void CreateSeedsOnSurface::swap(CreateSeedsOnSurface & x) noexcept
     std::swap(m_randomFixed, x.m_randomFixed);
     std::swap(m_randomSignature, x.m_randomSignature);
     std::swap(m_deads, x.m_deads);
-//     std::swap(m_sensitivity, x.m_sensitivity);
     m_sensitivity.swap(x.m_sensitivity);
-    std::swap(bbox, x.bbox);
+    std::swap(m_bbox, x.m_bbox);
+    std::swap(m_final_sensitivity, x.m_final_sensitivity);
+
     BaseManipulation::swap(x);
 }
 /*!
@@ -299,15 +299,16 @@ CreateSeedsOnSurface::setGeometry(MimmoSharedPointer<MimmoObject> geo){
     if(geo->getType() != 1)    return;
 
     BaseManipulation::setGeometry(geo);
-    if(!geo->isSkdTreeSync())            getGeometry()->buildSkdTree();
-    if(!geo->areAdjacenciesBuilt() )    getGeometry()->buildAdjacencies();
-    bbox->setGeometry(geo);
+    //using the following method to clear it up first any previous geometry retained in local bbox member
+    m_bbox->setGeometries(std::vector<MimmoSharedPointer<MimmoObject> >(1,geo));
 }
 
 
 /*!
- * Activate a fixed random distribution through signature specification(see setRandomSignature). Same signature will be able to reproduce
- * the exact random distribution in multiple runs. It is possible to get the current signature after each random execution using the getRandomSignature method.
+ * Activate a fixed random distribution through signature specification (see setRandomSignature).
+   Same signature will be able to reproduce the exact random distribution in multiple runs.
+   It is possible to get the current signature after each random execution using
+   the getRandomSignature method.
  * This option will only make sense if a CSeedSurf::RANDOM engine is employed. Otherwise it is ignored.
  *\param[in] fix if true activate the options, false deactivate it.
  */
@@ -315,9 +316,12 @@ void
 CreateSeedsOnSurface::setRandomFixed(bool fix){
     m_randomFixed = fix;
 }
+
 /*!
- * Set the signature (each integer >= 0) of your fixed random distribution (activable with setRandomFixed). Same signature will be able to reproduce
- * the exact random distribution in multiple runs. * This option will only make sense if a CSeedSurf::RANDOM engine is employed. Otherwise it is ignored.
+ * Set the signature (each integer >= 0) of your fixed random distribution
+  (activated by setRandomFixed). Same signature will be able to reproduce
+ * the exact random distribution in multiple runs. This option will only make
+  sense if a CSeedSurf::RANDOM engine is employed. Otherwise it is ignored.
  *\param[in] signature unsigned integer number
  */
 void
@@ -326,8 +330,9 @@ CreateSeedsOnSurface::setRandomSignature( uint32_t signature){
 }
 
 /*!
- * Set a sensitivity scalar field, referred to the target geometry linked, to drive placement of the seeds points
- * on the most sensitive part of the geometry. The sensitivity field MUST be defined on geometry vertices.
+ * Set a sensitivity scalar field, referred to the target surface geometry linked,
+  to drive points seeding onto the  most sensitive part of the geometry.
+  The sensitivity field MUST be defined on geometry vertices.
  *\param[in] field sensitivity
  */
 void
@@ -337,7 +342,7 @@ CreateSeedsOnSurface::setSensitivityMap( dmpvector1D *field){
 }
 
 /*!
- * Clear contents of the class
+ * Clear input contents of the class
  */
 void
 CreateSeedsOnSurface::clear(){
@@ -351,14 +356,15 @@ CreateSeedsOnSurface::clear(){
     m_randomSignature =1;
     m_deads.clear();
     m_sensitivity.clear();
-
+    m_final_sensitivity.clear();
 }
 
 /*!
- * Execution command of the class. Wrapper to solve( bool ) method
+ * Execution command of the class. Wrapper to CreateSeedsOnSurface::solve method
  */
 void
 CreateSeedsOnSurface::execute(){
+
     solve(false);
 }
 
@@ -369,9 +375,7 @@ CreateSeedsOnSurface::execute(){
 void
 CreateSeedsOnSurface::plotOptionalResults(){
 
-    std::string dir = m_outputPlot;
-    std::string nameGrid  = m_name + "CLOUD";
-    plotCloud(dir, nameGrid, getId(), true );
+    plotCloud(m_outputPlot, m_name + "Cloud", getId(), true );
 }
 
 /*!
@@ -382,22 +386,30 @@ void
 CreateSeedsOnSurface::solve(bool debug){
 
     if(getGeometry() == nullptr){
-        (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
+        (*m_log)<<"Error in " + m_name + " : nullptr pointer to linked geometry found"<<std::endl;
         throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
-    if(getGeometry()->isEmpty()){
-        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-    }else{
+#if MIMMO_ENABLE_MPI
+    int ncells = getGeometry()->getNGlobalCells();
+#else
+    int ncells = getGeometry()->getNCells();
+#endif
+    if(ncells == 0){
+        (*m_log)<<"Error in " + m_name + " : globally empty surface found, impossible to seed points "<<std::endl;
+        throw std::runtime_error(m_name + " : globally empty surface found, impossible to seed points ");
+    }
+    //clear the points
+    m_points.clear();
+    //evaluate the oriented bounding box of the 3D surface (geometry already provided to the box in setGeometry method)
+    m_bbox->execute();
+    if(m_seedbaricenter)    m_seed = m_bbox->getOrigin();
+    //check and fix it up the sensitivity field attached
+    checkField();
+    normalizeField();
 
-        m_points.clear();
-        bbox->execute();
-        if(m_seedbaricenter)    m_seed = bbox->getOrigin();
-
-        checkField();
-        normalizeField();
-
-        switch(m_engine){
+    //choose the engine and seed the points.
+    switch(m_engine){
         case CSeedSurf::RANDOM :
             solveRandom(debug);
             break;
@@ -412,17 +424,15 @@ CreateSeedsOnSurface::solve(bool debug){
 
         default: //never been reached
             break;
-        }
     }
-
-
-
 };
 
 /*!
- * Find your optimal distribution starting from a seed point and calculating geodesic distance from point of each
- * triangulated surface node. Add the most distant point from seed to list of candidates, thus update geodesic distance field from the two points,
- * and repeat the process up the desired number of candidates.
+ * Find optimal distribution starting from m_seed point and calculating geodesic
+   distance from point of each surface node.
+   Add the most distant point from seed to list of candidates, thus update geodesic
+   distance field from the two points,and repeat the process up the desired number of candidates.
+   For MPI version the method does nothing.
  *\param[in]    debug    flag to activate logs of solver execution
  */
 void
@@ -430,77 +440,70 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
 #if MIMMO_ENABLE_MPI
     if(m_nprocs > 1){
-       //TODO Lset strategy not available in MPI. You need to implement a method of
-      // calculation of LS suitable for distributed archs.
-        (*m_log)<<"WARNING "<<m_name<<" : LevelSet option not yet available in MPI version with proc > 1"<<std::endl;
+        //Levelset strategy not available in MPI multirank.
+        (*m_log)<<"Warning in "<<m_name<<" : LevelSet option is not available in MPI version with np > 1. Switch to another engine."<<std::endl;
         return;
     }
 #endif
 
     if(debug)    (*m_log)<<m_name<<" : started LevelSet engine"<<std::endl;
+
     dvecarr3E initList;
+    m_deads.clear();
     m_deads.reserve(m_nPoints);
 
     //understand if the class is a pure triangulation or not
-    MimmoSharedPointer<MimmoObject> objTriangulated;
     MimmoSharedPointer<MimmoObject> workgeo;
     dmpvector1D worksensitivity;
     if(!checkTriangulation()){
-        objTriangulated = triangulate();
-        workgeo = objTriangulated;
-        worksensitivity = m_sensitivity;
+        workgeo = createTriangulation();
+        worksensitivity = m_sensitivity_triangulated;
     }else{
         workgeo   = getGeometry();
-        worksensitivity = m_sensitivity_triangulated;
+        worksensitivity = m_sensitivity;
     }
 
+    //TODO use new sync method
     if(!(workgeo->areAdjacenciesBuilt()) ) workgeo->buildAdjacencies();
-    if(!(workgeo->isSkdTreeSync())) workgeo->buildSkdTree();
-    if(!(workgeo->isKdTreeSync())) workgeo->buildKdTree();
+//    if(!(workgeo->isSkdTreeSync())) workgeo->buildSkdTree();
     bitpit::SurfUnstructured * tri = static_cast<bitpit::SurfUnstructured * >(workgeo->getPatch());
 
-    double distance = 0.0;
-    for(const auto &cell : tri->getCells()){
-        distance += tri->evalCellArea(cell.getId());
-    }
-    distance /= double(tri->getCellCount());
-    distance = std::pow(distance, 0.5);
 
-    livector1D neighs, excl;
-    darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, workgeo->getSkdTree());
-    bitpit::Vertex vertSeed(0, projSeed);
-    //find the vertex of the mesh nearest to projSeed.
-    int nSize = 0;
-    while( nSize < 1){
-        workgeo->getKdTree()->hNeighbors(&vertSeed, distance, &neighs, & excl );
-        nSize = neighs.size();
-        distance *= 1.1;
-    }
+    //find the nearest mesh vertex to the seed point, passing from the nearest cell
+    long candidateIdv = bitpit::Vertex::NULL_ID;
+    {
+        double distance = std::numeric_limits<double>::max();
+        long cellId = bitpit::Cell::NULL_ID;
+        darray3E pseed;
+        skdTreeUtils::projectPoint(1, &m_seed, workgeo->getSkdTree(), &pseed, &cellId, distance);
 
-    long candidate = neighs[0];
-    double minDist = norm2(projSeed - tri->getVertexCoords(candidate));
-    for(int i=1; i<nSize; ++i){
-        double val = norm2(projSeed - tri->getVertexCoords(neighs[i]));
-        if(val < minDist){
-            candidate = neighs[i];
-            minDist = val;
+        if(cellId != bitpit::Cell::NULL_ID){
+            bitpit::ConstProxyVector<long> cellVids = tri->getCell(cellId).getVertexIds();
+            double mindist = std::numeric_limits<double>::max();
+            double wdist;
+            for(long idV : cellVids){
+                wdist = norm2(pseed - workgeo->getVertexCoords(idV));
+                if(wdist < mindist){
+                    candidateIdv = idV;
+                    mindist = wdist;
+                }
+            }
         }
     }
 
-    m_deads.push_back(candidate);
+    if(candidateIdv != bitpit::Vertex::NULL_ID) m_deads.push_back(candidateIdv);
+
     int deadSize = m_deads.size();
     if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
 
     std::unordered_map<long,long> invConn = getInverseConn(*(workgeo->getPatch()));
     if(debug)    (*m_log)<<m_name<<" : created geometry inverse connectivity"<<std::endl;
 
-    while(deadSize < m_nPoints){
+    while(deadSize < m_nPoints && deadSize != 0){
 
         dmpvector1D field;
-        for (const auto & v : tri->getVertices()){
-            field.insert(v.getId(), std::numeric_limits<double>::max());
-        }
-        for(const auto & dd : m_deads)    field[dd] = 0.0;
+        field.initialize(workgeo, MPVLocation::POINT,  std::numeric_limits<double>::max());
+        for(const auto & dd : m_deads)  field[dd] = 0.0;
 
         solveEikonal(1.0,1.0, *(workgeo->getPatch()), invConn, field);
 
@@ -527,145 +530,154 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     }
 
     //store result in m_points.
+    m_points.clear();
+    m_final_sensitivity.clear();
     m_points.reserve(deadSize);
+    m_final_sensitivity.reserve(deadSize);
     for(const auto & val: m_deads){
         m_points.push_back(tri->getVertexCoords(val));
+        m_final_sensitivity.push_back(worksensitivity[val]);
     }
 
-    m_minDist = 1.E18;
+    m_minDist = std::numeric_limits<double>::max();
 
     for(int i=0; i<deadSize; ++i){
         for(int j=i+1; j<deadSize; ++j){
-            m_minDist = std::fmin(m_minDist,norm2(m_points[i] - m_points[j]));
+            m_minDist = std::min(m_minDist,norm2(m_points[i] - m_points[j]));
         }
     }
 
     m_deads.clear();
+    m_sensitivity_triangulated.clear();
     if(debug)    (*m_log)<<m_name<<" : distribution of point successfully found w/ LevelSet engine "<<std::endl;
 };
 
 /*!
- * Find your optimal distribution, projecting an initial 3D cartesian grid on the 3D object surface.
- * The final number of points is reached decimating projected points up to desired value m_points, trying
- * to maximaze euclidean distance between them
+ * Find your optimal distribution, projecting an initial 3D cartesian grid on the
+   3D object surface.
+ * The final number of points is reached decimating projected points up to desired
+   value m_points, trying to maximize euclidean distance between them
  * \param[in] debug flag to activate logs of solver execution
  */
 void
 CreateSeedsOnSurface::solveGrid(bool debug){
 
+    //MPI version: all ranks do the same thing on indipendent but all-the-same list of m_points
     if(debug)    (*m_log)<<m_name<<" : started CartesianGrid engine"<<std::endl;
-    iarray3E dim;
 
-    //get the seed and project it on surface
-    darray3E projSeed = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getSkdTree());
-    if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
-    if (m_nPoints == 1)    {
-        m_points.clear();
-        m_points.push_back(projSeed);
-        return;
-    }
-
-    m_minDist = norm2(bbox->getSpan());
-    double dx = m_minDist/int(std::pow(double(m_nPoints),0.5)+ 0.5);
+    //find a suitable dimension set for cartesian grid so that its vertices will
+    //represent an enough populated list of candidate points.
+    iarray3E dim = {{1,1,1}};
+    darray3E span = m_bbox->getSpan();
+    m_minDist = norm2(span)/2.0;
+    double perim = span[0]+span[1]+span[2];
     {
-        //check dimension
-        std::vector<std::pair<double,int> > mapDimension(3);
-        std::vector<std::pair<double,int> >::iterator itm;
-        std::vector<std::pair<double,int> >::reverse_iterator ritm;
-
-        mapDimension[0] = std::make_pair(bbox->getSpan()[0]/dx, 0);
-        mapDimension[1] = std::make_pair(bbox->getSpan()[1]/dx, 1);
-        mapDimension[2] = std::make_pair(bbox->getSpan()[2]/dx, 2);
-
-        std::sort(mapDimension.begin(), mapDimension.end());
-
-        for(itm = mapDimension.begin(); itm !=mapDimension.end(); ++itm){
-            dim[itm->second] = std::max(int(itm->first + 0.5),1);
-        }
-
-        int cumCells = dim[0]*dim[1]*dim[2];
-        ritm=mapDimension.rbegin();
-        while (cumCells < m_nPoints){
-
-            dim[ritm->second] += 1;
-            ritm++;
-            if(ritm == mapDimension.rend())    ritm = mapDimension.rbegin();
-
-            cumCells = dim[0]*dim[1]*dim[2];
+        for(int i=0; i<3; ++i){
+            dim[i] = std::max(dim[i], int(span[i]*m_nPoints/perim + 0.5));
         }
     }
 
-    //raise dimension to number of effective nodes for each direction.
-    dim[0] +=1;
-    dim[1] +=1;
-    dim[2] +=1;
+    dim += iarray3E({{1,1,1}});
 
     //create a lattice on it
     mimmo::Lattice * grid = new Lattice();
     grid->setShape(mimmo::ShapeType::CUBE);
-    grid->setOrigin(bbox->getOrigin());
-    grid->setSpan(bbox->getSpan());
-    grid->setRefSystem(bbox->getAxes());
+    grid->setOrigin(m_bbox->getOrigin());
+    grid->setSpan(m_bbox->getSpan());
+    grid->setRefSystem(m_bbox->getAxes());
     grid->setDimension(dim);
     grid->execute();
-    //grid->plotGrid("./", "lattice",0,false);
 
-    if(debug)    (*m_log)<<m_name<<" : build volume cartesian grid wrapping 3D surface"<<std::endl;
-    //find narrow band cells and extracting their centroids
+    //get cell centroids
     dvecarr3E centroids = grid->getGlobalCellCentroids();
 
-    dvecarr3E initList;
-    initList.reserve(centroids.size());
+    if(debug)    (*m_log)<<m_name<<" : build volume cartesian grid wrapping 3D surface"<<std::endl;
 
-    double distR = 0.5*norm2(grid->getSpacing());
-    double dist, dummy;
-    long id;
-    darray3E normal;
-    for(auto & p : centroids){
-        dummy=distR;
-        dist =  mimmo::skdTreeUtils::signedDistance(&p,getGeometry()->getSkdTree(),id, normal, dummy);
-        if(std::abs(dist) < distR){
-            initList.push_back(p-dist*normal);
+    getGeometry()->buildSkdTree();
+
+    //project centroids on surface. For MPI use shared list algorithm
+    dvecarr3E projCentroids(centroids.size());
+    dvector1D projSensitivity(centroids.size(), 1.0);
+    int currentRank = 0;
+    {
+        livector1D ids(centroids.size());
+#if MIMMO_ENABLE_MPI
+        ivector1D ranks(centroids.size(),-1);
+        int currentRank = getRank();
+        skdTreeUtils::projectPointGlobal(int(centroids.size()), centroids.data(), getGeometry()->getSkdTree(), projCentroids.data(), ids.data(), ranks.data(), m_minDist, true); //called SHARED
+#else
+        skdTreeUtils::projectPoint(int(centroids.size()), centroids.data(), getGeometry()->getSkdTree(), projCentroids.data(), ids.data(), m_minDist);
+#endif
+        //get list of interpolated sensitivities on the proj points.
+        //Beware, MPI version will work only on proj points lying on a cell internal to rank, otherwise will leave
+        //sensitivity to the unitary default value.
+        int count(0);
+        for(darray3E & p : projCentroids){
+#if MIMMO_ENABLE_MPI
+            if(currentRank == ranks[count])
+#endif
+            {
+                bitpit::ConstProxyVector<long> cellVids = getGeometry()->getPatch()->getCell(ids[count]).getVertexIds();
+                dvecarr3E listv;
+                listv.reserve(cellVids.size());
+                for(long id: cellVids){
+                    listv.push_back(getGeometry()->getVertexCoords(id));
+                }
+                dvector1D lambdas;
+                bitpit::CGElem::computeGeneralizedBarycentric(p, listv, lambdas);
+                projSensitivity[count] = 0;
+                int ccvids(0);
+                for(long id: cellVids){
+                   projSensitivity[count] += lambdas[ccvids] * m_sensitivity[id];
+                   ++ccvids;
+                }
+            }
+            ++count;
         }
-        normal.fill(0.0);
+
+#if MIMMO_ENABLE_MPI
+        //reduce properly list of sensitivities for multi ranks processing
+        MPI_Allreduce(MPI_IN_PLACE, projSensitivity.data(), int(projSensitivity.size()), MPI_DOUBLE, MPI_MIN, m_communicator);
+#endif
     }
+
     if(debug)    (*m_log)<<m_name<<" : found grid cell centers in the narrow band of 3D surface and projected them on it "<<std::endl;
 
 
+    //SORT THE CURRENT POINT LIST FROM NEAREST TO FARTHEST from m_seed
     //rearrange the list, putting the most nearest point to the seed on top
     // and decimate points up to desired value.
-    int initListSize = initList.size();
-    if( initListSize > m_nPoints){
-
-        dvecarr3E secondList;
-        secondList.reserve(initList.size());
-        {
-            dvecarr3E::iterator it, itMaxNorm = initList.begin();
-            double normPoint, minValue = 1.E18;
-
-            for(it= initList.begin(); it !=initList.end(); ++it){
-                normPoint= norm2(*it - m_seed);
-                if(normPoint < minValue){
-                    minValue = normPoint;
-                    itMaxNorm= it;
-                }
-            }
-
-            darray3E temp = *itMaxNorm;
-            initList.erase(itMaxNorm);
-            secondList.push_back(temp);
-            secondList.insert(secondList.end(),initList.begin(), initList.end());
-            initList.clear();
+    {
+        std::vector<std::pair<double, int>> sortContainer;
+        sortContainer.reserve(projCentroids.size());
+        int cc(0);
+        for(darray3E & p : projCentroids){
+            sortContainer.push_back(std::make_pair(norm2(m_seed - p), cc));
+            ++cc;
         }
+        std::sort(sortContainer.begin(), sortContainer.end());
 
-        initList = decimatePoints(secondList);
-        if(debug)    (*m_log)<<m_name<<" : candidates decimated "<<std::endl;
+        dvecarr3E tempP(projCentroids.size());
+        dvector1D tempS(projCentroids.size());
+        cc=0;
+        for(std::pair<double,int> & val : sortContainer){
+            tempP[cc] = projCentroids[val.second];
+            tempS[cc] = projSensitivity[val.second];
+            ++cc;
+        }
+        std::swap(projCentroids, tempP);
+        std::swap(projSensitivity, tempS);
     }
-    //store result in m_points.
-    m_points = dvecarr3E(initList.begin(), initList.end());
-    m_nPoints = (int)m_points.size();
+
+    decimatePoints(projCentroids, projSensitivity);
+    if(debug)    (*m_log)<<m_name<<" : candidates decimated "<<std::endl;
+
+    //store results
+    std::swap(m_points, projCentroids);
+    std::swap(m_final_sensitivity, projSensitivity);
     if(debug)    (*m_log)<<m_name<<" : distribution of point successfully found w/ CartesianGrid engine "<<std::endl;
-    delete grid; grid = nullptr;
+
+    delete grid;
 };
 
 
@@ -678,63 +690,120 @@ void
 CreateSeedsOnSurface::solveRandom(bool debug){
 
     if(debug)    (*m_log)<<m_name<<" : started Random engine"<<std::endl;
-    dvecarr3E initList(getNPoints());
 
-    //get the seed and project it on surface
-    initList[0] = skdTreeUtils::projectPoint(&m_seed, getGeometry()->getSkdTree());
-    if(debug)    (*m_log)<<m_name<<" : projected seed point"<<std::endl;
-    if (m_nPoints == 1)    {
-        m_points.clear();
-        m_points = initList;
-        return;
-    }
-
-    m_minDist = norm2(bbox->getSpan()) / 2.0;
-
+    darray3E span = m_bbox->getSpan();
+    m_minDist = norm2(span)/ 2.0;
     //fill the oriented bounding box of the figure randomly with max of 100 and 5*m_nPoints
-    dvecarr3E tentative;
+    dvecarr3E centroids;
     {
-        darray3E span = bbox->getSpan();
-        dmatrix33E axes = bbox->getAxes();
-        darray3E minP = bbox->getOrigin();
+        dmatrix33E axes = m_bbox->getAxes();
+        darray3E minP = m_bbox->getOrigin();
         for(int i=0; i<3; ++i) {minP += - 0.5*span[i]*axes[i];}
-
 
         if (!m_randomFixed){
             m_randomSignature = uint32_t(time(nullptr));
         }
+#if MIMMO_ENABLE_MPI
+        MPI_Bcast(&m_randomSignature, 1, MPI_UINT32_T, 0, m_communicator);
+#endif
         std::mt19937 rgen; //based on marsenne-twister random number generator
         rgen.seed(m_randomSignature);
         double dist_rgen = double(rgen.max()-rgen.min());
         double beg_rgen = double(rgen.min());
 
-        int nTent = std::max(100,5*m_nPoints);
-        tentative.resize(nTent+1);
-        tentative[0] = initList[0];
+        int nTent = 5*m_nPoints;
+        centroids.resize(nTent, minP);
 
         for(int i = 0; i<nTent; ++i){
-            tentative[i+1] = minP;
             for(int j=0; j<3; ++j){
                 double valrand = (double(rgen())-beg_rgen)/dist_rgen;
-                tentative[i+1] +=  valrand * span[j]*axes[j];
+                centroids[i] +=  valrand * span[j]*axes[j];
             }
-        }
-
-        //project tentative points on surface.
-        for(int i = 0; i<nTent; ++i){
-            minP = skdTreeUtils::projectPoint(&tentative[i+1], getGeometry()->getSkdTree());
-            tentative[i+1] = minP;
         }
     }
 
-
     if(debug)    (*m_log)<<m_name<<" : found random points"<<std::endl;
-    //decimate points up to desired value
-    initList = decimatePoints(tentative);
-    if(debug)    (*m_log)<<m_name<<" : decimated random points"<<std::endl;
-    //store result in m_points.
-    m_points = initList;
-    m_nPoints = (int)m_points.size();
+    getGeometry()->buildSkdTree();
+
+    //project centroids on surface. For MPI use shared list algorithm
+    dvecarr3E projCentroids(centroids.size());
+    dvector1D projSensitivity(centroids.size(), 1.0);
+    {
+        livector1D ids(centroids.size(), bitpit::Cell::NULL_ID);
+#if MIMMO_ENABLE_MPI
+        ivector1D ranks(centroids.size(),-1);
+        int currentRank = getRank();
+        skdTreeUtils::projectPointGlobal(int(centroids.size()), centroids.data(), getGeometry()->getSkdTree(), projCentroids.data(), ids.data(), ranks.data(), m_minDist, true); //called SHARED
+#else
+        skdTreeUtils::projectPoint(int(centroids.size()), centroids.data(), getGeometry()->getSkdTree(), projCentroids.data(), ids.data(), m_minDist);
+#endif
+        //get list of interpolated sensitivities on the proj points.
+        //Beware, MPI version will work only on proj points lying on a cell internal to rank, otherwise will leave
+        //sensitivity to the unitary default value.
+        int count(0);
+        for(darray3E & p : projCentroids){
+#if MIMMO_ENABLE_MPI
+            if(currentRank == ranks[count])
+#endif
+            {
+                bitpit::ConstProxyVector<long> cellVids = getGeometry()->getPatch()->getCell(ids[count]).getVertexIds();
+                dvecarr3E listv;
+                listv.reserve(cellVids.size());
+                for(long id: cellVids){
+                    listv.push_back(getGeometry()->getVertexCoords(id));
+                }
+                std::vector<double> lambdas;
+                bitpit::CGElem::computeGeneralizedBarycentric(p, listv, lambdas);
+                projSensitivity[count] = 0;
+                int ccvids(0);
+                for(long id: cellVids){
+                   projSensitivity[count] += lambdas[ccvids] * m_sensitivity[id];
+                   ++ccvids;
+                }
+            }
+            ++count;
+        }
+
+#if MIMMO_ENABLE_MPI
+        //reduce properly list of sensitivities for multi ranks processing
+        MPI_Allreduce(MPI_IN_PLACE, projSensitivity.data(), int(projSensitivity.size()), MPI_DOUBLE, MPI_MIN, m_communicator);
+#endif
+    }
+
+    if(debug)    (*m_log)<<m_name<<" : projected points onto 3D surface "<<std::endl;
+
+
+    //SORT THE CURRENT POINT LIST FROM NEAREST TO FARTHEST from m_seed
+    //rearrange the list, putting the most nearest point to the seed on top
+    // and decimate points up to desired value.
+    {
+        std::vector<std::pair<double, int>> sortContainer;
+        sortContainer.reserve(projCentroids.size());
+        int cc(0);
+        for(darray3E & p : projCentroids){
+            sortContainer.push_back(std::make_pair(norm2(m_seed - p), cc));
+            ++cc;
+        }
+        std::sort(sortContainer.begin(), sortContainer.end());
+
+        dvecarr3E tempP(projCentroids.size());
+        dvector1D tempS(projCentroids.size());
+        cc=0;
+        for(std::pair<double,int> & val : sortContainer){
+            tempP[cc] = projCentroids[val.second];
+            tempS[cc] = projSensitivity[val.second];
+            ++cc;
+        }
+        std::swap(projCentroids, tempP);
+        std::swap(projSensitivity, tempS);
+    }
+
+    decimatePoints(projCentroids, projSensitivity);
+    if(debug)    (*m_log)<<m_name<<" : candidates decimated "<<std::endl;
+
+    //store results
+    std::swap(m_points, projCentroids);
+    std::swap(m_final_sensitivity, projSensitivity);
     if(debug)    (*m_log)<<m_name<<" : distribution of point successfully found w/ Random engine "<<std::endl;
 };
 
@@ -749,53 +818,64 @@ CreateSeedsOnSurface::solveRandom(bool debug){
 void
 CreateSeedsOnSurface::plotCloud(std::string dir, std::string file, int counter, bool binary){
 
+    // m_points is shared collectively among ranks
     if(m_points.empty())    return;
 
-    bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
-    if(binary){codex=bitpit::VTKFormat::APPENDED;}
+#if MIMMO_ENABLE_MPI
+    //let master rank do the writing on file
+    if(m_rank == 0)
+#endif
+    {
 
-    ivector1D conn(m_nPoints);
-    for(int i=0; i<m_nPoints; i++){
-        conn[i] = i;
+        bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
+        if(binary){codex=bitpit::VTKFormat::APPENDED;}
+
+        ivector1D conn(m_nPoints);
+        for(int i=0; i<m_nPoints; i++){
+            conn[i] = i;
+        }
+
+        m_final_sensitivity.resize(m_nPoints, 1.0);
+        ivector1D labels(m_nPoints);
+        for(int i=0; i<m_nPoints; ++i){
+            labels[i] = i;
+        }
+
+        bitpit::VTKUnstructuredGrid vtk(dir, file, bitpit::VTKElementType::VERTEX);
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, m_points) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
+        vtk.setDimensions( m_nPoints, m_nPoints);
+        vtk.addData("sensitivity", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, m_final_sensitivity);
+        vtk.addData("labels", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT,labels);
+        vtk.setCodex(codex);
+        if(counter>=0){vtk.setCounter(counter);}
+
+        vtk.write();
     }
-
-    dvector1D sens(m_nPoints, 1.0);
-    ivector1D labels(m_nPoints);
-    for(int i=0; i<m_nPoints; ++i){
-        sens[i] = interpolateSensitivity(m_points[i]);
-        labels[i] = i;
-    }
-
-    bitpit::VTKUnstructuredGrid vtk(dir, file, bitpit::VTKElementType::VERTEX);
-    vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, m_points) ;
-    vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
-    vtk.setDimensions( m_nPoints, m_nPoints);
-    vtk.addData("sensitivity", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT,sens);
-    vtk.addData("labels", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT,labels);
-    vtk.setCodex(codex);
-    if(counter>=0){vtk.setCounter(counter);}
-
-    vtk.write();
+#if MIMMO_ENABLE_MPI
+    MPI_Barrier(m_communicator);
+#endif
 }
 
 /*!
  * Decimate a cloud of points with number greater than m_nPoints, to desired value.
- * Regularize distribution of nodes to meet minimum distance & max sensitivity possible requirements of the class.
+ * Regularize distribution of nodes to meet maximum distance & max sensitivity possible
+   requirements of the class.
  * First point of the list is meant as the starting seed of decimation.
- * \param[in] list of 3D points in space, with size > m_nPoints
- * \return decimated list of points
- */
-dvecarr3E
-CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
+ * \param[in,out] list of 3D points in space, with size > m_nPoints in input, output decimated
+ * \param[in,out] sens list of sensitivity associated to points, with size > m_nPoints in input, output decimated
 
-    dvecarr3E result(m_nPoints);
+ */
+void
+CreateSeedsOnSurface::decimatePoints(dvecarr3E & list, dvector1D & sens){
+
     int listS = list.size();
 
     //reference all coordinate list to the seed candidate 0;
     // modulate the coordinate of each point with its respective sensitivity.
-    dvecarr3E listRefer(listS, {{0.0,0.0,0.0}});
+    dvecarr3E listRefer(listS);
     for(int j=0; j<listS; ++j){
-        listRefer[j] = (list[j] - list[0])*interpolateSensitivity(list[j]);
+        listRefer[j] = (list[j] - list[0])*sens[j];
     }
 
     bitpit::KdTree<3,darray3E,long>    kdT;
@@ -878,13 +958,16 @@ CreateSeedsOnSurface::decimatePoints(dvecarr3E & list){
         chooseCand.clear();
     }
 
+    dvecarr3E resultP(finalCandidates.size());
+    dvector1D resultS(finalCandidates.size());
     int counter = 0;
-    for(const auto & index : finalCandidates){
-        result[counter] = list[index];
+    for(long index : finalCandidates){
+        resultP[counter] = list[index];
+        resultS[counter] = sens[index];
         ++counter;
     }
-
-    return result;
+    std::swap(list, resultP);
+    std::swap(sens, resultS);
 };
 
 
@@ -1407,48 +1490,6 @@ CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::st
 };
 
 /*!
- * Interpolate sensitivity field on a 3D point
- * \param[in] point belonging to the target geometry surface.
- */
-double
-CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
-
-    MimmoSharedPointer<MimmoObject> geo = getGeometry();
-    long supportCell = skdTreeUtils::locatePointOnPatch(point, geo->getSkdTree());
-    if(supportCell == bitpit::Cell::NULL_ID)    return 0.0;
-
-    bitpit::Cell & cell = geo->getPatch()->getCell(supportCell);
-    bitpit::ConstProxyVector<long> nVList = cell.getVertexIds();
-    dvector1D weights(nVList.size(), 0), val(nVList.size(),0);
-    double wtot = 0.0;
-    int countV = 0;
-    for(const auto & idLoc : nVList){
-        if(m_sensitivity.exists(idLoc)){
-            val[countV] = m_sensitivity[idLoc];
-        }else{
-            val[countV] = 0.0;
-        }
-        double valdist = norm2(geo->getVertexCoords(idLoc) - point);
-        if ( valdist< 1.E-18){
-            return val[countV];
-        }
-
-        weights[countV] = 1.0/valdist;
-        wtot += weights[countV];
-        ++countV;
-    }
-
-    weights /= wtot;
-
-    double result = 0.0;
-    for(int i=0; i<countV; ++i){
-        result +=  weights[i]*val[i];
-    }
-
-    return result;
-}
-
-/*!
  * Check your current point data sensitivity field associated to linked geometry.
  * Do nothing if class linked geometry is a null pointer or empty.
  * If field geometry is not linked or empty or if field geometry its uncoherent with class linked
@@ -1459,32 +1500,23 @@ CreateSeedsOnSurface::interpolateSensitivity(darray3E & point){
 void CreateSeedsOnSurface::checkField(){
 
     if(getGeometry() == nullptr)   return;
-    if(getGeometry()->isEmpty()) return;
     dmpvector1D defaultField;
-    defaultField.setGeometry(getGeometry());
-    defaultField.setDataLocation(MPVLocation::POINT);
-    //create unity field;
-    for(const auto vert: getGeometry()->getVertices()){
-        defaultField.insert(vert.getId(), 1.0);
-    }
+    defaultField.initialize(getGeometry(),MPVLocation::POINT, 1.0);
 
-    m_log->setPriority(bitpit::log::Verbosity::DEBUG);
+//    m_log->setPriority(bitpit::log::Verbosity::DEBUG);
     if(getGeometry() != m_sensitivity.getGeometry()){
         m_sensitivity = defaultField;
-        (*m_log)<<"warning in "<<m_name<<" : Not suitable data field connected. Reference geometry linked by the class and by MimmoPiercedvector field differs. Using default field"<<std::endl;
-        return;
+//        (*m_log)<<"warning in "<<m_name<<" : Not suitable data field connected. Reference geometry linked by the class and by MimmoPiercedvector field differs. Using default field"<<std::endl;
     }else if(m_sensitivity.getDataLocation() != MPVLocation::POINT){
         m_sensitivity = defaultField;
-        (*m_log)<<"warning in "<<m_name<<" : Wrong data field connected. Data Location of MimmoPiercedvector field is not referred geometry Vertex/Point. Using default field"<<std::endl;
-        return;
+//        (*m_log)<<"warning in "<<m_name<<" : Wrong data field connected. Data Location of MimmoPiercedvector field is not referred geometry Vertex/Point. Using default field"<<std::endl;
     }else{
         if(!m_sensitivity.completeMissingData(0.0)){
             m_sensitivity = defaultField;
-            (*m_log)<<"warning in "<<m_name<<" : Not coherent data field connected. Data Ids of MimmoPiercedvector field are not aligned with geometry Vertex/Point field. Using default field"<<std::endl;
-            return;
+//            (*m_log)<<"warning in "<<m_name<<" : Not coherent data field connected. Data Ids of MimmoPiercedvector field are not aligned with geometry Vertex/Point field. Using default field"<<std::endl;
         }
     }
-    m_log->setPriority(bitpit::log::Verbosity::NORMAL);
+//    m_log->setPriority(bitpit::log::Verbosity::NORMAL);
 
 }
 
@@ -1497,33 +1529,21 @@ void CreateSeedsOnSurface::normalizeField(){
 
     double minSense=0.0,maxSense=0.0;
     minval(m_sensitivity.getRawDataAsVector(), minSense);
-    //operate translation.
-    if (!std::isnan(minSense)){
+    maxval(m_sensitivity.getRawDataAsVector(), maxSense);
+    double diff = maxSense - minSense;
+
+//    m_log->setPriority(bitpit::log::Verbosity::DEBUG);
+    if(std::isnan(minSense) || std::isnan(maxSense) || diff <=  std::numeric_limits<double>::min()){
+        (*m_log)<<"Warning in "<<m_name<<" : Not valid data of sensitivity field detected. Using default unitary field"<<std::endl;
+        m_sensitivity.initialize(getGeometry(),MPVLocation::POINT, 1.0);
+    }else{
         for(auto &val: m_sensitivity){
             val += -1.0*minSense;
+            val /= diff;
         }
-    }
-    maxval(m_sensitivity.getRawDataAsVector(), maxSense);
-    //operate normalization.
-    if (!std::isnan(maxSense) || maxSense != 0.0){
-        for(auto &val: m_sensitivity){
-            val /= maxSense;
-        }
-    }
 
-    m_log->setPriority(bitpit::log::Verbosity::DEBUG);
-    if(std::isnan(minSense) || std::isnan(maxSense) || maxSense == 0.0){
-        (*m_log)<<"warning in "<<m_name<<" : Not valid data of sensitivity field detected. Using default unitary field"<<std::endl;
-        dmpvector1D defaultField;
-        defaultField.setGeometry(getGeometry());
-        defaultField.setDataLocation(MPVLocation::POINT);
-        //create unity field;
-        for(const auto vert: getGeometry()->getVertices()){
-            defaultField.insert(vert.getId(), 1.0);
-        }
-        m_sensitivity = defaultField;
     }
-    m_log->setPriority(bitpit::log::Verbosity::NORMAL);
+//    m_log->setPriority(bitpit::log::Verbosity::NORMAL);
 }
 
 
@@ -1532,7 +1552,6 @@ void CreateSeedsOnSurface::normalizeField(){
  */
 bool
 CreateSeedsOnSurface::checkTriangulation(){
-    if(getGeometry()->getType() != 1) return false;
     bool check = true;
     bitpit::PatchKernel::CellIterator it = getGeometry()->getPatch()->cellBegin();
     bitpit::PatchKernel::CellIterator itEnd = getGeometry()->getPatch()->cellEnd();
@@ -1548,12 +1567,40 @@ CreateSeedsOnSurface::checkTriangulation(){
  * set also this new geometry to member sensitivity triangulated
  */
 MimmoSharedPointer<MimmoObject>
-CreateSeedsOnSurface::triangulate(){
-
+CreateSeedsOnSurface::createTriangulation(){
+    //THIS METHOD IS MEANT TO WORK IN serial ONLY
     MimmoSharedPointer<MimmoObject> temp = getGeometry()->clone();
     m_sensitivity_triangulated = m_sensitivity;
     m_sensitivity_triangulated.setGeometry(temp);
     temp->triangulate();
+
+    //check if some polygons splitted by triangulator added new vertices into the mesh.
+    int nResidual = temp->getNVertices() - getGeometry()->getNVertices();
+    if(nResidual > 0){
+        m_sensitivity_triangulated.completeMissingData(0.0);
+        livector1D missingIds;
+        missingIds.reserve(nResidual);
+        bitpit::PiercedVector<bitpit::Vertex> & originalPV = getGeometry()->getVertices();
+        for(auto it=m_sensitivity_triangulated.begin(); it != m_sensitivity_triangulated.end(); ++it){
+            if(!originalPV.exists(it.getId()))  missingIds.push_back(it.getId());
+        }
+
+        //TODO convert in updateAdjacencies
+        temp->buildAdjacencies();
+        std::unordered_map<long,long> invConn = getInverseConn(*(temp->getPatch()));
+        darray3E pcoord;
+        for(long id : missingIds){
+            pcoord = temp->getVertexCoords(id);
+            std::set<long> ring = findVertexVertexOneRing(*(temp->getPatch()), invConn[id], id);
+            double wtot(0), w;
+            for(long idR : ring){
+                w = 1.0/norm2(pcoord - temp->getVertexCoords(idR));
+                wtot += w;
+                m_sensitivity_triangulated[id] += (w * m_sensitivity_triangulated[idR]);
+            }
+            m_sensitivity_triangulated[id] /= wtot;
+        }
+    }
     return temp;
 }
 
