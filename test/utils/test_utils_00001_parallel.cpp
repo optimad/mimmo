@@ -57,7 +57,7 @@ int test1() {
         }
     }
 
-    pc->buildAdjacencies();
+    pc->updateAdjacencies();
     pc->update();
 
     //fill and execute partition

@@ -244,7 +244,7 @@ ProjPatchOnSurface::projection(){
         m_patch = m_cobj->clone();
     }
     //...and projecting them onto target surface
-    if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
+    getGeometry()->buildSkdTree();
 
     dvecarr3E points;
     livector1D originalIds;

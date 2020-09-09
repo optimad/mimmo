@@ -393,7 +393,7 @@ MeshChecker::checkVolume()
 
 	m_volumes.clear();
     initializeVolumes();
-    if(!getGeometry()->areAdjacenciesBuilt())    getGeometry()->buildAdjacencies();
+    getGeometry()->updateAdjacencies();
 
     livector1D mvolcells;
     livector1D mvolchangecells;
@@ -482,9 +482,7 @@ MeshChecker::checkSkewness()
 		return true;
 	}
 
-	if (!getGeometry()->areInterfacesBuilt()){
-		getGeometry()->buildInterfaces();
-	}
+    getGeometry()->updateInterfaces();
 
     livector1D listInterfaces;
     livector1D listBoundInterfaces;
@@ -571,9 +569,7 @@ MeshChecker::checkFaceValidity()
 	}
 
 
-	if (!getGeometry()->areInterfacesBuilt()){
-		getGeometry()->buildInterfaces();
-	}
+    getGeometry()->updateInterfaces();
 
 	//Prepare two structure areaGood and sumArea
 	std::unordered_map<long, double> sumArea;

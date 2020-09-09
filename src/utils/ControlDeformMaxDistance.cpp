@@ -192,7 +192,7 @@ ControlDeformMaxDistance::execute(){
     }
     m_defField.completeMissingData({{0.0,0.0,0.0}});
 
-    if(!(geo->isSkdTreeSync()))    geo->buildSkdTree();
+    geo->buildSkdTree();
 
     m_violationField.clear();
     m_violationField.initialize(geo, MPVLocation::POINT, -1.0*std::numeric_limits<double>::max());

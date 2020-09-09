@@ -262,7 +262,7 @@ ProjSegmentOnSurface::projection(){
     }
 
     //...and projecting them onto target surface
-    if(!getGeometry()->isSkdTreeSync())    getGeometry()->buildSkdTree();
+    getGeometry()->buildSkdTree();
 
     std::size_t npoints = points.size();
     dvecarr3E projs(npoints);
@@ -310,10 +310,10 @@ ProjSegmentOnSurface::projection(){
         }
     }
 
-    m_patch->buildAdjacencies();
+    m_patch->updateAdjacencies();
+    m_patch->update();
 
 #if MIMMO_ENABLE_MPI
-    m_patch->update();
     std::unique_ptr<mimmo::Partition> part(new mimmo::Partition);
     part->setGeometry(m_patch);
     part->setPartition(partMap);
