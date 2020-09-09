@@ -46,21 +46,28 @@ enum class CSeedSurf{
 /*!
  * \class CreateSeedsOnSurface
  * \ingroup utils
- * \brief Distribute points on a target 3D surface
+ * \brief Distribute a raw list of points on a target 3D surface
  *
- * Class/BaseManipulation Object to position an initial set of points on a 3D surface.
- * Three type of engines to compute point position are available: \n
- * - CSeedSurf::RANDOM : sows points randomly on your surface, trying to displace them
- * at maximum euclidean distance possible on the surface; \n
- * - CSeedSurf::LEVELSET : starting from an initial seed, sows points around it, trying
- * to displace them at maximum geodesic distance possible on the surface; \n
+ * Class/BaseManipulation Object to create a raw set of 3D points lying on a 3D surface.
+
+ * MPI version will treat this raw list as shared among the ranks (every rank will retain
+   exactly the same list)
+
+ * Three type of engines to compute point positions are available: \n
+ * - CSeedSurf::RANDOM : sows points randomly on surface, trying to displace them
+ * at maximum euclidean distance; \n
  * - CSeedSurf::CARTESIANGRID    evaluate points by projection of a volumetric
  * cartesian grid of surface and decimating the list up the desired value of points,
- * trying to displace them at maximum euclidean distance possible on the surface. \n
+ * trying to displace them at maximum euclidean distance possible. \n
+ * - CSeedSurf::LEVELSET : starting from an initial seed, sows points around it, trying
+ * to displace them at maximum geodesic distance possible on the surface; BEWARE this option
+   is not available in MPI version with np processors > 1. \n
  *
- * Default engine is CARTESIANGRID
- * A Sensitivity field, defined on the target 3D surface Vertices can be linked, to drive the seeding procedure, i.e.
- * displace points in the most sensible location according to the map.
+ * Default engine is CARTESIANGRID.
+
+ * A Sensitivity field, defined on the target 3D surface vertices can be linked,
+   to drive the seeding procedure, i.e. to displace points in the most sensible
+   location according to the field.
  * \n
  * Ports available in CreateSeedsOnSurface Class :
  *
@@ -91,9 +98,9 @@ enum class CSeedSurf{
  *
  * Proper of the class:
  * - <B>NPoints</B>: total points to distribute;
- * - <B>Engine</B>: type of distribution engine 0:Random,2:CartesianGrid,1:Levelset;
+ * - <B>Engine</B>: type of distribution engine 0:Random,2:CartesianGrid,1:Levelset(NOT AVAILABLE IN MPI np>1 VERSION);
  * - <B>Seed</B>: initial seed point coordinates (space separated);
- * - <B>MassCenterAsSeed</B>: boolean (0/1), if true use geometry mass center sa seed;
+ * - <B>MassCenterAsSeed</B>: boolean (0/1), if true use geometry mass center as seed;
  * - <B>RandomFixed</B>: boolean(0/1), if active it fixes distribution pattern when 0:RANDOM engine is selected,
                          otherwise leave it changing as it likes;
  * - <B>RandomSignature</B>: specify unsigned integer seed when RandomFixed is active.
@@ -105,23 +112,23 @@ class CreateSeedsOnSurface: public mimmo::BaseManipulation {
 
 private:
 
-    dvecarr3E   m_points;        /**< resulting points of class computation */
+    dvecarr3E   m_points;         /**< resulting points of computation */
     int         m_nPoints;        /**< total number of desired points */
     double      m_minDist;        /**< minimum distance of tolerance */
-    darray3E    m_seed;            /**< inital seed point */
-    CSeedSurf   m_engine;        /**< choose kernel type for points positioning computation */
+    darray3E    m_seed;           /**< inital seed point */
+    CSeedSurf   m_engine;         /**< choose kernel type for points positioning computation */
     bool        m_seedbaricenter; /**< bool activate mass center as starting seed */
     bool        m_randomFixed;    /**< true if User want to reproduce always the same random seed distribution*/
-    uint32_t    m_randomSignature;    /**< signature for freezing random engine result*/
+    uint32_t    m_randomSignature;/**< signature for freezing random engine result*/
     dmpvector1D m_sensitivity;    /**< sensitivity map, defined on target geometry to drive placement of seeds*/
 
     //utility members
-    std::unique_ptr<mimmo::OBBox> bbox;        /**<pointer to an oriented Bounding box */
-    livector1D m_deads; /**< inactive ids */
+    std::unique_ptr<mimmo::OBBox> m_bbox;     /**<pointer to an oriented Bounding box */
+    livector1D m_deads;                     /**< inactive ids */
     dmpvector1D m_sensitivity_triangulated; /**! internal member, adjust point-field if re-triangulation occurs*/
+    dvector1D m_final_sensitivity;          /**! raw list of interpolated sensitivities on shared points*/
 
 public:
-
     CreateSeedsOnSurface();
     CreateSeedsOnSurface(const bitpit::Config::Section & rootXML);
     virtual ~CreateSeedsOnSurface();
@@ -164,28 +171,25 @@ public:
 
 protected:
     virtual void plotOptionalResults();
-    void swap(CreateSeedsOnSurface & x) noexcept;
+    void    swap(CreateSeedsOnSurface & x) noexcept;
     void    checkField();
     void    normalizeField();
     bool    checkTriangulation();
-    MimmoSharedPointer<MimmoObject> triangulate();
+    MimmoSharedPointer<MimmoObject> createTriangulation();
 
 private:
-
     void    solveLSet( bool debug = false);
     void    solveGrid(bool debug = false);
     void    solveRandom(bool debug = false);
 
-    dvecarr3E decimatePoints(dvecarr3E &);
+    void decimatePoints(dvecarr3E & rawpoint, dvector1D & rawsensi);
 
-    void solveEikonal(double g, double s, bitpit::PatchKernel &tri,std::unordered_map<long,long> & invConn, dmpvector1D & field);
+    void   solveEikonal(double g, double s, bitpit::PatchKernel &tri,std::unordered_map<long,long> & invConn, dmpvector1D & field);
     double updateEikonal(double g, double s, long tVert,long tCell,bitpit::PatchKernel &tri, std::unordered_map<long int, short int> &flag, dmpvector1D & field);
 
     std::unordered_map<long,long>    getInverseConn(bitpit::PatchKernel &);
-    bool            isDeadFront(const long int label);
+    bool                             isDeadFront(const long int label);
     std::set<long>    findVertexVertexOneRing(bitpit::PatchKernel &, const long &, const long & );
-
-    double interpolateSensitivity(darray3E & point);
 };
 
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__CREATESEEDSONSURFACE_HPP__)
