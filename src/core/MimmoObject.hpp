@@ -357,12 +357,14 @@ public:
     void                        degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degradedDeletedCells = nullptr, bitpit::PiercedVector<bitpit::Vertex>* collapsedVertices = nullptr);
 
 protected:
+    void    initializeLogger();
     void    reset(int type);
 
     std::unordered_set<int> elementsMap(bitpit::PatchKernel & obj);
 
 #if MIMMO_ENABLE_MPI
-    void	initializeParallel();
+    void    initializeMPI();
+    void    initializeParallel();
 #endif
 
 private:
