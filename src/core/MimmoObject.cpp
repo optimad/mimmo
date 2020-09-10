@@ -144,12 +144,7 @@ MimmoPointCloud::clone() const{
  */
 MimmoObject::MimmoObject(int type){
 
-	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
 	m_type = std::max(type,1);
-	if (m_type > 4){
-		(*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
-		throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
-	}
 	switch(m_type){
 	case 1:
 		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2)));
@@ -171,12 +166,22 @@ MimmoObject::MimmoObject(int type){
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	default:
-		//never been reached
+        (*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
+        throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
 		break;
 	}
 
 	m_internalPatch = true;
 	m_extpatch = nullptr;
+
+#if MIMMO_ENABLE_MPI
+    initializeParallel();
+#else
+    m_rank = 0;
+    m_nprocs = 1;
+#endif
+
+    initializeLogger();
 
     // Set skdTreeSync and kdTreeSync to none
     m_skdTreeSync = SyncStatus::NONE;
@@ -191,12 +196,6 @@ MimmoObject::MimmoObject(int type){
     m_AdjSync = SyncStatus::NONE;
 	m_IntSync = SyncStatus::NONE;
 
-#if MIMMO_ENABLE_MPI
-	initializeParallel();
-#else
-	m_rank = 0;
-	m_nprocs = 1;
-#endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
 	m_infoSync = SyncStatus::SYNC;
@@ -239,14 +238,7 @@ MimmoObject::MimmoObject(int type){
  */
 MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity){
 
-	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-
 	m_type = std::max(type,1);
-	if (m_type > 4){
-		(*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
-		throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
-	}
-
 	switch(m_type){
 	case 1:
 		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2)));
@@ -268,12 +260,22 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	default:
-		//never been reached
+        (*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
+        throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
 		break;
 	}
 
 	m_internalPatch = true;
 	m_extpatch = nullptr;
+
+#if MIMMO_ENABLE_MPI
+    initializeParallel();
+#else
+    m_rank = 0;
+    m_nprocs = 1;
+#endif
+
+    initializeLogger();
 
     // Set skdTreeSync and kdTreeSync to none
     m_skdTreeSync = SyncStatus::NONE;
@@ -314,12 +316,6 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 
 	m_log->setPriority(bitpit::log::Priority::NORMAL);
 
-#if MIMMO_ENABLE_MPI
-	initializeParallel();
-#else
-	m_rank = 0;
-	m_nprocs = 1;
-#endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
 	m_infoSync = SyncStatus::SYNC;
@@ -341,21 +337,29 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
  */
 MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 
-	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-	m_type = std::max(type,1);
-	if (m_type > 4 || geometry == nullptr){
-		(*m_log)<<"Error MimmoObject: unrecognized data structure type or nullptr argument in class construction."<<std::endl;
-		throw std::runtime_error ("MimmoObject : unrecognized mesh type or nullptr argument in class construction");
-	}
-	if (geometry->getVertexCount() ==0){
-		(*m_log)<<"Warning MimmoObject: no points detected in the linked mesh."<<std::endl;
-	}
-	if (geometry->getCellCount() ==0){
-		(*m_log)<<"Warning MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
-	}
+    m_type = std::max(type,1);
+    if (m_type > 4 || geometry == nullptr){
+        throw std::runtime_error ("MimmoObject : unrecognized mesh type or nullptr argument in class construction");
+    }
 
-	m_internalPatch = false;
+    m_internalPatch = false;
 	m_extpatch = geometry;
+
+#if MIMMO_ENABLE_MPI
+    initializeParallel();
+#else
+    m_rank = 0;
+    m_nprocs = 1;
+#endif
+
+    initializeLogger();
+
+    if (geometry->getVertexCount() == 0){
+        (*m_log)<<"Warning MimmoObject: no points detected in the linked mesh."<<std::endl;
+    }
+    if (geometry->getCellCount() == 0){
+        (*m_log)<<"Warning MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
+    }
 
 	//check among elements if they are coherent with the type currently hold by the linked mesh.
 	std::unordered_set<int> mapEle = elementsMap(*geometry);
@@ -469,12 +473,6 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 		m_pidsTypeWNames.insert(std::make_pair( (long)PID , "") );
 	}
 
-#if MIMMO_ENABLE_MPI
-	initializeParallel();
-#else
-	m_rank = 0;
-	m_nprocs = 1;
-#endif
 	m_patchInfo.setPatch(m_extpatch);
 	m_patchInfo.update();
 	m_infoSync = SyncStatus::SYNC;
@@ -497,20 +495,12 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
  */
 MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geometry){
 
-	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
-	m_type = std::max(type,1);
-	if (m_type > 4 || !geometry){
-		(*m_log)<<"Error MimmoObject: unrecognized data structure type or nullptr argument in class construction."<<std::endl;
-		throw std::runtime_error ("MimmoObject : unrecognized mesh type or nullptr argument in class construction");
-	}
-	if (geometry->getVertexCount() ==0){
-		(*m_log)<<"Warning MimmoObject: no points detected in the linked mesh."<<std::endl;
-	}
-	if (geometry->getCellCount() ==0){
-		(*m_log)<<"Warning MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
+	if (!geometry){
+		throw std::runtime_error ("MimmoObject : nullptr argument in class construction");
 	}
 
 	//check among elements if they are coherent with the type currently hold by the linked mesh.
+    m_type = std::max(type,1);
 	std::unordered_set<int> mapEle = elementsMap(*(geometry.get()));
 	switch(m_type){
 	case 1:
@@ -584,13 +574,29 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	default:
-		//never been reached
+        throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
 		break;
 	}
 
 	m_internalPatch = true;
 	m_extpatch = nullptr;
 	m_patch = std::move(geometry);
+
+#if MIMMO_ENABLE_MPI
+    initializeParallel();
+#else
+    m_rank = 0;
+    m_nprocs = 1;
+#endif
+
+    initializeLogger();
+
+    if (m_patch->getVertexCount() == 0){
+        (*m_log)<<"Warning MimmoObject: no points detected in the linked mesh."<<std::endl;
+    }
+    if (m_patch->getCellCount() == 0){
+        (*m_log)<<"Warning MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
+    }
 
     // Set skdTreeSync and kdTreeSync to none
     m_skdTreeSync = SyncStatus::NONE;
@@ -756,6 +762,28 @@ void MimmoObject::swap(MimmoObject & x) noexcept
 
 }
 
+/*!
+ * Initialize the logger.
+ */
+void
+MimmoObject::initializeLogger(){
+
+    bool logexists  = bitpit::log::manager().exists(MIMMO_LOG_FILE);
+
+    if (!logexists){
+#if MIMMO_ENABLE_MPI
+        // MPI variables have to be already initialized
+        bitpit::log::manager().initialize(bitpit::log::Mode::COMBINED, MIMMO_LOG_FILE, true, MIMMO_LOG_DIR, m_nprocs, m_rank);
+#else
+        bitpit::log::manager().initialize(bitpit::log::Mode::COMBINED, MIMMO_LOG_FILE, true, MIMMO_LOG_DIR);
+#endif
+    }
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+    bitpit::log::setVisibility((*m_log), bitpit::log::Visibility::MASTER);
+    bitpit::log::setConsoleVerbosity((*m_log), bitpit::log::NORMAL);
+    bitpit::log::setFileVerbosity((*m_log), bitpit::log::NORMAL);
+
+}
 
 #if MIMMO_ENABLE_MPI
 /*!
@@ -796,7 +824,6 @@ MimmoObject::initializeParallel(){
 
 }
 #endif
-
 
 /*!
     \return reference to internal logger
