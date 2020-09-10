@@ -744,10 +744,11 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
 
             double s = computePseudoNormal(point, &spatch, cellId, pseudo_normal);
             if(cellId != bitpit::Cell::NULL_ID){
-                distance *= s;
-            }
-            if (shared) {
-                signs[ip] = s;
+                if (shared) {
+                    signs[ip] = s;
+                }else{
+                    distance *= s;
+                }
             }
 
         } else {
