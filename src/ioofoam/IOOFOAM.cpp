@@ -585,9 +585,9 @@ IOOFOAM::read(){
         long iBIT = bitpit::Interface::NULL_ID;
         std::size_t j(0);
         while(iBIT < 0 && j<sizeFList){
-            long * vconn = bitInterfaces[bitFaceList[j]].getConnect();
-            std::size_t vconnsize = bitInterfaces[bitFaceList[j]].getConnectSize();
-            std::vector<long> vListBIT(vconn, vconn+vconnsize);
+            bitpit::ConstProxyVector<long> vconn = bitInterfaces[bitFaceList[j]].getVertexIds();
+            std::size_t vconnsize = vconn.size();
+            std::vector<long> vListBIT(vconn.begin(), vconn.end());
             std::sort(vListBIT.begin(), vListBIT.end());
 
             if(std::equal(vListBIT.begin(), vListBIT.end(), vListOF.begin()) ){
