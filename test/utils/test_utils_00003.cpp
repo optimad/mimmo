@@ -53,7 +53,7 @@ int test3() {
 
     darray3E span1 = box1->getSpan();
 
-    box1->setForceAABB(true);
+    box1->setOBBStrategy(mimmo::OBBStrategy::AABB);
     box1->exec();
     box1->plot(".","obbox", 1, false);
 

@@ -28,6 +28,19 @@
 
 namespace mimmo{
 
+
+/*!
+ * \ingroup utils
+ * \brief Enum class for engine choice to set up initial points on a 3D surface.
+ */
+enum class OBBStrategy{
+    OBB = 0 /**< evaluate the Oriented Bounding Box  */,
+    AABB = 1 /**< evaluate simply the Axis Aligned Bounding Box, skipping OBB computation */,
+    MINVOL = 2 /**< choose the minimum volume solution between OBB and AABB */
+};
+
+
+
 /*!
  *    \class OBBox
  *    \ingroup utils
@@ -68,7 +81,7 @@ namespace mimmo{
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>ForceAABB</B>: boolean(0/1) if true calculate the simple AABB of the union of target geometries linked
+ * - <B>OBBStrategy</B>: enum 0-get OBB, 1-get AABB, 2-get the min Volume solution between OBB and AABB
  * - <B>WriteInfo</B>: boolean(0/1) if true write info of OBB on file, in plotOptionalResults directory, false do nothing.
 
  * Geometries have to be mandatorily added/passed through ports.
@@ -82,7 +95,7 @@ protected:
     dmatrix33E    m_axes;       /**< reference system of the bbox, ordered aaccording maximum shape variance */
 
     std::unordered_map<MimmoSharedPointer<MimmoObject>, int> m_listgeo; /**< list of geometries linked in input, according to type */
-    bool m_forceAABB; /**< force class to evaluate a simple AABB, not oriented */
+    OBBStrategy m_strategy; /**< store stratefy chosen, see OBBStrategy enum */
     bool m_writeInfo; /**< write OBB info on file */
 
 public:
@@ -103,11 +116,16 @@ public:
     darray3E                         getOrigin();
     darray3E                         getSpan();
     dmatrix33E                       getAxes();
-    bool                             isForcedAABB();
+    BITPIT_DEPRECATED(
+    bool                             isForcedAABB());
+    OBBStrategy                      getOBBStrategy();
 
     void        setGeometry(MimmoSharedPointer<MimmoObject> geo);
     void        setGeometries(std::vector<MimmoSharedPointer<MimmoObject> > listgeo);
-    void        setForceAABB(bool flag);
+    BITPIT_DEPRECATED(
+    void        setForceAABB(bool flag));
+    void        setOBBStrategy(OBBStrategy strategy);
+    void        setOBBStrategyInt(int strategyflag);
     void        setWriteInfo(bool flag);
 
     //plotting wrappers
@@ -125,6 +143,8 @@ protected:
     void swap(OBBox & x) noexcept;
     dmatrix33E transpose(const dmatrix33E & mat);
     dmatrix33E inverse (const dmatrix33E & mat);
+    void computeOBB(std::vector<MimmoSharedPointer<MimmoObject>> & vector_listgeo, darray3E& origin, darray3E & span, dmatrix33E & axes);
+    void computeAABB(std::vector<MimmoSharedPointer<MimmoObject>> & vector_listgeo, darray3E& origin, darray3E & span, dmatrix33E & axes);
 
 private:
     dmatrix33E      evaluatePointsCovarianceMatrix(std::vector<MimmoSharedPointer<MimmoObject> > list);

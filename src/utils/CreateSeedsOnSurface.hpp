@@ -146,7 +146,7 @@ public:
     bool         isSeedMassCenter();
     double       getMinDistance();
     bool         isRandomFixed();
-    int          getRandomSignature();
+    long         getRandomSignature();
 
     //set methods
     void         setNPoints( int);
@@ -193,7 +193,7 @@ private:
 };
 
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT,__CREATESEEDSONSURFACE_HPP__)
-REGISTER_PORT(M_VALUEI, MC_SCALAR, MD_INT,__CREATESEEDSONSURFACE_HPP__)
+REGISTER_PORT(M_VALUELI, MC_SCALAR, MD_INT,__CREATESEEDSONSURFACE_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__CREATESEEDSONSURFACE_HPP__)
 REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_,__CREATESEEDSONSURFACE_HPP__)
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT,__CREATESEEDSONSURFACE_HPP__)

@@ -73,7 +73,7 @@ int test3() {
     log.setPriority(bitpit::log::Priority::NORMAL);
     log<<"evaluated OBB"<<std::endl;
 
-    box1->setForceAABB(true);
+    box1->setOBBStrategy(mimmo::OBBStrategy::AABB);
     box1->exec();
     box1->plot(".","obbox", 1, false);
 
