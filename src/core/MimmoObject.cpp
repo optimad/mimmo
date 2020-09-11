@@ -3411,7 +3411,7 @@ void MimmoObject::update()
     // Update patch bounding box (//TODO when ready use automatic update in bitpit patch)
     status = m_boundingBoxSync;
     if (status != SyncStatus::SYNC){
-        getPatch()->updateBoundingBox();
+        getPatch()->updateBoundingBox(true);
         m_boundingBoxSync = SyncStatus::SYNC;
     }
 
@@ -4831,10 +4831,7 @@ MimmoObject::triangulate(){
 #endif
     } // end if patch is not empty
 
-#if MIMMO_ENABLE_MPI
-	cleanAllParallelSync();
 	update();
-#endif
 
 }
 
@@ -4958,10 +4955,7 @@ MimmoObject::degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degr
 
     }
 
-#if MIMMO_ENABLE_MPI
-        cleanAllParallelSync();
-        update();
-#endif
+    update();
 
 }
 
