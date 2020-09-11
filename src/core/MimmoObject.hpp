@@ -163,7 +163,9 @@ protected:
 #endif
 
  	bitpit::PatchNumberingInfo	m_patchInfo;			/**< Patch Numbering Info structure for cells.*/
- 	SyncStatus                  m_infoSync;				/**< Synchronization status of patch info along with geometry modifications */
+    SyncStatus                  m_infoSync;             /**< Synchronization status of patch info along with geometry modifications */
+
+    SyncStatus                  m_boundingBoxSync;      /**< Synchronization status of patch bounding box along with geometry modifications */
 
     std::unordered_map<long, std::unordered_set<long> >	m_pointConnectivity;		/**< Point-Point connectivity. 1-Ring neighbours of each vertex.*/
     SyncStatus                     						m_pointConnectivitySync;	/**< Track correct building of points connectivity along with geometry modifications */
@@ -222,6 +224,7 @@ public:
     SyncStatus                          getSkdTreeSyncStatus();
     SyncStatus                          getKdTreeSyncStatus();
     SyncStatus                          getInfoSyncStatus();
+    SyncStatus                          getBoundingBoxSyncStatus();
 
     double getTolerance();
 
@@ -243,6 +246,7 @@ public:
     SyncStatus cleanParallelInterfacesSync();
     SyncStatus cleanParallelPointConnectivitySync();
     SyncStatus cleanParallelInfoSync();
+    SyncStatus cleanParallelBoundingBoxSync();
     SyncStatus cleanParallelPointGhostExchangeInfoSync();
     void cleanAllParallelSync();
     bool isDistributed();

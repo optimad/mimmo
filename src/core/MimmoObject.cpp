@@ -199,6 +199,7 @@ MimmoObject::MimmoObject(int type){
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
 	m_infoSync = SyncStatus::SYNC;
+    m_boundingBoxSync = SyncStatus::NONE;
 	m_pointConnectivitySync = SyncStatus::NONE;
 
 	setTolerance(1.0e-06);
@@ -319,6 +320,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
 	m_infoSync = SyncStatus::SYNC;
+    m_boundingBoxSync = SyncStatus::NONE;
 	m_pointConnectivitySync = SyncStatus::NONE;
 
     setTolerance(1.0e-06);
@@ -476,6 +478,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_patchInfo.setPatch(m_extpatch);
 	m_patchInfo.update();
 	m_infoSync = SyncStatus::SYNC;
+    m_boundingBoxSync = SyncStatus::UNSYNC;
 	m_pointConnectivitySync = SyncStatus::NONE;
 
     setTolerance(1.0e-06);
@@ -640,6 +643,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
 	m_infoSync = SyncStatus::SYNC;
+    m_boundingBoxSync = SyncStatus::UNSYNC;
 	m_pointConnectivitySync = SyncStatus::NONE;
 
     setTolerance(1.0e-06);
@@ -674,6 +678,7 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 	m_AdjSync          = other.m_AdjSync;
 	m_IntSync          = other.m_IntSync;
 	m_infoSync 			= other.m_infoSync;
+    m_boundingBoxSync  = other.m_boundingBoxSync;
 
 	m_skdTreeSync   = SyncStatus::NONE;
 	m_kdTreeSync    = SyncStatus::NONE;
@@ -748,7 +753,8 @@ void MimmoObject::swap(MimmoObject & x) noexcept
 	std::swap(m_kdTree, x.m_kdTree);
 	std::swap(m_skdTreeSync, x.m_skdTreeSync);
 	std::swap(m_kdTreeSync, x.m_kdTreeSync);
-	std::swap(m_infoSync, x.m_infoSync);
+    std::swap(m_infoSync, x.m_infoSync);
+    std::swap(m_boundingBoxSync, x.m_boundingBoxSync);
 #if MIMMO_ENABLE_MPI
 	std::swap(m_communicator, x.m_communicator);
 	std::swap(m_rank, x.m_rank);
@@ -1449,6 +1455,15 @@ MimmoObject::getSkdTreeSyncStatus(){
 SyncStatus
 MimmoObject::getInfoSyncStatus(){
 	return m_infoSync;
+}
+
+/*!
+ * Return the synchronization status of the patch bounding box
+ * \return synchronization status of the patch bounding box with your current geometry.
+ */
+SyncStatus
+MimmoObject::getBoundingBoxSyncStatus(){
+    return m_boundingBoxSync;
 }
 
 /*!
@@ -2251,6 +2266,26 @@ MimmoObject::cleanParallelInfoSync(){
 	return (m_infoSync);
 }
 /*!
+    General checker for patch bounding box status throughout all procs. If at least one partition
+    has not-syncronized patch bounding box set all the other procs to not syncronized.
+    If one partition has the patch numbering info not build free the structure.
+    \return Synchronization status of patch bounding box.
+ */
+SyncStatus
+MimmoObject::cleanParallelBoundingBoxSync(){
+
+    // Reduce by using the minimum sync status
+    MPI_Allreduce(MPI_IN_PLACE, &m_boundingBoxSync, 1, MPI_LONG, MPI_MIN, m_communicator);
+
+    //if status is not sync destroy
+    if(m_boundingBoxSync != SyncStatus::SYNC){
+//        getPatch()->clearBoundingBox();
+    }
+
+    return (m_boundingBoxSync);
+}
+
+/*!
     General checker for point ghost exchange info status throughout all procs. If at least one partition
     has not-syncronized point ghost exchange info set all the other procs to not syncronized.
     If one partition has the point ghost exchange info not build free the structure.
@@ -2283,6 +2318,7 @@ MimmoObject::cleanAllParallelSync(){
     cleanParallelInterfacesSync();
     cleanParallelPointConnectivitySync();
     cleanParallelInfoSync();
+    cleanParallelBoundingBoxSync();
     cleanParallelPointGhostExchangeInfoSync();
 }
 
@@ -2400,7 +2436,8 @@ MimmoObject::addVertex(const darray3E & vertex, const long idtag){
 	long id = it->getId();
 
 	m_kdTreeSync = std::min(m_kdTreeSync, SyncStatus::UNSYNC);
-	m_infoSync = std::min(m_infoSync, SyncStatus::UNSYNC);
+    m_infoSync = std::min(m_infoSync, SyncStatus::UNSYNC);
+    m_boundingBoxSync = std::min(m_boundingBoxSync, SyncStatus::UNSYNC);
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = std::min(m_pointGhostExchangeInfoSync, SyncStatus::UNSYNC);
 #endif
@@ -2436,6 +2473,7 @@ MimmoObject::addVertex(const bitpit::Vertex & vertex, const long idtag){
 
 	m_kdTreeSync = std::min(m_kdTreeSync, SyncStatus::UNSYNC);
 	m_infoSync = std::min(m_infoSync, SyncStatus::UNSYNC);
+    m_boundingBoxSync = std::min(m_boundingBoxSync, SyncStatus::UNSYNC);
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = std::min(m_pointGhostExchangeInfoSync, SyncStatus::UNSYNC);
 #endif
@@ -2459,6 +2497,7 @@ MimmoObject::modifyVertex(const darray3E & vertex, const long & id){
 	m_skdTreeSync = std::min(m_skdTreeSync, SyncStatus::UNSYNC);
 	m_kdTreeSync = std::min(m_kdTreeSync, SyncStatus::UNSYNC);
 	m_infoSync = std::min(m_infoSync, SyncStatus::UNSYNC);
+    m_boundingBoxSync = std::min(m_boundingBoxSync, SyncStatus::UNSYNC);
 	return true;
 };
 
@@ -2775,6 +2814,7 @@ MimmoObject::cleanGeometry(){
 
 	m_kdTreeSync = std::min(m_kdTreeSync, SyncStatus::UNSYNC);
 	m_infoSync = std::min(m_infoSync, SyncStatus::UNSYNC);
+    m_boundingBoxSync = std::min(m_boundingBoxSync, SyncStatus::UNSYNC);
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = std::min(m_pointGhostExchangeInfoSync, SyncStatus::UNSYNC);
 #endif
@@ -3368,6 +3408,13 @@ void MimmoObject::update()
         buildPatchInfo();
     }
 
+    // Update patch bounding box (//TODO when ready use automatic update in bitpit patch)
+    status = m_boundingBoxSync;
+    if (status != SyncStatus::SYNC){
+        getPatch()->updateBoundingBox();
+        m_boundingBoxSync = SyncStatus::SYNC;
+    }
+
     // Update point connectivity
     status = getPointConnectivitySyncStatus();
     if (status == SyncStatus::UNSYNC){
@@ -3599,7 +3646,8 @@ void MimmoObject::resetPatch(){
     cleanKdTree();
 	m_kdTreeSync = SyncStatus::NONE;
 	m_patchInfo.reset();
-	m_infoSync = SyncStatus::NONE;
+    m_infoSync = SyncStatus::NONE;
+    m_boundingBoxSync = SyncStatus::NONE;
 #if MIMMO_ENABLE_MPI
 	resetPointGhostExchangeInfo();
 	m_pointGhostExchangeInfoSync = SyncStatus::NONE;
@@ -3718,6 +3766,7 @@ void MimmoObject::reset(int type){
 #endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_infoSync = SyncStatus::NONE;
+    m_boundingBoxSync = SyncStatus::NONE;
 	m_pointConnectivitySync = SyncStatus::NONE;
 }
 
@@ -3797,6 +3846,9 @@ void MimmoObject::restore(std::istream & stream){
 	//update it.
 	m_patchInfo.update();
 	m_infoSync = SyncStatus::SYNC;
+
+	getPatch()->updateBoundingBox();
+    m_boundingBoxSync = SyncStatus::SYNC;
 
 	//rebuild the point ghost exchange information.
 #if MIMMO_ENABLE_MPI
@@ -4037,7 +4089,10 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 
     surface.updateAdjacencies();
 
-    if (surface.m_skdTreeSync != SyncStatus::SYNC)
+    if (m_skdTreeSync != SyncStatus::SYNC)
+        buildSkdTree();
+
+    if (surface.getSkdTreeSyncStatus() != SyncStatus::SYNC)
         surface.buildSkdTree();
 
     bitpit::PiercedVector<double> result;
@@ -4241,7 +4296,10 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
 
     surface.updateAdjacencies();
 
-    if (surface.m_skdTreeSync != SyncStatus::SYNC)
+    if (m_skdTreeSync != SyncStatus::SYNC)
+        buildSkdTree();
+
+    if (surface.getSkdTreeSyncStatus() != SyncStatus::SYNC)
         surface.buildSkdTree();
 
     if(getPointConnectivitySyncStatus() != SyncStatus::SYNC)
