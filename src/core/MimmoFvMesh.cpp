@@ -261,6 +261,9 @@ void MimmoFvMesh::createBoundaryMesh(){
     }
 
     m_boundary = temp;
+
+    m_boundary->update();
+
 }
 
 
