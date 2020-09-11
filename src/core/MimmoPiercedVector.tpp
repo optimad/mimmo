@@ -699,6 +699,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToCellData(double 
  * \param[in] p exponent value of inverse distance exponential weight w = (1/d^p)
  * \return point data MimmoPiercedVector object located on MPVLocation::POINT
  *
+ * Note. In parallel data on ghost points are set to zero.
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double p){
@@ -726,8 +727,14 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double 
 	}
 	for (bitpit::Vertex & vertex : geo->getVertices()){
 		long idvertex = vertex.getId();
-		if (pointData.exists(idvertex))
-			pointData[idvertex] = pointData[idvertex] / sumWeights[idvertex];
+		if (pointData.exists(idvertex)){
+            if (geo->isPointInterior(idvertex)){
+                pointData[idvertex] = pointData[idvertex] / sumWeights[idvertex];
+            }
+            else{
+	            pointData[idvertex] = pointData[idvertex] * 0.;
+	        }
+		}
 	}
 	return pointData;
 };
@@ -741,6 +748,9 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double 
  * \param[in] cellGradientsZ z-gradient comp on cell centers
  * \param[in] maximum boolean true, use simple averaging, false cubic-distance weighted averaging.
  * \return point data MimmoPiercedVector object located on MPVLocation::POINT
+ *
+ * Note. In parallel data on ghost points are set to zero.
+ *
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(const MimmoPiercedVector<mpv_t> & cellGradientsX, const MimmoPiercedVector<mpv_t> & cellGradientsY, const MimmoPiercedVector<mpv_t> & cellGradientsZ, bool maximum){
@@ -779,6 +789,9 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(const M
 						sumWeights[idvertex] = sumWeights[idvertex] + weight;
 					}
 				}
+                if (!geo->isPointInterior(idvertex)){
+                    pointData[idvertex] = pointData[idvertex] * 0.;
+	            }
 			}
 		}
 	}

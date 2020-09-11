@@ -965,12 +965,8 @@ BaseManipulation::_apply(MimmoPiercedVector<darray3E> & displacements)
         getGeometry()->modifyVertex(vertexcoords, ID);
     }
 
-    getGeometry()->getPatch()->updateBoundingBox(true);
-
-#if MIMMO_ENABLE_MPI
-    getGeometry()->cleanAllParallelSync();
-    getGeometry()->updatePointGhostExchangeInfo();
-#endif
+    // Update geometry
+    getGeometry()->update();
 
 }
 
