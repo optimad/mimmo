@@ -23,7 +23,9 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_utils.hpp"
-
+#if MIMMO_ENABLE_MPI
+    #include "Partition.hpp"
+#endif
 // =================================================================================== //
 /*!
 	\example utils_example_00001.cpp
@@ -33,6 +35,9 @@
 	Using: MimmoGeometry, CreateSeedsOnSurface
 
 	<b>To run</b>: ./utils_example_00001 \n
+    <b>To run</b>: mpirun -np 2 utils_example_00001 \n
+
+    Please note MPI version of the example partition a very coarse support mesh. Do not exceed with number of processors.
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -43,6 +48,8 @@ void test00001() {
     /* Creation of mimmo containers.
      */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
+    bitpit::Logger & log = mimmo0->getLog();
+    log.setPriority(bitpit::log::Priority::NORMAL);
 
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::SURFVTU);
@@ -52,34 +59,73 @@ void test00001() {
     mimmo0->setWriteFileType(FileType::SURFVTU);
     mimmo0->setWriteFilename("utils_mesh_00001.0000");
 
+    mimmo0->exec();
+    log<<"Reading and converting the initial mesh"<<std::endl;
+
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> target;
+#if MIMMO_ENABLE_MPI
+    mimmo::Partition * part = new mimmo::Partition();
+    part->setGeometry(mimmo0->getGeometry());
+    part->setPlotInExecution(true);
+    part->exec();
+
+    log<<"Partitioning the initial mesh"<<std::endl;
+
+    target = part->getGeometry();
+#else
+    target = mimmo0->getGeometry();
+#endif
+
+    //create a custom sensitivity field on target points
+    // use a linear decay in spherical coordinates from center 0.5,0.5,0.
+    mimmo::MimmoPiercedVector<double> sensitivity;
+    sensitivity.initialize(target, mimmo::MPVLocation::POINT, 1.);
+
+    darray3E center({{0.5,0.5,0}});
+    {
+        darray3E pMin,pMax;
+        target->getBoundingBox(pMin, pMax, true);
+        double maxD = norm2(pMax-pMin)/3.;
+        double localvalue;
+        for(bitpit::Vertex & v : target->getVertices()){
+            localvalue =  norm2(v.getCoords() - center);
+            if(localvalue < maxD){
+                sensitivity[v.getId()] += -1.0*localvalue/maxD;
+            }else{
+                sensitivity[v.getId()] = 0.0;
+            }
+        }
+    }
+    log<<"Creating artificial sensitivity"<<std::endl;
+
+
     /*Creation of the seeder. Use Level set engine to place 9 points on
      * surface, starting from a seed point in the absolute origin.
      */
     mimmo::CreateSeedsOnSurface * cseed = new mimmo::CreateSeedsOnSurface();
-    cseed->setSeed({{0.0,0.0,0.0}});
-    cseed->setNPoints(9);
-    cseed->setEngine(1);
+    cseed->setSeed(center);
+    cseed->setNPoints(20);
+    cseed->setSensitivityMap(&sensitivity);
+    cseed->setEngine(0);
+    cseed->setRandomFixed(true);
+    cseed->setRandomSignature(1599826209);
     cseed->setPlotInExecution(true);
+    cseed->setGeometry(target);
 
-    /* Setup pin connections.
-     */
-    mimmo::pin::addPin(mimmo0, cseed, M_GEOM, M_GEOM);
+    cseed->exec();
 
-    /* Setup execution chain.
-     */
-    mimmo::Chain ch0;
-    ch0.addObject(mimmo0);
-    ch0.addObject(cseed);
+    log<<"Seeding points on surface mesh"<<std::endl;
 
-    /* Execution of chain.
-     * Use debug flag false to avoid to print out the execution steps on console.
-     */
-    ch0.exec();
-
+    if(cseed->getEngineENUM() == mimmo::CSeedSurf::RANDOM){
+        log<<"utils_example_0001: Random seeder used signature : "<<cseed->getRandomSignature()<<std::endl;
+    }
     /* Clean up & exit;
      */
     delete mimmo0;
     delete cseed;
+#if MIMMO_ENABLE_MPI
+    delete part;
+#endif
     return;
 
 }
@@ -98,7 +144,7 @@ int main(int argc, char *argv[]) {
 
         /**<Change the name of mimmo logger file (default mimmo.log)
          * before initialization of BaseManipulation objects*/
-        mimmo::setLogger("mimmo");
+//        mimmo::setLogger("mimmo");
 
         /**<Calling mimmo Test routines*/
         try{
