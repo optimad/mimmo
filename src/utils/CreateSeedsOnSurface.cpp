@@ -143,7 +143,7 @@ CreateSeedsOnSurface::buildPorts(){
 
     //output
     built = (built && createPortOut<dvecarr3E, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::getPoints, M_COORDS));
-    built = (built && createPortOut<int, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::getRandomSignature, M_VALUEI ));
+    built = (built && createPortOut<long, CreateSeedsOnSurface>(this, &mimmo::CreateSeedsOnSurface::getRandomSignature, M_VALUELI ));
 
     m_arePortsBuilt = built;
 };
@@ -233,9 +233,9 @@ CreateSeedsOnSurface::isRandomFixed(){
  * only make sense if a CSeedSurf::RANDOM engine is employed. Otherwise it is ignored.
  * \return signature.
  */
-int
+long
 CreateSeedsOnSurface::getRandomSignature(){
-    return int(m_randomSignature);
+    return long(m_randomSignature);
 }
 
 /*!
@@ -402,6 +402,7 @@ CreateSeedsOnSurface::solve(bool debug){
     //clear the points
     m_points.clear();
     //evaluate the oriented bounding box of the 3D surface (geometry already provided to the box in setGeometry method)
+    m_bbox->setOBBStrategy(OBBStrategy::MINVOL);
     m_bbox->execute();
     if(m_seedbaricenter)    m_seed = m_bbox->getOrigin();
     //check and fix it up the sensitivity field attached
@@ -441,7 +442,10 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 #if MIMMO_ENABLE_MPI
     if(m_nprocs > 1){
         //Levelset strategy not available in MPI multirank.
+        bitpit::log::Priority oldP = m_log->getPriority();
+        m_log->setPriority(bitpit::log::Priority::NORMAL);
         (*m_log)<<"Warning in "<<m_name<<" : LevelSet option is not available in MPI version with np > 1. Switch to another engine."<<std::endl;
+        m_log->setPriority(oldP);
         return;
     }
 #endif
@@ -585,6 +589,8 @@ CreateSeedsOnSurface::solveGrid(bool debug){
     grid->setSpan(m_bbox->getSpan());
     grid->setRefSystem(m_bbox->getAxes());
     grid->setDimension(dim);
+//    grid->setPlotInExecution(true);
+//    grid->exec();
     grid->execute();
 
     //get cell centroids
@@ -1480,7 +1486,7 @@ CreateSeedsOnSurface::flushSectionXML(bitpit::Config::Section & slotXML, std::st
         slotXML.set("MassCenterAsSeed", std::to_string(1));
     }
 
-    int signat = getRandomSignature();
+    long signat = getRandomSignature();
     if( signat != -1 && m_engine == mimmo::CSeedSurf::RANDOM){
         slotXML.set("RandomFixed", std::to_string(signat));
     }

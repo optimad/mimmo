@@ -38,7 +38,7 @@ OBBox::OBBox(){
         val[counter] = 1.0;
         ++counter;
     }
-    m_forceAABB = false;
+    m_strategy = OBBStrategy::OBB;
     m_writeInfo = false;
 };
 
@@ -57,7 +57,7 @@ OBBox::OBBox(const bitpit::Config::Section & rootXML){
         val[counter] = 1.0;
         ++counter;
     }
-    m_forceAABB = false;
+    m_strategy = OBBStrategy::OBB;
     m_writeInfo = false;
 
     std::string fallback_name = "ClassNONE";
@@ -81,7 +81,7 @@ OBBox::OBBox(const OBBox & other):BaseManipulation(other){
     m_span = other.m_span;
     m_axes = other.m_axes;
     m_listgeo = other.m_listgeo;
-    m_forceAABB = other.m_forceAABB;
+    m_strategy = other.m_strategy;
     m_writeInfo = other.m_writeInfo;
 };
 
@@ -95,7 +95,7 @@ void OBBox::swap(OBBox & x) noexcept
     std::swap(m_span, x.m_span);
     std::swap(m_axes, x.m_axes);
     std::swap(m_listgeo, x.m_listgeo);
-    std::swap(m_forceAABB, x.m_forceAABB);
+    std::swap(m_strategy, x.m_strategy);
     std::swap(m_writeInfo, x.m_writeInfo);
 
     BaseManipulation::swap(x);
@@ -128,7 +128,7 @@ OBBox::clearOBBox(){
         val[counter] = 1.0;
         ++counter;
     }
-    m_forceAABB = false;
+    m_strategy = OBBStrategy::OBB;
     m_writeInfo = false;
 };
 
@@ -162,7 +162,7 @@ OBBox::getAxes(){
 }
 
 /*!
- * \return current list of linnked geoemtry for obbox calculation
+ * \return current list of linked geoemtry for obbox calculation
  */
 std::vector<MimmoSharedPointer<MimmoObject> >
 OBBox::getGeometries(){
@@ -178,8 +178,17 @@ OBBox::getGeometries(){
  */
 bool
 OBBox::isForcedAABB(){
-    return m_forceAABB;
+    return (m_strategy == OBBStrategy::AABB);
 }
+
+/*!
+ * \return class strategy set to evaluate bounding box. See OBBStrategy enum
+ */
+OBBStrategy
+OBBox::getOBBStrategy(){
+    return m_strategy;
+}
+
 
 /*!
  * Set the list of target geometries once and for all, and erase any pre-existent list.
@@ -217,12 +226,33 @@ OBBox::setGeometry(MimmoSharedPointer<MimmoObject> geo){
 
 /*!
  * Force class to evaluate a standard Axis Aligned Bounding Box instead of the Oriented one.
- * \param[in] flag true, force AABB evaluation.
+ * \param[in] flag true, force AABB evaluation, false evaluate OBB.
  */
 void
 OBBox::setForceAABB(bool flag){
-    m_forceAABB = flag;
+    m_strategy = OBBStrategy::OBB;
+    if (flag)   m_strategy = OBBStrategy::AABB;
 }
+
+/*!
+ * Set class strategy to get the bounding box.See OBBStrategy enum.
+ * \param[in] strategy  chosen from OBBStrategy enum.
+ */
+void
+OBBox::setOBBStrategy(OBBStrategy strategy){
+    m_strategy = strategy;
+}
+
+/*!
+ * Set class strategy to get the bounding box.See OBBStrategy enum.
+ * \param[in] strategy  int chosen from OBBStrategy enum.
+ */
+void
+OBBox::setOBBStrategyInt(int strategyflag){
+    strategyflag = std::min(2, std::max(strategyflag, 0));
+    m_strategy = static_cast<OBBStrategy>(strategyflag);
+}
+
 
 /*!
  * Force class to write OBB calculated origin, axes and span to file(in the plotOptionalResults directory)
@@ -298,93 +328,55 @@ OBBox::plot(std::string directory, std::string filename,int counter, bool binary
 void
 OBBox::execute(){
 
-    darray3E pmin, pmax;
-    pmin.fill(std::numeric_limits<double>::max());
-    pmax.fill(-1.0*std::numeric_limits<double>::max());
-    double val;
-
-    //create an eye [1,0,0] [0,1,0] [0,0,1] matrix and set m_axes to it.
-    dmatrix33E eye;
-    {
-        int count = 0;
-        for(auto & local: eye) {
-            local.fill(0);
-            local[count] = 1.0;
-            m_axes[count] = local;
-            ++count;
-        }
-    }
     // check if the list is empty.
     if(m_listgeo.empty()){
         m_span.fill(0.0);
         m_origin.fill(0.0);
+        m_axes[0]={{1.,0.,0.}};
+        m_axes[1]={{0.,1.,0.}};
+        m_axes[2]={{0.,0.,1.}};
+
         *m_log<<"Warning in "<<m_name<<" : no external geometry provided"<<std::endl;
         return;
     };
 
-    //if one geometry at least is a cloud point, solve them all as point clouds.
-    bool allCloud = false;
-    for(auto & tuple : m_listgeo){
-        allCloud = allCloud || (tuple.second == 3 || tuple.second == 4);
-    }
 
     std::vector<MimmoSharedPointer<MimmoObject>> vector_listgeo = getGeometries();
 
-    //calculate the right system of axes
-    // if i'm not forcing to get the global AABB ...
-    if(!m_forceAABB){
+    darray3E originOBB, spanOBB, originAABB, spanAABB;
+    dmatrix33E axesOBB, axesAABB;
+    switch(m_strategy){
+        case OBBStrategy::OBB :
+            computeOBB(vector_listgeo, originOBB, spanOBB, axesOBB);
+            std::swap(m_origin, originOBB);
+            std::swap(m_span, spanOBB);
+            std::swap(m_axes, axesOBB);
+        break;
+        case OBBStrategy::AABB :
+            computeAABB(vector_listgeo, originAABB, spanAABB, axesAABB);
+            std::swap(m_origin, originAABB);
+            std::swap(m_span, spanAABB);
+            std::swap(m_axes, axesAABB);
+        break;
+        case OBBStrategy::MINVOL :
+            computeOBB(vector_listgeo, originOBB, spanOBB, axesOBB);
+            computeAABB(vector_listgeo, originAABB, spanAABB, axesAABB);
 
-        dmatrix33E covariance;
-        darray3E spectrum;
-
-        if(allCloud){
-            covariance = evaluatePointsCovarianceMatrix(vector_listgeo); //global collective for MPI
-        }else{
-            covariance = evaluateElementsCovarianceMatrix(vector_listgeo); //global collective for MPI
-        }
-
-        m_axes = eigenVectors(covariance, spectrum);
-        adjustBasis(m_axes, spectrum);
-    }
-
-    //calculate local bounding box
-    for(MimmoSharedPointer<MimmoObject> &ptr : vector_listgeo){
-        livector1D vertIds = ptr->getVerticesIds(true); //only internals.
-        for(long id: vertIds){
-            darray3E coord =ptr->getVertexCoords(id);
-            for(int i=0;i<3; ++i){
-                val = dotProduct(coord, m_axes[i]);
-                pmin[i] = std::fmin(pmin[i], val);
-                pmax[i] = std::fmax(pmax[i], val);
+            if(spanOBB[0]*spanOBB[1]*spanOBB[2] < spanAABB[0]*spanAABB[1]*spanAABB[2] ){
+                std::swap(m_origin, originOBB);
+                std::swap(m_span, spanOBB);
+                std::swap(m_axes, axesOBB);
+            }else{
+                std::swap(m_origin, originAABB);
+                std::swap(m_span, spanAABB);
+                std::swap(m_axes, axesAABB);
             }
-        }
-    }
-
-#if MIMMO_ENABLE_MPI
-    //reduce bbox data all over the ranks
-    MPI_Allreduce(MPI_IN_PLACE, pmin.data(), 3, MPI_DOUBLE, MPI_MIN, m_communicator);
-    MPI_Allreduce(MPI_IN_PLACE, pmax.data(), 3, MPI_DOUBLE, MPI_MAX, m_communicator);
-#endif
-
-    //recover m_span and m_origin of the current box
-    dmatrix33E inv = inverse(m_axes);
-    m_span = pmax - pmin;
-    //check if one of the span goes to 0;
-    double avg_span = 0.0;
-    for(auto & val: m_span)    avg_span+=val;
-    avg_span /= 3.0;
-
-    for(auto &val : m_span)    {
-        val = std::fmax(val, 1.E-04*avg_span);
-    }
-
-    darray3E originLoc = 0.5*(pmin+pmax);
-    for(int i=0; i<3; ++i){
-        m_origin[i] = dotProduct(originLoc, inv[i]);
+        break;
+        default: //never been reached
+        break;
     }
 
     if (!m_writeInfo) return;
-
     //OK, write the resume file.
     long idClass = getId();
 #if MIMMO_ENABLE_MPI
@@ -415,6 +407,130 @@ OBBox::execute(){
 };
 
 /*!
+    Compute the oriented bounding box
+    \param[in] vectorlist_geo list of target geometries
+    \param[out] origin of the OBB
+    \param[out] span of the OBB
+    \param[out] axes of the OBB, as fundamental ref frame
+*/
+void
+OBBox::computeOBB(std::vector<MimmoSharedPointer<MimmoObject>> & vector_listgeo,
+           darray3E & origin, darray3E &span, dmatrix33E & axes)
+{
+
+//if one geometry at least is a cloud point, solve them all as point clouds.
+    bool allCloud = false;
+    for(MimmoSharedPointer<MimmoObject> & ptr : vector_listgeo){
+        allCloud = allCloud || (ptr->getType() == 3 || ptr->getType() == 4);
+    }
+
+    //calculate the right system of axes
+    dmatrix33E covariance;
+    darray3E spectrum;
+    if(allCloud){
+        covariance = evaluatePointsCovarianceMatrix(vector_listgeo); //global collective for MPI
+    }else{
+        covariance = evaluateElementsCovarianceMatrix(vector_listgeo); //global collective for MPI
+    }
+
+    axes = eigenVectors(covariance, spectrum);
+    adjustBasis(axes, spectrum);
+
+    darray3E pmin, pmax;
+    double val;
+    pmin.fill(std::numeric_limits<double>::max());
+    pmax.fill(-1.0*std::numeric_limits<double>::max());
+    //calculate local bounding box
+    for(MimmoSharedPointer<MimmoObject> &ptr : vector_listgeo){
+        livector1D vertIds = ptr->getVerticesIds(true); //only internals.
+        for(long id: vertIds){
+            darray3E coord =ptr->getVertexCoords(id);
+            for(int i=0;i<3; ++i){
+                val = dotProduct(coord, axes[i]);
+                pmin[i] = std::fmin(pmin[i], val);
+                pmax[i] = std::fmax(pmax[i], val);
+            }
+        }
+    }
+
+#if MIMMO_ENABLE_MPI
+    //reduce bbox data all over the ranks
+    MPI_Allreduce(MPI_IN_PLACE, pmin.data(), 3, MPI_DOUBLE, MPI_MIN, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, pmax.data(), 3, MPI_DOUBLE, MPI_MAX, m_communicator);
+#endif
+
+    //recover span and origin of the current box
+    dmatrix33E inv = inverse(axes);
+    span = pmax - pmin;
+    //check if one of the span goes to 0;
+    double avg_span = 0.0;
+    for(double & val: span)    avg_span+=val;
+    avg_span /= 3.0;
+
+    for(double &val : span)    {
+        val = std::fmax(val, 1.E-04*avg_span);
+    }
+
+    darray3E originLoc = 0.5*(pmin+pmax);
+    for(int i=0; i<3; ++i){
+        origin[i] = dotProduct(originLoc, inv[i]);
+    }
+}
+
+/*!
+    Compute the axis aligned bounding box
+    \param[in] vectorlist_geo list of target geometries
+    \param[out] origin of the AABB
+    \param[out] span of the AABB
+    \param[out] axes of the AABB, as fundamental ref frame
+*/
+void
+OBBox::computeAABB(std::vector<MimmoSharedPointer<MimmoObject>> & vector_listgeo,
+           darray3E & origin, darray3E &span, dmatrix33E & axes)
+{
+
+    axes[0] = {{1.,0.,0.}};
+    axes[1] = {{0.,1.,0.}};
+    axes[2] = {{0.,0.,1.}};
+
+    darray3E pmin, pmax;
+    pmin.fill(std::numeric_limits<double>::max());
+    pmax.fill(-1.0*std::numeric_limits<double>::max());
+    //calculate local bounding box
+    for(MimmoSharedPointer<MimmoObject> &ptr : vector_listgeo){
+        livector1D vertIds = ptr->getVerticesIds(true); //only internals.
+        for(long id: vertIds){
+            darray3E coord =ptr->getVertexCoords(id);
+            for(int i=0;i<3; ++i){
+                pmin[i] = std::fmin(pmin[i], coord[i]);
+                pmax[i] = std::fmax(pmax[i], coord[i]);
+            }
+        }
+    }
+
+#if MIMMO_ENABLE_MPI
+    //reduce bbox data all over the ranks
+    MPI_Allreduce(MPI_IN_PLACE, pmin.data(), 3, MPI_DOUBLE, MPI_MIN, m_communicator);
+    MPI_Allreduce(MPI_IN_PLACE, pmax.data(), 3, MPI_DOUBLE, MPI_MAX, m_communicator);
+#endif
+
+    //recover span and origin of the current box
+    span = pmax - pmin;
+    //check if one of the span goes to 0;
+    double avg_span = 0.0;
+    for(double & val: span)    avg_span+=val;
+    avg_span /= 3.0;
+
+    for(double &val : span)    {
+        val = std::fmax(val, 1.E-04*avg_span);
+    }
+
+    origin = 0.5*(pmin+pmax);
+
+}
+
+
+/*!
  * Plot Optional results of the class,
  * that is the oriented bounding box as *.vtu mesh
  */
@@ -436,6 +552,8 @@ OBBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string nam
     BITPIT_UNUSED(name);
     BaseManipulation::absorbSectionXML(slotXML, name);
 
+    ///////////////////////////////////////////////////////
+    // LEGACY ONLY -TODO to be removed once deprecated setForceAABB will be removed
     if(slotXML.hasOption("ForceAABB")){
         std::string input = slotXML.get("ForceAABB");
         input = bitpit::utils::string::trim(input);
@@ -444,8 +562,22 @@ OBBox::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string nam
             std::stringstream ss(input);
             ss >> value;
         }
-        setForceAABB(value);
+        if (value)  setOBBStrategy(OBBStrategy::AABB);
+        else        setOBBStrategy(OBBStrategy::OBB);
     }
+    ///////////////////////////////////////////////////////
+
+    if(slotXML.hasOption("OBBStrategy")){
+        std::string input = slotXML.get("OBBStrategy");
+        input = bitpit::utils::string::trim(input);
+        int value = 0;
+        if(!input.empty()){
+            std::stringstream ss(input);
+            ss >> value;
+        }
+        setOBBStrategyInt(value);
+    }
+
     if(slotXML.hasOption("WriteInfo")){
         std::string input = slotXML.get("WriteInfo");
         input = bitpit::utils::string::trim(input);
@@ -470,7 +602,7 @@ OBBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     BITPIT_UNUSED(name);
     BaseManipulation::flushSectionXML(slotXML, name);
 
-    slotXML.set("ForceAABB", std::to_string((int)m_forceAABB));
+    slotXML.set("OBBStrategy", std::to_string(static_cast<int>(m_strategy)));
     slotXML.set("WriteInfo", std::to_string((int)m_writeInfo));
 
 };
