@@ -36,7 +36,7 @@
 	Using: MimmoGeometry, ProjPatchOnSurface
 
 	<b>To run</b>: ./utils_example_00005 \n
-
+    <b>To run</b>: mpirun -np x utils_example_00005 \n
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
@@ -80,6 +80,7 @@ void test00005() {
 #if MIMMO_ENABLE_MPI
     //partition of bunny and 3D curve
     mimmo::Partition * part0 = new mimmo::Partition();
+    part0->setName("PartitionedBunny");
     part0->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     part0->setGeometry(mimmo0->getGeometry());
     part0->setPlotInExecution(true);
@@ -88,6 +89,7 @@ void test00005() {
     //partition of bunny and 3D curve
     mimmo::Partition * part1 = new mimmo::Partition();
     part1->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
+    part1->setName("PartitionedCurve");
     part1->setGeometry(mimmo1->getGeometry());
     part1->setPlotInExecution(true);
     part1->exec();

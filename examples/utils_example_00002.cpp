@@ -37,7 +37,7 @@
 	Using: MimmoGeometry, ControlDeformExtSurface
 
 	<b>To run</b>: ./utils_example_00002 \n
-
+    <b>To run</b>: mpirun -np x utils_example_00002 \n    
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
