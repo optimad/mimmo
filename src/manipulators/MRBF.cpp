@@ -642,7 +642,7 @@ MRBF::execute(){
 	}
 
 	// Set the active vertices of target geometry
-	if (isCompact() && useWholeGeometry){
+	if (isCompact() && !useWholeGeometry){
 	    // Fill the list of vertices with them included in rbf radii
 	    if(container->getKdTreeSyncStatus() != SyncStatus::SYNC){
 	        container->buildKdTree();
