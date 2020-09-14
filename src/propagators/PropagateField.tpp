@@ -606,7 +606,7 @@ PropagateField<NCOMP>::checkBoundariesCoherence(){
         }
     }
 
-    bitpit::PiercedVector<bitpit::Vertex> meshVertices = m_geometry->getVertices();
+    bitpit::PiercedVector<bitpit::Vertex> &meshVertices = m_geometry->getVertices();
     for(long id : nodeList){
         if(!meshVertices.exists(id)){
             nodeList.clear();
