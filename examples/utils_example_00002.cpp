@@ -77,6 +77,7 @@ void test00002() {
      partbunny->setName("PartitionerBunny");
      partbunny->setGeometry(bunny->getGeometry());
      partbunny->setPlotInExecution(true);
+     partbunny->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
      partbunny->exec();
 
      log.setPriority(bitpit::log::Priority::NORMAL);
@@ -89,6 +90,7 @@ void test00002() {
      partincplane->setName("PartitionerInclinedPlane");
      partincplane->setGeometry(incplane->getGeometry());
      partincplane->setPlotInExecution(true);
+     partincplane->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
      partincplane->exec();
 
      log.setPriority(bitpit::log::Priority::NORMAL);

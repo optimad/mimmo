@@ -169,7 +169,7 @@ Partition::execute(){
         return;
     }
 
-    if( getGeometry()== nullptr){
+    if( getGeometry() == nullptr){
         (*m_log)<<m_name + " : null pointer to linked geometry found."<<std::endl;
         return;
     };

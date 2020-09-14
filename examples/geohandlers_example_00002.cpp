@@ -74,12 +74,14 @@ void test00002() {
      * Plot Optional results during execution active for Partition block.
      */
     mimmo::Partition* partition0 = new mimmo::Partition();
+    partition0->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition0->setPlotInExecution(true);
 
     /* Instantiation of a Partition object with default patition method space filling curve.
      * Plot Optional results during execution active for Partition block.
      */
     mimmo::Partition* partition1 = new mimmo::Partition();
+    partition1->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition1->setPlotInExecution(true);
 #endif
 

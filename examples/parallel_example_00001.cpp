@@ -66,6 +66,7 @@ void test00001() {
     //  * Plot Optional results during execution active for Partition block.
     //  */
     // Partition* partition = new Partition();
+    // partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     // partition->setPlotInExecution(true);
     //
     // /* Setup pin connections.

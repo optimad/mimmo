@@ -50,6 +50,12 @@ enum class PartitionMethod{
  * It needs a target MimmoObject serial geometry, alongside a choice of a partitioning method over the processes.
  * It returns geometry partitioned over the processors in the same input MimmoObject.
  * To parallelize a serial input geometry, the geometry has to be stored entirely on processor with rank = 0.
+ * The partition map is computed automatically by the block by set the PartitionMethod::PARTGEOM; a geometric
+ * space filling curve is computed by the use of METIS library.
+ * The user can set a custom partitioning structure by provide the map through the setPartition method of
+ * the class; the function automatically sets the partition method to PartitionMethod::CUSTOM.
+ * The default partition method is PartitionMethod::NONE; by leaving the method to the default value
+ * the execution of the block is simply skipped.
  * After run the execution of the Partition block the original MimmoObject is replaced by the partitioned one.
  * The block can be used to serialize a partitioned mesh by set the PartitionMethod::SERIALIZE. The partitioned mesh after the
  * execution of the block will be owned entirely by rank = 0.
