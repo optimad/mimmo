@@ -130,7 +130,7 @@ Apply::setInput(dmpvecarr3E *input){
 	m_input = *input;
 };
 
-/*!It sets the displacements given as scalar input. It makes sense only for surface gemetries.
+/*!It sets the displacements given as scalar input. It makes sense only for surface geometries.
  * The displacements will be directed as the surface normals.
  * \param[in] input Input displacements of the geometry vertices given as module of normal directed vectors.
  */
@@ -303,10 +303,8 @@ Apply::execute(){
         //no need to shrink cellAnnotation.
     }
 
-#if MIMMO_ENABLE_MPI
-    getGeometry()->cleanAllParallelSync();
-    getGeometry()->updatePointGhostExchangeInfo();
-#endif
+    // Update geometry
+    getGeometry()->update();
 
 };
 
