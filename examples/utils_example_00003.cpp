@@ -65,6 +65,7 @@ void test00003() {
     /* Instantiation of a Partition object for target mesh partitioning.
     */
     mimmo::Partition* partitioner = new mimmo::Partition();
+    partitioner->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partitioner->setName("mimmo.Partitioner");
     partitioner->setPlotInExecution(true);
 #endif

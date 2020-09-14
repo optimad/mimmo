@@ -57,6 +57,7 @@ void test00001() {
     /* Execution of a Partition object with default partition method space filling curve.
      */
     mimmo::Partition* partition= new mimmo::Partition();
+    partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition->setGeometry(mimmo0->getGeometry());
     partition->execute();
 #endif

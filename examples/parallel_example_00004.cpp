@@ -187,6 +187,7 @@ int test00004() {
 	partition->setPlotInExecution(true);
 	partition->setGeometry(mesh);
 	partition->setBoundaryGeometry(bdirMesh);
+    partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
 	auto t1 = Clock::now();
 	if (rank == 0)
 		std::cout << "#" << rank  << " Start Partition mesh " << std::endl;

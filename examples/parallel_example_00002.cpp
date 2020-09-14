@@ -64,6 +64,7 @@ void test00002() {
      * Plot Optional results during execution active for Partition block.
      */
     mimmo::Partition* partition = new mimmo::Partition();
+    partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition->setPlotInExecution(true);
 
     /* Instantiation of a FFDobject with spherical shape.

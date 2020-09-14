@@ -59,6 +59,7 @@ void test00004() {
     /* Partitionate  StanfordBunny.
      */
 	mimmo::Partition * mimmo0part = new mimmo::Partition();
+    mimmo0part->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     mimmo0part->setName("StanfordBunnyPartitioner");
     mimmo0part->setPlotInExecution(true);
 #endif

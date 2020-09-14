@@ -80,12 +80,14 @@ void test00005() {
 #if MIMMO_ENABLE_MPI
     //partition of bunny and 3D curve
     mimmo::Partition * part0 = new mimmo::Partition();
+    part0->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     part0->setGeometry(mimmo0->getGeometry());
     part0->setPlotInExecution(true);
     part0->exec();
 
     //partition of bunny and 3D curve
     mimmo::Partition * part1 = new mimmo::Partition();
+    part1->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     part1->setGeometry(mimmo1->getGeometry());
     part1->setPlotInExecution(true);
     part1->exec();

@@ -134,6 +134,7 @@ void test00001() {
      * Plot Optional results during execution active for Partition block.
      */
     std::unique_ptr<mimmo::Partition> partition(new mimmo::Partition());
+    partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition->setPlotInExecution(true);
     partition->setGeometry(geo);
 #endif
