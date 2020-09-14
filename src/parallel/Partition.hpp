@@ -35,8 +35,10 @@ namespace mimmo{
  * \brief Methods available for partitioning geometry.
  */
 enum class PartitionMethod{
-    SERIALIZE = 0, /**< Communicate the whole mesh to rank 0*/
-    	    PARTGEOM = 1 /**< Partition a serial geometry via geometric space filling curve*/
+    NONE = -1, /**< Not set partition method*/
+            SERIALIZE = 0, /**< Communicate the whole mesh to rank 0*/
+            PARTGEOM = 1, /**< Partition a serial geometry via geometric space filling curve*/
+            CUSTOM = 99 /**< Partition a serial geometry via custom provided partitioning map*/
 };
 
 /*!
@@ -94,9 +96,6 @@ private:
     PartitionMethod                 m_mode;                 /**<Partition method. Default 1 - Cartesian Axes Subdivision*/
     MimmoSharedPointer<MimmoObject> m_boundary;             /**<Reference to external boundary MimmoObject. */
     std::unordered_map<long, int>   m_boundarypartition;    /**<Partition structure for boundary geometry, i-th term is the final rank of the i-th cell after partitioning.*/
-
-    bool                            m_interfacesReset;
-    bool                            m_externalPartition;
 
 public:
     Partition();
