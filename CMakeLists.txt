@@ -426,10 +426,20 @@ getModuleEnableName("iogeneric" IOGENERIC_MODULE_ENABLED)
 unset(${IOGENERIC_MODULE_ENABLED} CACHE)
 set(${IOGENERIC_MODULE_ENABLED} 1 CACHE INTERNAL "Request building iogeneric module" FORCE)
 
-# The modules 'core', 'iogeneric' and 'manipulators' have to be always built
 getModuleEnableName("manipulators" MANIPULATORS_MODULE_ENABLED)
 unset(${MANIPULATORS_MODULE_ENABLED} CACHE)
 set(${MANIPULATORS_MODULE_ENABLED} 1 CACHE INTERNAL "Request building manipulators module" FORCE)
+
+# The modules 'parallel' has to be always built if MPI enpabled
+if(ENABLE_MPI)
+    getModuleEnableName("parallel" PARALLEL_MODULE_ENABLED)
+    unset(${PARALLEL_MODULE_ENABLED} CACHE)
+    set(${PARALLEL_MODULE_ENABLED} 1 CACHE INTERNAL "Request building parallel module" FORCE)
+else()
+    getModuleEnableName("parallel" PARALLEL_MODULE_ENABLED)
+    unset(${PARALLEL_MODULE_ENABLED} CACHE)
+    set(${PARALLEL_MODULE_ENABLED} 0 CACHE INTERNAL "Unneeded building parallel module" FORCE)    
+endif()
 
 # disabling ioofoam module in Windows-MIngw compilation.
 if(MINGW)
