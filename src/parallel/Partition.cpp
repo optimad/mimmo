@@ -35,11 +35,9 @@ namespace mimmo{
  */
 Partition::Partition(){
 	m_name = "mimmo.Partition";
-	m_mode = PartitionMethod::PARTGEOM;
+	m_mode = PartitionMethod::NONE;
 	m_partition.clear();
 	m_boundary.reset();
-	m_interfacesReset = false;
-	m_externalPartition = false;
 };
 
 /*!
@@ -49,11 +47,9 @@ Partition::Partition(){
 Partition::Partition(const bitpit::Config::Section & rootXML){
 
 	m_name = "mimmo.Partition";
-	m_mode = PartitionMethod::PARTGEOM;
+	m_mode = PartitionMethod::NONE;
 	m_boundary.reset();
 	m_partition.clear();
-	m_interfacesReset = false;
-	m_externalPartition = false;
 
 	std::string fallback_name = "ClassNONE";
 	std::string input = rootXML.get("ClassName", fallback_name);
@@ -76,8 +72,6 @@ Partition::Partition(const Partition & other):BaseManipulation(other){
 	m_mode = other.m_mode;
 	m_partition = other.m_partition;
 	m_boundary = other.m_boundary;
-	m_interfacesReset = other.m_interfacesReset;
-	m_externalPartition = other.m_externalPartition;
 };
 
 /*! It builds the input/output ports of the object
@@ -125,14 +119,15 @@ Partition::setBoundaryGeometry(MimmoSharedPointer<MimmoObject> geo){
 }
 
 /*!
- * It sets partition structure of partition block
+ * It sets partition structure of partition block.
+ * It sets the partition mode to PartitionMethod::CUSTOM.
  * \param[in] partition partition vector
  *
  */
 void
 Partition::setPartition(std::unordered_map<long, int> partition){
 	m_partition = partition;
-	m_externalPartition = true;
+	m_mode = PartitionMethod::CUSTOM;
 };
 
 /*!
@@ -142,8 +137,9 @@ Partition::setPartition(std::unordered_map<long, int> partition){
  */
 void
 Partition::setPartitionMethod(PartitionMethod mode){
-	if (mode != PartitionMethod::PARTGEOM && mode != PartitionMethod::SERIALIZE)
-		throw std::runtime_error(m_name + " : partition method not allowed");
+	if (mode != PartitionMethod::PARTGEOM && mode != PartitionMethod::SERIALIZE &&
+	        mode != PartitionMethod::CUSTOM && mode != PartitionMethod::NONE)
+	    throw std::runtime_error(m_name + " : partition method not allowed");
 
 	m_mode = mode;
 };
@@ -155,7 +151,7 @@ Partition::setPartitionMethod(PartitionMethod mode){
  */
 void
 Partition::setPartitionMethod(int mode){
-	if (mode != 1 && mode != 0)
+	if (mode != -1 && mode != 0 && mode != 1 && mode != 2)
 		throw std::runtime_error(m_name + " : partition method not allowed");
 
 	m_mode = PartitionMethod(mode);
@@ -168,116 +164,122 @@ Partition::setPartitionMethod(int mode){
 void
 Partition::execute(){
 
-	if( getGeometry()== nullptr){
-		(*m_log)<<m_name + " : null pointer to linked geometry found."<<std::endl;
-		return;
-	};
-
-	if(m_mode != PartitionMethod::SERIALIZE && getGeometry()->isEmpty()){
-		(*m_log)<<m_name + " : empty linked geometry found."<<std::endl;
-	};
-
-	if(m_mode == PartitionMethod::PARTGEOM && m_rank != 0 && !getGeometry()->isEmpty()){
-		(*m_log)<<m_name + " : non empty linked geometry found on non-zero processors during geometric partition."<<std::endl;
-		throw std::runtime_error(m_name + " : non empty linked geometry found on non-zero processors during geometric partition.");
-	};
-
-    if(m_externalPartition){
-	    if (m_partition.size() != m_geometry->getNCells())
-			throw std::runtime_error(m_name + " : partition size different from number of cells");
+    if(m_mode == PartitionMethod::NONE){
+        // Do nothing
+        return;
     }
-    
-	//Set communicator in case is not set
-	if (!getGeometry()->getPatch()->isCommunicatorSet()){
-		getGeometry()->getPatch()->setCommunicator(m_communicator);
-	}
 
-	if (m_nprocs>1){
-		if ((m_mode == PartitionMethod::PARTGEOM && !(getGeometry()->isDistributed())) || (m_mode == PartitionMethod::SERIALIZE && (getGeometry()->isDistributed())))
-		{
+    if( getGeometry()== nullptr){
+        (*m_log)<<m_name + " : null pointer to linked geometry found."<<std::endl;
+        return;
+    };
 
-		    getGeometry()->updateAdjacencies();
+    if(m_mode == PartitionMethod::PARTGEOM && getGeometry()->isDistributed()){
+        (*m_log)<<m_name + " : already distributed geometry found during geometric partition."<<std::endl;
+        throw std::runtime_error(m_name + " : already distributed geometry found during geometric partition.");
+    };
 
-			//Compute partition
-            if(!m_externalPartition){
-                computePartition();
+    if (m_mode == PartitionMethod::SERIALIZE && !(getGeometry()->isDistributed())){
+        (*m_log)<<m_name + " : already serialized geometry found during geometric partition."<<std::endl;
+        return;
+    };
+
+    if(m_mode == PartitionMethod::CUSTOM){
+        if (m_partition.size() != m_geometry->getNCells())
+            throw std::runtime_error(m_name + " : partition size different from number of cells");
+    }
+
+    if (m_mode == PartitionMethod::PARTGEOM || m_mode == PartitionMethod::SERIALIZE || m_mode == PartitionMethod::CUSTOM)
+    {
+
+        // Force build adjacencies if not built
+        // TODO Reset adjacencies if not already computed?
+        getGeometry()->updateAdjacencies();
+
+        // Compute partition if not custom
+        if(m_mode != PartitionMethod::CUSTOM){
+            computePartition();
+        }
+
+        // Compute boundary partition if boundary geometry exists
+        if (getBoundaryGeometry() != nullptr){
+            if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
+                // Compute boundary partition
+                computeBoundaryPartition();
             }
-			if (getBoundaryGeometry() != nullptr){
-				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
-					//Set communicator if not already set
-					if (!getBoundaryGeometry()->getPatch()->isCommunicatorSet()){
-						getBoundaryGeometry()->getPatch()->setCommunicator(m_communicator);
-					}
-					//Compute boundary partition
-					computeBoundaryPartition();
-				}
-			}
+        }
 
-			//Clean potential point connectivity
-			getGeometry()->cleanPointConnectivity();
-
-			//partition
-			bool m_usemimmoserialize = false;
-			if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
-//				std::vector<bitpit::adaption::Info> Vinfo = getGeometry()->getPatch()->partition(m_partition, false, true);
-				getGeometry()->getPatch()->partition(m_partition, false, true);
-				if (m_mode == PartitionMethod::SERIALIZE){
-//					// Sort cells and vertices with Id
-//					getGeometry()->getPatch()->sortCells();
-					getGeometry()->getPatch()->sortVertices();
-				}
-			}
-			else{
-				serialize(m_geometry, false);
-			}
-
-			//Resync PID
-			getGeometry()->resyncPID();
-
-			//Force rebuild patch info
-			getGeometry()->buildPatchInfo();
+        // Clean structures to be destroyed/reset
+        getGeometry()->cleanPointConnectivity();
+        getGeometry()->cleanPatchInfo();
+        getGeometry()->cleanSkdTree();
+        getGeometry()->cleanKdTree();
+        getGeometry()->cleanBoundingBox();
 #if MIMMO_ENABLE_MPI
-			getGeometry()->updatePointGhostExchangeInfo();
+        getGeometry()->resetPointGhostExchangeInfo();
 #endif
 
-			if (getBoundaryGeometry() != nullptr){
-				if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
+        // Partition/Serialize the geometry
+        getGeometry()->getPatch()->partition(m_partition, false, true);
+        if (m_mode == PartitionMethod::SERIALIZE){
+            // Sort cells and vertices with Id
+            //getGeometry()->getPatch()->sortCells();
+            getGeometry()->getPatch()->sortVertices();
+        }
 
-				    getBoundaryGeometry()->updateAdjacencies();
+        // Adjacencies Sync and Interfaces Sync not changed by partition,
+        // the bitpit partitioning maintains adjacencies and
+        // interfaces if already synchronized
 
-					//Clean potential point connectivity
-					getBoundaryGeometry()->cleanPointConnectivity();
+        // Update geometry
+        getGeometry()->update();
 
-					//boundary partition
-					if (m_mode != PartitionMethod::SERIALIZE || !m_usemimmoserialize){
-//						std::vector<bitpit::adaption::Info> Sinfo = getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
-						getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
-						if (m_mode == PartitionMethod::SERIALIZE){
-//							// Sort cells and vertices with Id
-//							getBoundaryGeometry()->getPatch()->sortCells();
-							getBoundaryGeometry()->getPatch()->sortVertices();
-						}
-					}
-					else{
-						serialize(m_boundary, true);
-					}
+        // Resync PID
+        //TODO Add resyncPID to update method of mimmoobject with syncstatus of pid
+        getGeometry()->resyncPID();
 
-					//Resync PID
-					getBoundaryGeometry()->resyncPID();
+        // Partition boundary geometry
+        if (getBoundaryGeometry() != nullptr){
+            if (getGeometry()->getType() == 2 && getBoundaryGeometry()->getType() == 1){
 
-					//Update ID of boundary vertices
-					//NO UPDATE BECAUSE BITPIT ASSIGN THE SAME IDS DURING PARTITION (FROM SERIAL TO PARTITION IS TRUE AND VICEVERSA IF NOT MODIFIED)
-//					updateBoundaryVerticesID();
+                // Force build adjacencies
+                getBoundaryGeometry()->updateAdjacencies();
 
-					//Force rebuild patch info
-					getBoundaryGeometry()->buildPatchInfo();
-#if MIMMO_ENABLE_MPI
-					getBoundaryGeometry()->updatePointGhostExchangeInfo();
-#endif
-				}
-			}
-		}
-	}
+                // Clean structures to be destroyed
+                getBoundaryGeometry()->cleanPointConnectivity();
+                getBoundaryGeometry()->cleanPatchInfo();
+                getBoundaryGeometry()->cleanSkdTree();
+                getBoundaryGeometry()->cleanKdTree();
+                getBoundaryGeometry()->cleanBoundingBox();
+        #if MIMMO_ENABLE_MPI
+                getBoundaryGeometry()->resetPointGhostExchangeInfo();
+        #endif
+
+                // Boundary partition
+                getBoundaryGeometry()->getPatch()->partition(m_boundarypartition, false, true);
+                if (m_mode == PartitionMethod::SERIALIZE){
+                    // Sort cells and vertices with Id
+                    //getBoundaryGeometry()->getPatch()->sortCells();
+                    getBoundaryGeometry()->getPatch()->sortVertices();
+                }
+
+                // Adjacencies Sync and Interfaces Sync not changed by partition,
+                // the bitpit partitioning maintains adjacencies and
+                // interfaces if already synchronized
+
+                // Update ID of boundary vertices
+                //NO UPDATE BECAUSE BITPIT ASSIGN THE SAME IDS DURING PARTITION (FROM SERIAL TO PARTITION IS TRUE AND VICEVERSA IF NOT MODIFIED)
+                // updateBoundaryVerticesID();
+
+                // Update boundary geometry
+                getBoundaryGeometry()->update();
+
+                // Resync PID
+                getBoundaryGeometry()->resyncPID();
+
+            }
+        }
+    } // end if partition mode
 };
 
 /*!
@@ -304,7 +306,7 @@ Partition::computePartition(){
 void
 Partition::parmetisPartGeom(){
 
-	if ((m_nprocs>1) && !(getGeometry()->isDistributed())){
+	if (!(getGeometry()->isDistributed())){
 
 		lilimap mapcell = getGeometry()->getMapCell();
 		lilimap mapcellinv = getGeometry()->getMapCellInv();
@@ -324,7 +326,7 @@ Partition::parmetisPartGeom(){
 			idx_t ncon = 1;
 
 
-			//Build Adjacencies
+			// Build Adjacencies
 			std::vector<idx_t> xadj(nvtxs+1);
 
 			idx_t duenedges = 0;
@@ -371,7 +373,7 @@ Partition::parmetisPartGeom(){
 				m_partition[mapcell[i]] = part[i];
 			}
 		}
-	}
+	} // end if geometry is not distributed
 }
 
 /*!
@@ -380,21 +382,17 @@ Partition::parmetisPartGeom(){
 void
 Partition::serialPartition(){
 
-	//Set communicator in case is not set
-	if (!getGeometry()->getPatch()->isCommunicatorSet()){
-		getGeometry()->getPatch()->setCommunicator(m_communicator);
-	}
+	if ((getGeometry()->isDistributed())){
 
-	if ((m_nprocs>1) && (getGeometry()->isDistributed())){
-		//Build partition to send to zero
+		// Build partition to send to zero
 		long ncells = getGeometry()->getPatch()->getInternalCount();
-		m_partition.clear();
+		std::unordered_map<long, int>().swap(m_partition);
 		m_partition.reserve(ncells);
 		for (long id : getGeometry()->getPatch()->getCells().getIds()){
 			m_partition[id] = 0;
 		}
 
-	}
+	} // end if geometry is distributed
 }
 
 /*!
@@ -406,41 +404,40 @@ Partition::computeBoundaryPartition()
 {
 
 	if (m_mode == PartitionMethod::SERIALIZE){
-		if ((m_nprocs>1) && getBoundaryGeometry()->isDistributed()){
-			//Build partition to send to zero
+
+		if (getBoundaryGeometry()->isDistributed()){
+
+			// Build partition to send to zero
 			long ncells = getBoundaryGeometry()->getPatch()->getInternalCount();
 			m_boundarypartition.clear();
 			m_boundarypartition.reserve(ncells);
 			for (long id : getBoundaryGeometry()->getPatch()->getCells().getIds()){
 				m_boundarypartition[id] = 0;
 			}
-		}
+
+		} // end if geometry is distributed
 	}
 	else{
 
-		if ((m_nprocs>1) && !(getBoundaryGeometry()->isDistributed())){
+		if (!(getBoundaryGeometry()->isDistributed())){
 
-//			if (!getGeometry()->areInterfacesBuilt()){
-//				m_interfacesReset = true;
-//				getGeometry()->buildInterfaces();
-//			}
+		    std::unordered_map<long, int>().swap(m_boundarypartition);
 
-			m_boundarypartition.clear();
-            getBoundaryGeometry()->buildSkdTree();
-			if (m_rank == 0){
-				m_boundarypartition.reserve(getBoundaryGeometry()->getNCells());
+		    // Build Skd Tree to find correspondence between surface and volume elements
+		    getBoundaryGeometry()->buildSkdTree();
+
+            if (m_rank == 0){
+
+			    m_boundarypartition.reserve(getBoundaryGeometry()->getNCells());
                 bitpit::PatchSkdTree *btree = getBoundaryGeometry()->getSkdTree();
 				double tol = 1.0E-12;
                 std::vector<double> distances(getBoundaryGeometry()->getNCells(), std::numeric_limits<double>::max());
-//                bitpit::PiercedVector<bitpit::Interface> & interfaces = getGeometry()->getInterfaces();
-//                for (bitpit::Interface &inter : interfaces ){
-//					if (inter.isBorder()){
+
                 bitpit::PiercedVector<bitpit::Cell> & cells = getGeometry()->getCells();
                 for (bitpit::Cell &cell : cells){
                 	if (cell.isInterior()){
                 		for (int iface=0; iface<cell.getFaceCount(); iface++){
                 			if (cell.isFaceBorder(iface)){
-                				//        						std::array<double,3> intercenter = getGeometry()->getPatch()->evalInterfaceCentroid(inter.getId());
                 				std::array<double,3> intercenter({0.,0.,0.});
                 				bitpit::ConstProxyVector<long> vertices = cell.getFaceVertexIds(iface);
                 				int nV = cell.getFaceVertexCount(iface);
@@ -462,25 +459,22 @@ Partition::computeBoundaryPartition()
                 					long brawindex = getBoundaryGeometry()->getCells().getRawIndex(id);
                 					if (distance < distances[brawindex]){
                 						distances[brawindex] = distance;
-                						//m_boundarypartition[id] = m_partition.at(inter.getOwner());
                 						m_boundarypartition[id] = m_partition.at(cell.getId());
                 					}
                 				}
                 			}
                 		}
                 	}
-                }
+                } // end loop on cells
 
-				//Clean SkdTree
+				// Clean SkdTree
 				getBoundaryGeometry()->cleanSkdTree();
 
 			}
 
-//			if (m_interfacesReset)
-//				getGeometry()->destroyInterfaces();
+		} // end if geometry is not distributed
 
-		}
-	}
+	} // end if mode is not serialize
 }
 
 /*!
@@ -490,9 +484,12 @@ void
 Partition::updateBoundaryVerticesID()
 {
 
+    // TODO Use with the new version of bitpit with ghost vertices
+    // TODO rework with update methods of mimmo
+
 	if (m_rank != 0){
 
-		//Compute map between old and new boundary vertices id
+		// Compute map between old and new boundary vertices id
 		getGeometry()->buildKdTree();
 		bitpit::KdTree<3,bitpit::Vertex,long>  *tree = getGeometry()->getKdTree();
 		std::unordered_map<long, long> old2new;
@@ -540,7 +537,7 @@ Partition::updateBoundaryVerticesID()
 //			getBoundaryGeometry()->addVertex(newVertex,id-idmax-1);
 		}
 
-		//Update connectivity of boundary cells
+		// Update connectivity of boundary cells
 		int ic=0;
 		for (bitpit::Cell & cell : getBoundaryGeometry()->getCells()){
 			std::unique_ptr<long[]> connectStorage = std::unique_ptr<long[]>(new long[cell.getVertexCount()]);
@@ -611,180 +608,5 @@ Partition::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
 	slotXML.set("PartitionMethod", std::to_string(value));
 
 };
-
-#if MIMMO_ENABLE_MPI
-/*!
- * Custom serialization.
- * Note. The geometry pointers are changed after the execution of the method: new serialized patches are internally created.
- */
-void
-Partition::serialize(MimmoSharedPointer<MimmoObject> & geometry, bool isBoundary)
-{
-	//SerializedGeometry
-    MimmoSharedPointer<MimmoObject> serialized(new MimmoObject(geometry->getType()));
-
-	if (m_rank == 0){
-
-		//Clear adjacencies and interfaces
-		geometry->destroyInterfaces();
-		geometry->destroyAdjacencies();
-
-		//fill serialized geometry
-		for (bitpit::Vertex vertex : geometry->getVertices()){
-			long vertexId = vertex.getId();
-			if (geometry->isPointInterior(vertexId)){
-				serialized->addVertex(vertex, vertexId);
-			}
-		}
-		for (bitpit::Cell cell : geometry->getCells()){
-			if (cell.isInterior()){
-				serialized->addCell(cell, cell.getId());
-			}
-		}
-
-		//Receive vertices and cells
-		for (int sendRank=1; sendRank<m_nprocs; sendRank++){
-
-			// Vertex data
-			long vertexBufferSize;
-			MPI_Recv(&vertexBufferSize, 1, MPI_LONG, sendRank, 100, m_communicator, MPI_STATUS_IGNORE);
-
-			mimmo::IBinaryStream vertexBuffer(vertexBufferSize);
-			MPI_Recv(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, sendRank, 110, m_communicator, MPI_STATUS_IGNORE);
-
-			// Cell data
-			long cellBufferSize;
-			MPI_Recv(&cellBufferSize, 1, MPI_LONG, sendRank, 200, m_communicator, MPI_STATUS_IGNORE);
-
-			mimmo::IBinaryStream cellBuffer(cellBufferSize);
-			MPI_Recv(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, sendRank, 210, m_communicator, MPI_STATUS_IGNORE);
-
-			// There are no duplicate in the received vertices, but some of them may
-			// be already a local vertex of a interface cell.
-			//TODO GENERALIZE IT
-			//NOTE! THE COHINCIDENT VERTICES ARE SUPPOSED TO HAVE THE SAME ID!!!!
-			long nRecvVertices;
-			vertexBuffer >> nRecvVertices;
-			serialized->getPatch()->reserveVertices(serialized->getPatch()->getVertexCount() + nRecvVertices);
-
-			// Do not add the vertices with Id already in serialized geometry
-			for (long i = 0; i < nRecvVertices; ++i) {
-				bitpit::Vertex vertex;
-				vertexBuffer >> vertex;
-				long vertexId = vertex.getId();
-
-				if (!serialized->getVertices().exists(vertexId)){
-					serialized->addVertex(vertex, vertexId);
-				}
-			}
-
-			//Receive and add all Cells
-			long nReceivedCells;
-			cellBuffer >> nReceivedCells;
-			serialized->getPatch()->reserveCells(serialized->getPatch()->getCellCount() + nReceivedCells);
-
-			for (long i = 0; i < nReceivedCells; ++i) {
-				// Cell data
-				bitpit::Cell cell;
-				cellBuffer >> cell;
-
-				long cellId = cell.getId();
-
-				// Add cell
-				serialized->addCell(cell, cellId);
-
-			}
-		}
-	}
-	else{
-		//Send local vertices and local cells to rank 0
-
-		//Clear adjacencies and interfaces
-		geometry->destroyInterfaces();
-		geometry->destroyAdjacencies();
-
-	    //
-	    // Send vertex data
-	    //
-	    mimmo::OBinaryStream vertexBuffer;
-	    long vertexBufferSize = 0;
-	    long nVerticesToCommunicate = 0;
-
-	    // Fill buffer with vertex data
-	    vertexBufferSize += sizeof(long);
-	    for (long vertexId : geometry->getVertices().getIds()){
-	    	if (geometry->isPointInterior(vertexId)){
-		    	vertexBufferSize += geometry->getVertices()[vertexId].getBinarySize();
-		        nVerticesToCommunicate++;
-	    	}
-	    }
-	    vertexBuffer.setSize(vertexBufferSize);
-
-	    vertexBuffer << nVerticesToCommunicate;
-	    for (long vertexId : geometry->getVertices().getIds()){
-	    	if (geometry->isPointInterior(vertexId)){
-	    		vertexBuffer << geometry->getVertices()[vertexId];
-	    	}
-	    }
-
-	    // Communication
-	    MPI_Send(&vertexBufferSize, 1, MPI_LONG, 0, 100, m_communicator);
-	    MPI_Send(vertexBuffer.data(), vertexBuffer.getSize(), MPI_CHAR, 0, 110, m_communicator);
-
-	    //
-	    // Send cell data
-	    //
-	    mimmo::OBinaryStream cellBuffer;
-	    long cellBufferSize = 0;
-	    long nCellsToCommunicate = 0;
-
-	    // Fill the buffer with cell data
-	    cellBufferSize += sizeof(long);
-	    for (const long cellId : geometry->getCellsIds()) {
-	    	if (geometry->getCells()[cellId].isInterior()){
-	    		cellBufferSize += sizeof(int) + sizeof(int) + geometry->getCells()[cellId].getBinarySize();
-	    		nCellsToCommunicate++;
-	    	}
-	    }
-	    cellBuffer.setSize(cellBufferSize);
-
-	    cellBuffer << nCellsToCommunicate;
-	    for (const long cellId : geometry->getCellsIds()) {
-	    	if (geometry->getCells()[cellId].isInterior()){
-	    		const bitpit::Cell &cell = geometry->getCells()[cellId];
-	    		// Cell data
-	    		cellBuffer << cell;
-	    	}
-	    }
-
-	    // Communication
-	    MPI_Send(&cellBufferSize, 1, MPI_LONG, 0, 200, m_communicator);
-	    MPI_Send(cellBuffer.data(), cellBuffer.getSize(), MPI_CHAR, 0, 210, m_communicator);
-
-	}
-
-
-	// Partitioned geometry is reset and now point to the internal geometry
-	if (isBoundary){
-		geometry->resetPatch();
-        m_boundary = serialized;
-		// Sort cells and vertices with Id
-		getBoundaryGeometry()->getPatch()->sortCells();
-		getBoundaryGeometry()->getPatch()->sortVertices();
-	}
-	else{
-		geometry->resetPatch();
-		m_geometry = serialized;
-		// Sort cells and vertices with Id
-		getGeometry()->getPatch()->sortCells();
-		getGeometry()->getPatch()->sortVertices();
-	}
-
-
-//	geometry->getPatch()->setPartitioned(false);
-
-}
-
-#endif
 
 }
