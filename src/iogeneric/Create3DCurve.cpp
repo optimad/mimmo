@@ -412,10 +412,9 @@ Create3DCurve::execute(){
         if(m_vectorfield.exists(it.getId()))    m_vectorfield[it.getId()] = *it;
     }
 
+    m_geometry->cleanPatchInfo();
     m_geometry->updateAdjacencies();
-#if MIMMO_ENABLE_MPI
     m_geometry->update();
-#endif
 
 
 };
