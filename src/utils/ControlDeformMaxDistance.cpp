@@ -215,16 +215,11 @@ ControlDeformMaxDistance::execute(){
     std::vector<long> suppCellIds(mapIDV.size());
 
 #if MIMMO_ENABLE_MPI
-    if (geo->getPatch()->isCommunicatorSet()){
-        std::vector<int> suppCellRanks(mapIDV.size());
-        skdTreeUtils::globalDistance(points.size(), points.data(), geo->getSkdTree(), suppCellIds.data(), suppCellRanks.data(), distances.data(), normDef.data(), false);
-    }
-    else
+    std::vector<int> suppCellRanks(mapIDV.size());
+    skdTreeUtils::globalDistance(points.size(), points.data(), geo->getSkdTree(), suppCellIds.data(), suppCellRanks.data(), distances.data(), normDef.data(), false);
+#else
+    skdTreeUtils::distance(points.size(), points.data(), geo->getSkdTree(), suppCellIds.data(), distances.data(), normDef.data());
 #endif
-    {
-        skdTreeUtils::distance(points.size(), points.data(), geo->getSkdTree(), suppCellIds.data(), distances.data(), normDef.data());
-    }
-
     //transfer distance value inside m_violation field.(parallel case, ghost are already in)
     //Final value of violation is local distance of deformed point minus the offset m_maxDist
     // fixed by the user
