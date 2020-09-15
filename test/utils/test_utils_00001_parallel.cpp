@@ -57,6 +57,7 @@ int test1() {
         }
     }
 
+    pc->cleanPatchInfo();
     pc->updateAdjacencies();
     pc->update();
 

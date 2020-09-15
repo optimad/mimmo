@@ -101,7 +101,8 @@ void test00003() {
 
 #if MIMMO_ENABLE_MPI
     }
-    rbfPointCloud->buildAdjacencies();
+    rbfPointCloud->cleanPatchInfo();
+    rbfPointCloud->updateAdjacencies();
     rbfPointCloud->update();
 #endif
 

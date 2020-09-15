@@ -93,6 +93,7 @@ bool createMimmoMesh(mimmo::MimmoObject * mesh){
         }
     }
 
+    mesh->cleanPatchInfo();
     mesh->updateAdjacencies();
     mesh->update();
 
@@ -115,10 +116,10 @@ int test2() {
     }
 
     part->setName("support_t2p_utils");
+    part->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     part->setGeometry(m1);
     part->setPlotInExecution(true);
     part->exec();
-
 
     darray3E normal = {{0,0,1}};
     mimmo::CreateSeedsOnSurface * cseed = new mimmo::CreateSeedsOnSurface();

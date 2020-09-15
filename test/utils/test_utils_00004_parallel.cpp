@@ -53,11 +53,13 @@ int test4() {
     log<<"partitioning and distributing geometries "<<std::endl;
 
     mimmo::Partition * partReader1 = new mimmo::Partition();
+    partReader1->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partReader1->setGeometry(reader1->getGeometry());
     partReader1->setPlotInExecution(true);
     partReader1->exec();
 
     mimmo::Partition * partReader2 = new mimmo::Partition();
+    partReader2->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partReader2->setGeometry(reader2->getGeometry());
     partReader2->setPlotInExecution(true);
     partReader2->exec();
