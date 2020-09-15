@@ -146,6 +146,7 @@ MRBF::buildPorts(){
     built = (built && createPortIn<std::vector<double>, MRBF>(this, &mimmo::MRBF::setVariableSupportRadii, M_DATAFIELD));
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, MRBF>(this, &mimmo::MRBF::setNode, M_GEOM2));
     built = (built && createPortIn<dmpvecarr3E*, MRBF>(this, &mimmo::MRBF::setDisplacements, M_VECTORFIELD));
+    built = (built && createPortIn<dmpvector1D*, MRBF>(this, &mimmo::MRBF::setVariableSupportRadii, M_SCALARFIELD));
 
 	built = (built && createPortOut<dmpvecarr3E*, MRBF>(this, &mimmo::MRBF::getDisplacements, M_GDISPLS));
 	built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, MRBF>(this, &BaseManipulation::getGeometry, M_GEOM));
@@ -403,11 +404,26 @@ MRBF::setSupportRadiusValue(double suppR_){
    List size may not fit the number of RBF nodes: in that case automatic resize will be performed
    during execution.
  * \param[in] sradii non empty list of variable support radii (otherwise method does nothing)
+ * Note. The MRBFSol::NONE method has to be set before to call this method.
  */
 void
 MRBF::setVariableSupportRadii(dvector1D sradii){
     if(sradii.empty() || m_solver != MRBFSol::NONE) return;
     m_supportRadii = sradii;
+    m_supportRadiusValue = -1.0;
+    m_srIsReal = false;
+}
+
+/*! Set a list of real physical values of the support radius R, one for each RBF
+    kernel functions. See MRBF::setVariableSupportRadii(dvector1D sradii) for details.
+    This method is an overload with a different input container.
+ * \param[in] sradii pointer to a MimmoPiercedVector with variable support radii
+ * Note. The MRBFSol::NONE method has to be set before to call this method.
+ */
+void
+MRBF::setVariableSupportRadii(dmpvector1D* sradii){
+    if(!sradii || m_solver != MRBFSol::NONE) return;
+    m_rbfSupportRadii = sradii;
     m_supportRadiusValue = -1.0;
     m_srIsReal = false;
 }
@@ -1076,19 +1092,28 @@ MRBF::initRBFwGeometry(){
         (*m_log)<<m_name + " : RBF displacements not linked to RBF geometry. Skip object."<<std::endl;
         return false;
     }
+    if (!m_rbfSupportRadii->getGeometry()){
+        (*m_log)<<m_name + " : null RBF geometry linked by support radii vector. Skip object."<<std::endl;
+        return false;
+    }
+    else if (m_rbfSupportRadii->getGeometry() != m_rbfgeometry){
+        (*m_log)<<m_name + " : RBF support radii not linked to RBF geometry. Skip object."<<std::endl;
+        return false;
+    }
 
     //clear the previous data into MRBF
     removeAllNodes();
     removeAllData();
 
-    //fill data locally from m_rbfgeometry and m_rbfdispl
+    //fill data locally from m_rbfgeometry, m_rbfdispl and m_rbfSupportRadii
     std::map<long, std::array<double,3> > nodes, displs;
+    std::map<long, double> radii;
     for(const bitpit::Vertex & vert : m_rbfgeometry->getVertices()){
         long id = vert.getId();
         nodes[id] = vert.getCoords();
-        if(m_rbfdispl->exists(id))    displs[id] = m_rbfdispl->at(id);
+        if(m_rbfdispl->exists(id))          displs[id] = m_rbfdispl->at(id);
+        if (m_rbfSupportRadii->exists(id))  radii[id] = m_rbfSupportRadii->at(id);
     }
-
 
 #if MIMMO_ENABLE_MPI
     //MPI stuffs - serialize nodes and displs data so that
@@ -1097,7 +1122,7 @@ MRBF::initRBFwGeometry(){
     //Send my own and receive mpvres from others.
 
     //prepare my own send buffer.
-    mimmo::OBinaryStream myrankNodeDataBuffer, myrankDisplDataBuffer;
+    mimmo::OBinaryStream myrankNodeDataBuffer, myrankDisplDataBuffer, myrankRadiiDataBuffer;
     myrankNodeDataBuffer << (std::size_t)nodes.size();
     for (auto& tuple: nodes){
         myrankNodeDataBuffer << tuple.first;
@@ -1108,9 +1133,15 @@ MRBF::initRBFwGeometry(){
         myrankDisplDataBuffer << tuple.first;
         myrankDisplDataBuffer << tuple.second;
     }
+    myrankRadiiDataBuffer << (std::size_t)radii.size();
+    for (auto& tuple: radii){
+        myrankRadiiDataBuffer << tuple.first;
+        myrankRadiiDataBuffer << tuple.second;
+    }
 
     long myrankNodeDataBufferSize = myrankNodeDataBuffer.getSize();
     long myrankDisplDataBufferSize = myrankDisplDataBuffer.getSize();
+    long myrankRadiiDataBufferSize = myrankRadiiDataBuffer.getSize();
 
     for (int sendRank=0; sendRank<m_nprocs; sendRank++){
 
@@ -1118,6 +1149,7 @@ MRBF::initRBFwGeometry(){
 
             std::size_t nP;
             std::array<double,3> val;
+            double radius;
             long int id;
 
             // receive node data from other ranks.
@@ -1145,6 +1177,20 @@ MRBF::initRBFwGeometry(){
                 displBuffer >> val;
                 if(displs.count(id) == 0)    displs.insert({{id, val}});
             }
+
+            // receive radii data from other ranks.
+            long radiiBufferSize;
+            MPI_Recv(&radiiBufferSize, 1, MPI_LONG, sendRank, 920, m_communicator, MPI_STATUS_IGNORE);
+            mimmo::IBinaryStream radiiBuffer(radiiBufferSize);
+            MPI_Recv(radiiBuffer.data(), radiiBuffer.getSize(), MPI_CHAR, sendRank, 930, m_communicator, MPI_STATUS_IGNORE);
+
+            radiiBuffer >> nP;
+            for (std::size_t i = 0; i < nP; ++i) {
+                radiiBuffer >> id;
+                radiiBuffer >> radius;
+                if(radii.count(id) == 0)     radii.insert({{id, radius}});
+            }
+
         }else{
             //send to all other except me the def data.
             for (int recvRank=0; recvRank<m_nprocs; recvRank++){
@@ -1153,18 +1199,21 @@ MRBF::initRBFwGeometry(){
                     MPI_Send(myrankNodeDataBuffer.data(), myrankNodeDataBuffer.getSize(), MPI_CHAR, recvRank, 910, m_communicator);
                     MPI_Send(&myrankDisplDataBufferSize, 1, MPI_LONG, recvRank, 920, m_communicator);
                     MPI_Send(myrankDisplDataBuffer.data(), myrankDisplDataBuffer.getSize(), MPI_CHAR, recvRank, 930, m_communicator);
+                    MPI_Send(&myrankRadiiDataBufferSize, 1, MPI_LONG, recvRank, 920, m_communicator);
+                    MPI_Send(myrankRadiiDataBuffer.data(), myrankRadiiDataBuffer.getSize(), MPI_CHAR, recvRank, 930, m_communicator);
                 }
             }
         }
     }// end external sendrank loop
 
-    MPI_Barrier(m_communicator);
 #endif
 
     dvecarr3E nodeRawList(nodes.size());
     std::array<std::vector<double>,3> displList;
     displList.fill(dvector1D(nodes.size(), 0.));
 
+    m_supportRadii.clear();
+    m_supportRadii.resize(nodes.size());
 
     int count(0);
     for(auto & tuple : nodes){
@@ -1174,6 +1223,9 @@ MRBF::initRBFwGeometry(){
             for(int k=0; k<3; ++k){
                 displList[k][count] = displs[id][k];
             }
+        }
+        if(radii.count(id) > 0){
+            m_supportRadii[count] = radii[id];
         }
         ++count;
     }
