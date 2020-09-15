@@ -136,6 +136,7 @@ int test1() {
      * Plot Optional results during execution active for Partition block.
      */
     mimmo::Partition* partitionTarget = new mimmo::Partition();
+    partitionTarget->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partitionTarget->setPlotInExecution(true);
     partitionTarget->setGeometry(target);
     partitionTarget->exec();
@@ -157,6 +158,7 @@ int test1() {
      * Plot Optional results during execution active for Partition block.
      */
     mimmo::Partition* partitionSelection = new mimmo::Partition();
+    partitionSelection->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partitionSelection->setPlotInExecution(true);
     partitionSelection->setGeometry(selection);
     partitionSelection->exec();

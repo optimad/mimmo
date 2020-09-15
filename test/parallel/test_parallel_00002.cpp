@@ -113,6 +113,7 @@ int test2() {
     std::cout<<target->getRank()<<" "<<partMap.size()<<std::endl;
 
     mimmo::Partition* partition = new mimmo::Partition();
+    partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition->setName("testParallel00002_PointCloudDistributed");
     partition->setPlotInExecution(true);
     partition->setGeometry(target);
