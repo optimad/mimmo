@@ -3336,17 +3336,32 @@ void	MimmoObject::cleanSkdTree(){
 }
 
 /*!
- * Reset and build again cell patch numbering info of your geometry.
+ * Build cell patch numbering info of your geometry.
  */
 void MimmoObject::buildPatchInfo(){
-	m_patchInfo.reset();
 	if (m_internalPatch)
 		m_patchInfo.setPatch(m_patch.get());
 	else
 		m_patchInfo.setPatch(m_extpatch);
 	m_patchInfo.update();
 	m_infoSync = SyncStatus::SYNC;
-	return;
+}
+
+/*!
+ * Reset cell patch numbering info of your geometry.
+ */
+void MimmoObject::cleanPatchInfo(){
+    m_patchInfo.reset();
+    m_infoSync = SyncStatus::NONE;
+}
+
+
+/*!
+ * Clean bounding box of your geometry (i.e. currently set to
+ * SyncStatus::NONE the synchronization status).
+ */
+void MimmoObject::cleanBoundingBox(){
+    m_boundingBoxSync = SyncStatus::NONE;
 }
 
 /*!

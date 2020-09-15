@@ -305,9 +305,11 @@ public:
     void        updateInterfaces();
 	void        destroyAdjacencies();
     void        destroyInterfaces();
+    void        cleanPatchInfo();
     void		resetPatch();
     void    	cleanKdTree();
-    void    	cleanSkdTree();
+    void        cleanSkdTree();
+    void        cleanBoundingBox();
 
     void        update();
 
