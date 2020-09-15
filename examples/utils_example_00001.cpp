@@ -65,6 +65,7 @@ void test00001() {
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> target;
 #if MIMMO_ENABLE_MPI
     mimmo::Partition * part = new mimmo::Partition();
+    part->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     part->setGeometry(mimmo0->getGeometry());
     part->setPlotInExecution(true);
     part->exec();
