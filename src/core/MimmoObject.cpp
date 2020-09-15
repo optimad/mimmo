@@ -677,8 +677,11 @@ MimmoObject::MimmoObject(const MimmoObject & other){
 	m_pidsTypeWNames    = other.m_pidsTypeWNames;
 	m_AdjSync          = other.m_AdjSync;
 	m_IntSync          = other.m_IntSync;
-	m_infoSync 			= other.m_infoSync;
     m_boundingBoxSync  = other.m_boundingBoxSync;
+
+    m_patchInfo.setPatch(m_extpatch);
+    m_patchInfo.update();
+    m_infoSync = SyncStatus::SYNC;
 
 	m_skdTreeSync   = SyncStatus::NONE;
 	m_kdTreeSync    = SyncStatus::NONE;
@@ -753,8 +756,12 @@ void MimmoObject::swap(MimmoObject & x) noexcept
 	std::swap(m_kdTree, x.m_kdTree);
 	std::swap(m_skdTreeSync, x.m_skdTreeSync);
 	std::swap(m_kdTreeSync, x.m_kdTreeSync);
-    std::swap(m_infoSync, x.m_infoSync);
     std::swap(m_boundingBoxSync, x.m_boundingBoxSync);
+
+    m_patchInfo.setPatch(getPatch());
+	m_patchInfo.update();
+	m_infoSync = SyncStatus::SYNC;
+
 #if MIMMO_ENABLE_MPI
 	std::swap(m_communicator, x.m_communicator);
 	std::swap(m_rank, x.m_rank);
@@ -966,9 +973,6 @@ long
 MimmoObject::getNGlobalCells() {
 	if (!isParallel())
 		return getNCells();
-
-	if (m_infoSync != SyncStatus::NONE)
-		buildPatchInfo();
 
 	return getPatchInfo()->getCellGlobalCount();
 };
@@ -1334,7 +1338,6 @@ MimmoObject::getMapDataInv(bool withghosts){
 lilimap
 MimmoObject::getMapCell(bool withghosts){
 	lilimap mapCell;
-	if (m_infoSync != SyncStatus::SYNC) buildPatchInfo();
 	for (auto const & cell : getCells()){
 		long id = cell.getId();
 		if (!withghosts && !cell.isInterior()){
@@ -1355,7 +1358,6 @@ MimmoObject::getMapCell(bool withghosts){
  */
 lilimap
 MimmoObject::getMapCellInv(bool withghosts){
-    if (m_infoSync != SyncStatus::SYNC) buildPatchInfo();
 	lilimap mapCellInv = getPatchInfo()->getCellConsecutiveMap();
 	if (!withghosts){
 		std::vector<long> todelete;
@@ -2151,7 +2153,9 @@ void MimmoObject::resetPointGhostExchangeInfo()
 	//Reset consecutive map for vertices
 	m_pointConsecutiveId.clear();
 
-	m_pointGhostExchangeInfoSync = SyncStatus::NONE;
+	if(m_pointGhostExchangeInfoSync == SyncStatus::SYNC){
+        m_pointGhostExchangeInfoSync = SyncStatus::UNSYNC;
+    }
 }
 
 /*!
@@ -3322,7 +3326,9 @@ void MimmoObject::buildKdTree(){
 void	MimmoObject::cleanKdTree(){
 	m_kdTree->n_nodes = 0;
 	m_kdTree->nodes.clear();
-	m_kdTreeSync = SyncStatus::NONE;
+    if(m_kdTreeSync == SyncStatus::SYNC){
+        m_kdTreeSync = SyncStatus::UNSYNC;
+    }
 }
 
 /*!
@@ -3331,7 +3337,9 @@ void	MimmoObject::cleanKdTree(){
 void	MimmoObject::cleanSkdTree(){
     if (isSkdTreeSupported()){
         m_skdTree->clear();
-        m_skdTreeSync = SyncStatus::NONE;
+        if(m_skdTreeSync == SyncStatus::SYNC){
+            m_skdTreeSync = SyncStatus::UNSYNC;
+        }
     }
 }
 
@@ -3352,7 +3360,9 @@ void MimmoObject::buildPatchInfo(){
  */
 void MimmoObject::cleanPatchInfo(){
     m_patchInfo.reset();
-    m_infoSync = SyncStatus::NONE;
+    if(m_infoSync == SyncStatus::SYNC){
+        m_infoSync = SyncStatus::UNSYNC;
+    }
 }
 
 
@@ -3361,7 +3371,9 @@ void MimmoObject::cleanPatchInfo(){
  * SyncStatus::NONE the synchronization status).
  */
 void MimmoObject::cleanBoundingBox(){
-    m_boundingBoxSync = SyncStatus::NONE;
+    if(m_boundingBoxSync == SyncStatus::SYNC) {
+        m_boundingBoxSync = SyncStatus::UNSYNC;
+    }
 }
 
 /*!
@@ -4717,7 +4729,10 @@ void
 MimmoObject::cleanPointConnectivity()
 {
 	std::unordered_map<long, std::unordered_set<long> >().swap(m_pointConnectivity);
-	m_pointConnectivitySync = SyncStatus::NONE;
+
+    if(m_pointConnectivitySync == SyncStatus::SYNC){
+        m_pointConnectivitySync = SyncStatus::UNSYNC;
+    };
 }
 
 /*!
