@@ -94,6 +94,7 @@ enum class MRBFSol{
      | M_GEOM     | setGeometry            | (MC_SCALAR, MD_MIMMO_)      |
      | M_GEOM2    | setNode                | (MC_SCALAR, MD_MIMMO_)      |
      | M_VECTORFIELD    | setDisplacements | (MC_SCALAR, MD_MPVECARR3FLOAT_)      |
+     | M_SCALARRFIELD   | setVariableSupportRadii | (MC_SCALAR, MD_MPVECAFLOAT_)  |
 
      |Port Output | | |
      |-|-|-|
@@ -153,6 +154,7 @@ protected:
 
     MimmoSharedPointer<MimmoObject> m_rbfgeometry; /**< RBF geometry. The vertices of this object are used as RBF nodes.*/
     dmpvecarr3E* m_rbfdispl;    /**<RBF nodes displacements related to RBF geometry vertex.*/
+    dmpvector1D* m_rbfSupportRadii;  /**< list of variable supportRadii for each RBF node as pointer to MImmoPiercedVector.*/
 
 public:
     MRBF(MRBFSol mode = MRBFSol::NONE);
@@ -195,6 +197,7 @@ public:
     void            setSupportRadiusLocal(double suppR_);
     void            setSupportRadiusReal(double suppR_);
     void            setVariableSupportRadii(dvector1D sradii);
+    void            setVariableSupportRadii(dmpvector1D* sradii);
     void            setDiagonalFactor(double diagonalFactor);
 
 BITPIT_DEPRECATED(
