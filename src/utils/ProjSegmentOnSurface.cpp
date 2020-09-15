@@ -309,12 +309,13 @@ ProjSegmentOnSurface::projection(){
             ++id;
         }
     }
-
+    m_patch->cleanPatchInfo();
     m_patch->updateAdjacencies();
     m_patch->update();
 
 #if MIMMO_ENABLE_MPI
     std::unique_ptr<mimmo::Partition> part(new mimmo::Partition);
+    part->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     part->setGeometry(m_patch);
     part->setPartition(partMap);
     part->execute();

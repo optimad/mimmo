@@ -390,6 +390,8 @@ CreateSeedsOnSurface::solve(bool debug){
         throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
+    if(getGeometry()->getInfoSyncStatus() != mimmo::SyncStatus::SYNC)   getGeometry()->buildPatchInfo();
+
 #if MIMMO_ENABLE_MPI
     int ncells = getGeometry()->getNGlobalCells();
 #else

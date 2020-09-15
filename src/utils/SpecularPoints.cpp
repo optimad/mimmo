@@ -507,14 +507,11 @@ SpecularPoints::execute(){
         //for MPI version, this method already update the patch.
     }else{
         m_patch = m_cobj;
-
-#if MIMMO_ENABLE_MPI
-
-        if(m_patch->isParallel()){
-            m_patch->updatePointGhostExchangeInfo();
-        }
-#endif
-
+        m_patch->cleanPatchInfo();
+    #if MIMMO_ENABLE_MPI
+        m_patch->resetPointGhostExchangeInfo();
+    #endif
+        m_patch->update();
     }
 
     //squeeze stuff out

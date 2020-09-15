@@ -604,15 +604,11 @@ ControlDeformExtSurface::evaluateSignedDistance(const std::vector<darray3E> &poi
         std::vector<darray3E> normals(work.size());
 
 #if MIMMO_ENABLE_MPI
-        if (geo->getPatch()->isCommunicatorSet()){
-            std::vector<int> suppCellRanks(work.size());
-            skdTreeUtils::signedGlobalDistance(work.size(), work.data(), geo->getSkdTree(), suppCellIds.data(), suppCellRanks.data(), normals.data(), distanceWork.data(), sRadius, false);
-        }
-        else
+        std::vector<int> suppCellRanks(work.size());
+        skdTreeUtils::signedGlobalDistance(work.size(), work.data(), geo->getSkdTree(), suppCellIds.data(), suppCellRanks.data(), normals.data(), distanceWork.data(), sRadius, false);
+#else
+        skdTreeUtils::signedDistance(work.size(), work.data(), geo->getSkdTree(), suppCellIds.data(), distanceWork.data(), normals.data(), sRadius);
 #endif
-        {
-            skdTreeUtils::signedDistance(work.size(), work.data(), geo->getSkdTree(), suppCellIds.data(), distanceWork.data(), normals.data(), sRadius);
-        }
 
         //get all points with distances not calculated.
         std::vector<std::array<double,3>> failedPoints;
@@ -709,17 +705,10 @@ ControlDeformExtSurface::writeLog(){
  */
 void
 ControlDeformExtSurface::getGlobalBoundingBox(MimmoSharedPointer<MimmoObject> & geo, darray3E & bMin, darray3E & bMax){
-
-    geo->getBoundingBox(bMin, bMax, true);
-
-#if MIMMO_ENABLE_MPI
-    //TODO : this FIX WILL be useless once rank0-only mesh in multiproc MPI
-    //will return always the global bb among all ranks.
-    if(geo->getPatch()->isCommunicatorSet() && !geo->isParallel()){
-        MPI_Allreduce(MPI_IN_PLACE, bMin.data(), 3, MPI_DOUBLE, MPI_MIN, geo->getPatch()->getCommunicator());
-        MPI_Allreduce(MPI_IN_PLACE, bMax.data(), 3, MPI_DOUBLE, MPI_MAX, geo->getPatch()->getCommunicator());
+    if(geo->getBoundingBoxSyncStatus() != mimmo::SyncStatus::SYNC){
+        geo->update();
     }
-#endif
+    geo->getBoundingBox(bMin, bMax, true);
 }
 
 }//end mimmo namespace

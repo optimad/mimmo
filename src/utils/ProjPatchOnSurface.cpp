@@ -272,11 +272,11 @@ ProjPatchOnSurface::projection(){
         counter++;
     }
 
+    m_patch->cleanPatchInfo();
 #if MIMMO_ENABLE_MPI
-    if(m_patch->isParallel()){
-        m_patch->updatePointGhostExchangeInfo();
-    }
+    m_patch->resetPointGhostExchangeInfo();
 #endif
+    m_patch->update();
 
 };
 
