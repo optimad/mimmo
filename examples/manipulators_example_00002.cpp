@@ -24,6 +24,9 @@
 
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
+#if MIMMO_ENABLE_MPI
+#include "mimmo_parallel.hpp"
+#endif
 
 // =================================================================================== //
 /*!
@@ -58,6 +61,13 @@ void test00002() {
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("manipulators_output_00002.0001");
+
+#if MIMMO_ENABLE_MPI
+    /* Creation of a Partition object.
+     */
+    mimmo::Partition* partition= new mimmo::Partition();
+    partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
+#endif
 
     /* Instantiation of a FFDobject with default shape cube.
      * Setup of span and origin of cube.
@@ -97,22 +107,28 @@ void test00002() {
 
     /* Setup pin connections.
      */
-    std::cout << " --- create pin ---" << std::endl;
-    std::cout << " " << std::endl;
+
     /* Add pin with port TAG ONLY
      */
 
-    std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(mimmo0, lattice, M_GEOM, M_GEOM) << std::endl;
-    std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(input, lattice, M_DISPLS, M_DISPLS) << std::endl;
-    std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(lattice, applier, M_GDISPLS, M_GDISPLS) << std::endl;
-    std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM) << std::endl;
-    std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM) << std::endl;
-    std::cout << " " << std::endl;
+#if MIMMO_ENABLE_MPI
+    mimmo::pin::addPin(mimmo0, partition, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partition, lattice, M_GEOM, M_GEOM);
+#else
+    mimmo::pin::addPin(mimmo0, lattice, M_GEOM, M_GEOM);
+#endif
+    mimmo::pin::addPin(input, lattice, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
+    mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
      */
     mimmo::Chain ch0;
     ch0.addObject(mimmo0);
+#if MIMMO_ENABLE_MPI
+    ch0.addObject(partition);
+#endif
     ch0.addObject(input);
     ch0.addObject(lattice);
     ch0.addObject(applier);
@@ -126,25 +142,27 @@ void test00002() {
     /* Execution of chain.
      * Use debug flag true to full print out the execution steps.
      */
-    std::cout << " " << std::endl;
-    std::cout << " --- execution start ---" << std::endl;
     ch0.exec(true);
-    std::cout << " --- execution done --- " << std::endl;
-    std::cout << " " << std::endl;
 
     /* Clean up & exit;
      */
+#if MIMMO_ENABLE_MPI
+    delete partition;
+#endif
     delete lattice;
     delete applier;
     delete input;
     delete mimmo0;
     delete mimmo1;
 
-    lattice = NULL;
-    applier = NULL;
-    input 	= NULL;
-    mimmo0  = NULL;
-    mimmo1  = NULL;
+#if MIMMO_ENABLE_MPI
+    partition = nullptr;
+#endif
+    lattice = nullptr;
+    applier = nullptr;
+    input 	= nullptr;
+    mimmo0  = nullptr;
+    mimmo1  = nullptr;
 
 }
 
