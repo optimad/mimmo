@@ -2799,31 +2799,56 @@ MimmoSharedPointer<MimmoObject> MimmoObject::clone() const {
 };
 
 /*!
- * It cleans geometry duplicated and, in case of connected tessellations,
+ * It finds and cleans duplicated vertices and, in case of connected tessellations,
    all orphan/isolated vertices.
- * \return false if the geometry member pointer is nullptr.
+   In case of active cleaning, unsync all MimmoObject structures.
+   In MPI version this call is collective among all ranks.
+ * \return false if no activity cleaning is performed, true otherwise.
  */
 bool
 MimmoObject::cleanGeometry(){
 	auto patch = getPatch();
+    int nvold = patch->getVertexCount();
 	patch->deleteCoincidentVertices();
+    bool checkSync = (nvold == patch->getVertexCount());
 
 #if MIMMO_ENABLE_MPI
     // Delete orphan ghosts cells
     deleteOrphanGhostCells();
-    if(getPatch()->countOrphanVertices() > 0){
+    bool checkCleanOrphan = (getPatch()->countOrphanVertices() == 0);
+    if(!checkCleanOrphan){
         getPatch()->deleteOrphanVertices();
     }
+    checkSync = checkSync && checkCleanOrphan;
+    MPI_Allreduce(MPI_IN_PLACE, &checkSync,1, MPI_C_BOOL, MPI_LAND, m_communicator);
 #endif
 
-	m_kdTreeSync = std::min(m_kdTreeSync, SyncStatus::UNSYNC);
-	m_infoSync = std::min(m_infoSync, SyncStatus::UNSYNC);
-    m_boundingBoxSync = std::min(m_boundingBoxSync, SyncStatus::UNSYNC);
+    if(!checkSync) setUnsyncAll();
+
+return !checkSync;
+
+}
+/*!
+ * Unsynchronizes all MimmoObject patch structures, namely adjacencies, interfaces,
+   skdtree, kdtree, internal patch numbering info, bounding box, and for MPI version ghost
+   structures.
+   If any of the structures has a SyncStatus flag lesser then UNSYNC, preserve it.
+   This is a useful call when intense mesh modifications (insertion, deletion of vertices and cells) are
+   done externally, and all structures needed to be re-synchronized as consequence. In that case
+   use this method before calling the MimmoObject::update();
+ */
+void
+MimmoObject::setUnsyncAll(){
+    m_AdjSync = std::min(m_AdjSync,SyncStatus::UNSYNC);
+    m_IntSync = std::min(m_IntSync, SyncStatus::UNSYNC);
+    m_kdTreeSync = std::min(m_kdTreeSync, SyncStatus::UNSYNC);
+    m_skdTreeSync = std::min(m_skdTreeSync, SyncStatus::UNSYNC);
+    m_infoSync = std::min(m_infoSync, SyncStatus::UNSYNC);
+    m_boundingBoxSync = SyncStatus::UNSYNC;
 #if MIMMO_ENABLE_MPI
 	m_pointGhostExchangeInfoSync = std::min(m_pointGhostExchangeInfoSync, SyncStatus::UNSYNC);
 #endif
-	cleanPointConnectivity();
-	return true;
+	cleanPointConnectivity(); //forcefully destroy point connectivity.
 };
 
 /*!
