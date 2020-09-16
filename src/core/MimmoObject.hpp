@@ -275,6 +275,7 @@ public:
     void                            swap(MimmoObject & ) noexcept;
 
     bool        cleanGeometry();
+    void        setUnsyncAll();
 
     livector1D  getVertexFromCellList(const livector1D &cellList);
     livector1D  getCellFromVertexList(const livector1D &vertList, bool strict = true);
