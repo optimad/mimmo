@@ -25,6 +25,9 @@
 #include "mimmo_manipulators.hpp"
 #include "mimmo_iogeneric.hpp"
 #include <bitpit_common.hpp>
+#if MIMMO_ENABLE_MPI
+#include "mimmo_parallel.hpp"
+#endif
 
 // =================================================================================== //
 /*!
@@ -77,6 +80,13 @@ void test00001() {
     mimmo5->setWriteDir(".");
     mimmo5->setWriteFileType(FileType::STL);
     mimmo5->setWriteFilename("manipulators_output_00001.0005");
+
+#if MIMMO_ENABLE_MPI
+    /* Creation of a Partition object.
+     */
+    mimmo::Partition* partition= new mimmo::Partition();
+    partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
+#endif
 
     /* Creation of translation block.
      * Translation performed in z direction by -1.0 unit length.
@@ -146,7 +156,12 @@ void test00001() {
 
     /* Setup pin connections.
      */
+#if MIMMO_ENABLE_MPI
+    mimmo::pin::addPin(mimmo0, partition, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(partition, translation, M_GEOM, M_GEOM);
+#else
     mimmo::pin::addPin(mimmo0, translation, M_GEOM, M_GEOM);
+#endif
     mimmo::pin::addPin(mimmo0, applierTranslation, M_GEOM, M_GEOM);
     mimmo::pin::addPin(translation, applierTranslation, M_GDISPLS, M_GDISPLS);
     mimmo::pin::addPin(applierTranslation, mimmo1, M_GEOM, M_GEOM);
@@ -172,6 +187,9 @@ void test00001() {
     /* Setup execution chain.
      */
     mimmo::Chain ch0;
+#if MIMMO_ENABLE_MPI
+    ch0.addObject(partition);
+#endif
     ch0.addObject(mimmo0);
     ch0.addObject(translation);
     ch0.addObject(applierTranslation);
@@ -195,6 +213,9 @@ void test00001() {
 
     /* Clean up & exit;
      */
+#if MIMMO_ENABLE_MPI
+    delete partition;
+#endif
     delete mimmo0;
     delete translation;
     delete applierTranslation;
@@ -211,21 +232,24 @@ void test00001() {
     delete applierRotation;
     delete mimmo5;
 
-    mimmo0 = NULL;
-    translation = NULL;
-    applierTranslation = NULL;
-    mimmo1 = NULL;
-    scaling = NULL;
-    applierScaling = NULL;
-    mimmo2 = NULL;
-    twist = NULL;
-    applierTwist = NULL;
-    mimmo3 = NULL;
-    bend = NULL;
-    mimmo4 = NULL;
-    rotation = NULL;
-    applierRotation = NULL;
-    mimmo5 = NULL;
+#if MIMMO_ENABLE_MPI
+    partition = nullptr;
+#endif
+    mimmo0 = nullptr;
+    translation = nullptr;
+    applierTranslation = nullptr;
+    mimmo1 = nullptr;
+    scaling = nullptr;
+    applierScaling = nullptr;
+    mimmo2 = nullptr;
+    twist = nullptr;
+    applierTwist = nullptr;
+    mimmo3 = nullptr;
+    bend = nullptr;
+    mimmo4 = nullptr;
+    rotation = nullptr;
+    applierRotation = nullptr;
+    mimmo5 = nullptr;
 
     return;
 
