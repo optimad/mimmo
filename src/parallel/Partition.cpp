@@ -169,10 +169,15 @@ Partition::execute(){
         return;
     }
 
-    if( getGeometry() == nullptr){
+    if(getGeometry() == nullptr){
         (*m_log)<<m_name + " : null pointer to linked geometry found."<<std::endl;
         return;
     };
+
+    if(getGeometry()->getProcessorCount() == 1){
+        // Do nothing
+        return;
+    }
 
     if(m_mode == PartitionMethod::PARTGEOM && getGeometry()->isDistributed()){
         (*m_log)<<m_name + " : already distributed geometry found during geometric partition."<<std::endl;
@@ -352,7 +357,7 @@ Partition::parmetisPartGeom(){
 			}
 			xadj[i] = j;
 
-			idx_t nParts = m_nprocs;
+			idx_t nParts = getGeometry()->getProcessorCount();
 
 			//
 			//  On return, the edge cut volume of the partitioning solution.
