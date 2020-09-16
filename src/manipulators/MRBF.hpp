@@ -94,7 +94,7 @@ enum class MRBFSol{
      | M_GEOM     | setGeometry            | (MC_SCALAR, MD_MIMMO_)      |
      | M_GEOM2    | setNode                | (MC_SCALAR, MD_MIMMO_)      |
      | M_VECTORFIELD    | setDisplacements | (MC_SCALAR, MD_MPVECARR3FLOAT_)      |
-     | M_SCALARRFIELD   | setVariableSupportRadii | (MC_SCALAR, MD_MPVECAFLOAT_)  |
+     | M_SCALARFIELD   | setVariableSupportRadii | (MC_SCALAR, MD_MPVECAFLOAT_)  |
 
      |Port Output | | |
      |-|-|-|
