@@ -96,8 +96,8 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(std::vector<l
         }
     }
 
-    mesh->buildAdjacencies();
-    mesh->buildInterfaces();
+    mesh->updateAdjacencies();
+    mesh->updateInterfaces();
     mesh->update();
 
     bcdir1_vertlist.clear();
@@ -153,7 +153,7 @@ int test1() {
                                     bitpit::ElementType::QUAD, val);
     }
 
-    bdirMesh->buildAdjacencies();
+    bdirMesh->updateAdjacencies();
     bdirMesh->update();
 
     bool check = false;

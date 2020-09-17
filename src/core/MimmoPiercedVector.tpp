@@ -699,7 +699,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::pointDataToCellData(double 
  * \param[in] p exponent value of inverse distance exponential weight w = (1/d^p)
  * \return point data MimmoPiercedVector object located on MPVLocation::POINT
  *
- * Note. In parallel data on ghost points are set to zero.
+ * Note. In parallel data on ghost points are not correctly interpolated; external communication to fix the values is needed.
  */
 template<typename mpv_t>
 MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double p){
@@ -728,12 +728,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double 
 	for (bitpit::Vertex & vertex : geo->getVertices()){
 		long idvertex = vertex.getId();
 		if (pointData.exists(idvertex)){
-            if (geo->isPointInterior(idvertex)){
-                pointData[idvertex] = pointData[idvertex] / sumWeights[idvertex];
-            }
-            else{
-	            pointData[idvertex] = pointData[idvertex] * 0.;
-	        }
+		    pointData[idvertex] = pointData[idvertex] / sumWeights[idvertex];
 		}
 	}
 	return pointData;
@@ -749,7 +744,7 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(double 
  * \param[in] maximum boolean true, use simple averaging, false cubic-distance weighted averaging.
  * \return point data MimmoPiercedVector object located on MPVLocation::POINT
  *
- * Note. In parallel data on ghost points are set to zero.
+ * Note. In parallel data on ghost points are not correctly interpolated; external communication to fix the values is needed.
  *
  */
 template<typename mpv_t>
@@ -789,9 +784,6 @@ MimmoPiercedVector<mpv_t> MimmoPiercedVector<mpv_t>::cellDataToPointData(const M
 						sumWeights[idvertex] = sumWeights[idvertex] + weight;
 					}
 				}
-                if (!geo->isPointInterior(idvertex)){
-                    pointData[idvertex] = pointData[idvertex] * 0.;
-	            }
 			}
 		}
 	}

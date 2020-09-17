@@ -136,7 +136,7 @@ PropagateScalarField::getPropagatedField(){
 void
 PropagateScalarField::addDirichletConditions(dmpvector1D * bc){
     //avoid linking null field or field with null geometry inside.
-    if (!bc) return;
+    if(!bc) return;
     if(!bc->getGeometry()) return;
 
     //store it in temporary structure for dirichlet
@@ -249,8 +249,9 @@ PropagateScalarField::execute(){
 
 #if MIMMO_ENABLE_MPI
     //be sure ghost info are available
-    if(!geo->isInfoSync()) geo->buildPatchInfo();
-    if(!geo->arePointGhostExchangeInfoSync()) geo->updatePointGhostExchangeInfo();
+    if(geo->getPointGhostExchangeInfoSyncStatus() != SyncStatus::SYNC){
+        geo->updatePointGhostExchangeInfo();
+    }
 #endif
 
     if(!checkBoundariesCoherence()){
@@ -284,11 +285,14 @@ PropagateScalarField::execute(){
     initializeDampingFunction();
     updateNarrowBand();
 
+    // Instantiate damping function on points
+    MimmoPiercedVector<double> dampingOnPoints;
+
     // Graph Laplace method on points
 
     //store the id of the border nodes only;
     //TODO extract boundary vertex ID as unordered_set
-    livector1D borderPointsID_vector = geo->extractBoundaryVertexID(true);
+    livector1D borderPointsID_vector = geo->extractBoundaryVertexID(false);
     std::unordered_set<long> borderPointsID(borderPointsID_vector.begin(), borderPointsID_vector.end());
 
     //get this inverse map -> you will need it to compact the stencils.
@@ -302,8 +306,11 @@ PropagateScalarField::execute(){
         borderPointsID.insert(id);
     }
 
-    // compute the laplacian stencils
-    GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, m_tol, &m_damping);
+    //interpolate damping function from cell data to point data
+    dampingCellToPoint(dampingOnPoints);
+
+    //compute the laplacian stencils
+    GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, m_tol, &dampingOnPoints);
 
     //modify stencils if Narrow band is active i.e. m_banddistances is not empty.
     //This is directly managed in the method.
@@ -334,7 +341,6 @@ PropagateScalarField::execute(){
         //USELESS FOR EACH STEP?...
         assignBCAndEvaluateRHS(0, false, laplaceStencils.get(), dataInv, rhs);
         solveLaplace(rhs, result[0]);
-        (*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
     }
 
     dataInv.clear();
@@ -677,7 +683,7 @@ bool PropagateVectorField::checkBoundariesCoherence(){
     // run over periodic surfaces and retain border patch vertices common with the volume mesh
     m_periodicBoundaryPoints.clear();
     for (MimmoSharedPointer<MimmoObject> obj : m_periodicSurfaces){
-        std::vector<long> tempboundary = obj->extractBoundaryVertexID(true); //no ghost, only internals
+        std::vector<long> tempboundary = obj->extractBoundaryVertexID(false); //no ghost, only internals
         //I have all internals and operations before guarantees me that
         //all internal points of periodic surfaces are present in the bulk mesh
         m_periodicBoundaryPoints.insert(tempboundary.begin(), tempboundary.end());
@@ -724,10 +730,7 @@ PropagateVectorField::apply(){
     for (auto it= verts.begin(); it != verts.end(); ++it){
         target->modifyVertex( it->getCoords() + m_field.at(it.getId()), it.getId() );
     }
-#if MIMMO_ENABLE_MPI
-    target->cleanAllParallelSync();
-    target->updatePointGhostExchangeInfo();
-#endif
+    target->update();
 
     dmpvecarr3E serialized_bf;
 
@@ -739,10 +742,7 @@ PropagateVectorField::apply(){
         for(auto it= m_dampingUniSurface->getPatch()->vertexBegin(); it!= m_dampingUniSurface->getPatch()->vertexEnd(); ++it){
             m_dampingUniSurface->modifyVertex(it->getCoords() + serialized_bf.at(it.getId()), it.getId());
         }
-#if MIMMO_ENABLE_MPI
-        m_dampingUniSurface->cleanAllParallelSync();
-        m_dampingUniSurface->updatePointGhostExchangeInfo();
-#endif
+        m_dampingUniSurface->update();
     }
 
     //Check the narrowband and deform m_bandUniSurface
@@ -752,10 +752,7 @@ PropagateVectorField::apply(){
         for(auto it= m_bandUniSurface->getPatch()->vertexBegin(); it!= m_bandUniSurface->getPatch()->vertexEnd(); ++it){
             m_bandUniSurface->modifyVertex(it->getCoords() + serialized_bf.at(it.getId()), it.getId());
         }
-#if MIMMO_ENABLE_MPI
-        m_bandUniSurface->cleanAllParallelSync();
-        m_bandUniSurface->updatePointGhostExchangeInfo();
-#endif
+        m_bandUniSurface->update();
     }
 }
 /*!
@@ -775,10 +772,7 @@ PropagateVectorField::restoreGeometry(bitpit::PiercedVector<bitpit::Vertex> & ve
         m_field.at(ID) = currentmesh.at(ID).getCoords() - coords;
         target->modifyVertex(coords, ID);
     }
-#if MIMMO_ENABLE_MPI
-    target->cleanAllParallelSync();
-    target->updatePointGhostExchangeInfo();
-#endif
+    target->update();
 
     //damping and narrowband if active have their UniSurface morphed.
     //But since the UniSurfaces are not inputs, but internal temp resources, I see no utility
@@ -818,7 +812,7 @@ void PropagateVectorField::propagateMaskMovingPoints(livector1D & vertexList) {
 
     std::unordered_set<long> core(vertexList.begin(), vertexList.end());
 
-    if (!getGeometry()->isPointConnectivitySync()){
+    if(getGeometry()->getPointConnectivitySyncStatus() != SyncStatus::SYNC){
         getGeometry()->buildPointConnectivity();
     }
     std::unordered_set<long> tempV1;
@@ -986,7 +980,8 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
         //VERSION USING REFERENCE EXTERNAL SURFACE, that must be stored in m_slipUniSurface
         //at this point this surface must be allocated and not null. --> invoke initializeUniqueSurface
         //applied to list m_slipReferenceSurfaces
-        bitpit::PatchSkdTree *tree = m_slipUniSurface->getSkdTree(); //(method directly build skdtree if not built)
+        if (m_slipUniSurface->getSkdTreeSyncStatus() != SyncStatus::SYNC) m_slipUniSurface->buildSkdTree();
+        bitpit::PatchSkdTree *tree = m_slipUniSurface->getSkdTree();
         std::vector<std::array<double,3>> points;
         std::size_t npoints = m_slipUniSurface->getNVertices();
         points.reserve(npoints);
@@ -1041,9 +1036,10 @@ void PropagateVectorField::initializeSlipSurfaceAsPlane(){
     for(MimmoSharedPointer<MimmoObject> obj : m_slipReferenceSurfaces){
 
 #if MIMMO_ENABLE_MPI
-        // be sure ghost information on point/cell are synchronized
-        if(!obj->isInfoSync())                    obj->buildPatchInfo();
-        if(!obj->arePointGhostExchangeInfoSync()) obj->updatePointGhostExchangeInfo();
+    //be sure ghost info are available
+    if(obj->getPointGhostExchangeInfoSyncStatus() != SyncStatus::SYNC){
+        obj->updatePointGhostExchangeInfo();
+    }
 #endif
 
         bitpit::SurfaceKernel * surfkernss = dynamic_cast<bitpit::SurfaceKernel*>(obj->getPatch());
@@ -1093,7 +1089,7 @@ dmpvecarr3E PropagateVectorField::getBoundaryPropagatedField(){
     mpvres.reserve(m_field.size());
 
     //fill mpvres with the value of m_field on boundary nodes
-    std::vector<long> bIds =  m_geometry->extractBoundaryVertexID(true);
+    std::vector<long> bIds =  m_geometry->extractBoundaryVertexID(false);
     for(long id : bIds){
         mpvres.insert(id, m_field.at(id));
     }
@@ -1122,8 +1118,9 @@ PropagateVectorField::execute(){
 
 #if MIMMO_ENABLE_MPI
     //be sure ghost info are available
-    if(!geo->isInfoSync()) geo->buildPatchInfo();
-    if(!geo->arePointGhostExchangeInfoSync()) geo->updatePointGhostExchangeInfo();
+    if(geo->getPointGhostExchangeInfoSyncStatus() != SyncStatus::SYNC){
+        geo->updatePointGhostExchangeInfo();
+    }
 #endif
 
     if(!checkBoundariesCoherence()){
@@ -1169,11 +1166,14 @@ PropagateVectorField::execute(){
     initializeDampingFunction();
     updateNarrowBand();
 
+    // Instantiate damping function on points
+    MimmoPiercedVector<double> dampingOnPoints;
+
     // Graph Laplace method on points
 
     //store the id of the border nodes only;
     //TODO extract boundary vertex ID as unordered_set
-    livector1D borderPointsID_vector = geo->extractBoundaryVertexID(true);
+    livector1D borderPointsID_vector = geo->extractBoundaryVertexID(false);
     std::unordered_set<long> borderPointsID(borderPointsID_vector.begin(), borderPointsID_vector.end());
 
     //get this inverse map -> you will need it to compact the stencils.
@@ -1190,8 +1190,11 @@ PropagateVectorField::execute(){
         borderPointsID.insert(id);
     }
 
-    // compute the laplacian stencils
-    GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, m_tol, &m_damping);
+    //interpolate damping funciton from cell data to point data
+    dampingCellToPoint(dampingOnPoints);
+
+    //compute the laplacian stencils
+    GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, m_tol, &dampingOnPoints);
 
     //modify stencils if Narrow band is active i.e. m_banddistances is not empty.
     //This is directly managed in the method.
@@ -1232,6 +1235,7 @@ PropagateVectorField::execute(){
 
         //if I have slip walls active, it needs a corrector stage for slip boundaries;
         if(!m_slipSurfaces.empty()){
+
             //reconstruct result on mesh points (ghost included)-> stored in m_field.
             reconstructResults(results, data);
             //compute the correction/reprojection @ slip walls
@@ -1265,6 +1269,7 @@ PropagateVectorField::execute(){
 
             //if damping active, update the damping function using m_dumpingUniSurface deformed.
             updateDampingFunction();
+
             //if narrowband control active, update the narrowband, with m_bandUnisurface deformed
             updateNarrowBand();
 
@@ -1272,7 +1277,9 @@ PropagateVectorField::execute(){
             propagateMaskMovingPoints(*(movingElementList.get()));
 
             // update the laplacian stencils
-            GraphLaplStencil::MPVStencilUPtr updateLaplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, movingElementList.get(), m_tol, &m_damping);
+            // interpolate damping function on points
+            dampingCellToPoint(dampingOnPoints);
+            GraphLaplStencil::MPVStencilUPtr updateLaplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, movingElementList.get(), m_tol, &dampingOnPoints);
             movingElementList->clear();
 
             //apply modification to the interested stencils if narrow band control is active
@@ -1283,11 +1290,10 @@ PropagateVectorField::execute(){
 
             // update the laplacian Matrix in solver free the updateLaplaceStencils
             updateLaplaceSolver(updateLaplaceStencils.get(), dataInv);
+
             //clear updateLaplaceStencils
             updateLaplaceStencils = nullptr;
         }
-
-        (*m_log)<<m_name<<" solved step "<<istep+1<<" out of total steps "<<m_nstep<<std::endl;
 
     } //end of multistep loop;
 

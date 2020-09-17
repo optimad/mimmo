@@ -122,8 +122,9 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std
 		}
 	}
 
-	mesh->buildAdjacencies();
-	mesh->buildInterfaces();
+	mesh->updateAdjacencies();
+	mesh->updateInterfaces();
+	mesh->update();
 
 	return mesh;
 }
@@ -177,8 +178,9 @@ int test00004() {
 			bdirMesh->getPatch()->getCell(val).setPID(2);
 		}
 	}
-	bdirMesh->buildAdjacencies();
-	bdirMesh->buildInterfaces();
+	bdirMesh->updateAdjacencies();
+    bdirMesh->updateInterfaces();
+    bdirMesh->update();
 
 	/* Instantiation of a Partition object with default patition method space filling curve.
 	 * Plot Optional results during execution active for Partition block.

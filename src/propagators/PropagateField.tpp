@@ -55,10 +55,6 @@ void PropagateField<NCOMP>::setDefaults(){
     this->m_bandwidth = 0.0;
     this->m_bandrelax = 1.0;
 
-// #if MIMMO_ENABLE_MPI
-//     this->m_ghostTag = 0;
-//     this->m_pointGhostTag = 0;
-// #endif
 }
 
 /*!
@@ -195,9 +191,8 @@ PropagateField<NCOMP>::setGeometry(MimmoSharedPointer<MimmoObject> geometry_){
 
     m_geometry = geometry_;
 
-    if(!m_geometry->areAdjacenciesBuilt()){
-        m_geometry->buildAdjacencies();
-    }
+    // Force update adjacencies
+    m_geometry->updateAdjacencies();
 
 }
 
@@ -665,11 +660,9 @@ PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
 
 /*!
  * Utility to instantiate a unique surface stitching a list of surface patches.
- * In both Serial and MPI version the final surface is provided as list
+ * The final surface is provided as list
    of boundary patches referring to the target bulk mesh .
    The aim of this method is to stitch them together in a unique common surface.
-   Moreover, in MPI versions, serialization is needed in order to provide all ranks
-   to work with exactly the same surface (so no ghosts cells/vertices are retained).
    \param[in] listSurf list of boundary patches
    \param[out] uniSurf unique_ptr to reconstructed mesh.
  */
@@ -685,12 +678,12 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSha
 
     //put all patches in the list in a unique surface (NOTE TYPE SURFACE). For MPI version, surface
     //are most likely partitioned, so you need to have information on internals/ghosts updated.
-    //reconstructed surface is made by internals element/nodes only.
     MimmoSharedPointer<MimmoObject> tempSurface(new MimmoObject(1));
     for(MimmoSharedPointer<MimmoObject> obj : listSurf){
 #if MIMMO_ENABLE_MPI
-        if(!obj->isInfoSync()) obj->buildPatchInfo();
-        if(!obj->arePointGhostExchangeInfoSync()) obj->updatePointGhostExchangeInfo();
+        if(obj->getPointGhostExchangeInfoSyncStatus() != SyncStatus::SYNC){
+            obj->updatePointGhostExchangeInfo();
+        }
 #endif
         tempSurface->getPatch()->reserveVertices(tempSurface->getPatch()->getVertexCount() + obj->getPatch()->getVertexCount());
         for(bitpit::Vertex & vertex : obj->getVertices()){
@@ -715,10 +708,7 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSha
     tempSurface->getPatch()->squeezeCells();
     tempSurface->getPatch()->squeezeVertices();
 
-#if MIMMO_ENABLE_MPI
-    // Set partitioned patch to build parallel information
     tempSurface->update();
-#endif
 
     uniSurf = std::move(tempSurface);
 
@@ -847,6 +837,23 @@ PropagateField<NCOMP>::updateDampingFunction(){
 }
 
 /*!
+ * Interpolate class member damping function given on CELL to POINT.
+ * Return the interpoled values in a new MimmoPiercedVector.
+ * param[out] dampingOnPoints vector with damping function interpolated on points.
+ */
+template<std::size_t NCOMP>
+void
+PropagateField<NCOMP>::dampingCellToPoint(MimmoPiercedVector<double> & dampingOnPoints){
+
+    dampingOnPoints = m_damping.cellDataToPointData(1.5);
+
+#if MIMMO_ENABLE_MPI
+    communicateScalarPointGhostData(&dampingOnPoints);
+#endif
+
+}
+
+/*!
     Compute/Update the list of vertices in the narrow band and store it with their distance
     in m_banddistances member.
     If m_banddistances is not empty, use its information as starting point to update
@@ -950,11 +957,11 @@ PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * la
 		nNZ += it->size();
 	}
 
+    //instantiate the SparseMatrix
+	//TODO USE DIRECTLY THE SYSTEM SOLVER WITH STENCILS - NO MORE MATRIX NEEDED
 #if MIMMO_ENABLE_MPI==1
-	//instantiate the SparseMatrix
 	bitpit::SparseMatrix matrix(m_communicator, getGeometry()->isParallel(), nDOFs, nDOFs, nNZ);
 #else
-	//instantiate the SparseMatrix
 	bitpit::SparseMatrix matrix(nDOFs, nDOFs, nNZ);
 #endif
 
@@ -962,19 +969,18 @@ PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * la
 	long id, ind;
 	for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
 		id = it.getId();
-		ind = maplocals.at(id);
-#if MIMMO_ENABLE_MPI
-		ind -= getGeometry()->getPointGlobalCountOffset();
-#endif
+		ind = maplocals.at(id) - getGeometry()->getPointGlobalCountOffset();
 		mapsort[ind] = id;
 	}
 
 	//Add ordered rows
 	for(auto id : mapsort){
-		bitpit::StencilScalar item = laplacianStencils->at(id);
-		//renumber values on the fly.
-		item.renumber(maplocals);
-		matrix.addRow(item.size(), item.patternData(), item.weightData());
+	    if (getGeometry()->isPointInterior(id)){
+	        bitpit::StencilScalar item = laplacianStencils->at(id);
+	        //renumber values on the fly.
+	        item.renumber(maplocals);
+	        matrix.addRow(item.size(), item.patternData(), item.weightData());
+	    }
 	}
 
 	//assembly the matrix;
@@ -1013,11 +1019,11 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
 		nNZ += it->size();
 	}
 
+    //instantiate the SparseMatrix
+    //TODO USE DIRECTLY THE SYSTEM SOLVER WITH STENCILS - NO MORE MATRIX NEEDED
 #if MIMMO_ENABLE_MPI==1
-	//instantiate the SparseMatrix
 	bitpit::SparseMatrix upelements(m_communicator, getGeometry()->isParallel(), nupdate, nDOFs, nNZ);
 #else
-	//instantiate the SparseMatrix
 	bitpit::SparseMatrix upelements(nupdate, nDOFs, nNZ);
 #endif
 
@@ -1216,6 +1222,7 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const lilim
 //******************
 //EXCLUSIVE MPI METHODS
 //******************
+//TODO USE BITPIT DATA COMMUNICATORS, STREAMERS AND TAGS WHEN READY
 #if MIMMO_ENABLE_MPI
 /*!
     Creates a new ghost communicator and return its tag. if already exists, do nothing
@@ -1260,14 +1267,35 @@ PropagateField<NCOMP>::createPointGhostCommunicator(MimmoObject* refGeo, bool co
 }
 
 /*!
+    Creates a new scalar point ghost communicator.
+
+    \param[in] refGeo pointer to reference partitioned MimmoObject
+    \param[in] continuous defines if the communicator will be set in continuous mode
+    \return The tag associated to the newly created communicator.
+ */
+template<std::size_t NCOMP>
+int
+PropagateField<NCOMP>::createScalarPointGhostCommunicator(MimmoObject* refGeo, bool continuous){
+    if(m_scalarPointGhostCommunicators.count(refGeo) == 0){
+        // Create communicator
+        m_scalarPointGhostCommunicators[refGeo] = std::unique_ptr<PointGhostCommunicator>(new PointGhostCommunicator(refGeo));
+        m_scalarPointGhostCommunicators[refGeo]->resetExchangeLists();
+        m_scalarPointGhostCommunicators[refGeo]->setRecvsContinuous(continuous);
+    }
+    // Return Communicator tag
+    return int(m_scalarPointGhostCommunicators[refGeo]->getTag());
+}
+
+/*!
     Communicate MPV data on ghost cells on the reference geometry linked by data itself.
     The method creates a new communicator and streamer if not already allocated.
     Otherwise the pointer of the communicator to the data is updated with the input argument.
     \param[in] data Pointer to field with data to communicate
  */
 template<std::size_t NCOMP>
+template<class mpvt>
 void
-PropagateField<NCOMP>::communicateGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data){
+PropagateField<NCOMP>::communicateGhostData(MimmoPiercedVector<mpvt> *data){
     // Creating cell ghost communications for exchanging interpolated values
     MimmoObject * geo = data->getGeometry().get();
     if(!geo){
@@ -1286,7 +1314,7 @@ PropagateField<NCOMP>::communicateGhostData(MimmoPiercedVector<std::array<double
         m_ghostStreamers[geo]->setData(data);
     }else{
         //you need to create it brand new. Attach data directly.
-        m_ghostStreamers[geo] = std::unique_ptr<MimmoDataBufferStreamer<NCOMP>>(new MimmoDataBufferStreamer<NCOMP>(data));
+        m_ghostStreamers[geo] = std::unique_ptr<MimmoDataBufferStreamer<mpvt>>(new MimmoDataBufferStreamer<mpvt>(data));
         m_ghostCommunicators[geo]->addData(m_ghostStreamers[geo].get());
     }
 
@@ -1303,8 +1331,9 @@ PropagateField<NCOMP>::communicateGhostData(MimmoPiercedVector<std::array<double
     \param[in] data Pointer to field with data to communicate
  */
 template<std::size_t NCOMP>
+template<class mpvt>
 void
-PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data){
+PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<mpvt> *data){
     // Creating cell ghost communications for exchanging interpolated values
     MimmoObject * geo = data->getGeometry().get();
     if(!geo){
@@ -1323,7 +1352,7 @@ PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<std::array<d
         m_pointGhostStreamers[geo]->setData(data);
     }else{
         //you need to create it brand new. Attach data directly.
-        m_pointGhostStreamers[geo] = std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>>(new MimmoPointDataBufferStreamer<NCOMP>(data));
+        m_pointGhostStreamers[geo] = std::unique_ptr<MimmoPointDataBufferStreamer<mpvt>>(new MimmoPointDataBufferStreamer<mpvt>(data));
         m_pointGhostCommunicators[geo]->addData(m_pointGhostStreamers[geo].get());
     }
 
@@ -1331,6 +1360,45 @@ PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<std::array<d
     m_pointGhostCommunicators[geo]->startAllExchanges();
     // Receive data
     m_pointGhostCommunicators[geo]->completeAllExchanges();
+}
+
+
+/*!
+    Communicate MPV scalar field on ghost nodes on the reference geometry linked by data itself.
+    The method creates a new communicator and streamer if not already allocated.
+    Otherwise the pointer of the communicator to the data is updated with the input argument.
+    \param[in] data Pointer to scalar field with data to communicate
+ */
+template<std::size_t NCOMP>
+template<class mpvt>
+void
+PropagateField<NCOMP>::communicateScalarPointGhostData(MimmoPiercedVector<mpvt> *data){
+    // Creating cell ghost communications for exchanging interpolated values
+    MimmoObject * geo = data->getGeometry().get();
+    if(!geo){
+        throw std::runtime_error("Propagate Class ::communicatePointGhostData no ref Geometry in mpv data!");
+    }
+    //if geo is not partitioned you have nothing to communicate.
+    if (!geo->isDistributed()) return;
+
+    //check for communicator on geometry, if not exists create it
+    m_scalarPointGhostTags[geo] = createScalarPointGhostCommunicator(geo, true);
+    //after this call a communicator dedicated to geo surely exists
+    //check if streamer for data type exists
+    if(m_scalarPointGhostStreamers.count(geo) > 0){
+        //set data to the streamer. If you created the streamer
+        //you have already add it to its comunicator.
+        m_scalarPointGhostStreamers[geo]->setData(data);
+    }else{
+        //you need to create it brand new. Attach data directly.
+        m_scalarPointGhostStreamers[geo] = std::unique_ptr<MimmoPointDataBufferStreamer<mpvt>>(new MimmoPointDataBufferStreamer<mpvt>(data));
+        m_scalarPointGhostCommunicators[geo]->addData(m_scalarPointGhostStreamers[geo].get());
+    }
+
+    // Send data
+    m_scalarPointGhostCommunicators[geo]->startAllExchanges();
+    // Receive data
+    m_scalarPointGhostCommunicators[geo]->completeAllExchanges();
 }
 
 #endif

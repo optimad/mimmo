@@ -118,8 +118,10 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std
 		}
 	}
 
-	mesh->buildAdjacencies();
-	mesh->buildInterfaces();
+    mesh->updateAdjacencies();
+	mesh->updateInterfaces();
+    mesh->updatePointGhostExchangeInfo();
+	mesh->update();
 
 	return mesh;
 }
@@ -173,7 +175,9 @@ int test00003() {
 			bdirMesh->getPatch()->getCell(val).setPID(2);
 		}
 	}
-	bdirMesh->buildAdjacencies();
+    bdirMesh->updateAdjacencies();
+    bdirMesh->updatePointGhostExchangeInfo();
+	bdirMesh->update();
 
 	/* Instantiation of a Partition object with default patition method space filling curve.
 	 * Plot Optional results during execution active for Partition block.
@@ -218,8 +222,10 @@ int test00003() {
 		}
 	}
 
-	partition->getGeometry()->buildInterfaces();
-	partition->getBoundaryGeometry()->buildInterfaces();
+    partition->getGeometry()->updateInterfaces();
+    partition->getGeometry()->update();
+    partition->getBoundaryGeometry()->updateInterfaces();
+    partition->getBoundaryGeometry()->update();
 
 	// Now create a PropagateScalarField and solve the laplacian.
 	mimmo::PropagateVectorField * prop = new mimmo::PropagateVectorField();
@@ -230,17 +236,17 @@ int test00003() {
 	prop->setPlotInExecution(true);
 	prop->setApply(true);
 
-    prop->setDamping(true);
+    prop->setDamping(false);
     prop->setDampingType(1);
     prop->setDampingDecayFactor(1.0);
     prop->setDampingInnerDistance(0.05);
     prop->setDampingOuterDistance(0.35);
     prop->addDampingBoundarySurface(partition->getBoundaryGeometry());
 
-    // prop->setNarrowBand(true);
-    // prop->setNarrowBandWidth(0.6);
-    // prop->setNarrowBandRelaxation(0.7);
-    // prop->addNarrowBandBoundarySurface(partition->getBoundaryGeometry());
+    prop->setNarrowBand(false);
+    prop->setNarrowBandWidth(0.6);
+    prop->setNarrowBandRelaxation(0.7);
+    prop->addNarrowBandBoundarySurface(partition->getBoundaryGeometry());
 
 
     t1 = Clock::now();

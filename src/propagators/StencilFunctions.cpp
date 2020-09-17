@@ -602,20 +602,24 @@ MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, dou
 
     result->reserve(geo->getNInternalVertices());
     for(auto id : geo->getVertices().getIds()){
-    	if (geo->isPointInterior(id))
+    	if (geo->isPointInterior(id)){
     		result->insert(id, bitpit::StencilScalar());
+    	}
     }
 
     //fill edges
-    if (!geo->isPointConnectivitySync())
+    if(geo->getPointConnectivitySyncStatus() != SyncStatus::SYNC)
     	geo->buildPointConnectivity();
 
     //interpolate diffusivity
-    MimmoPiercedVector<double> pdiffusivity;
-    if (diffusivity)
-    	pdiffusivity = diffusivity->cellDataToPointData(1.5);
-    else
-    	pdiffusivity.initialize(geo, MPVLocation::POINT, 1.);
+    MimmoPiercedVector<double>* pdiffusivity;
+    if (diffusivity){
+    	pdiffusivity = diffusivity;
+    }
+    else{
+    	pdiffusivity = new MimmoPiercedVector<double>();
+    	pdiffusivity->initialize(geo, MPVLocation::POINT, 1.);
+    }
 
     //loop on point connectivity
    MimmoPiercedVector<double> sums;
@@ -624,17 +628,16 @@ MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, dou
     double p = 2.0;
     double localdiff, avgdiff;
     for (long id1 : geo->getVertices().getIds()){
-        localdiff = pdiffusivity.at(id1);
+        localdiff = pdiffusivity->at(id1);
         auto pconn = geo->getPointConnectivity(id1);
         for (long id2 : pconn){
-            avgdiff = 0.5*(localdiff + pdiffusivity.at(id2));
+            avgdiff = 0.5*(localdiff + pdiffusivity->at(id2));
             d_1 =1.0/std::pow(norm2(geo->getVertexCoords(id1)-geo->getVertexCoords(id2)),p);
             d_1 *= avgdiff;
             sums[id1] += d_1;
-
     		if (geo->isPointInterior(id1))
     		{
-    			result->at(id1).appendItem(id2, d_1);
+    		    result->at(id1).appendItem(id2, d_1);
     		}
     	}
     }
@@ -642,8 +645,10 @@ MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, dou
     //Weighted average
     double denom;
     for(MPVStencil::iterator it = result->begin(); it !=result->end(); ++it){
-        denom =  sums[it.getId()];
-        *it /= denom;
+        if(geo->isPointInterior(it.getId())){
+            denom =  sums[it.getId()];
+            *it /= denom;
+        }
     }
 
     //Insert diagonal values (-1)
@@ -658,6 +663,9 @@ MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, dou
 //    for(MPVStencil::iterator it = result->begin(); it !=result->end(); ++it){
 //        //it->optimize(tolerance);
 //    }
+
+    if (!diffusivity)
+        delete   pdiffusivity;
 
     return result;
 }
@@ -694,15 +702,19 @@ MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, std
     }
 
     //fill edges
-    if (!geo->isPointConnectivitySync())
+    if(geo->getPointConnectivitySyncStatus() != SyncStatus::SYNC)
     	geo->buildPointConnectivity();
 
     //interpolate diffusivity
-    MimmoPiercedVector<double> pdiffusivity;
-    if (diffusivity)
-    	pdiffusivity = diffusivity->cellDataToPointData(1.5);
-    else
-    	pdiffusivity.initialize(geo, MPVLocation::POINT, 1.);
+    //interpolate diffusivity
+    MimmoPiercedVector<double>* pdiffusivity;
+    if (diffusivity){
+        pdiffusivity = diffusivity;
+    }
+    else{
+        pdiffusivity = new MimmoPiercedVector<double>();
+        pdiffusivity->initialize(geo, MPVLocation::POINT, 1.);
+    }
 
     //loop on edges
     MimmoPiercedVector<double> sums;
@@ -711,10 +723,10 @@ MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, std
     double p = 2.0;
     double localdiff, avgdiff;
     for (long id1 : *nodesList){
-        localdiff = pdiffusivity.at(id1);
+        localdiff = pdiffusivity->at(id1);
         auto pconn = geo->getPointConnectivity(id1);
         for (long id2 : pconn){
-            avgdiff = 0.5*(localdiff + pdiffusivity.at(id2));
+            avgdiff = 0.5*(localdiff + pdiffusivity->at(id2));
             d_1 =1.0/std::pow(norm2(geo->getVertexCoords(id1)-geo->getVertexCoords(id2)),p);
             d_1 *= avgdiff;
             sums[id1] += d_1;
@@ -744,6 +756,9 @@ MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, std
 //    for(MPVStencil::iterator it = result->begin(); it !=result->end(); ++it){
 //        //it->optimize(tolerance);
 //    }
+
+    if (!diffusivity)
+        delete pdiffusivity;
 
     return result;
 }
