@@ -224,7 +224,7 @@ void ExtractScalarField::extractID(mimmo::MPVLocation loc){
             }
         break;
         case mimmo::MPVLocation::INTERFACE:
-            if(!getGeometry()->areInterfacesBuilt()) getGeometry()->buildInterfaces();
+            getGeometry()->updateInterfaces();
             for (const auto & ID : getGeometry()->getInterfaces().getIds()){
                 if (m_field.exists(ID)){
                     m_result.insert(ID, m_field[ID]);
@@ -299,8 +299,8 @@ void ExtractScalarField::extractPID(mimmo::MPVLocation loc){
  */
 void ExtractScalarField::extractMapping(mimmo::MPVLocation loc){
 
-    if(! m_field.getGeometry()->isSkdTreeSync())  m_field.getGeometry()->buildSkdTree();
-    if(! getGeometry()->isSkdTreeSync())          getGeometry()->buildSkdTree();
+    m_field.getGeometry()->buildSkdTree();
+    getGeometry()->buildSkdTree();
 #if MIMMO_ENABLE_MPI
     livector1D cellExtracted = mimmo::skdTreeUtils::selectByGlobalPatch(m_field.getGeometry()->getSkdTree(), getGeometry()->getSkdTree(), m_tol);
 #else

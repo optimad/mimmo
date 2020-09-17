@@ -332,7 +332,7 @@ FVGenericSelection::execute(){
         for(auto & tuple : bndFacesMap)     faceCount += long(tuple.second.size());
 
         livector1D candidateVerts = tempVol->extractBoundaryVertexID(bndFacesMap);
-        tempVol->buildInterfaces();
+        tempVol->updateInterfaces();
         //fill the wrapped internal boundary mesh (can coprehend also the real boundary)
 #if MIMMO_ENABLE_MPI
         {
@@ -367,18 +367,18 @@ FVGenericSelection::execute(){
             }
         }
 
-        tempVol->resetInterfaces();
-        tempVol->resetAdjacencies();
+        tempVol->destroyInterfaces();
+        tempVol->destroyAdjacencies();
         //remove cells shared with the real boundary, from this "internal" pot.
         livector1D sharedCells = tempInternalBnd->getCellFromVertexList(vertBndExtracted, true);
 
         //delete cells and orphans.
         tempInternalBnd->getPatch()->deleteCells(sharedCells);
-        tempInternalBnd->buildAdjacencies();
+        tempInternalBnd->updateAdjacencies();
         if(tempInternalBnd->getPatch()->countOrphanVertices() > 0){
             tempInternalBnd->getPatch()->deleteOrphanVertices();
         }
-        tempInternalBnd->resetAdjacencies();
+        tempInternalBnd->destroyAdjacencies();
     }
 
     m_volpatch = tempVol;

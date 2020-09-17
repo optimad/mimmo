@@ -352,7 +352,7 @@ SelectionByMapping::clear(){
 livector1D
 SelectionByMapping::extractSelection(){
 
-    if(!(getGeometry()->isSkdTreeSync())) getGeometry()->buildSkdTree();
+    getGeometry()->buildSkdTree();
     std::set<long> cellList;
 
     for (auto & file : m_geolist){
