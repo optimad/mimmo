@@ -4693,11 +4693,7 @@ MimmoObject::buildPointConnectivity()
 	//No point connectivity for point cloud
 	if(getType() == 3) return;
 
-#if MIMMO_ENABLE_MPI
-    m_pointConnectivity.reserve(getNGlobalVertices());
-#else
     m_pointConnectivity.reserve(getNVertices());
-#endif
 
     // Surface/volume mesh & 3d curve point connectivity
 	if(getType() == 1 || getType() == 2 || getType() == 4){

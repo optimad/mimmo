@@ -98,8 +98,8 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(mimmo::MimmoS
         }
     }
 
-    mesh->buildAdjacencies();
-    mesh->buildInterfaces();
+    mesh->updateAdjacencies();
+    mesh->updateInterfaces();
     mesh->update();
 
     //decompose manually the six boundary faces.
@@ -165,9 +165,9 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(mimmo::MimmoS
 
         boundary->addConnectedCell(std::vector<long>(&conn[0], &conn[connsize]), et, *it,it.getId());
     }
-    boundary->buildAdjacencies();
-    boundary->getPatch()->write("piddedBoundary_test3");
+    boundary->updateAdjacencies();
     boundary->update();
+    boundary->getPatch()->write("piddedBoundary_test3");
 
     return mesh;
 }
@@ -189,7 +189,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> pidExtractor(mimmo::MimmoSharedPoi
     for(long id: cellsID){
         extracted->addCell(boundary->getCells().at(id), id);
     }
-    extracted->buildAdjacencies();
+    extracted->updateAdjacencies();
     extracted->update();
     return extracted;
 }

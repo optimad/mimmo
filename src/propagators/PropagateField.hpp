@@ -138,27 +138,33 @@ protected:
     dmpvector1D   m_damping;        /**<Damping field used for weights computing.*/
 
     std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_dampingSurfaces;    /**<list of MimmoObject boundary patches pointers to identify surface for damping calculation.*/
-    MimmoSharedPointer<MimmoObject> m_dampingUniSurface;                        /**<INTERNAL use. Final damping reference surface.
-                                                                                    If MPI, surface is serialized and shared among all procs*/
+    MimmoSharedPointer<MimmoObject> m_dampingUniSurface;                        /**<INTERNAL use. Final damping reference surface.*/
 
     // Narrow Band surfaces and parameters set
-    bool          m_bandActive;     /**< true the Narrow Band Control is active, false otherwise.*/
-    double        m_bandwidth;      /**< width of the narrow band region.*/
-    double        m_bandrelax;      /**< Narrow band relaxation param [0,1]. 1 no relaxing occurs, 0 full relaxation is performed */
+    bool          m_bandActive;  /**< true the Narrow Band Control is active, false otherwise.*/
+    double        m_bandwidth;   /**< width of the narrow band region.*/
+    double        m_bandrelax;   /**< Narrow band relaxation param [0,1]. 1 no relaxing occurs, 0 full relaxation is performed */
 
-    bitpit::PiercedVector<double> m_banddistances;                          /**< INTERNAL use, list of distances for vertex belonging to narrow band */
+    bitpit::PiercedVector<double> m_banddistances; /**< INTERNAL use, list of distances for vertex belonging to narrow band */
     std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_bandSurfaces;   /**<list of MimmoObject boundary patches pointers to identify target baundaries for Narrow Band definition.*/
-    MimmoSharedPointer<MimmoObject> m_bandUniSurface;                       /**< INTERNAL use. Final narrow band reference surface. If MPI, surface is serialized and shared among all procs*/
+    MimmoSharedPointer<MimmoObject> m_bandUniSurface; /**< INTERNAL use. Final narrow band reference surface.*/
 
     // MPI
 #if MIMMO_ENABLE_MPI
+    // Main field cell communication
     std::unordered_map<MimmoObject *, std::unique_ptr<GhostCommunicator> > m_ghostCommunicators;    /**<List of Cell Ghost communicator objects, for each one of ref. geometry */
     std::unordered_map<MimmoObject *, int> m_ghostTags;/**< List of Tags of cell communicator objects, one for each ref geometry*/
-    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoDataBufferStreamer<NCOMP>> > m_ghostStreamers;	/**<list of Cell Data streamer, one for each ref geometry */
+    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoDataBufferStreamer<std::array<double, NCOMP>>> > m_ghostStreamers; /**<list of Point Data streamer, one for each ref geometry */
 
+    // Main field point communication
     std::unordered_map<MimmoObject *, std::unique_ptr<PointGhostCommunicator> > m_pointGhostCommunicators;    /**<List of Point Ghost communicator objects, for each one of ref. geometry */
     std::unordered_map<MimmoObject *, int> m_pointGhostTags;/**< List of Tags of point communicator objects, one for each ref geometry*/
-    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoPointDataBufferStreamer<NCOMP>> > m_pointGhostStreamers;	/**<list of Point Data streamer, one for each ref geometry */
+    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoPointDataBufferStreamer<std::array<double, NCOMP>>> > m_pointGhostStreamers; /**<list of Point Data streamer, one for each ref geometry */
+
+    // Scalar field point communication
+    std::unordered_map<MimmoObject *, std::unique_ptr<PointGhostCommunicator> > m_scalarPointGhostCommunicators;    /**<List of Scalar Field Point Ghost communicator objects, for each one of ref. geometry */
+    std::unordered_map<MimmoObject *, int> m_scalarPointGhostTags;/**< List of Scalar Field Tags of point communicator objects, one for each ref geometry*/
+    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoPointDataBufferStreamer<double>> > m_scalarPointGhostStreamers; /**<list of Scalar Field Point Data streamer, one for each ref geometry */
 
 #endif
 
@@ -207,6 +213,7 @@ protected:
     //Damping
     virtual void initializeDampingFunction();
     virtual void updateDampingFunction();
+    void dampingCellToPoint(MimmoPiercedVector<double> & damping);
 
     //NarrowBand
     virtual void updateNarrowBand();
@@ -225,8 +232,16 @@ protected:
 #if MIMMO_ENABLE_MPI
     int createGhostCommunicator(MimmoObject * refgeo, bool continuous);
     int createPointGhostCommunicator(MimmoObject * refgeo, bool continuous);
-    void communicateGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data);
-    void communicatePointGhostData(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+    int createScalarPointGhostCommunicator(MimmoObject * refgeo, bool continuous);
+
+    template<class mpvt>
+    void communicateGhostData(MimmoPiercedVector<mpvt> *data);
+
+    template<class mpvt>
+    void communicatePointGhostData(MimmoPiercedVector<mpvt> *data);
+
+    template<class mpvt>
+    void communicateScalarPointGhostData(MimmoPiercedVector<mpvt> *data);
 #endif
 };
 
@@ -450,7 +465,7 @@ protected:
     bool m_forcePlanarSlip; /**< force slip surface to be treated as plane */
     std::unordered_set<MimmoSharedPointer<MimmoObject> > m_slipSurfaces;          /**< list of MimmoObject boundary patches where slip conditions are applied */
     std::unordered_set<MimmoSharedPointer<MimmoObject> > m_slipReferenceSurfaces; /**< list of MimmoObject boundary patches identifying slip reference surface on which the slip nodes of boundary patch are re-projected. */
-    MimmoSharedPointer<MimmoObject> m_slipUniSurface;            /**< INTERNAL use. Final slip surface. If MPI, surface is serialized and shared among all procs*/
+    MimmoSharedPointer<MimmoObject> m_slipUniSurface;            /**< INTERNAL use. Final slip surface.*/
     MimmoPiercedVector<std::array<double, 3> > m_slip_bc_dir; /**< INTERNAL USE ONLY: Slip-type condition values on POINTS of the target volume mesh */
 
     std::unordered_set<MimmoSharedPointer<MimmoObject> > m_periodicSurfaces;   /**< MimmoObject boundary patch identifying periodic conditions */

@@ -35,46 +35,45 @@ namespace mimmo{
  * \ingroup parallel
  * \brief Specialized buffer streamer to exchange data defined on cells.
  */
-template<std::size_t NCOMP>
+template<class mpvt>
 class MimmoDataBufferStreamer : public ExchangeBufferStreamer {
 
 public:
-	MimmoDataBufferStreamer(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+	MimmoDataBufferStreamer(MimmoPiercedVector<mpvt > *data);
 
-	void setData(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+	void setData(MimmoPiercedVector<mpvt> *data);
 
     void read(const int &rank, bitpit::RecvBuffer &buffer, const std::vector<long> &list = std::vector<long>());
     void write(const int &rank, bitpit::SendBuffer &buffer, const std::vector<long> &list = std::vector<long>());
 
 private:
 
-    MimmoPiercedVector<std::array<double, NCOMP> >* m_data;
+    MimmoPiercedVector<mpvt>* m_data;
 
 };
 
 /*!
- * \class MimmoPointDataBufferStreamer
+ * \class MimmoPointDataBufferStreamerBase
  * \ingroup parallel
  * \brief Specialized buffer streamer to exchange data defined on points.
  */
-template<std::size_t NCOMP>
+template<class mpvt>
 class MimmoPointDataBufferStreamer : public ExchangeBufferStreamer {
 
 public:
-	MimmoPointDataBufferStreamer(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+    MimmoPointDataBufferStreamer(MimmoPiercedVector<mpvt> *data);
 
-	void setData(MimmoPiercedVector<std::array<double, NCOMP> > *data);
+    void setData(MimmoPiercedVector<mpvt> *data);
 
     void read(const int &rank, bitpit::RecvBuffer &buffer, const std::vector<long> &list = std::vector<long>());
     void write(const int &rank, bitpit::SendBuffer &buffer, const std::vector<long> &list = std::vector<long>());
 
 private:
 
-    MimmoPiercedVector<std::array<double, NCOMP> >* m_data;
+    MimmoPiercedVector<mpvt>* m_data;
     std::unordered_map<long, int> m_receivedFromRank; //Which rank sent the received id-th point data?
 
 };
-
 }
 
 #include "mimmo_streamers.tpp"
