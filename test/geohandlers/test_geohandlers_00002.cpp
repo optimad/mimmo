@@ -93,7 +93,9 @@ bool createMimmoMesh(mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh){
 
 	bool check = (mesh->getNCells() == 48) && (mesh->getNVertices() == 35);
 
-	mesh->buildAdjacencies();
+	mesh->cleanPatchInfo();
+    mesh->updateAdjacencies();
+    mesh->update();
 
 	return check;
 }

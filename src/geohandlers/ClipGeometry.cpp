@@ -195,10 +195,6 @@ ClipGeometry::execute(){
         throw std::runtime_error (m_name + " : nullptr geometry linked.");
     };
 
-    if(getGeometry()->isEmpty()){
-        (*m_log)<<m_name + " : empty geometry linked."<<std::endl;
-    };
-
     /* If an implicit definition is not present it has to be computed
      * by using origin and normal.
      */
@@ -208,49 +204,39 @@ ClipGeometry::execute(){
 
     livector1D extracted = clipPlane();
     if(extracted.empty()){
-        (*m_log)<<m_name + " : performed empty clipping extraction"<<std::endl;
+        (*m_log)<<"Warning in "+m_name + " : performed empty clipping extraction"<<std::endl;
     }
 
     /* Create subpatch.*/
     MimmoSharedPointer<MimmoObject> temp(new MimmoObject(getGeometry()->getType()));
+    m_clipped = temp;
     bitpit::PatchKernel * tri = getGeometry()->getPatch();
 
-    if (getGeometry()->getType() != 3){
+    livector1D idVertexList = getGeometry()->getVertexFromCellList(extracted);
 
-        auto idVertexList = getGeometry()->getVertexFromCellList(extracted);
+    temp->getPatch()->reserveVertices(idVertexList.size());
+    temp->getPatch()->reserveCells(extracted.size());
 
-        temp->getPatch()->reserveVertices(idVertexList.size());
-        temp->getPatch()->reserveCells(extracted.size());
+    for(long idV : idVertexList){
+        m_clipped->addVertex(tri->getVertexCoords(idV),idV);
+    }
 
-        for(const auto & idV : idVertexList){
-            temp->addVertex(tri->getVertexCoords(idV),idV);
-        }
+    int rank;
+    for(long idCell : extracted){
 
-        int rank;
-        for(const auto & idCell : extracted){
-
-            bitpit::Cell & cell = tri->getCell(idCell);
-            rank  =-1;
+        bitpit::Cell & cell = tri->getCell(idCell);
+        rank  =-1;
 #if MIMMO_ENABLE_MPI
-            rank = getGeometry()->getPatch()->getCellRank(idCell);
+        rank = getGeometry()->getPatch()->getCellRank(idCell);
 #endif
-            temp->addCell(cell, idCell, rank);
-        }
+        m_clipped->addCell(cell, idCell, rank);
     }
-    else{
-        temp->getPatch()->reserveVertices(extracted.size());
-        for(const auto & idV : extracted){
-            temp->addVertex(tri->getVertexCoords(idV),idV);
-        }
-    }
-
+    //MPI version: recovering info from the local rank partition
     auto originalmap = getGeometry()->getPIDTypeListWNames();
     auto currentPIDmap = temp->getPIDTypeList();
     for(const auto & val: currentPIDmap){
-        temp->setPIDName(val, originalmap[val]);
+        m_clipped->setPIDName(val, originalmap[val]);
     }
-
-    m_clipped = temp;
 
     // Clean and Update mesh. This will update even parallel structures if needed
     m_clipped->cleanGeometry();

@@ -370,10 +370,10 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 //			coarsepatch->cleanGeometry();
 
 		// Force build adjacencies and update
-        getGeometry()->buildAdjacencies();
+        getGeometry()->updateAdjacencies();
         getGeometry()->update();
 		if (coarsepatch != nullptr){
-            coarsepatch->buildAdjacencies();
+            coarsepatch->updateAdjacencies();
             coarsepatch->update();
 		}
 	}
@@ -389,7 +389,7 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 			}
 		}
 		// Force build adjacencies and update refine patch
-        refinepatch->buildAdjacencies();
+        refinepatch->updateAdjacencies();
         refinepatch->update();
 	}
 
@@ -501,21 +501,17 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
         MimmoPiercedVector<bool> isnewred;
         isnewred.initialize(geometry, MPVLocation::CELL, false);
 #endif
-	{
-		// Build adjacencies
-		if (!geometry->areAdjacenciesBuilt()){
-			geometry->buildAdjacencies();
-		}
-		if (!geometry->areInterfacesBuilt()){
-			geometry->buildInterfaces();
-		}
+    {
+        // Build adjacencies
+        geometry->updateAdjacencies();
+        geometry->updateInterfaces();
 
-		// Set active cells as reds and initialize new reds stack
-		std::deque<long> newreds;
-		for(const long cellId : m_activecells){
-			refinementTag[cellId] = 2;
-			newreds.push_back(cellId);
-		}
+        // Set active cells as reds and initialize new reds stack
+        std::deque<long> newreds;
+        for(const long cellId : m_activecells){
+            refinementTag[cellId] = 2;
+            newreds.push_back(cellId);
+        }
 
 #if MIMMO_ENABLE_MPI
 		// In case of distributed mesh initialize data
@@ -944,18 +940,12 @@ void
 RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 {
     mimmo::MimmoSharedPointer<MimmoObject> geometry = getGeometry();
-	if (!(geometry->areAdjacenciesBuilt()))
-		geometry->buildAdjacencies();
-
-	if (!(geometry->isPointConnectivitySync()))
-		geometry->buildPointConnectivity();
+    geometry->updateAdjacencies();
+    if(geometry->getPointConnectivitySyncStatus() != mimmo::SyncStatus::SYNC)   geometry->buildPointConnectivity();
 
 
 	double lambda = 0.6;
 	double kappa = -0.603*lambda;
-
-	if (!(geometry->isPointConnectivitySync()))
-		geometry->buildPointConnectivity();
 
 	for (int istep=0; istep < m_steps; istep++){
 

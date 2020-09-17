@@ -307,11 +307,9 @@ StitchGeometry::execute(){
     m_patch = dum;
     m_patch->cleanGeometry();
 
-#if MIMMO_ENABLE_MPI
-    // Force build adjacencies and update if MPI active
-    m_patch->buildAdjacencies();
+    m_patch->cleanPatchInfo();
+    m_patch->updateAdjacencies();
     m_patch->update();
-#endif
 
 }
 
