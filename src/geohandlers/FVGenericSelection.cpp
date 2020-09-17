@@ -293,25 +293,24 @@ FVGenericSelection::execute(){
 #endif
     ++bndMaxCellId;
     {
-        livector1D vertExtracted = m_bndgeometry->getVertexFromCellList(extractedBnd);
+        vertBndExtracted = m_bndgeometry->getVertexFromCellList(extractedBnd);
 
         //TO AVOID INCONSISTENCY WITH VOLUME MESH, CHECK all verts extracted are
         // present into the volume mesh.
         {
             livector1D epurated_Verts;
-            epurated_Verts.reserve(vertExtracted.size());
+            epurated_Verts.reserve(vertBndExtracted.size());
             bitpit::PiercedVector<bitpit::Vertex> & volv = tempVol->getVertices();
-            for(long id: vertExtracted){
+            for(long id: vertBndExtracted){
                 if(volv.exists(id)) epurated_Verts.push_back(id);
             }
-            std::swap(vertExtracted, epurated_Verts);
+            std::swap(vertBndExtracted, epurated_Verts);
 
             // last step, recover cell strictly in the pool of this new list of epurated vertices.
-            extractedBnd = m_bndgeometry->getCellFromVertexList(vertExtracted, true);
+            extractedBnd = m_bndgeometry->getCellFromVertexList(vertBndExtracted, true);
         }
 
-
-        for(const auto & idV : vertExtracted){
+        for(const auto & idV : vertBndExtracted){
             tempBnd->addVertex(m_bndgeometry->getVertexCoords(idV), idV);
         }
 
