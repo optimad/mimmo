@@ -98,6 +98,8 @@ FVGenericSelection::buildPorts(){
 
     built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, FVGenericSelection>(this, &FVGenericSelection::getVolumePatch, M_GEOM));
     built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, FVGenericSelection>(this, &FVGenericSelection::getBoundaryPatch, M_GEOM2));
+    built = (built && createPortOut<mimmo::MimmoSharedPointer<MimmoObject>, FVGenericSelection>(this, &FVGenericSelection::getInternalBoundaryPatch, M_GEOM3));
+
     m_arePortsBuilt = built;
 };
 
@@ -130,6 +132,15 @@ FVGenericSelection::getBoundaryPatch(){
     return    m_bndpatch;
 };
 
+
+/*!
+ * Return pointer-by-copy to internal boundary sub-patch extracted by the class
+ * \return pointer to Boundary MimmoObject extracted sub-patch
+ */
+mimmo::MimmoSharedPointer<MimmoObject>
+FVGenericSelection::getInternalBoundaryPatch(){
+    return    m_intbndpatch;
+};
 /*!
  * Return pointer-by-copy to bulk sub-patch extracted by the class
  * \return pointer to Bulk Mesh MimmoObject extracted sub-patch
@@ -147,6 +158,16 @@ const mimmo::MimmoSharedPointer<MimmoObject>
 FVGenericSelection::getBoundaryPatch() const{
     return    m_bndpatch;
 };
+
+/*!
+ * Return pointer-by-copy to internal boundary sub-patch extracted by the class
+ * \return pointer to Boundary MimmoObject extracted sub-patch
+ */
+const mimmo::MimmoSharedPointer<MimmoObject>
+FVGenericSelection::getInternalBoundaryPatch() const{
+    return    m_intbndpatch;
+};
+
 
 /*!
  * Set link to target bulk geometry for your selection.
@@ -219,6 +240,7 @@ FVGenericSelection::execute(){
 
     m_volpatch.reset();
     m_bndpatch.reset();
+    m_intbndpatch.reset();
 
     livector1D extractedVol;
     livector1D extractedBnd;
@@ -238,6 +260,7 @@ FVGenericSelection::execute(){
 
     mimmo::MimmoSharedPointer<MimmoObject> tempVol(new MimmoObject(topovol));
     mimmo::MimmoSharedPointer<MimmoObject> tempBnd(new MimmoObject(topobnd));
+    mimmo::MimmoSharedPointer<MimmoObject> tempInternalBnd(new MimmoObject(topobnd));
 
     //VOLUME PART
     {
@@ -257,27 +280,37 @@ FVGenericSelection::execute(){
         }
     }
 
+
     //BOUNDARY PART
+    // get vertices of real boundary mesh.
+    livector1D vertBndExtracted;
+    long bndMaxCellId = -1;
+    if(!extractedBnd.empty()){
+        bndMaxCellId = *(std::max_element(extractedBnd.begin(), extractedBnd.end()));
+    }
+#if MIMMO_ENABLE_MPI
+    MPI_Allreduce(MPI_IN_PLACE, &bndMaxCellId, 1, MPI_LONG, MPI_MAX, m_communicator);
+#endif
+    ++bndMaxCellId;
     {
-        livector1D vertExtracted = m_bndgeometry->getVertexFromCellList(extractedBnd);
+        vertBndExtracted = m_bndgeometry->getVertexFromCellList(extractedBnd);
 
         //TO AVOID INCONSISTENCY WITH VOLUME MESH, CHECK all verts extracted are
         // present into the volume mesh.
         {
             livector1D epurated_Verts;
-            epurated_Verts.reserve(vertExtracted.size());
+            epurated_Verts.reserve(vertBndExtracted.size());
             bitpit::PiercedVector<bitpit::Vertex> & volv = tempVol->getVertices();
-            for(long id: vertExtracted){
+            for(long id: vertBndExtracted){
                 if(volv.exists(id)) epurated_Verts.push_back(id);
             }
-            std::swap(vertExtracted, epurated_Verts);
+            std::swap(vertBndExtracted, epurated_Verts);
 
             // last step, recover cell strictly in the pool of this new list of epurated vertices.
-            extractedBnd = m_bndgeometry->getCellFromVertexList(vertExtracted, true);
+            extractedBnd = m_bndgeometry->getCellFromVertexList(vertBndExtracted, true);
         }
 
-
-        for(const auto & idV : vertExtracted){
+        for(const auto & idV : vertBndExtracted){
             tempBnd->addVertex(m_bndgeometry->getVertexCoords(idV), idV);
         }
 
@@ -292,33 +325,72 @@ FVGenericSelection::execute(){
         }
     }
 
-    m_volpatch = tempVol;
-    m_bndpatch = tempBnd;
+     // get the internal boundary, those interfaces of the volume mesh belonging to the border.
+    {
+        std::unordered_map<long, std::set<int>> bndFacesMap = tempVol->extractBoundaryFaceCellID(true);
+        long faceCount(0);
+        for(auto & tuple : bndFacesMap)     faceCount += long(tuple.second.size());
 
-// TODO For now adjusting ghosts only for the volume patch. Later you will need
-// to adjust stuffs also for  the boundary
+        livector1D candidateVerts = tempVol->extractBoundaryVertexID(bndFacesMap);
+        tempVol->buildInterfaces();
+        //fill the wrapped internal boundary mesh (can coprehend also the real boundary)
 #if MIMMO_ENABLE_MPI
-    m_volpatch->buildAdjacencies();
-    //delete orphan ghosts
-    m_volpatch->deleteOrphanGhostCells();
-    if(m_volpatch->getPatch()->countOrphanVertices() > 0){
-        m_volpatch->getPatch()->deleteOrphanVertices();
-    }
-    //fixed ghosts you will claim this patch partitioned.
-    m_volpatch->setPartitioned();
-
-    m_bndpatch->buildAdjacencies();
-    m_bndpatch->deleteOrphanGhostCells();
-    if(m_bndpatch->getPatch()->countOrphanVertices() > 0){
-        m_bndpatch->getPatch()->deleteOrphanVertices();
-    }
-    //fixed ghosts you will claim this patch partitioned.
-    m_bndpatch->setPartitioned();
-
-
+        {
+            std::vector<long> offsetFaceCount(m_nprocs, 0);
+            offsetFaceCount[m_rank] = faceCount;
+            MPI_Allreduce(MPI_IN_PLACE, &offsetFaceCount, m_nprocs, MPI_LONG, MPI_MAX, m_communicator);
+            for(int i=0; i<m_rank; ++i){
+                bndMaxCellId += offsetFaceCount[i];
+            }
+        }
 #endif
 
+        for(long idV : candidateVerts){
+            tempInternalBnd->addVertex(tempVol->getVertexCoords(idV), idV);
+        }
 
+        int rank;
+        long PID;
+        for(const auto & tuplemap : bndFacesMap){
+            bitpit::Cell & cell = tempVol->getPatch()->getCell(tuplemap.first);
+            const long * interfacesList = cell.getInterfaces();
+            for(int locface : tuplemap.second){
+                if(interfacesList[locface] < 0) continue;
+                bitpit::Interface & face = tempVol->getPatch()->getInterface(interfacesList[locface]);
+                rank = -1;
+#if MIMMO_ENABLE_MPI
+                rank = tempVol->getPatch()->getCellRank(face.getOwner());
+#endif
+                tempInternalBnd->addConnectedCell(std::vector<long>(face.getConnect(), face.getConnect()+face.getConnectSize()),
+                                                  face.getType(), tempVol->getPatch()->getCell(face.getOwner()).getPID(), bndMaxCellId, rank);
+                ++bndMaxCellId;
+            }
+        }
+
+        tempVol->resetInterfaces();
+        tempVol->resetAdjacencies();
+        //remove cells shared with the real boundary, from this "internal" pot.
+        livector1D sharedCells = tempInternalBnd->getCellFromVertexList(vertBndExtracted, true);
+
+        //delete cells and orphans.
+        tempInternalBnd->getPatch()->deleteCells(sharedCells);
+        tempInternalBnd->buildAdjacencies();
+        if(tempInternalBnd->getPatch()->countOrphanVertices() > 0){
+            tempInternalBnd->getPatch()->deleteOrphanVertices();
+        }
+        tempInternalBnd->resetAdjacencies();
+    }
+
+    m_volpatch = tempVol;
+    m_bndpatch = tempBnd;
+    m_intbndpatch = tempInternalBnd;
+
+    m_volpatch->cleanGeometry();
+    m_bndpatch->cleanGeometry();
+    m_intbndpatch->cleanGeometry();
+//    m_volpatch->update();
+//    m_bndpatch->update();
+//    m_intbndpatch->update();
 
 };
 
@@ -337,6 +409,10 @@ FVGenericSelection::plotOptionalResults(){
     if(getBoundaryPatch()){
     	m_name = originalname + "_Boundary_Patch";
 		 write(getBoundaryPatch());
+    }
+    if(getInternalBoundaryPatch()){
+     m_name = originalname + "_InternalBoundary_Patch";
+      write(getInternalBoundaryPatch());
     }
 	m_name = originalname;
 

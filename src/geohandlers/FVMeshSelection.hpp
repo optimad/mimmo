@@ -67,6 +67,7 @@ enum class FVSelectionType{
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM         | getVolumePatch        | (MC_SCALAR, MD_MIMMO_)  |
      | M_GEOM2        | getBoundaryPatch      | (MC_SCALAR, MD_MIMMO_)  |
+     | M_GEOM3        | getInternalBoundaryPatch | (MC_SCALAR, MD_MIMMO_)  |
 
  *    =========================================================
  *
@@ -78,6 +79,7 @@ protected:
     FVSelectionType                 m_type;      /**< Type of enum class SelectionType for selection method */
     mimmo::MimmoSharedPointer<MimmoObject>    m_volpatch;  /**< Pointer to result volume sub-patch */
     mimmo::MimmoSharedPointer<MimmoObject>    m_bndpatch;  /**< Pointer to result boundary sub-patch */
+    mimmo::MimmoSharedPointer<MimmoObject>    m_intbndpatch;  /**< Pointer to boundary internal (not shared with boundary sub-patch) to the volume selection */
     int                             m_topo;      /**< 1 = volume (default value), 2 = surface */
     bool                            m_dual;      /**< False selects w/ current set up, true gets its "negative". False is default. */
     mimmo::MimmoSharedPointer<MimmoObject>    m_bndgeometry; /**<target boundary geometry */
@@ -98,8 +100,11 @@ public:
 
     const mimmo::MimmoSharedPointer<MimmoObject>    getVolumePatch()const;
     const mimmo::MimmoSharedPointer<MimmoObject>    getBoundaryPatch()const;
+    const mimmo::MimmoSharedPointer<MimmoObject>    getInternalBoundaryPatch()const;
+
     mimmo::MimmoSharedPointer<MimmoObject>          getVolumePatch();
     mimmo::MimmoSharedPointer<MimmoObject>          getBoundaryPatch();
+    mimmo::MimmoSharedPointer<MimmoObject>          getInternalBoundaryPatch();
 
     bool    isDual();
 
@@ -157,6 +162,7 @@ protected:
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM         | getVolumePatch        | (MC_SCALAR, MD_MIMMO_)  |
      | M_GEOM2        | getBoundaryPatch      | (MC_SCALAR, MD_MIMMO_)  |
+     | M_GEOM3        | getInternalBoundaryPatch | (MC_SCALAR, MD_MIMMO_)  |
 
  *    ===============================================================================
  *
@@ -245,6 +251,7 @@ protected:
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM         | getVolumePatch        | (MC_SCALAR, MD_MIMMO_)  |
      | M_GEOM2        | getBoundaryPatch      | (MC_SCALAR, MD_MIMMO_)  |
+     | M_GEOM3        | getInternalBoundaryPatch | (MC_SCALAR, MD_MIMMO_)  |
 
  *    =========================================================
  *
@@ -336,6 +343,7 @@ protected:
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GEOM         | getVolumePatch        | (MC_SCALAR, MD_MIMMO_)  |
      | M_GEOM2        | getBoundaryPatch      | (MC_SCALAR, MD_MIMMO_)  |
+     | M_GEOM3        | getInternalBoundaryPatch | (MC_SCALAR, MD_MIMMO_)  |
 
 
  *    =========================================================
@@ -393,6 +401,7 @@ protected:
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __FVMESHSELECTION_HPP__)
 REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __FVMESHSELECTION_HPP__)
+REGISTER_PORT(M_GEOM3, MC_SCALAR, MD_MIMMO_, __FVMESHSELECTION_HPP__)
 REGISTER_PORT(M_POINT, MC_ARRAY3, MD_FLOAT, __FVMESHSELECTION_HPP__)
 REGISTER_PORT(M_AXES, MC_ARR3ARR3, MD_FLOAT, __FVMESHSELECTION_HPP__)
 REGISTER_PORT(M_SPAN, MC_ARRAY3, MD_FLOAT, __FVMESHSELECTION_HPP__)
