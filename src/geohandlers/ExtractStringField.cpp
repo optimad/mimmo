@@ -85,8 +85,6 @@ ExtractStringField & ExtractStringField::operator=(const ExtractStringField & ot
  */
 void ExtractStringField::swap(ExtractStringField & x ) noexcept
 {
-    //     std::swap(m_field,x.m_field);
-    //     std::swap(m_result, x.m_result);
     m_field.swap(x.m_field);
     m_result.swap(x.m_result);
     ExtractField::swap(x);
@@ -340,7 +338,5 @@ void ExtractStringField::extractMapping(mimmo::MPVLocation loc){
             break;
     }
 }
-
-
 
 }
