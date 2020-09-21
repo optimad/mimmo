@@ -122,17 +122,19 @@ if(BUILD_EXAMPLES)
         list(APPEND EXAMPLE_LIST "ioofoam_example_00001")
     endif ()
 
+    #6
+    if (MODULE_PROPAGATORS_ENABLED)
+        list(APPEND EXAMPLE_LIST "propagators_example_00001")
+    endif ()
+
     if (ENABLE_MPI)
         if (MODULE_PARALLEL_ENABLED AND MODULE_IOCGNS_ENABLED)
             list(APPEND EXAMPLE_LIST "parallel_example_00001")
         endif()
         if (MODULE_PARALLEL_ENABLED)
             list(APPEND EXAMPLE_LIST "parallel_example_00002")
-        endif()
-        if (MODULE_PARALLEL_ENABLED AND MODULE_PROPAGATORS_ENABLED)
             list(APPEND EXAMPLE_LIST "parallel_example_00003")
-            list(APPEND EXAMPLE_LIST "parallel_example_00004")
-        endif ()
+        endif()
     endif ()
 
 	#Rules to build the examples
