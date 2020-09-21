@@ -21,24 +21,22 @@
  *  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
  *
  \ *---------------------------------------------------------------------------*/
+#if MIMMO_ENABLE_MPI
 #include "mimmo_parallel.hpp"
+#endif
 #include "mimmo_propagators.hpp"
-#include "mimmo_iogeneric.hpp"
+
 #include <iostream>
 #include <chrono>
-#include <fstream>
-
 typedef std::chrono::high_resolution_clock Clock;
 
 // =================================================================================== //
-/*
-	example parallel_example_00004.cpp
+/*!
+	example propagators_example_00001.cpp
 
-	brief Example of usage of Serialization of a partioned geometry.
+	brief Example of usage of PropagateVectorField in propagators.
 
-	Block used: Partition and Serialization.
-
-	<b>To run</b>: mpirun -np X parallel_example_00004 \n
+	<b>To run</b>: mpirun -np X propagators_example_00001 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -76,7 +74,6 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std
 	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh(new mimmo::MimmoObject(2));
 
 	if (rank == 0){
-
 		mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
 		mesh->getPatch()->reserveCells(nr*nt*nh);
 
@@ -120,10 +117,11 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std
 				list2.push_back((nr+1)*(nt+1)*k + (nr+1)*nt + i);
 			}
 		}
-	}
+	} // end if rank 0
 
-	mesh->updateAdjacencies();
+    mesh->updateAdjacencies();
 	mesh->updateInterfaces();
+    mesh->updatePointGhostExchangeInfo();
 	mesh->update();
 
 	return mesh;
@@ -131,13 +129,18 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std
 
 // =================================================================================== //
 
-int test00004() {
+int test00001() {
 
+#if MIMMO_ENABLE_MPI
 	// Initialize mpi
 	int nProcs;
 	int    rank;
 	MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#else
+	int nProcs = 1;
+	int rank = 0;
+#endif
 
 	std::vector<bitpit::Vertex> bc1list, bc2list;
 	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
@@ -152,7 +155,7 @@ int test00004() {
 	livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list_, true, true);
 
 	//create the portion of boundary mesh carrying Dirichlet conditions
-	mimmo::MimmoSharedPointer<mimmo::MimmoObject> bdirMesh (new mimmo::MimmoObject(1));
+	mimmo::MimmoSharedPointer<mimmo::MimmoObject> bdirMesh(new mimmo::MimmoObject(1));
 	if (rank == 0){
 		bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
 		bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
@@ -178,10 +181,11 @@ int test00004() {
 			bdirMesh->getPatch()->getCell(val).setPID(2);
 		}
 	}
-	bdirMesh->updateAdjacencies();
-    bdirMesh->updateInterfaces();
-    bdirMesh->update();
+    bdirMesh->updateAdjacencies();
+    bdirMesh->updatePointGhostExchangeInfo();
+	bdirMesh->update();
 
+#if MIMMO_ENABLE_MPI
 	/* Instantiation of a Partition object with default patition method space filling curve.
 	 * Plot Optional results during execution active for Partition block.
 	 */
@@ -191,60 +195,87 @@ int test00004() {
 	partition->setBoundaryGeometry(bdirMesh);
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
 	auto t1 = Clock::now();
-	if (rank == 0)
-		std::cout << "#" << rank  << " Start Partition mesh " << std::endl;
+	if (rank ==0)
+		std::cout << "Start Partition mesh " << std::endl;
 	partition->exec();
 	auto t2 = Clock::now();
-	if (rank == 0){
-		std::cout << "#" << rank << " Partition mesh execution time: "
+	if (rank ==0)
+	{
+		std::cout << "Partition mesh execution time: "
 				<< std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
 				<< " seconds" << std::endl;
 	}
+#endif
 
-	/* Creation of mimmo containers. MimmoGeometry used to dump partitioned mesh
-	 */
-	mimmo::MimmoGeometry * mimmoVolumeOut = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
-	mimmoVolumeOut->setWriteDir("./");
-	mimmoVolumeOut->setWriteFileType(FileType::MIMMO);
-	mimmoVolumeOut->setWriteFilename("parallel_example_00004.volume.partitioned");
-	mimmoVolumeOut->setGeometry(mesh);
-	mimmoVolumeOut->exec();
+	// and the field of Dirichlet values on its nodes.
+	mimmo::MimmoPiercedVector<std::array<double,3>> bc_surf_field;
+	//MimmoPiercedVector<double> bc_surf_field;
+	bc_surf_field.setGeometry(bdirMesh);
+	bc_surf_field.setDataLocation(mimmo::MPVLocation::POINT);
+	bc_surf_field.reserve(bdirMesh->getNVertices());
 
-	/* Creation of mimmo containers. MimmoGeometry used to restore partitioned mesh
-	 */
-	mimmo::MimmoGeometry * mimmoVolumeIn = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
-	mimmoVolumeIn->setReadDir("./");
-	mimmoVolumeIn->setReadFileType(FileType::MIMMO);
-	mimmoVolumeIn->setReadFilename("parallel_example_00004.volume.partitioned");
-	mimmoVolumeIn->setWriteDir("./");
-	mimmoVolumeIn->setWriteFileType(FileType::VOLVTU);
-	mimmoVolumeIn->setWriteFilename("parallel_example_00004.volume.restored");
-	mimmoVolumeIn->exec();
-    
-	/* Instantiation of a Partition object with serialize partition method.
-	 * Plot Optional results during execution active for Partition block.
-	 */
-	mimmo::Partition* serialize = new mimmo::Partition();
-	serialize->setName("mimmo.Serialization");
-	serialize->setPlotInExecution(true);
-	serialize->setGeometry(mesh);//mimmoVolumeIn->getGeometry());
-	serialize->setBoundaryGeometry(bdirMesh);
-	serialize->setPartitionMethod(mimmo::PartitionMethod::SERIALIZE);
-
-	t1 = Clock::now();
-	if (rank == 0)
-		std::cout << "Start Serialize mesh " << std::endl;
-	serialize->exec();
-	t2 = Clock::now();
-	if (rank == 0){
-		std::cout << "Serialize mesh execution time: "
-		<< std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
-		<< " seconds" << std::endl;
+	for(auto & cell : bdirMesh->getCells()){
+		if (cell.getPID() == 1){
+			for (long id : cell.getVertexIds()){
+				if (!bc_surf_field.exists(id))
+					bc_surf_field.insert(id, {{1., 1., 0.}});
+			}
+		}
+		if (cell.getPID() == 2){
+			for (long id : cell.getVertexIds()){
+				if (!bc_surf_field.exists(id))
+					bc_surf_field.insert(id, {{0., 0., 0.}});
+			}
+		}
 	}
+
+    mesh->updateInterfaces();
+    mesh->update();
+    bdirMesh->updateInterfaces();
+    bdirMesh->update();
+
+	// Now create a PropagateScalarField and solve the laplacian.
+	mimmo::PropagateVectorField * prop = new mimmo::PropagateVectorField();
+	prop->setGeometry(mesh);
+	prop->addDirichletBoundarySurface(bdirMesh);
+	prop->addDirichletConditions(&bc_surf_field);
+	prop->setSolverMultiStep(10);
+	prop->setPlotInExecution(true);
+	prop->setApply(true);
+
+    prop->setDamping(true);
+    prop->setDampingType(1);
+    prop->setDampingDecayFactor(1.0);
+    prop->setDampingInnerDistance(0.05);
+    prop->setDampingOuterDistance(0.35);
+    prop->addDampingBoundarySurface(bdirMesh);
+
+    prop->setNarrowBand(false);
+    prop->setNarrowBandWidth(0.6);
+    prop->setNarrowBandRelaxation(0.7);
+    prop->addNarrowBandBoundarySurface(bdirMesh);
+
+
+    t1 = Clock::now();
+    if (rank == 0){
+        std::cout << "Start Propagator vector field " << std::endl;
+    }
+    prop->exec();
+    t2 = Clock::now();
+    if (rank ==0){
+        std::cout << "Propagator vector field execution time: "
+                  << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
+                  << " seconds" << std::endl;
+    }
+
+	prop->getGeometry()->getPatch()->write("deformed");
+
 	bool error = false;
 
+#if MIMMO_ENABLE_MPI
 	delete partition;
-	delete serialize;
+#endif
+	delete prop;
 	return error;
 }
 
@@ -257,12 +288,16 @@ int main( int argc, char *argv[] ) {
 
 #if MIMMO_ENABLE_MPI
 	MPI_Init(&argc, &argv);
+
+
 #endif
 	/**<Calling mimmo Test routines*/
 
-	int val = test00004() ;
+	int val = test00001() ;
 
 #if MIMMO_ENABLE_MPI
+
+
 	MPI_Finalize();
 #endif
 
