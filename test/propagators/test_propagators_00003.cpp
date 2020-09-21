@@ -23,6 +23,9 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "mimmo_propagators.hpp"
+#if MIMMO_ENABLE_MPI
+#include "mimmo_parallel.hpp"
+#endif
 
 // =================================================================================== //
 /*!
@@ -44,7 +47,7 @@
 
 // =================================================================================== //
 
-mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(mimmo::MimmoSharedPointer<mimmo::MimmoObject> & boundary){
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, mimmo::MimmoSharedPointer<mimmo::MimmoObject> & boundary){
 
     std::array<double,3> center({{0.0,0.0,0.0}});
     double radiusin(2.0), radiusout(5.0);
@@ -72,31 +75,34 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(mimmo::MimmoS
 
     //create the volume mesh mimmo.
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = mimmo::MimmoSharedPointer<mimmo::MimmoObject>(new mimmo::MimmoObject(2));
-    mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
 
-    //pump up the vertices
-    for(const auto & vertex : verts){
-        mesh->addVertex(vertex); //automatic id assigned to vertices.
-    }
-    mesh->getPatch()->reserveCells(nr*nt*nh);
+    if (rank == 0){
+        mesh->getPatch()->reserveVertices((nr+1)*(nt+1)*(nh+1));
 
-    //create connectivities for hexa elements
-    std::vector<long> conn(8,0);
-    for(int k=0; k<nh; ++k){
-        for(int j=0; j<nt; ++j){
-            for(int i=0; i<nr; ++i){
-                conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
-                conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
-                conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
-                conn[3] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
-                conn[4] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
-                conn[5] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
-                conn[6] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
-                conn[7] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
-                mesh->addConnectedCell(conn, bitpit::ElementType::HEXAHEDRON);
+        //pump up the vertices
+        for(const auto & vertex : verts){
+            mesh->addVertex(vertex); //automatic id assigned to vertices.
+        }
+        mesh->getPatch()->reserveCells(nr*nt*nh);
+
+        //create connectivities for hexa elements
+        std::vector<long> conn(8,0);
+        for(int k=0; k<nh; ++k){
+            for(int j=0; j<nt; ++j){
+                for(int i=0; i<nr; ++i){
+                    conn[0] = (nr+1)*(nt+1)*k + (nr+1)*j + i;
+                    conn[1] = (nr+1)*(nt+1)*k + (nr+1)*j + i+1;
+                    conn[2] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i+1;
+                    conn[3] = (nr+1)*(nt+1)*k + (nr+1)*(j+1) + i;
+                    conn[4] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i;
+                    conn[5] = (nr+1)*(nt+1)*(k+1) + (nr+1)*j + i+1;
+                    conn[6] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i+1;
+                    conn[7] = (nr+1)*(nt+1)*(k+1) + (nr+1)*(j+1) + i;
+                    mesh->addConnectedCell(conn, bitpit::ElementType::HEXAHEDRON);
+                }
             }
         }
-    }
+    }// end rank 0
 
     mesh->updateAdjacencies();
     mesh->updateInterfaces();
@@ -147,24 +153,28 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(mimmo::MimmoS
     auto orcells = mesh->getCells();
 
     boundary = mimmo::MimmoSharedPointer<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
-    boundary->getPatch()->reserveVertices(boundaryverts.size());
-    boundary->getPatch()->reserveCells(pidfaces.size());
 
-    //push in verts
-    for(long id : boundaryverts){
-        boundary->addVertex(mesh->getVertexCoords(id), id);
-    }
+    if (rank == 0){
+        boundary->getPatch()->reserveVertices(boundaryverts.size());
+        boundary->getPatch()->reserveCells(pidfaces.size());
 
-    //push in interfaces ad 2D cells
-    for(auto it=pidfaces.begin(); it!=pidfaces.end(); ++it){
-        bitpit::Interface & ii = orinterfaces.at(it.getId());
-        long * conn = ii.getConnect();
-        std::size_t connsize = ii.getConnectSize();
+        //push in verts
+        for(long id : boundaryverts){
+            boundary->addVertex(mesh->getVertexCoords(id), id);
+        }
 
-        bitpit::ElementType et = orcells.at(ii.getOwner()).getFaceType(ii.getOwnerFace());
+        //push in interfaces ad 2D cells
+        for(auto it=pidfaces.begin(); it!=pidfaces.end(); ++it){
+            bitpit::Interface & ii = orinterfaces.at(it.getId());
+            long * conn = ii.getConnect();
+            std::size_t connsize = ii.getConnectSize();
 
-        boundary->addConnectedCell(std::vector<long>(&conn[0], &conn[connsize]), et, *it,it.getId());
-    }
+            bitpit::ElementType et = orcells.at(ii.getOwner()).getFaceType(ii.getOwnerFace());
+
+            boundary->addConnectedCell(std::vector<long>(&conn[0], &conn[connsize]), et, *it,it.getId());
+        }
+    } // end rank 0
+
     boundary->updateAdjacencies();
     boundary->update();
     boundary->getPatch()->write("piddedBoundary_test3");
@@ -180,6 +190,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> pidExtractor(mimmo::MimmoSharedPoi
     livector1D vertID = boundary->getVertexFromCellList(cellsID);
 
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> extracted(new mimmo::MimmoObject(1));
+
     extracted->getPatch()->reserveVertices(vertID.size());
     extracted->getPatch()->reserveCells(cellsID.size());
 
@@ -189,6 +200,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> pidExtractor(mimmo::MimmoSharedPoi
     for(long id: cellsID){
         extracted->addCell(boundary->getCells().at(id), id);
     }
+
     extracted->updateAdjacencies();
     extracted->update();
     return extracted;
@@ -198,13 +210,36 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> pidExtractor(mimmo::MimmoSharedPoi
 
 int test1() {
 
+#if MIMMO_ENABLE_MPI
+    // Initialize mpi
+    int nProcs;
+    int    rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#else
+    int nProcs = 1;
+    int rank = 0;
+#endif
+
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> bDirMesh;
-    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(bDirMesh);
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bDirMesh);
+
+#if MIMMO_ENABLE_MPI
+    /* Instantiation of a Partition object with default patition method space filling curve.
+     * Plot Optional results during execution active for Partition block.
+     */
+    mimmo::Partition* partition = new mimmo::Partition();
+    partition->setPlotInExecution(true);
+    partition->setGeometry(mesh);
+    partition->setBoundaryGeometry(bDirMesh);
+    partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
+    partition->exec();
+#endif
 
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> bDIR = pidExtractor(bDirMesh, {{1,2}});
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> bSLIP = pidExtractor(bDirMesh, {{5,6}});
 
-//TESTING THE VECTOR PROPAGATOR //////
+    //TESTING THE VECTOR PROPAGATOR //////
     // and the scalar field of Dirichlet values on pidded surface 0 and 1 nodes.
     mimmo::MimmoPiercedVector<std::array<double,3>> bc_surf_3Dfield;
     bc_surf_3Dfield.setGeometry(bDIR);
@@ -226,8 +261,8 @@ int test1() {
         darray3E coord = bDIR->getVertexCoords(id);
         double normc = std::sqrt(coord[0]*coord[0] + coord[1]*coord[1]);
         bc_surf_3Dfield.insert(id, {{std::sin(alpha)*normc,
-                                     (std::cos(alpha)-1.0)*normc,
-                                      0.0}}  );
+                (std::cos(alpha)-1.0)*normc,
+                0.0}}  );
     }
 
     // Now create a PropagateScalarField and solve the laplacian.
@@ -266,10 +301,13 @@ int test1() {
 
     std::cout<<values3D->at(targetNode)<<std::endl;
 
-//    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.206202, -0.0621586, 4.61279e-17}})) > 1.0E-5);
+    //    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.206202, -0.0621586, 4.61279e-17}})) > 1.0E-5);
     check = false;
 
     delete prop3D;
+#if MIMMO_ENABLE_MPI
+    delete partition;
+#endif
     return check;
 }
 
@@ -277,24 +315,24 @@ int test1() {
 
 int main( int argc, char *argv[] ) {
 
-	BITPIT_UNUSED(argc);
-	BITPIT_UNUSED(argv);
+    BITPIT_UNUSED(argc);
+    BITPIT_UNUSED(argv);
 
 #if MIMMO_ENABLE_MPI
-	MPI_Init(&argc, &argv);
+    MPI_Init(&argc, &argv);
 #endif
-		/**<Calling mimmo Test routines*/
-        int val = 1;
-        try{
-            val = test1() ;
-        }
-        catch(std::exception & e){
-            std::cout<<"test_propagators_00003 exited with an error of type : "<<e.what()<<std::endl;
-            return 1;
-        }
+    /**<Calling mimmo Test routines*/
+    int val = 1;
+    try{
+        val = test1() ;
+    }
+    catch(std::exception & e){
+        std::cout<<"test_propagators_00003 exited with an error of type : "<<e.what()<<std::endl;
+        return 1;
+    }
 #if MIMMO_ENABLE_MPI
-	MPI_Finalize();
+    MPI_Finalize();
 #endif
 
-	return val;
+    return val;
 }
