@@ -2100,7 +2100,11 @@ void MimmoObject::updatePointGhostExchangeInfo()
 					}
 				}
 
-				// Receive the consecutive ids of the ghosts
+                // Discover & start all the receives
+                dataCommunicator->discoverRecvs();
+                dataCommunicator->startAllRecvs();
+
+                // Receive the consecutive ids of the ghosts
 				int nCompletedRecvs = 0;
 				while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
 					int rank = dataCommunicator->waitAnyRecv();
