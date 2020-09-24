@@ -129,7 +129,6 @@ GenericSelection::getPatch() const{
 void
 GenericSelection::setGeometry( mimmo::MimmoSharedPointer<MimmoObject> target){
     if(target == nullptr)  return;
-//    if(target->isEmpty()) return;
     m_geometry = target;
     /*set topology informations*/
     m_topo = target->getType();
@@ -173,7 +172,6 @@ livector1D
 GenericSelection::constrainedBoundary(){
 
     if(getGeometry() == nullptr || getPatch() == nullptr)    return livector1D(0);
-    if(getGeometry()->isEmpty() || getPatch()->isEmpty())    return livector1D(0);
     std::unordered_map<long, std::set<int> > survivors;
 
     auto daughterBCells  = getPatch()->extractBoundaryFaceCellID();
@@ -222,18 +220,11 @@ GenericSelection::execute(){
         (*m_log)<<m_name + " : nullptr pointer to target geometry found"<<std::endl;
         throw std::runtime_error (m_name + " : nullptr pointer to target geometry found");
     }
-    if(getGeometry()->isEmpty()){
-        (*m_log)<<m_name + " : empty geometry linked"<<std::endl;
-    };
 
     m_subpatch.reset();
 
 // extract all the interior cell satisfying the extraction criterium.
     livector1D extracted = extractSelection();
-
-    if(extracted.empty()) {
-        (*m_log)<<m_name + " : empty selection performed. check block set-up"<<std::endl;
-    }
 
     /*Create subpatch.*/
     mimmo::MimmoSharedPointer<MimmoObject> temp(new MimmoObject(m_topo));

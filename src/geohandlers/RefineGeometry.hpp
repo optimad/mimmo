@@ -51,9 +51,10 @@ enum class RefineType{
    of the refinement method chosen. Beware, the original geometry is permanently
    modified after refinement.
  *
- * At the end of the refinement a laplacian smoothing regularization
-   (positive and negative smoothing procedure) can be performed by
-   imposing a number of steps > 0 (default).
+ * At the end of the refinement a laplacian smoothing regularization can be performed.
+   Two sub-steps are carried out, a positive and a negative smoothing step, that minimizes
+   the effect on the sharp edges of the geometry.
+   The smoothing is activated by imposing a number of smoothing steps > 0 (default = 0).
  *
  * Ports available in RefineGeometry Class :
  *
@@ -81,7 +82,7 @@ enum class RefineType{
  * - <B>OutputPlot</B>: target directory for optional results writing.
  *
  * Proper of the class:
- * - <B>RefineType</B>: refine method-> 0-Ternary.
+ * - <B>RefineType</B>: refine method-> 0 Ternary , 1 Red-Green
    - <B>RefineSteps</B>: (uint)  number of refinements. 0 means no refinement.
    - <B>SmoothingSteps</B>: (uint)  number of smoothing steps. 0 means no smoothing.
 

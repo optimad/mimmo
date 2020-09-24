@@ -193,8 +193,6 @@ ExtractStringField::extract(){
         break;
     }
 
-    if (m_result.isEmpty()) return false;
-
     return true;
 
 }

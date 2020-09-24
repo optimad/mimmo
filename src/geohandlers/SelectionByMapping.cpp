@@ -249,9 +249,6 @@ SelectionByMapping::setGeometry( mimmo::MimmoSharedPointer<MimmoObject> target){
         (*m_log)<< m_name << " attempt to link null target geometry. Do nothing." << std::endl;
         return;
     }
-    if(target->isEmpty()){
-        (*m_log)<< m_name << " attempt to link empty geometry. Do nothing" << std::endl;
-    }
 
     if(target->getType() != m_topo){
         (*m_log)<< " " << std::endl;
@@ -352,14 +349,14 @@ SelectionByMapping::clear(){
 livector1D
 SelectionByMapping::extractSelection(){
 
+    // Build skd tree (check on sync status is done inside the method)
     getGeometry()->buildSkdTree();
-    std::set<long> cellList;
 
+    std::set<long> cellList;
     for (auto & file : m_geolist){
         livector1D list = getProximity(file);
         cellList.insert(list.begin(), list.end());
     }
-
 
     for (auto & mimmoptr : m_mimmolist){
         livector1D list = getProximity(mimmoptr);
@@ -435,6 +432,9 @@ SelectionByMapping::getProximity(std::pair<std::string, int> val){
  */
 livector1D
 SelectionByMapping::getProximity(mimmo::MimmoSharedPointer<MimmoObject> obj){
+
+    // Build skd tree (check on sync status is done inside the method)
+    obj->buildSkdTree();
 
 #if MIMMO_ENABLE_MPI
     livector1D result = mimmo::skdTreeUtils::selectByGlobalPatch(obj->getSkdTree(), getGeometry()->getSkdTree(), m_tolerance);

@@ -156,10 +156,6 @@ SelectionByBoxWithScalar::execute(){
     if(m_field.getGeometry() != getGeometry())  {
         throw std::runtime_error(m_name+" : linked scalar field is not referred to target geometry");
     }
-    if(m_field.isEmpty()){
-        (*m_log)<<"warning in "<<m_name<<" : empty scalar field found"<<std::endl;
-        return;
-    }
     if(getPatch()->getType()==3 && m_field.getDataLocation()!= MPVLocation::POINT){
         (*m_log)<<"warning in "<<m_name<<" : Attempting to extract a non POINT located field on a Point Cloud target geometry. Do Nothing."<<std::endl;
         return;

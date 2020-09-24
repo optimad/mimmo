@@ -187,13 +187,7 @@ RefineGeometry::execute(){
 	}
 
 	// Initialize active cells with all geometry cells
-//    m_activecells = getGeometry()->getCellsIds();
-	for (long cellId : getGeometry()->getCellsIds()){
-	    if (cellId == 600){
-	        std::cout << cellId << std::endl;
-	        m_activecells.push_back(cellId);
-	    }
-	}
+    m_activecells = getGeometry()->getCellsIds();
 
 	if (m_type == RefineType::TERNARY){
 		for (int i=0; i<m_refinements; i++)
@@ -318,7 +312,7 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 	for(const long cellId : m_activecells){
 
 		// Recover cell
-		bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
+		const bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
 
 		// Eval centroid
 		std::array<double,3> centroid = getGeometry()->evalCellCentroid(cellId);
@@ -365,9 +359,6 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 		for (const long & cellId : toDelete){
 			getGeometry()->getPatch()->deleteCell(cellId);
 		}
-//		getGeometry()->cleanGeometry();
-//		if (coarsepatch != nullptr)
-//			coarsepatch->cleanGeometry();
 
 		// Force build adjacencies and update
         getGeometry()->updateAdjacencies();
@@ -381,7 +372,7 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 	// Add vertices and cells to refine patch
 	if (refinepatch != nullptr){
 		for (long newcellId : newCells){
-			bitpit::Cell cell = getGeometry()->getPatch()->getCell(newcellId);
+			bitpit::Cell & cell = getGeometry()->getPatch()->getCell(newcellId);
 			refinepatch->addCell(cell, newcellId);
 			for (long vertexId : cell.getVertexIds()){
 				bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
@@ -494,16 +485,11 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 	// Create map green cells -> index edge to be splitted
 	std::unordered_map<long,int> greenSplitFaceIndex;
 
-#if MIMMO_ENABLE_MPI
-        // In case of distributed mesh initialize data
-        // of newreds boolean to update new reds that are
-        // ghosts for other ranks
-        MimmoPiercedVector<bool> isnewred;
-        isnewred.initialize(geometry, MPVLocation::CELL, false);
-#endif
     {
         // Build adjacencies
+        geometry->destroyAdjacencies();
         geometry->updateAdjacencies();
+        geometry->destroyInterfaces();
         geometry->updateInterfaces();
 
         // Set active cells as reds and initialize new reds stack
@@ -574,10 +560,11 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
             // - check in tag map if each neighbor currently it's no,green or red element
             // - if 0-> promote to green (1), if green->promote to red (2) and insert in newreds, if red->skip neighbour
             while (!check){
+
                 long redId = newreds.front();
                 newreds.pop_front();
 
-                bitpit::Cell redCell = geometry->getPatch()->getCell(redId);
+                bitpit::Cell & redCell = geometry->getPatch()->getCell(redId);
 
                 //Only for triangles!!!
                 if (redCell.getType() == bitpit::ElementType::TRIANGLE){
@@ -718,11 +705,9 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 
 	} // Scope to destroy temporary containers
 
-//    geometry->update();
-
 	// Insert new vertices
 	for (long interfaceId : edges){
-		// Recover vertices
+        // Recover vertices
 		bitpit::ConstProxyVector<long> vertexIds = geometry->getPatch()->getInterface(interfaceId).getVertexIds();
 		std::array<double,3> newCoordinates({0.,0.,0.});
 		for (long vertexId : vertexIds){
@@ -738,16 +723,16 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 
 		long cellId = tupletag.first;
 		int tag = std::min(2, tupletag.second);
-		bitpit::Cell cell = geometry->getPatch()->getCell(cellId);
+		bitpit::Cell & cell = geometry->getPatch()->getCell(cellId);
 
-		if (tag == 0)
+		if (tag <= 0)
 			continue;
 
 		// Generated cells structure
 		std::vector<long> generatedCells;
 
 		if (tag == 2){
-			// Red refinement
+	        // Red refinement
 			// Recover new vertices
 			std::vector<long> newCellVertexIds(cell.getFaceCount());
 			for (int iface=0; iface<cell.getFaceCount(); iface++){
@@ -756,6 +741,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 			}
 			// Cell refinement
 			generatedCells = redRefineCell(cellId, newCellVertexIds);
+
 		}
 		else if (tag == 1){
 			// Green refinement
@@ -796,32 +782,44 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 
 	//Delete cells and clean geometries
 	{
-		for (const long cellId : toDelete){
-			getGeometry()->getPatch()->deleteCell(cellId);
-		}
+	    for (const long cellId : toDelete){
+	        getGeometry()->getPatch()->deleteCell(cellId);
+	    }
 
-		// Update geometry
-        getGeometry()->update();
+	    // Add vertices and cells to refine patch
+	    if (refinepatch != nullptr){
+	        for (long newcellId : newCells){
+	            bitpit::Cell & cell = getGeometry()->getPatch()->getCell(newcellId);
+	            refinepatch->addCell(cell, newcellId);
+	            for (long vertexId : cell.getVertexIds()){
+	                bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
+	                refinepatch->addVertex(vertex, vertexId);
+	            }
+	        }
+	    }
+#if MIMMO_ENABLE_MPI
+	    // Delete orphan ghosts
+	    getGeometry()->deleteOrphanGhostCells();
+#endif
+	    // Update geometry
+	    getGeometry()->update();
 
-        // Update coarse patch
-		if (coarsepatch != nullptr){
-            coarsepatch->update();
-		}
-	}
+	    // Update coarse patch
+	    if (coarsepatch != nullptr){
+	        coarsepatch->update();
+	    }
 
-	// Add vertices and cells to refine patch
-	if (refinepatch != nullptr){
-		for (long newcellId : newCells){
-			bitpit::Cell cell = getGeometry()->getPatch()->getCell(newcellId);
-			refinepatch->addCell(cell, newcellId);
-			for (long vertexId : cell.getVertexIds()){
-				bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
-				refinepatch->addVertex(vertex, vertexId);
-			}
-		}
-		// Update refine patch
-        refinepatch->update();
-	}
+	    // Update refine patch
+	    if (refinepatch != nullptr){
+#if MIMMO_ENABLE_MPI
+	        // Delete orphan ghosts
+	        refinepatch->deleteOrphanGhostCells();
+#endif
+	        // Update refine patch
+	        refinepatch->update();
+	    }
+
+	} // end scope
 
 }
 
@@ -897,7 +895,7 @@ RefineGeometry::greenRefineCell(const long & cellId, const long newVertexId, int
 	bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
 	livector1D connTriangle(3);
 
-	bitpit::Cell cell = getGeometry()->getPatch()->getCell(cellId);
+	const bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
 	eletype = cell.getType();
 	//Only for triangles
 	if (eletype != eletri){
@@ -939,9 +937,56 @@ RefineGeometry::greenRefineCell(const long & cellId, const long newVertexId, int
 void
 RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 {
+
     mimmo::MimmoSharedPointer<MimmoObject> geometry = getGeometry();
-    geometry->updateAdjacencies();
-    if(geometry->getPointConnectivitySyncStatus() != mimmo::SyncStatus::SYNC)   geometry->buildPointConnectivity();
+
+    // Force build the needed structures
+    if(geometry->getAdjacenciesSyncStatus() != mimmo::SyncStatus::SYNC)
+        geometry->updateAdjacencies();
+
+    if(geometry->getInterfacesSyncStatus() != mimmo::SyncStatus::SYNC)
+        geometry->updateInterfaces();
+
+    if(geometry->getInfoSyncStatus() != mimmo::SyncStatus::SYNC)
+        geometry->buildPatchInfo();
+
+    if(geometry->getPointConnectivitySyncStatus() != mimmo::SyncStatus::SYNC)
+        geometry->buildPointConnectivity();
+
+    if(geometry->getPointGhostExchangeInfoSyncStatus() != mimmo::SyncStatus::SYNC)
+        geometry->updatePointGhostExchangeInfo();
+
+#if MIMMO_ENABLE_MPI
+
+    // Instantiate new coordinates container used only for communications
+    MimmoPiercedVector<std::array<double,3>> newCoordinatesCommunicated;
+
+    // Fill initial sources and targets values
+    for (auto source_tuple : geometry->getPointGhostExchangeSources()){
+        int rank = source_tuple.first;
+        for (long id : source_tuple.second){
+            if (!newCoordinatesCommunicated.exists(id)){
+                newCoordinatesCommunicated.insert(id, std::array<double,3>({{0.,0.,0.}}));
+            }
+        }
+    }
+    for (auto target_tuple : geometry->getPointGhostExchangeTargets()){
+        int rank = target_tuple.first;
+        for (long id : target_tuple.second){
+            if (!newCoordinatesCommunicated.exists(id)){
+                newCoordinatesCommunicated.insert(id,  std::array<double,3>({{0.,0.,0.}}));
+            }
+        }
+    }
+
+    // Initialize communication structures for new coordinates
+    PointGhostCommunicator pointGhostCommunicator(geometry.get());
+    pointGhostCommunicator.resetExchangeLists();
+    pointGhostCommunicator.setRecvsContinuous(true);
+    MimmoPointDataBufferStreamer<std::array<double,3>> coordsGhostStreamer(&newCoordinatesCommunicated);
+    pointGhostCommunicator.addData(&coordsGhostStreamer);
+
+#endif
 
 
 	double lambda = 0.6;
@@ -959,35 +1004,73 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 			//compute new coordinates
 			for (long id : geometry->getVertices().getIds()){
 
-				oldcoords = geometry->getVertexCoords(id);
-				newcoords = std::array<double,3>{{0.,0.,0.}};
+			    // If ghost vertex do nothing
+			    if (geometry->isPointInterior(id)){
 
-				// If constrained vertex do nothing
-				if (constrainedVertices == nullptr || !constrainedVertices->count(id)){
-					pointconnectivity = geometry->getPointConnectivity(id);
-					sumweights = 0.;
-					for (long idneigh : pointconnectivity){
-						neighcoords = geometry->getVertexCoords(idneigh);
-						std::array<double,3> distancevector = (neighcoords-oldcoords);
-						weight = 1.;
-						sumweights += weight;
-						newcoords += lambda*weight*distancevector;
-					}
-					if (sumweights > 0.)
-					newcoords /= sumweights;
-				}
+			        oldcoords = geometry->getVertexCoords(id);
+			        newcoords = std::array<double,3>{{0.,0.,0.}};
 
-				newcoords += oldcoords;
-				newcoordinates[id] = newcoords;
+			        // If constrained vertex do nothing
+			        if (constrainedVertices == nullptr || !constrainedVertices->count(id)){
+			            pointconnectivity = geometry->getPointConnectivity(id);
+			            sumweights = 0.;
+			            for (long idneigh : pointconnectivity){
+			                neighcoords = geometry->getVertexCoords(idneigh);
+			                std::array<double,3> distancevector = (neighcoords-oldcoords);
+			                weight = 1.;
+			                sumweights += weight;
+			                newcoords += lambda*weight*distancevector;
+			            }
+			            if (sumweights > 0.)
+			                newcoords /= sumweights;
+			        }
+
+			        newcoords += oldcoords;
+			        newcoordinates[id] = newcoords;
+			    }
+
 			}
+
+#if MIMMO_ENABLE_MPI
+			//Communicate newcoordinates
+            if (geometry->isParallel()){
+
+                // Update ghost new coordinates
+                // The if needed insert new edges and put new reds in stack
+
+                // Fill with sources and targets values
+                for (auto source_tuple : geometry->getPointGhostExchangeSources()){
+                    int rank = source_tuple.first;
+                    for (long id : source_tuple.second){
+                        newCoordinatesCommunicated.at(id) = newcoordinates.at(id);
+                    }
+                }
+
+                // Send data
+                pointGhostCommunicator.startAllExchanges();
+
+                // Receive data
+                pointGhostCommunicator.completeAllExchanges();
+
+                // Update coordinates of ghost vertices with communicated ones
+                for (auto target_tuple : geometry->getPointGhostExchangeTargets()){
+                    int rank = target_tuple.first;
+                    for (long id : target_tuple.second){
+                        newcoordinates[id] = newCoordinatesCommunicated.at(id);
+                    } // end id
+                } // end tuple
+
+            } // end if geometry is parallel
+#endif
+
 			//Set new coordinates
 			for (long id : geometry->getVertices().getIds()){
 				geometry->modifyVertex(newcoordinates[id], id);
 			}
-#if MIMMO_ENABLE_MPI
-			geometry->cleanAllParallelSync();
-			geometry->updatePointGhostExchangeInfo();
-#endif
+
+			//Update geometry
+			geometry->update();
+
 		}
 
 		{
@@ -1021,18 +1104,51 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 				newcoords += oldcoords;
 				newcoordinates[id] = newcoords;
 			}
+
+#if MIMMO_ENABLE_MPI
+            //Communicate newcoordinates
+            if (geometry->isParallel()){
+
+                // Update ghost new coordinates
+                // The if needed insert new edges and put new reds in stack
+
+                // Fill with sources and targets values
+                for (auto source_tuple : geometry->getPointGhostExchangeSources()){
+                    int rank = source_tuple.first;
+                    for (long id : source_tuple.second){
+                        newCoordinatesCommunicated.at(id) = newcoordinates.at(id);
+                    }
+                }
+
+                // Send data
+                pointGhostCommunicator.startAllExchanges();
+
+                // Receive data
+                pointGhostCommunicator.completeAllExchanges();
+
+                // Update coordinates of ghost vertices with communicated ones
+                for (auto target_tuple : geometry->getPointGhostExchangeTargets()){
+                    for (long id : target_tuple.second){
+                        newcoordinates.at(id) = newCoordinatesCommunicated.at(id);
+                    } // end id iteration
+                } // end tuple iteration
+
+            } // end if geometry is parallel
+#endif
+
 			//Set new coordinates
 			for (long id : geometry->getVertices().getIds()){
 				geometry->modifyVertex(newcoordinates[id], id);
 			}
-#if MIMMO_ENABLE_MPI
-			geometry->cleanAllParallelSync();
-			geometry->updatePointGhostExchangeInfo();
-#endif
-		}
-	} // end loop on smoothing step
+
+			//Update geometry
+			geometry->update();
+
+		}  // end second sub step
+
+
+	} // end step iteration
 
 }
-
 
 }
