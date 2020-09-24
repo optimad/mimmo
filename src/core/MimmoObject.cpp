@@ -2506,6 +2506,9 @@ MimmoObject::modifyVertex(const darray3E & vertex, const long & id){
 	m_kdTreeSync = std::min(m_kdTreeSync, SyncStatus::UNSYNC);
 	m_infoSync = std::min(m_infoSync, SyncStatus::UNSYNC);
     m_boundingBoxSync = std::min(m_boundingBoxSync, SyncStatus::UNSYNC);
+#if MIMMO_ENABLE_MPI
+    m_pointGhostExchangeInfoSync = std::min(m_pointGhostExchangeInfoSync, SyncStatus::UNSYNC);
+#endif
 	return true;
 };
 

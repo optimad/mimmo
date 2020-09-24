@@ -230,9 +230,6 @@ FVGenericSelection::execute(){
         throw std::runtime_error (m_name + " : nullptr pointer to target bulk/boundary geometry found or both");
         return;
     }
-    if(m_geometry->isEmpty() || m_bndgeometry->isEmpty() ){
-        (*m_log)<<m_name + " : empty bulk/boundary geometry linked"<<std::endl;
-    };
 
     if(!checkCoherenceBulkBoundary()){
         (*m_log)<<m_name + " : id-vertex uncoherent bulk/boundary geometry linked"<<std::endl;
@@ -246,10 +243,6 @@ FVGenericSelection::execute(){
     livector1D extractedBnd;
 
     extractSelection(extractedVol, extractedBnd);
-
-    if(extractedVol.empty() || extractedBnd.empty()) {
-        (*m_log)<<m_name + " : empty selection for bulk or boundary performed. check block set-up"<<std::endl;
-    }
 
     /*Create subpatches.*/
     int topovol=2, topobnd=1;

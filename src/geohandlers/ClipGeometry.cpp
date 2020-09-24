@@ -203,9 +203,6 @@ ClipGeometry::execute(){
     m_clipped.reset();
 
     livector1D extracted = clipPlane();
-    if(extracted.empty()){
-        (*m_log)<<"Warning in "+m_name + " : performed empty clipping extraction"<<std::endl;
-    }
 
     /* Create subpatch.*/
     MimmoSharedPointer<MimmoObject> temp(new MimmoObject(getGeometry()->getType()));

@@ -61,12 +61,12 @@ void test00001() {
 
     mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo1->setWriteDir(".");
-    mimmo1->setWriteFileType(FileType::STL);
+    mimmo1->setWriteFileType(FileType::SURFVTU);
     mimmo1->setWriteFilename("geohandlers_output_00001.0001");
 
     mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo2->setWriteDir(".");
-    mimmo2->setWriteFileType(FileType::STL);
+    mimmo2->setWriteFileType(FileType::SURFVTU);
     mimmo2->setWriteFilename("geohandlers_output_00001.0002");
 
 #if MIMMO_ENABLE_MPI
@@ -104,15 +104,15 @@ void test00001() {
      */
 #if MIMMO_ENABLE_MPI
     mimmo::pin::addPin(mimmo0, partition, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(partition, refine, M_GEOM, M_GEOM);
     mimmo::pin::addPin(partition, boxSel, M_GEOM, M_GEOM);
     mimmo::pin::addPin(partition, sphSel, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(boxSel, refine, M_GEOM, M_GEOM);
 #else
     mimmo::pin::addPin(mimmo0, refine, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, boxSel, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, sphSel, M_GEOM, M_GEOM);
 #endif
-    mimmo::pin::addPin(boxSel, mimmo1, M_GEOM, M_GEOM);
+    mimmo::pin::addPin(refine, mimmo1, M_GEOM, M_GEOM);
     mimmo::pin::addPin(sphSel, mimmo2, M_GEOM, M_GEOM);
 
     /* Setup execution chain.
@@ -122,8 +122,8 @@ void test00001() {
 #if MIMMO_ENABLE_MPI
     ch0.addObject(partition);
 #endif
-    ch0.addObject(refine);
     ch0.addObject(boxSel);
+    ch0.addObject(refine);
     ch0.addObject(sphSel);
     ch0.addObject(mimmo1);
     ch0.addObject(mimmo2);

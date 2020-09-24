@@ -273,10 +273,6 @@ ReconstructVector::execute(){
         throw std::runtime_error("Error in "+m_name + " : nullptr pointer to linked geometry found");
     }
 
-    if(getGeometry()->isEmpty()){
-        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-    }
-
     //Overlap fields
     m_result.clear();
     m_result.setGeometry(getGeometry());
@@ -306,10 +302,6 @@ ReconstructVector::execute(){
                 counter[ID]++;
             }
         }
-    }
-
-    if (m_result.isEmpty()){
-        (*m_log)<<"Warning in "<<m_name<<". Resulting reconstructed field is empty.This is could be caused by unrelated fields linked geometry and target geometry"<<std::endl;
     }
 
     if (m_overlapCriterium == OverlapMethod::AVERAGE){

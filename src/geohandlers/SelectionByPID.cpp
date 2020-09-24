@@ -148,7 +148,6 @@ SelectionByPID::getActivePID(bool active){
 void
 SelectionByPID::setGeometry(mimmo::MimmoSharedPointer<MimmoObject> target ){
     if(target == nullptr) return;
-//    if(target->isEmpty())   return;
     if(target->getType() == 3)  return; //does not work with point cloud for now.
     m_geometry = target;
     m_topo = target->getType();

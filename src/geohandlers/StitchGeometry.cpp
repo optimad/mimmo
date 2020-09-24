@@ -190,9 +190,6 @@ StitchGeometry::forceRePID(bool flag){
  */
 void
 StitchGeometry::execute(){
-    if(m_extgeo.empty()){
-        (*m_log)<<m_name + " : no source geometries to stich were found"<<std::endl;
-    }
 
     mimmo::MimmoSharedPointer<MimmoObject> dum(new MimmoObject(m_topo));
 #if MIMMO_ENABLE_MPI
@@ -307,8 +304,6 @@ StitchGeometry::execute(){
     m_patch = dum;
     m_patch->cleanGeometry();
 
-    m_patch->cleanPatchInfo();
-    m_patch->updateAdjacencies();
     m_patch->update();
 
 }
