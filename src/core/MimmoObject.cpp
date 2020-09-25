@@ -195,6 +195,7 @@ MimmoObject::MimmoObject(int type){
 	m_pointConnectivitySync = false;
 
 	m_tolerance = 1.0e-06;
+	m_patch->setTol(m_tolerance);
 }
 
 /*!
@@ -320,6 +321,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 	m_pointConnectivitySync = false;
 
 	m_tolerance = 1.0e-06;
+    m_patch->setTol(m_tolerance);
 
 };
 
@@ -456,6 +458,7 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 	m_pointConnectivitySync = false;
 
 	m_tolerance = 1.0e-06;
+    m_patch->setTol(m_tolerance);
 
 }
 
@@ -594,6 +597,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 	m_pointConnectivitySync = false;
 
 	m_tolerance = 1.0e-06;
+    m_patch->setTol(m_tolerance);
 
 }
 
@@ -2313,12 +2317,14 @@ void MimmoObject::deleteOrphanGhostCells(){
 
 /*!
  * Set geometric tolerance used to perform geometric operations on the patch.
+ * It set directly even the tolerance of the patch if not null.
  * param[in] tol input geometric tolerance
  */
 void
 MimmoObject::setTolerance(double tol)
 {
 	m_tolerance = std::max(1.0e-15, tol);
+    m_patch->setTol(m_tolerance);
 }
 
 
@@ -2724,7 +2730,6 @@ MimmoSharedPointer<MimmoObject> MimmoObject::clone() const {
 bool
 MimmoObject::cleanGeometry(){
 	auto patch = getPatch();
-	patch->setTol(m_tolerance);
 	patch->deleteCoincidentVertices();
 	//	if(m_skdTreeSupported)  patch->deleteOrphanVertices();
 
