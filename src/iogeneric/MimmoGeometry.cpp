@@ -519,12 +519,8 @@ MimmoGeometry::write(){
         for(const auto & touple : pidsMap){
             mpp[touple.first] = touple.second;
         }
-#if MIMMO_ENABLE_MPI
-        std::string name = (m_winfo.fdir+"/"+m_winfo.fname+"."+std::to_string(m_rank)+".stl");
-#else
         std::string name = (m_winfo.fdir+"/"+m_winfo.fname+".stl");
-#endif
-        dynamic_cast<bitpit::SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, m_multiSolidSTL, false, &mpp);
+        dynamic_cast<bitpit::SurfUnstructured*>(getGeometry()->getPatch())->exportSTL(name, m_codex, m_multiSolidSTL, &mpp);
         return true;
     }
     break;
