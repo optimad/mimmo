@@ -143,7 +143,7 @@ SelectField::execute(){
                 (*m_log)<<"    missing or unfound ref Geometry to select field ->see method setGeometry//M_GEOM port"<<std::endl;
                 break;
             case SelectType::MAPPING :
-                (*m_log)<<"    empty mapping performed or missing mapping Geometry to select field ->see method setGeometry//M_GEOM port"<<std::endl;
+                (*m_log)<<"    missing mapping Geometry to select field ->see method setGeometry//M_GEOM port"<<std::endl;
                 break;
             case SelectType::NAME :
                 (*m_log)<<"    missing or unfound name to select field ->see method setFieldName//M_NAME port"<<std::endl;

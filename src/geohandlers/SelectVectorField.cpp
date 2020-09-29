@@ -259,7 +259,7 @@ SelectVectorField::mSelect(){
 			}
 
 			delete ef;
-            if (m_result.size() > 0) return true;
+            return true;
         }
         break;
     }

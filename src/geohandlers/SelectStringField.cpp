@@ -250,7 +250,7 @@ SelectStringField::mSelect(){
 			//not resolve overlapping because I've chosen the first encountered value
 
 			delete ef;
-            if (m_result.size() > 0) return true;
+            return true;
 		}
 		break;
 	}
