@@ -2352,20 +2352,6 @@ MimmoObject::isDistributed()
  */
 void MimmoObject::deleteOrphanGhostCells(){
 
-	//Check ghosts if any
-	if(getPatch()->getGhostCount() < 1){
-		//do nothing and return;
-		MPI_Barrier(m_communicator);
-		return;
-	}
-
-	//check if there are internals.
-	if(getPatch()->getInternalCount() < 1){
-		resetPatch();
-		MPI_Barrier(m_communicator);
-		return;
-	}
-
 	//build temporarely adjacencies to get orphans.
 	bool checkResetAdjacencies = false;
 	if(m_AdjSync != SyncStatus::SYNC){
