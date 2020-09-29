@@ -566,9 +566,11 @@ Partition::plotOptionalResults(){
 
 	write(getGeometry());
 	std::string originalname = m_name;
-	m_name = originalname + ".Boundary";
-	write(getBoundaryGeometry());
-	m_name = originalname;
+	if (getBoundaryGeometry() != nullptr){
+	    m_name = originalname + ".Boundary";
+	    write(getBoundaryGeometry());
+	    m_name = originalname;
+	}
 
 }
 
