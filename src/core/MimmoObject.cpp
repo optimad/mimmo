@@ -166,7 +166,7 @@ MimmoObject::MimmoObject(int type){
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	default:
-        (*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
+        (*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction."<<std::endl;
         throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
 		break;
 	}
@@ -261,7 +261,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	default:
-        (*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction. Switch to DEFAULT 1-Surface"<<std::endl;
+        (*m_log)<<"Error MimmoObject: unrecognized data structure type in class construction."<<std::endl;
         throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
 		break;
 	}
@@ -355,13 +355,6 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
 #endif
 
     initializeLogger();
-
-    if (geometry->getVertexCount() == 0){
-        (*m_log)<<"Warning MimmoObject: no points detected in the linked mesh."<<std::endl;
-    }
-    if (geometry->getCellCount() == 0){
-        (*m_log)<<"Warning MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
-    }
 
 	//check among elements if they are coherent with the type currently hold by the linked mesh.
 	std::unordered_set<int> mapEle = elementsMap(*geometry);
@@ -593,13 +586,6 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 #endif
 
     initializeLogger();
-
-    if (m_patch->getVertexCount() == 0){
-        (*m_log)<<"Warning MimmoObject: no points detected in the linked mesh."<<std::endl;
-    }
-    if (m_patch->getCellCount() == 0){
-        (*m_log)<<"Warning MimmoObject: no connectivity detected in the linked mesh."<<std::endl;
-    }
 
     // Set skdTreeSync and kdTreeSync to none
     m_skdTreeSync = SyncStatus::NONE;

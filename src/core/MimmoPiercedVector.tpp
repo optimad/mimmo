@@ -386,9 +386,6 @@ MimmoPiercedVector<mpv_t>::checkDataSizeCoherence(){
 	{
 		size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
 		check = (this->size()==sizeInterfaces);
-		if(sizeInterfaces == 0){
-			(*m_log)<<"Warning: Asked Data Size Coherence in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
-		}
 	}
 	break;
 	case MPVLocation::POINT:
@@ -429,9 +426,6 @@ MimmoPiercedVector<mpv_t>::checkDataIdsCoherence(){
 	case MPVLocation::INTERFACE:
 	{
 		size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
-		if(sizeInterfaces == 0){
-			(*m_log)<<"Warning: Asked Data Ids Coherence in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
-		}
 		auto vint = m_geometry->getPatch()->getInterfaces();
 		for(auto el : ids){
 			check =check && vint.exists(el);
@@ -486,9 +480,6 @@ MimmoPiercedVector<mpv_t>::resizeToCoherentDataIds(){
 	{
         bitpit::PiercedVector<bitpit::Interface> & interfaces = m_geometry->getInterfaces();
 		size_t sizeInterfaces = interfaces.size();
-		if(sizeInterfaces == 0){
-			(*m_log)<<"Warning: Asked Data Ids Coherence in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
-		}
         result.reserve(interfaces.size());
         long id;
         for(auto it=this->begin(); it!=this->end(); ++it){
@@ -550,9 +541,6 @@ MimmoPiercedVector<mpv_t>::getGeometryIds(bool ordered){
 	case MPVLocation::INTERFACE:
 	{
 		size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
-		if(sizeInterfaces == 0){
-			(*m_log)<<"Warning: Asked list of geometry Ids in MimmoPiercedVector for INTERFACES, but linked geometry may not have them built."<<std::endl;
-		}
 		return getGeometry()->getInterfaces().getIds(ordered);
 	}
 	break;
@@ -611,9 +599,6 @@ MimmoPiercedVector<mpv_t>::initialize(MimmoSharedPointer<MimmoObject> geo, MPVLo
 
 	switch(loc){
 	case MPVLocation::POINT :
-		if(geo->getNVertices() == 0){
-			(*m_log)<<"MimmoPiercedVector warning: geometry is empty"<<std::endl;
-		}
 		{
 			this->clear();
 			this->reserve(geo->getNVertices());
@@ -625,9 +610,6 @@ MimmoPiercedVector<mpv_t>::initialize(MimmoSharedPointer<MimmoObject> geo, MPVLo
 		}
 		break;
 	case MPVLocation::CELL :
-		if(geo->getNCells() == 0){
-			(*m_log)<<"MimmoPiercedVector warning: geometry is empty"<<std::endl;
-		}
 		{
 			this->clear();
 			this->reserve(geo->getNCells());
