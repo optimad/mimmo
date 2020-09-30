@@ -1671,7 +1671,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
 						//insert shared point
 						m_pointGhostExchangeShared[recvRank].push_back(*itsource);
 
-						//Maintain shared points only in the sources of the lower rank and in the target of the greater one.
+						//Maintain shared points only in the sources of the lower rank and in the target of the greater one (if I'm the lower).
 						//Note. Some nodes will be repeated if shared by several processes. During the communications only the
 						//the data given by the lowest sender will be saved.
 						if (m_rank < recvRank){
@@ -1792,10 +1792,14 @@ void MimmoObject::updatePointGhostExchangeInfo()
 						// Fix the target rank
 						int targetRank = rank;
 
-						m_pointGhostSendAdditionalSources[realSourceRank].push_back(id);
-						m_pointGhostSendAdditionalTargets[targetRank].push_back(id);
-						m_pointGhostSendRankOfAdditionalSources[realSourceRank].push_back(targetRank);
-						m_pointGhostSendRankOfAdditionalTargets[targetRank].push_back(realSourceRank);
+						// Insert onlt if the source is a lower rank of the target
+						if (realSourceRank < targetRank){
+
+						    m_pointGhostSendAdditionalSources[realSourceRank].push_back(id);
+						    m_pointGhostSendAdditionalTargets[targetRank].push_back(id);
+						    m_pointGhostSendRankOfAdditionalSources[realSourceRank].push_back(targetRank);
+						    m_pointGhostSendRankOfAdditionalTargets[targetRank].push_back(realSourceRank);
+						}
 
 					} // end if not interior
 
@@ -2012,8 +2016,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
 				for (const auto entry : m_pointGhostExchangeTargets) {
 					const int rank = entry.first;
 					const auto &list = entry.second;
-					dataCommunicator->setRecv(rank, list.size() * exchangeDataSize);
-					dataCommunicator->startRecv(rank);
 				}
 
 				// Set and start the sends
@@ -2031,6 +2033,10 @@ void MimmoObject::updatePointGhostExchangeInfo()
 					}
 					dataCommunicator->startSend(rank);
 				}
+
+                // Discover & start all the receives
+                dataCommunicator->discoverRecvs();
+                dataCommunicator->startAllRecvs();
 
 				// Receive the consecutive ids of the ghosts
 				int nCompletedRecvs = 0;
@@ -2062,8 +2068,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
 					const int rank = entry.first;
 					const auto &list = entry.second;
 					if (rank<m_rank){
-						dataCommunicator->setRecv(rank, list.size() * exchangeDataSize);
-						dataCommunicator->startRecv(rank);
 					}
 				}
 
