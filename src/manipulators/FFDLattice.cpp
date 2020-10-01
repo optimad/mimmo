@@ -584,9 +584,6 @@ FFDLattice::execute(){
         (*m_log)<<m_name + " : nullptr pointer to linked geometry found"<<std::endl;
         throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
-    if(container->isEmpty()){
-        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-    }
 
     //reset displacement in a unique vector
     m_gdispl.clear();
@@ -655,7 +652,7 @@ FFDLattice::apply(livector1D & list){
     MimmoSharedPointer<MimmoObject> container = getGeometry();
     list.clear();
     if(container == nullptr) return dvecarr3E(0);
-    if(container->isEmpty() || !isBuilt()) return dvecarr3E(0);
+    if(!isBuilt()) return dvecarr3E(0);
 
 
     //check simplex included and extract their vertex in global IDs;

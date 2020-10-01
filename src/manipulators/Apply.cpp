@@ -248,14 +248,6 @@ Apply::execute(){
         return;
     }
 
-    if(getGeometry()->isEmpty()){
-#if MIMMO_ENABLE_MPI
-        (*m_log)<<"WARNING "<<m_name <<"on rank "<<m_rank<<" : empty linked geometry found"<<std::endl;
-#else
-        (*m_log)<<"WARNING "<<m_name <<" : empty linked geometry found"<<std::endl;
-#endif
-    }
-
 	checkInput();
 
 	m_output = m_input;

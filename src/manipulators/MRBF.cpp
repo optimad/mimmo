@@ -589,10 +589,6 @@ MRBF::execute(){
         throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
-    if(container->isEmpty()){
-        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-    }
-
     // If RBF nodes passed by MimmoObject initialize RBFs
     if (m_rbfgeometry){
         if (!initRBFwGeometry())

@@ -151,10 +151,6 @@ TranslationGeometry::execute(){
     }
 
 
-    if(getGeometry()->isEmpty()){
-        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-    }
-
     checkFilter();
     m_displ.clear();
     m_displ.clear();
