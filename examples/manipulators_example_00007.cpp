@@ -86,6 +86,12 @@ void test00007() {
     mimmo::GenericInput* inputn = new mimmo::GenericInput();
     inputn->setInput(rbfNodes);
 
+    /* Set Create Point Cloud block that will use the output of generic input.
+     * Vector and scalar fields can be passed to link the fields to the point
+     * cloud in MimmoPiercedVector fields.
+     */
+    mimmo::CreatePointCloud * pointcloud = new mimmo::CreatePointCloud();
+
     /* Creation of a projection block aimed to project
      * the point cloud previously defined over the input geometry.
      * The rbf control nodes will be defined on the surface of the
@@ -93,6 +99,7 @@ void test00007() {
      *
      */
     mimmo::ProjPatchOnSurface* proj = new mimmo::ProjPatchOnSurface();
+    proj->setWorkingOnTarget(true);
 
     /* Instantiation of a MRBF object with a distribution of 10 random control nodes projected
      * ont he input surface.
@@ -137,10 +144,13 @@ void test00007() {
     mimmo::pin::addPin(mimmo0, mrbf, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, proj, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(inputn, proj, M_COORDS, M_COORDS);
-    mimmo::pin::addPin(proj, mrbf, M_COORDS, M_COORDS);
-    mimmo::pin::addPin(input, mrbf, M_DISPLS, M_DISPLS);
-    mimmo::pin::addPin(inputSR, mrbf, M_DATAFIELD, M_DATAFIELD);
+    mimmo::pin::addPin(inputn, pointcloud, M_COORDS, M_COORDS);
+    mimmo::pin::addPin(input, pointcloud, M_DISPLS, M_DISPLS);
+    mimmo::pin::addPin(inputSR, pointcloud, M_DATAFIELD, M_DATAFIELD);
+    mimmo::pin::addPin(pointcloud, proj, M_GEOM, M_GEOM2);
+    mimmo::pin::addPin(pointcloud, mrbf, M_SCALARFIELD, M_SCALARFIELD);
+    mimmo::pin::addPin(pointcloud, mrbf, M_VECTORFIELD, M_VECTORFIELD);
+    mimmo::pin::addPin(proj, mrbf, M_GEOM, M_GEOM2);
     mimmo::pin::addPin(mrbf, applier, M_GDISPLS, M_GDISPLS);
     mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
@@ -154,6 +164,7 @@ void test00007() {
     ch0.addObject(inputn);
     ch0.addObject(inputSR);
     ch0.addObject(mimmo0);
+    ch0.addObject(pointcloud);
     ch0.addObject(proj);
     ch0.addObject(applier);
     ch0.addObject(mrbf);
@@ -168,19 +179,12 @@ void test00007() {
      */
     delete mrbf;
     delete proj;
+    delete pointcloud;
     delete applier;
     delete input;
     delete inputSR;
     delete mimmo0;
     delete mimmo1;
-
-    proj    = NULL;
-    mrbf    = NULL;
-    applier = NULL;
-    input   = NULL;
-    inputSR = NULL;
-    mimmo0  = NULL;
-    mimmo1  = NULL;
 
     return;
 }

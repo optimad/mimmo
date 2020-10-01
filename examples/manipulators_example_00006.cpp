@@ -105,22 +105,10 @@ void test00006() {
     mimmo::GenericInput* input = new mimmo::GenericInput();
     input->setInput(displ);
 
-    /* Creation of a set of support radii of the control nodes of the radial basis functions.
-     * Use a radial function from a center point placed in axes origin.
+    /* Set Create Point Cloud block that will use the output of generic input.
+     * Vector and scalar fields can be passed to link the fields to the point
+     * cloud in MimmoPiercedVector fields.
      */
-    dvector1D radii(np, 0.);
-    for (int i=0; i<np; i++){
-        radii[i] = norm2(rbfNodes[i] - center);
-        radii[i] /= 2.0;
-    }
-
-    /* Set Generic input block with the
-     * radii defined above.
-     */
-    mimmo::GenericInput* inputradii = new mimmo::GenericInput();
-    inputradii->setInput(radii);
-
-    //take rbf nodes and displ to a Point Cloud creator
     mimmo::CreatePointCloud * rbfPC = new mimmo::CreatePointCloud();
 
     /* Creation of a projection block aimed to project
@@ -139,6 +127,7 @@ void test00006() {
      */
     mimmo::MRBF* mrbf = new mimmo::MRBF(mimmo::MRBFSol::NONE);
     mrbf->setFunction(bitpit::RBFBasisFunction::WENDLANDC2);
+    mrbf->setSupportRadiusReal(0.1);
     mrbf->setPlotInExecution(true);
 
     /* Create applier block.
@@ -158,10 +147,8 @@ void test00006() {
     mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
     mimmo::pin::addPin(inputn, rbfPC, M_COORDS, M_COORDS);
     mimmo::pin::addPin(input, rbfPC, M_DISPLS, M_DISPLS);
-    mimmo::pin::addPin(inputradii, rbfPC, M_DATAFIELD, M_DATAFIELD);
     mimmo::pin::addPin(rbfPC, proj, M_GEOM, M_GEOM2);
     mimmo::pin::addPin(rbfPC, mrbf, M_VECTORFIELD, M_VECTORFIELD);
-    mimmo::pin::addPin(rbfPC, mrbf, M_SCALARFIELD, M_SCALARFIELD);
     mimmo::pin::addPin(proj, mrbf, M_GEOM, M_GEOM2);
     mimmo::pin::addPin(mrbf, applier, M_GDISPLS, M_GDISPLS);
     mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
@@ -177,7 +164,6 @@ void test00006() {
 #endif
     ch0.addObject(input);
     ch0.addObject(inputn);
-    ch0.addObject(inputradii);
     ch0.addObject(rbfPC);
     ch0.addObject(mimmo0);
     ch0.addObject(proj);
