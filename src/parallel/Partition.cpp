@@ -313,6 +313,11 @@ Partition::parmetisPartGeom(){
 
 	if (!(getGeometry()->isDistributed())){
 
+	    // Re-sync or build patch info if not built
+	    if (getGeometry()->getInfoSyncStatus() != SyncStatus::SYNC){
+	        getGeometry()->buildPatchInfo();
+	    }
+
 		lilimap mapcell = getGeometry()->getMapCell();
 		lilimap mapcellinv = getGeometry()->getMapCellInv();
 
