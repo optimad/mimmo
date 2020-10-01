@@ -4865,7 +4865,11 @@ MimmoObject::triangulate(){
 #endif
     } // end if patch is not empty
 
-	update();
+#if MIMMO_ENABLE_MPI
+    deleteOrphanGhostCells();
+#endif
+
+    update();
 
 }
 
