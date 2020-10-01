@@ -1089,7 +1089,7 @@ dmpvecarr3E PropagateVectorField::getBoundaryPropagatedField(){
     mpvres.reserve(m_field.size());
 
     //fill mpvres with the value of m_field on boundary nodes
-    std::vector<long> bIds =  m_geometry->extractBoundaryVertexID(false);
+    std::vector<long> bIds =  m_geometry->extractBoundaryVertexID(true);
     for(long id : bIds){
         mpvres.insert(id, m_field.at(id));
     }
