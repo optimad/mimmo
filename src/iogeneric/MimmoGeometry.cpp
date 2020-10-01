@@ -942,6 +942,9 @@ MimmoGeometry::read(){
     //action completed, reset m_refPID to zero.
     m_refPID = 0;
 
+    // Set all the sync status variables to unsync
+    getGeometry()->setUnsyncAll();
+
     return true;
 };
 
@@ -960,11 +963,10 @@ MimmoGeometry::execute(){
             (*m_log) << " " << std::endl;
             throw std::runtime_error (m_name + " : file not found : " + m_rinfo.fname);
         }
-#if MIMMO_ENABLE_MPI
-        // Force build adjacencies to update parallel information
-        getGeometry()->updateAdjacencies();
+
+        // Update geometry
         getGeometry()->update();
-#endif
+
         if (m_buildSkdTree) getGeometry()->buildSkdTree();
         if (m_buildKdTree) getGeometry()->buildKdTree();
     }
