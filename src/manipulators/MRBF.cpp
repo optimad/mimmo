@@ -1079,22 +1079,29 @@ MRBF::setMode(MRBFSol solver){
 bool
 MRBF::initRBFwGeometry(){
 
-    // If displacementes have unlinked geometry skip
-    if (!m_rbfdispl->getGeometry()){
-        (*m_log)<<m_name + " : null RBF geometry linked by displacements vector. Skip object."<<std::endl;
-        return false;
+    // If rbf displ is null skip check on linked geometry
+    if (m_rbfdispl){
+        // If displacementes have unlinked geometry skip
+        if (!m_rbfdispl->getGeometry()){
+            (*m_log)<<m_name + " : null RBF geometry linked by displacements vector. Skip object."<<std::endl;
+            return false;
+        }
+        else if (m_rbfdispl->getGeometry() != m_rbfgeometry){
+            (*m_log)<<m_name + " : RBF displacements not linked to RBF geometry. Skip object."<<std::endl;
+            return false;
+        }
     }
-    else if (m_rbfdispl->getGeometry() != m_rbfgeometry){
-        (*m_log)<<m_name + " : RBF displacements not linked to RBF geometry. Skip object."<<std::endl;
-        return false;
-    }
-    if (!m_rbfSupportRadii->getGeometry()){
-        (*m_log)<<m_name + " : null RBF geometry linked by support radii vector. Skip object."<<std::endl;
-        return false;
-    }
-    else if (m_rbfSupportRadii->getGeometry() != m_rbfgeometry){
-        (*m_log)<<m_name + " : RBF support radii not linked to RBF geometry. Skip object."<<std::endl;
-        return false;
+
+    // If rbf support radii is null skip check on linked geometry
+    if (m_rbfSupportRadii){
+        if (!m_rbfSupportRadii->getGeometry()){
+            (*m_log)<<m_name + " : null RBF geometry linked by support radii vector. Skip object."<<std::endl;
+            return false;
+        }
+        else if (m_rbfSupportRadii->getGeometry() != m_rbfgeometry){
+            (*m_log)<<m_name + " : RBF support radii not linked to RBF geometry. Skip object."<<std::endl;
+            return false;
+        }
     }
 
     //clear the previous data into MRBF
@@ -1107,8 +1114,12 @@ MRBF::initRBFwGeometry(){
     for(const bitpit::Vertex & vert : m_rbfgeometry->getVertices()){
         long id = vert.getId();
         nodes[id] = vert.getCoords();
-        if(m_rbfdispl->exists(id))          displs[id] = m_rbfdispl->at(id);
-        if (m_rbfSupportRadii->exists(id))  radii[id] = m_rbfSupportRadii->at(id);
+        if(m_rbfdispl && m_rbfdispl->exists(id)){
+            displs[id] = m_rbfdispl->at(id);
+        }
+        if (m_rbfSupportRadii && m_rbfSupportRadii->exists(id)){
+            radii[id] = m_rbfSupportRadii->at(id);
+        }
     }
 
 #if MIMMO_ENABLE_MPI
@@ -1208,8 +1219,10 @@ MRBF::initRBFwGeometry(){
     std::array<std::vector<double>,3> displList;
     displList.fill(dvector1D(nodes.size(), 0.));
 
+    // Resize support radii to the effective serialized size
+    // Empty if support radii not passed as pierced vector
     m_supportRadii.clear();
-    m_supportRadii.resize(nodes.size());
+    m_supportRadii.resize(radii.size());
 
     int count(0);
     for(auto & tuple : nodes){
