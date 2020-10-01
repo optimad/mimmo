@@ -161,10 +161,6 @@ ScaleGeometry::execute(){
         throw std::runtime_error(m_name + "nullptr pointer to linked geometry found");
     }
 
-    if(getGeometry()->isEmpty()){
-        (*m_log)<<m_name + " : empty linked geometry found"<<std::endl;
-    }
-
     checkFilter();
     m_displ.clear();
     m_displ.setDataLocation(mimmo::MPVLocation::POINT);
