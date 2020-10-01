@@ -552,7 +552,8 @@ livector1D BasicShape::excludeCloudPoints(bitpit::PatchKernel * tri){
  * \return list-by-ids of vertices included in the volumetric patch
  */
 livector1D BasicShape::includeCloudPoints(MimmoSharedPointer<MimmoObject> geo ){
-	if(geo == nullptr)	return livector1D(0);
+    if(geo == nullptr)  return livector1D(0);
+    if(geo->isEmpty())  return livector1D(0);
 
 	livector1D elements;
 	//create BvTree and fill it w/ cell list
@@ -573,8 +574,10 @@ livector1D BasicShape::includeCloudPoints(MimmoSharedPointer<MimmoObject> geo ){
  */
 livector1D BasicShape::excludeCloudPoints(MimmoSharedPointer<MimmoObject> geo){
 
-	if(geo == nullptr)	return livector1D(0);
-	livector1D internals = includeCloudPoints(geo);
+    if(geo == nullptr)  return livector1D(0);
+    if(geo->isEmpty())  return livector1D(0);
+
+    livector1D internals = includeCloudPoints(geo);
 	std::sort(internals.begin(), internals.end());
 
 	livector1D originals = geo->getCellsIds();
