@@ -1292,17 +1292,18 @@ MimmoObject::getMapData(bool withghosts){
  */
 lilimap
 MimmoObject::getMapDataInv(bool withghosts){
-	lilimap mapDataInv;
+
+    lilimap mapDataInv;
 #if MIMMO_ENABLE_MPI
-	if (isDistributed()){
-		for (auto val : m_pointConsecutiveId){
-			if (!withghosts && !isPointInterior(val.first)){
-				continue;
-			}
-			mapDataInv.insert(val);
-		}
-		return mapDataInv;
-	}
+    if (isDistributed()){
+        for (auto val : m_pointConsecutiveId){
+            if (!withghosts && !isPointInterior(val.first)){
+                continue;
+            }
+            mapDataInv.insert(val);
+        }
+        return mapDataInv;
+    }
 #else
 	BITPIT_UNUSED(withghosts);
 #endif
@@ -4116,7 +4117,7 @@ MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double 
  * Ghost cells are considered.
  * \param[in] surface MimmoObject of type surface.
  * \param[in] maxdist threshold distance.
- * \param[in] seedlist (optional) list of cells to starting narrow band search
+ * \param[in] seedlist (optional) list of cells to starting narrow band search.
  * \return list of cells inside the narrow band at maxdist from target surface with their distance from it.
  */
 bitpit::PiercedVector<double>
@@ -4147,13 +4148,25 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
     livector1D * candidates;
     double distance, maxdistance(maxdist);
     long id;
+
+
+    livector1D effectiveSeedList;
+    //check if seedlist contains valid cell ids for the current mesh/local rank partition.
     if(seedlist){
+        effectiveSeedList.reserve(seedlist->size());
+        bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
+        for(long id : *seedlist){
+            if(cells.exists(id))    effectiveSeedList.push_back(id);
+        }
+    }
+
+    if(!effectiveSeedList.empty()){
 
         // Fill points array with seed list
-        npoints = seedlist->size();
+        npoints = effectiveSeedList.size();
         points.reserve(npoints);
-        candidates = seedlist;
-        for(long idseed : *seedlist){
+        candidates = &effectiveSeedList;
+        for(long idseed : effectiveSeedList){
             points.emplace_back(getPatch()->evalCellCentroid(idseed));
         }
 
@@ -4184,6 +4197,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 
     } // end if seed list is null
 
+
     distances.resize(npoints, std::numeric_limits<double>::max());
     surface_ids.resize(npoints, bitpit::Cell::NULL_ID);
 
@@ -4207,7 +4221,7 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
         }
     }
 
-    if(!seedlist){
+    if(effectiveSeedList.empty()){
         // Delete candidates
         delete candidates;
     }
@@ -4353,14 +4367,24 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
     livector1D * candidates;
     double distance, maxdistance(maxdist);
     long id;
-    // Fill points candidates with seedlist or found candidates
-    if(seedlist){
 
+    livector1D effectiveSeedList;
+    //check if seedlist contains valid vertex ids for the current mesh/local rank partition.
+    if(seedlist){
+        effectiveSeedList.reserve(seedlist->size());
+        bitpit::PiercedVector<bitpit::Vertex> & verts = getVertices();
+        for(long id : *seedlist){
+            if(verts.exists(id))    effectiveSeedList.push_back(id);
+        }
+    }
+
+    // Fill points candidates with seedlist or found candidates
+    if(!effectiveSeedList.empty()){
         // Fill points array with seed list
-        npoints = seedlist->size();
+        npoints = effectiveSeedList.size();
         points.reserve(npoints);
-        candidates = seedlist;
-        for(long idseed : *seedlist){
+        candidates = &effectiveSeedList;
+        for(long idseed : effectiveSeedList){
             points.emplace_back(getVertexCoords(idseed));
         }
 
@@ -4386,13 +4410,10 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
             cell_candidates = skdTreeUtils::selectByPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
         }
 
+        livector1D vvset = getVertexFromCellList(cell_candidates);
         // Fill points candidates with all the vertices of the found cells
-        for(long idcellseed : cell_candidates){
-            bitpit::ConstProxyVector<long> conncell = getPatch()->getCell(idcellseed).getVertexIds();
-            for(long idvertex : conncell){
-                candidates->push_back(idvertex);
-                points.emplace_back(getVertexCoords(idvertex));
-            }
+        for(long idseed : vvset){
+            points.emplace_back(getVertexCoords(idseed));
         }
 
     } // end if seed list is null
@@ -4419,7 +4440,7 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
         }
     }
 
-    if(!seedlist){
+    if(effectiveSeedList.empty()){
         // Delete candidates
         delete candidates;
     }
