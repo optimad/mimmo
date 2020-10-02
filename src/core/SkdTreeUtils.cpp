@@ -957,21 +957,21 @@ void projectPointGlobal(int nP, const std::array<double,3> *points, const bitpit
             }
             ++count;
         }
-
-        std::swap(failedPoints, workpoints);
-        std::swap(failedPosIndex, mapPosIndex);
-        std::swap(failedRadii, workradius);
-
         workDist.resize(failedPoints.size());
         workNormals.resize(failedPoints.size());
         workids.resize(failedPoints.size());
         workranks.resize(failedPoints.size());
 
+        std::swap(failedPoints, workpoints);
+        std::swap(failedPosIndex, mapPosIndex);
+        std::swap(failedRadii, workradius);
+
+
         checkEmptyList = workpoints.empty();
         MPI_Allreduce(MPI_IN_PLACE, &checkEmptyList, 1, MPI_C_BOOL, MPI_LAND, tree->getPatch().getCommunicator());
 
         //augment workradius of 1.5 factor
-        if(kiter <= kmax-1){
+        if(kiter >= kmax-2){
             std::vector<double> temp(workradius.size(), std::numeric_limits<double>::max());
             std::swap(temp, workradius);
         }else{
