@@ -191,8 +191,12 @@ PropagateField<NCOMP>::setGeometry(MimmoSharedPointer<MimmoObject> geometry_){
 
     m_geometry = geometry_;
 
-    // Force update adjacencies
+#if MIMMO_ENABLE_MPI == 0
+    // Force update adjacencies in serial. MPI enforce it directly with update()
     m_geometry->updateAdjacencies();
+#endif
+    //update all . you need a clean, ready to use geometry.
+    m_geometry->update();
 
 }
 
@@ -221,6 +225,8 @@ void
 PropagateField<NCOMP>::addDirichletBoundaryPatch(MimmoSharedPointer<MimmoObject> bsurface){
     if (bsurface == nullptr)       return;
 
+    //getting it ready
+    bsurface->update();
     m_dirichletPatches.insert(bsurface);
 }
 
@@ -251,6 +257,8 @@ PropagateField<NCOMP>::setNarrowBand(bool flag){
         m_log->setPriority(bitpit::log::Verbosity::NORMAL);
         return;
 	}
+    //getting it ready
+    surface->update();
 
     m_bandSurfaces.insert(surface);
 }
@@ -312,20 +320,22 @@ PropagateField<NCOMP>::setDampingDecayFactor(double decay){
 /*!
  * Add a portion of boundary mesh to be used for damping function/artificial
    diffusivity calculation.
- * \param[in] bdumping Boundary patch.
+ * \param[in] bdamping Boundary patch.
  */
 template <std::size_t NCOMP>
 void
-PropagateField<NCOMP>::addDampingBoundarySurface(MimmoSharedPointer<MimmoObject> bdumping){
-	if (bdumping == nullptr)       return;
-	if (bdumping->getType()!= 1 ){
+PropagateField<NCOMP>::addDampingBoundarySurface(MimmoSharedPointer<MimmoObject> bdamping){
+	if (bdamping == nullptr)       return;
+	if (bdamping->getType()!= 1 ){
         m_log->setPriority(bitpit::log::Verbosity::DEBUG);
-        (*m_log)<<"Warning: "<<m_name<<" allows only slip boundary surfaces. Skipping input slip patch."<<std::endl;
+        (*m_log)<<"Warning: "<<m_name<<" allows only damping boundary surfaces. Skipping input damping patch."<<std::endl;
         m_log->setPriority(bitpit::log::Verbosity::NORMAL);
         return;
 	}
+    //getting it ready
+    bdamping->update();
 
-	m_dampingSurfaces.insert(bdumping);
+	m_dampingSurfaces.insert(bdamping);
 }
 
 
@@ -573,6 +583,8 @@ PropagateField<NCOMP>::clear(){
    - check if points of NarrowBand surfaces belongs to the bulk mesh.
    - check if points of Damping surfaces belongs to the bulk mesh.
  * Note. In parallel the bulk and boundaries meshes must have the same spatial partitioning.
+   There is no check here in this sense, but outputs of mimmo::Partition always guarantee this
+
  * \return true if coherence is satisfied, false otherwise.
  */
 template <std::size_t NCOMP>
@@ -634,6 +646,8 @@ PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
     std::unordered_set<MimmoSharedPointer<MimmoObject> > withoutField = m_dirichletPatches;
     for(MimmoPiercedVector<std::array<double,NCOMP>> * field : m_dirichletBcs){
         MimmoSharedPointer<MimmoObject> ref = field->getGeometry();
+        //if field it's not in the list ignore it
+        if(withoutField.count(ref) == 0)    continue;
         //remove it from unvisited patch list
         withoutField.erase(ref);
         std::vector<long> ids = ref->getVerticesIds(true);
@@ -670,9 +684,9 @@ template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSharedPointer<MimmoObject> > & listSurf, MimmoSharedPointer<MimmoObject> & uniSurf){
 
-    uniSurf = nullptr;
     // check if list is empty
     if (listSurf.empty()) {
+        uniSurf = nullptr;
         return;
     };
 
@@ -680,11 +694,7 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSha
     //are most likely partitioned, so you need to have information on internals/ghosts updated.
     MimmoSharedPointer<MimmoObject> tempSurface(new MimmoObject(1));
     for(MimmoSharedPointer<MimmoObject> obj : listSurf){
-#if MIMMO_ENABLE_MPI
-        if(obj->getPointGhostExchangeInfoSyncStatus() != SyncStatus::SYNC){
-            obj->updatePointGhostExchangeInfo();
-        }
-#endif
+        obj->update();
         tempSurface->getPatch()->reserveVertices(tempSurface->getPatch()->getVertexCount() + obj->getPatch()->getVertexCount());
         for(bitpit::Vertex & vertex : obj->getVertices()){
             long vertexId = vertex.getId();
@@ -693,15 +703,14 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSha
         tempSurface->getPatch()->reserveCells(tempSurface->getPatch()->getCellCount() + obj->getPatch()->getCellCount());
         for (bitpit::Cell &cell : obj->getCells()){
             long idCell = cell.getId();
+            int rank = -1;
 #if MIMMO_ENABLE_MPI
-            int rank = m_rank;
+            rank = m_rank;
             if (!cell.isInterior()){
                 rank = obj->getPatch()->getCellRank(idCell);
             }
-            tempSurface->addCell(cell, idCell, rank);
-#else
-            tempSurface->addCell(cell, idCell);
 #endif
+            tempSurface->addCell(cell, idCell, rank);
         }
     }
 
@@ -710,7 +719,7 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSha
 
     tempSurface->update();
 
-    uniSurf = std::move(tempSurface);
+    uniSurf = tempSurface;
 
     // Now uniSurf is the union of the surface patches in the list.
     // The original connections are untouched and no new connections are imposed
@@ -729,15 +738,10 @@ template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::initializeDampingFunction(){
 
-    bitpit::PatchKernel * patch_ = getGeometry()->getPatch();
     m_damping.clear();
-    m_damping.reserve(getGeometry()->getNCells());
-    m_damping.setGeometry(getGeometry());
-    m_damping.setDataLocation(MPVLocation::CELL);
-
-    for (auto it = patch_->cellBegin(); it!=patch_->cellEnd(); ++it){
-        m_damping.insert(it.getId(), 1.0);
-    }
+    //initialize it to 1. everywhere (internal and ghost)
+    m_damping.initialize(getGeometry(), MPVLocation::CELL, 1.0);
+    //call updateDamingFunction.
     updateDampingFunction();
 }
 
@@ -750,8 +754,8 @@ template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::updateDampingFunction(){
 
-    if(!m_dampingUniSurface.get()){
-        //this unique_ptr structure is initialized with initializeUniqueSurface applied to damping surfaces
+    if(m_dampingUniSurface == nullptr){
+        //this structure is initialized with initializeUniqueSurface applied to damping surfaces
         // if damping is not active is set to nullptr
         // leaving damping as it is.
         return;
@@ -810,16 +814,11 @@ PropagateField<NCOMP>::updateDampingFunction(){
             locvol = getGeometry()->evalCellVolume(it.getId());
             if(locvol < std::numeric_limits<double>::min()){
                 ++countNegativeVolumes;
-                locvol = std::numeric_limits<double>::min(); //to assess myself around a 1.E-38 as minimum.
+                locvol = std::numeric_limits<double>::min(); //to assess myself around a minimum value.
             }
             volFactor.rawAt(it.getRawIndex()) = locvol;
             volmin = std::min(volmin,locvol);
             volmax = std::max(volmax,locvol);
-        }
-        if(countNegativeVolumes > 0){
-            m_log->setPriority(bitpit::log::Verbosity::DEBUG);
-            (*m_log)<<"Warning in "<<m_name<<". Detected " << countNegativeVolumes<<" cells with almost zero or negative volume"<<std::endl;
-            m_log->setPriority(bitpit::log::Verbosity::NORMAL);
         }
 
 #if MIMMO_ENABLE_MPI
@@ -827,6 +826,10 @@ PropagateField<NCOMP>::updateDampingFunction(){
         MPI_Allreduce(MPI_IN_PLACE, &volmax, 1, MPI_DOUBLE, MPI_MAX, m_communicator);
         MPI_Allreduce(MPI_IN_PLACE, &countNegativeVolumes, 1, MPI_INT, MPI_SUM, m_communicator);
 #endif
+        if(countNegativeVolumes > 0){
+            (*m_log)<<"Warning in "<<m_name<<". Detected " << countNegativeVolumes<<" cells with almost zero or negative volume"<<std::endl;
+        }
+
         //evaluate the volume normalized function and store it in dumping.
         for(auto it = distFactor.begin(); it !=distFactor.end(); ++it){
             m_damping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
@@ -838,7 +841,7 @@ PropagateField<NCOMP>::updateDampingFunction(){
 
 /*!
  * Interpolate class member damping function given on CELL to POINT.
- * Return the interpoled values in a new MimmoPiercedVector.
+ * Return the interpolated values in a new MimmoPiercedVector.
  * param[out] dampingOnPoints vector with damping function interpolated on points.
  */
 template<std::size_t NCOMP>
@@ -864,8 +867,8 @@ template<std::size_t NCOMP>
 void
 PropagateField<NCOMP>::updateNarrowBand(){
 
-    if(!m_bandUniSurface.get()){
-        //this unique_ptr structure is initialized with initializeUniqueSurface applied to narrow band surfaces
+    if(m_bandUniSurface == nullptr){
+        //this structure is initialized with initializeUniqueSurface applied to narrow band surfaces
         // if narrow band control is not active is set to nullptr
         // and narrow band is not computed.
         m_banddistances.clear();
@@ -893,7 +896,7 @@ PropagateField<NCOMP>::updateNarrowBand(){
    points in Graph Laplacian approximation to take in account a relaxed
    solution in the narrow band near some target boundary surfaces.
    The idea is to manipulate stencils of a mesh point inside the narrow band so that
-   nodes nearer to reference boundaries "weights" more than farther ones.
+   nodes nearer to reference boundaries have more weight than farther ones.
    This upwinding effect let the solution to diffuse more inside the bulk core.
    Outside the narrow band stencils are the usual ones.
  * \param[in, out] laplaceStencils unique pointer to original set of laplacian stencils in input, narrowband modified in output.
@@ -973,15 +976,13 @@ PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * la
 		mapsort[ind] = id;
 	}
 
-	//Add ordered rows
-	for(auto id : mapsort){
-	    if (getGeometry()->isPointInterior(id)){
-	        bitpit::StencilScalar item = laplacianStencils->at(id);
-	        //renumber values on the fly.
-	        item.renumber(maplocals);
-	        matrix.addRow(item.size(), item.patternData(), item.weightData());
-	    }
-	}
+    //Add ordered rows: id of laplacianStencils are alway vertex rank internals.
+    for(auto id : mapsort){
+        bitpit::StencilScalar item = laplacianStencils->at(id);
+        //renumber values on the fly.
+        item.renumber(maplocals);
+        matrix.addRow(item.size(), item.patternData(), item.weightData());
+    }
 
 	//assembly the matrix;
 	matrix.assembly();
@@ -996,10 +997,10 @@ PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * la
 }
 
 /*!
- * Update your system solver, feeding the cell based laplacian stencils you want to update in the matrix.
+ * Update your system solver, feeding the point based laplacian stencils you want to update in the matrix.
  * This method works with any valid subset of stencils in the mesh, but require the solver matrix to be initialized
  * and to have the new stencils with the same id pattern as they had at the time of the matrix initialization.
- * Provide the map that get consecutive Index from Global Pierced vector Index system for CELLS
+ * Provide the map that get consecutive Index from Global Pierced vector Index system for POINTS
  * The stencil will be renumerated with the consecutiveIdIndexing provided.
  *
  * param[in] laplacianStencils pointer to MPV structure of laplacian stencils subset to feed as update.
@@ -1035,10 +1036,7 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
 	long id, ind;
 	for(auto it=laplacianStencils->begin(); it != laplacianStencils->end(); ++it){
 		id = it.getId();
-		ind = maplocals.at(id);
-#if MIMMO_ENABLE_MPI
-		ind -= getGeometry()->getPointGlobalCountOffset();
-#endif
+		ind = maplocals.at(id) -  getGeometry()->getPointGlobalCountOffset();
 		rows_involved.push_back(ind);
 		bitpit::StencilScalar item(*it);
 		item.renumber(maplocals);
@@ -1075,7 +1073,10 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
     BITPIT_UNUSED(unused);
     //resize rhs to the number of internal cells
     MimmoSharedPointer<MimmoObject> geo = getGeometry();
-    rhs.resize(geo->getNInternalVertices(), 0.0);
+    {
+        dvector1D temp(geo->getNInternalVertices(), 0.0);
+        std::swap(rhs, temp);
+    }
 
     if (!m_solver->isAssembled()) {
         m_log->setPriority(bitpit::log::Verbosity::DEBUG);
@@ -1099,9 +1100,9 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
     //renumber it and update the laplacian matrix and fill the rhs.
     bitpit::StencilScalar correction;
 
-    //loop on all dirichlet boundary nodes.
+    //loop on all dirichlet boundary nodes
     for(long id : m_bc_dir.getIds()){
-        if (geo->isPointInterior(id)){
+        if (lapwork->exists(id)){
             //apply the correction relative to bc @ dirichlet node.
             correction.clear(true);
             correction.appendItem(id, 1.);
@@ -1117,13 +1118,10 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 
     // now get the rhs
     for(auto it = lapwork->begin(); it != lapwork->end();++it){
-        auto index = maplocals.at(it.getId());
-#if MIMMO_ENABLE_MPI
-        //correct index if in parallel
-        index -= geo->getPointGlobalCountOffset();
-#endif
+        long index = maplocals.at(it.getId()) - geo->getPointGlobalCountOffset();
         rhs[index] -= it->getConstant();
     }
+
 }
 
 
@@ -1132,8 +1130,8 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
  * Basically it is a wrapper to m_solver method solve();
  * Before calling this method be sure to have initialized the Laplacian linear system
  *
- * \param[in] rhs on internal cells;
- * \param[in,out] result on internal cells. In input is an initial solution, in output is the reusl of computation.
+ * \param[in] rhs on internal nodes;
+ * \param[in,out] result on internal nodes. In input is an initial solution, in output is the reusl of computation.
  */
 template<std::size_t NCOMP>
 void
@@ -1159,8 +1157,8 @@ PropagateField<NCOMP>::solveLaplace(const dvector1D &rhs, dvector1D &result){
  * Utility to put laplacian solution directly into m_field (cleared and refreshed).
  * Ghost communication is already taken into account in case of MPI version.
  * \param[in] results data of laplacian solutions collected in raw vectors.
- * \param[in] mapglobals map to retrieve cell/node global id from locals raw laplacian indexing
- * \param[out] marked (OPTIONAL) list of cells/nodes whose field norm is greater then m_thres value.
+ * \param[in] mapglobals map to retrieve node global id from locals raw laplacian indexing
+ * \param[out] marked (OPTIONAL) list of nodes whose field norm is greater then m_thres value.
  */
 template<std::size_t NCOMP>
 void
@@ -1174,27 +1172,21 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const lilim
     }
     // push result in a mpv linked to target mesh and on cell location.
     MimmoSharedPointer<MimmoObject> geo = getGeometry();
-    std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvres(new MimmoPiercedVector<std::array<double,NCOMP> >(geo, MPVLocation::POINT));
-    mpvres->reserve(geo->getNVertices());
+    std::unique_ptr<MimmoPiercedVector<std::array<double,NCOMP> > > mpvres(new MimmoPiercedVector<std::array<double,NCOMP> >());
 
-    long id,counter;
     std::array<double, NCOMP> temp;
+    temp.fill(0.);
+    mpvres->initialize(geo, MPVLocation::POINT, temp); //initialize all to zero, ghosts included
+
+    long id, counter;
     for(auto & pair : mapglobals){
         id = pair.second;
         if (geo->isPointInterior(id)){
-            counter = pair.first;
-#if MIMMO_ENABLE_MPI
-            counter -= geo->getPointGlobalCountOffset();
-#endif
+            counter = pair.first - geo->getPointGlobalCountOffset();
             for(int i=0; i<int(NCOMP); ++i){
                 temp[i] = results[i][counter];
             }
-            mpvres->insert(id, temp);
-        }else{
-            for(int i=0; i<int(NCOMP); ++i){
-                temp[i] = 0.0;
-            }
-            mpvres->insert(id, temp);
+            mpvres->at(id) = temp;
         }
     }
 
@@ -1204,6 +1196,8 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const lilim
 #endif
 
     //mark point with solution norm above m_thres
+    //mark everything internal or ghost, in order to propagate it
+    //correctly.
     if(marked){
         marked->clear();
         marked->reserve(mpvres->size());
