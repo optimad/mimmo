@@ -292,8 +292,8 @@ int test1() {
 
     auto values = prop->getPropagatedField();
     std::cout<< values->at(targetNode) <<std::endl;
-//    check = check || (std::abs(values.at(targetNode)-6.26423) > 1.0E-3);
-    check = false;
+    check = check || (std::abs(values->at(targetNode)-3.75446) > 1.0E-5);
+//    check = false;
 
     delete prop;
 

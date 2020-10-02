@@ -280,7 +280,7 @@ int test1() {
     prop3D->setDampingInnerDistance(0.5);
     prop3D->setDampingOuterDistance(2.5);
 
-    prop3D->setSolverMultiStep(25);
+    prop3D->setSolverMultiStep(40);
 
     prop3D->setPlotInExecution(true);
 
@@ -293,17 +293,23 @@ int test1() {
         work = mesh->getVertexCoords(it.getId());
         mesh->modifyVertex(work + *it, it.getId());
     }
-
+    mesh->update();
     mesh->getPatch()->write("test00003_deformedMesh");
 
     bool check = false;
     long targetNode =  (10 +1)*(6+1)*3 + (6+1)*5 + 3;
+    darray3E value;
+    value.fill(-1.0*std::numeric_limits<double>::max());
+    if(values3D->exists(targetNode)) value = values3D->at(targetNode);
 
-    std::cout<<values3D->at(targetNode)<<std::endl;
+#if MIMMO_ENABLE_MPI
+    MPI_Allreduce(MPI_IN_PLACE, value.data(), 3, MPI_DOUBLE, MPI_MAX, prop3D->getCommunicator());
+#endif
 
-    //    check = check || (norm2(values3D.at(targetNode)-std::array<double,3>({{0.206202, -0.0621586, 4.61279e-17}})) > 1.0E-5);
-    check = false;
-
+    if(rank == 0){
+        std::cout<<targetNode<<"  "<<value<<std::endl;
+        check = check || (norm2(values3D->at(targetNode)-std::array<double,3>({{0.601253, -0.284719, 0.}})) > 1.0E-5);
+    }
     delete prop3D;
 #if MIMMO_ENABLE_MPI
     delete partition;
