@@ -528,8 +528,6 @@ protected:
     virtual void computeSlipBCCorrector(const MimmoPiercedVector<std::array<double,3> > & guessSolutionOnPoint);
 
     void initializeSlipSurfaceAsPlane();
-
-    dmpvecarr3E getBoundaryPropagatedField();
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_,__PROPAGATEFIELD_HPP__)

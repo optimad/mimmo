@@ -25,6 +25,7 @@
 
 #include "PropagateField.hpp"
 #include <CG.hpp>
+
 namespace mimmo {
 //--------------------------------------
 //--------------------------------------
@@ -247,19 +248,10 @@ PropagateScalarField::execute(){
         (*m_log)<<"Warning in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
     }
 
-#if MIMMO_ENABLE_MPI
-    //be sure ghost info are available
-    if(geo->getPointGhostExchangeInfoSyncStatus() != SyncStatus::SYNC){
-        geo->updatePointGhostExchangeInfo();
-    }
-#endif
-
+    //geo if exists has already ::update() method called, see setGeometry method of the base class.
     if(!checkBoundariesCoherence()){
         (*m_log)<<"Warning in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"<<std::endl;
     }
-
-    (*m_log) << bitpit::log::priority(bitpit::log::NORMAL);
-    (*m_log) << bitpit::log::context("mimmo");
 
     //allocate the solver;
     m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver(m_print));
@@ -290,12 +282,14 @@ PropagateScalarField::execute(){
 
     // Graph Laplace method on points
 
-    //store the id of the border nodes only;
+    //Laplacians update on border: store the id of the border, internal nodes only.
+    // Don't worry here for ghosts, laplacianStencils are always defined on rank internals.
     //TODO extract boundary vertex ID as unordered_set
     livector1D borderPointsID_vector = geo->extractBoundaryVertexID(false);
     std::unordered_set<long> borderPointsID(borderPointsID_vector.begin(), borderPointsID_vector.end());
 
     //get this inverse map -> you will need it to compact the stencils.
+    //MPI version, here get ghost also for renumbering stencils purpose in initializeLaplaceSolver and assignBCAndEvaluateRHS.
     dataInv = geo->getMapDataInv(true);
 
     //pass dirichlet bc point information to bulk m_bc_dir member.
@@ -316,10 +310,13 @@ PropagateScalarField::execute(){
     //This is directly managed in the method.
     modifyStencilsForNarrowBand(laplaceStencils);
 
-    // initialize the laplacian Matrix in solver and squeeze out the laplace stencils and save border cells only.
+    // initialize the laplacian Matrix in solver and squeeze out the laplace stencils and save border nodes only.
     initializeLaplaceSolver(laplaceStencils.get(), dataInv);
     laplaceStencils->squeezeOutExcept(borderPointsID);
+    //release list of boundary nodes
     borderPointsID.clear();
+    //release dampingOnPoints, because already embedded inside the laplacianStencils.
+    dampingOnPoints.clear();
 
     //create step bc in case of multistep.
     MimmoPiercedVector<std::array<double, 1> > stepBCdir(geo, MPVLocation::POINT);
@@ -330,6 +327,7 @@ PropagateScalarField::execute(){
 
     //solve
     std::vector<std::vector<double>> result(1);
+    dvector1D rhs;
     // multistep subiteration. Grid does not change, boundaries are forced each step with a constant increment, so:
     for(int istep=0; istep < m_nstep; ++istep){
 
@@ -337,13 +335,11 @@ PropagateScalarField::execute(){
             *it = double(istep + 1) * stepBCdir.at(it.getId());
         }
         //update the solver matrix applying bc and evaluate the rhs;
-        dvector1D rhs(geo->getNInternalVertices(), 0.0);
-        //USELESS FOR EACH STEP?...
+        //rhs dimensioned and zero initialized inside assign.
         assignBCAndEvaluateRHS(0, false, laplaceStencils.get(), dataInv, rhs);
         solveLaplace(rhs, result[0]);
     }
 
-    dataInv.clear();
     //reconstruct getting the direct node map -> you will need it uncompact the system solution in global id.
     lilimap mapdata = geo->getMapData(true);
     reconstructResults(result, mapdata);
@@ -490,6 +486,9 @@ PropagateVectorField::addSlipBoundarySurface(MimmoSharedPointer<MimmoObject> sur
         (*m_log)<<"Warning: "<<m_name<<" allows only slip boundary surfaces. Skipping input slip patch."<<std::endl;
         return;
     }
+
+    surface->update();
+
     m_slipSurfaces.insert(surface);
 }
 
@@ -507,6 +506,9 @@ PropagateVectorField::addSlipReferenceSurface(MimmoSharedPointer<MimmoObject> su
         (*m_log)<<"Warning: "<<m_name<<" allows only slip boundary surfaces. Skipping input slip reference patch."<<std::endl;
         return;
     }
+
+    surface->update();
+
     m_slipReferenceSurfaces.insert(surface);
 }
 
@@ -527,6 +529,9 @@ PropagateVectorField::addPeriodicBoundarySurface(MimmoSharedPointer<MimmoObject>
         (*m_log)<<"Warning: "<<m_name<<" allows only slip boundary surfaces. Skipping input periodic patch."<<std::endl;
         return;
     }
+
+    surface->update();
+
     m_periodicSurfaces.insert(surface);
     //save also surface in the list of slip surfaces.
     m_slipSurfaces.insert(surface);
@@ -641,12 +646,18 @@ void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, st
 
 
 /*!
- * Check coherence of the input data of the class, in particular:
-   - check if points of Dirichlet patches belongs to the bulk mesh.
-   - check if points of NarrowBand surfaces belongs to the bulk mesh.
-   - check if points of Damping surfaces belongs to the bulk mesh.
+ * Reimplemented from base class method. As for the base class this method will:
+   - check if Dirichlet surfaces belongs to the bulk mesh.
+   - check if NarrowBand surfaces belongs to the bulk mesh.
+   - check if Damping surfaces belongs to the bulk mesh.
+
+   Additionally it will also:
    - check if points of Slip surfaces belongs to bulk mesh (this include periodic surfaces if any)
-   - set the internal members m_slip_bc_dir (init to zero) and m_periodicBoundaryPoints
+   - set the internal members m_slip_bc_dir (initialized to zero) and m_periodicBoundaryPoints
+
+   Note. In parallel the bulk and boundaries meshes must have the same spatial partitioning.
+   There is no check here in this sense, but outputs of mimmo::Partition always guarantee this
+
  * \return true if coherence is satisfied, false otherwise.
  */
 bool PropagateVectorField::checkBoundariesCoherence(){
@@ -662,7 +673,7 @@ bool PropagateVectorField::checkBoundariesCoherence(){
         std::vector<long> temp = obj->getVerticesIds(true); //only on internals
         nodeList.insert(temp.begin(), temp.end());
     }
-    bitpit::PiercedVector<bitpit::Vertex> meshVertices = m_geometry->getVertices();
+    bitpit::PiercedVector<bitpit::Vertex> &meshVertices = m_geometry->getVertices();
     for(long id : nodeList){
         if(!meshVertices.exists(id)){
             nodeList.clear();
@@ -732,25 +743,20 @@ PropagateVectorField::apply(){
     }
     target->update();
 
-    dmpvecarr3E serialized_bf;
-
     //Check the damping and deform m_dampingUniSurface
-    if(m_dampingActive && m_dampingUniSurface.get() != nullptr){
-
-        if(serialized_bf.size() == 0) serialized_bf = getBoundaryPropagatedField();
+    if(m_dampingActive && m_dampingUniSurface != nullptr){
 
         for(auto it= m_dampingUniSurface->getPatch()->vertexBegin(); it!= m_dampingUniSurface->getPatch()->vertexEnd(); ++it){
-            m_dampingUniSurface->modifyVertex(it->getCoords() + serialized_bf.at(it.getId()), it.getId());
+            m_dampingUniSurface->modifyVertex(it->getCoords() + m_field.at(it.getId()), it.getId());
         }
         m_dampingUniSurface->update();
     }
 
     //Check the narrowband and deform m_bandUniSurface
-    if(m_bandActive && m_bandUniSurface.get() != nullptr){
-        if(serialized_bf.size() == 0) serialized_bf = getBoundaryPropagatedField();
+    if(m_bandActive && m_bandUniSurface != nullptr){
 
         for(auto it= m_bandUniSurface->getPatch()->vertexBegin(); it!= m_bandUniSurface->getPatch()->vertexEnd(); ++it){
-            m_bandUniSurface->modifyVertex(it->getCoords() + serialized_bf.at(it.getId()), it.getId());
+            m_bandUniSurface->modifyVertex(it->getCoords() + m_field.at(it.getId()), it.getId());
         }
         m_bandUniSurface->update();
     }
@@ -854,7 +860,11 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 
     //resize rhs to the number of internal cells
     MimmoSharedPointer<MimmoObject> geo = getGeometry();
-    rhs.resize(geo->getNInternalVertices(), 0.0);
+    {
+        dvector1D temp(geo->getNInternalVertices(), 0.0);
+        std::swap(rhs, temp);
+    }
+
 
     if (!m_solver->isAssembled()) {
         (*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
@@ -880,7 +890,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
     if(slipCorrect && !m_slipSurfaces.empty()){
         for(auto it = m_slip_bc_dir.begin(); it!=m_slip_bc_dir.end(); ++it){
             long id = it.getId();
-            if (!geo->isPointInterior(id)) continue;
+            if (!lapwork->exists(id)) continue;
 
             //apply the correction relative to bc @ dirichlet node.
             correction.clear(true);
@@ -898,7 +908,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
     //Loop on all periodic boundary points and force to be fixed (dirichlet 0)
     for (long id : m_periodicBoundaryPoints){
 
-        if (!geo->isPointInterior(id)) continue;
+        if (!lapwork->exists(id)) continue;
 
         correction.clear(true);
         correction.appendItem(id, 1.);
@@ -913,7 +923,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
     //loop on all dirichlet boundary nodes -> They have priority on all other conditions.
     for(auto it = m_bc_dir.begin(); it!=m_bc_dir.end(); ++it){
         long id = it.getId();
-        if (!geo->isPointInterior(id)) continue;
+        if (!lapwork->exists(id)) continue;
 
         //apply the correction relative to bc @ dirichlet node.
         correction.clear(true);
@@ -931,11 +941,7 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 
     // now get the rhs
     for(auto it = lapwork->begin(); it != lapwork->end();++it){
-        auto index = maplocals.at(it.getId());
-#if MIMMO_ENABLE_MPI
-        //correct index if in parallel
-        index -= getGeometry()->getPointGlobalCountOffset();
-#endif
+        long index = maplocals.at(it.getId()) - getGeometry()->getPointGlobalCountOffset();
         rhs[index] -= it->getConstant();
     }
 }
@@ -953,7 +959,8 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 void
 PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array<double,3> > & guessSolutionOnPoint){
 
-    //first step: extract solutions on twin border nodes of m_slip_bc_dir;
+    //first step: extract solutions on twin border nodes of m_slip_bc_dir
+    //(already initialized in checkBoundariesCoherence);
     // I'm sure from checkBoundariesCoherence that m_slip_bc_dir share the same id
     // of guessSolutionOnPoint
     for(auto it = m_slip_bc_dir.begin(); it != m_slip_bc_dir.end(); ++it){
@@ -1004,7 +1011,7 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
         std::size_t ip = 0;
         for(auto it = m_slip_bc_dir.begin(); it != m_slip_bc_dir.end(); ++it){
             long idV = it.getId();
-            projectionVector[idV] = projected_points[ip] - points[ip];
+            projectionVector[idV] = projected_points[ip] - m_geometry->getVertexCoords(idV);
             ip++;
         }
 
@@ -1012,7 +1019,7 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
 
     // add the projectionVector correction on m_slip_bc_dir
     for(auto it = m_slip_bc_dir.begin(); it != m_slip_bc_dir.end(); ++it){
-        (*it) += projectionVector.at(it.getId());
+        (*it) = projectionVector.at(it.getId());
     }
     //correction done.
 }
@@ -1032,20 +1039,10 @@ void PropagateVectorField::initializeSlipSurfaceAsPlane(){
     long countV = 0;
     long countC = 0;
 
-    //loop on m_slipReferenceSurfaces list
+    //loop on m_slipReferenceSurfaces list. Already checked and updated.
     for(MimmoSharedPointer<MimmoObject> obj : m_slipReferenceSurfaces){
-
-#if MIMMO_ENABLE_MPI
-    //be sure ghost info are available
-    if(obj->getPointGhostExchangeInfoSyncStatus() != SyncStatus::SYNC){
-        obj->updatePointGhostExchangeInfo();
-    }
-#endif
-
         bitpit::SurfaceKernel * surfkernss = dynamic_cast<bitpit::SurfaceKernel*>(obj->getPatch());
-        if(surfkernss == nullptr){
-            throw std::runtime_error("PropagateVectorField::initializeSlipSurface -> SurfaceKernel dynamic cast failed!");
-        }
+
         //start evaluating barycenter of interior points.
         for(auto itV = surfkernss->vertexBegin(); itV != surfkernss->vertexEnd(); ++itV){
             if(obj->isPointInterior(itV.getId())){
@@ -1059,7 +1056,7 @@ void PropagateVectorField::initializeSlipSurfaceAsPlane(){
             m_AVGslipNormal += surfkernss->evalFacetNormal(itC.getId());
             ++countC;
         }
-    }
+    }//end loop on slip surfaces.
 
 #if MIMMO_ENABLE_MPI
     //communicate with other processors summing barycenters, normals
@@ -1074,30 +1071,6 @@ void PropagateVectorField::initializeSlipSurfaceAsPlane(){
     if(countV > 0)  m_AVGslipCenter /= double(countV);
     if(countC > 0)  m_AVGslipNormal /= double(countC);
 
-}
-
-/*!
-    Return values of m_field associated to boundary nodes of the bulk mesh.
-    In case of MPI Version, returned structure is serialized, i.e. the boundary values
-    collected are not only those owned by the local rank, but
-    also those coming from all other ranks. In the end all ranks will had a copy
-    of exactly the same structure.
- */
-dmpvecarr3E PropagateVectorField::getBoundaryPropagatedField(){
-
-    MimmoPiercedVector<std::array<double,3> > mpvres(m_geometry, MPVLocation::POINT);
-    mpvres.reserve(m_field.size());
-
-    //fill mpvres with the value of m_field on boundary nodes
-    std::vector<long> bIds =  m_geometry->extractBoundaryVertexID(true);
-    for(long id : bIds){
-        mpvres.insert(id, m_field.at(id));
-    }
-
-    // shrink structure
-    mpvres.shrinkToFit();
-    //and return
-    return mpvres;
 }
 
 /*!
@@ -1116,21 +1089,12 @@ PropagateVectorField::execute(){
         (*m_log)<<"Warning in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
     }
 
-#if MIMMO_ENABLE_MPI
-    //be sure ghost info are available
-    if(geo->getPointGhostExchangeInfoSyncStatus() != SyncStatus::SYNC){
-        geo->updatePointGhostExchangeInfo();
-    }
-#endif
-
+    //geo if exists has already ::update() method called, see setGeometry method of the base class.
     if(!checkBoundariesCoherence()){
         (*m_log)<<"Warning in "<<m_name<<" .Boundary patches linked are uncoherent with target bulk geometry"<<std::endl;
     }
     //after this call m_slip_bc_dir is initialized and periodic points stored, in case.
 
-
-    (*m_log) << bitpit::log::priority(bitpit::log::NORMAL);
-    (*m_log) << bitpit::log::context("mimmo");
     //allocate the solver;
     m_solver = std::unique_ptr<bitpit::SystemSolver>(new bitpit::SystemSolver(m_print));
 
@@ -1166,12 +1130,14 @@ PropagateVectorField::execute(){
     initializeDampingFunction();
     updateNarrowBand();
 
+
     // Instantiate damping function on points
     MimmoPiercedVector<double> dampingOnPoints;
 
     // Graph Laplace method on points
 
     //store the id of the border nodes only;
+    //always defined on internals node. No need to ghosts for this list.
     //TODO extract boundary vertex ID as unordered_set
     livector1D borderPointsID_vector = geo->extractBoundaryVertexID(false);
     std::unordered_set<long> borderPointsID(borderPointsID_vector.begin(), borderPointsID_vector.end());
@@ -1180,6 +1146,7 @@ PropagateVectorField::execute(){
     dataInv = geo->getMapDataInv(true);
     //get this direct map -> you will need it to deflate compact solution of the system.
     data = geo->getMapData(true);
+    //need ghosts in both here for stencil renumbering in initialize/updateLaplace and assignBC
 
     //since bc is constant, even in case of multistep, once and for all
     //pass dirichlet bc point information to bulk m_bc_dir internal member.
@@ -1218,6 +1185,7 @@ PropagateVectorField::execute(){
     }
 
     //loop on multistep
+    dvector1D rhs;
     for(int istep=0; istep < m_nstep; ++istep){
 
         //3-COMPONENT SYSTEM SOLVING ---> ///////////////////////////////////////////////////////////////////////
@@ -1225,11 +1193,8 @@ PropagateVectorField::execute(){
         //first loop -> if slip is enforced in some walls, this is the PREDICTOR
         //stage of guess solution with 0-Neumann on slip walls
         for(int comp = 0; comp<3; ++comp){
-            //prepare the right hand side ;
-            dvector1D rhs(geo->getNInternalVertices(), 0.0);
+            //rhs dimensioned and zero initialized inside assign.
             assignBCAndEvaluateRHS(comp, false, laplaceStencils.get(), dataInv, rhs);
-            //solve
-            results[comp].resize(rhs.size(), 0.0);
             solveLaplace(rhs, results[comp]);
         }
 
@@ -1244,10 +1209,8 @@ PropagateVectorField::execute(){
             // so loop again on the components, reusing the previous result as starting guess, and setting
             // the boolean of slipCorrect to true (corrector stage of slip, read Dirichlet from m_slip_bc_dir)
             for(int comp = 0; comp<3; ++comp){
-                //prepare the right hand side ;
-                dvector1D rhs(geo->getNInternalVertices(), 0.0);
+                //rhs dimensioned and zero initialized inside assign.
                 assignBCAndEvaluateRHS(comp, true, laplaceStencils.get(), dataInv, rhs);
-                //solve
                 solveLaplace(rhs, results[comp]);
             }
         }
@@ -1276,9 +1239,10 @@ PropagateVectorField::execute(){
             //enlarge the list of marked moving nodes adding the 1st vertex ring.
             propagateMaskMovingPoints(*(movingElementList.get()));
 
-            // update the laplacian stencils
             // interpolate damping function on points
             dampingCellToPoint(dampingOnPoints);
+
+            // update the laplacian stencils
             GraphLaplStencil::MPVStencilUPtr updateLaplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, movingElementList.get(), m_tol, &dampingOnPoints);
             movingElementList->clear();
 
@@ -1297,7 +1261,6 @@ PropagateVectorField::execute(){
 
     } //end of multistep loop;
 
-
     if(m_nstep > 1){
         //this take the geometry to the original state and update the deformation field as the current
         //deformed grid minus the undeformed state (this directly on POINTS).
@@ -1305,6 +1268,7 @@ PropagateVectorField::execute(){
     }
 
     //free some memory from internal stuff
+    dampingOnPoints.clear();
 
     //clear UniSurface for Damping and NarrowBand if any
     m_bandUniSurface = nullptr;
@@ -1321,7 +1285,6 @@ PropagateVectorField::execute(){
     //clear the solver;
     m_solver->clear();
 
-    (*m_log) << bitpit::log::priority(bitpit::log::DEBUG);
 }
 
 } //end of mimmo namespace
