@@ -68,6 +68,7 @@ protected:
     livector1D connectivitylist;                 /**< one dimensional list of all vertex indices composing connectivity */
     livector1D pointsID;                         /**< labels of mesh nodes, if any*/
     livector1D cellsID;                          /**< labels of mesh cells, if any*/
+    ivector1D cellsRank;                         /**< ranks of mesh cells, if any*/
     livector1D pids;                              /**< cell pid, if any */
     livector1D offsets;                           /**< offset list for decoding connectivity list */
     std::vector<bitpit::ElementType> types;      /**< list of cell types */
@@ -84,33 +85,6 @@ public:
     virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     void decodeRawData(bitpit::PatchKernel & patch);
 };
-
-/*!
- * \class VTUPointCloudStreamer
- * \brief Custom mesh/data absorber for point clouds defined as an unstructured grid and given by external files *.vtu
- * \ingroup core
-
- * Read unstructured point cloud data only from an external file vtu (any other data will be skipped).
- * Data will be stored in internal structures of the streamer.
- */
-class VTUPointCloudStreamer: public VTUAbsorbStreamer{
-
-protected:
-    dvecarr3E points;                            /**< list of mesh nodes */
-    livector1D pointsID;                         /**< labels of mesh nodes, if any*/
-
-public:
-    VTUPointCloudStreamer();
-    virtual ~VTUPointCloudStreamer();
-    /*!Copy Constructor */
-    VTUPointCloudStreamer(const VTUPointCloudStreamer&) = default;
-
-    virtual void absorbData(std::fstream &stream, const std::string & name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
-    virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
-    void decodeRawData(bitpit::PatchKernel & patch);
-
-};
-
 
 /*!
  * \class VTUGridReader

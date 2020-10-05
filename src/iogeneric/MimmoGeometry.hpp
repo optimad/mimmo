@@ -59,7 +59,12 @@ enum WFORMAT{
  *  ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
  *  for volume mesh.
  *
- * On distributed archs, MimmoGeometry can write in parallel, but can read only with the 0 rank processor.
+ * On distributed archs, MimmoGeometry can write and read in parallel,
+ * by adding the collective file extension .pvtu to the input filename.
+ * When reading, the number of processors used to write the input file had to be equal
+ * to the current number of processors used to read.
+ * If MPI support is enabled but the number of processors is 1, MimmoGeometry read VTU file as serial one,
+ * by postponing the usual file extension .vtu.
  *  \n
  *  It can be used in three modes reader/writer/converter. To set the mode it uses an enum
  *  IOMode list:
@@ -131,6 +136,7 @@ enum WFORMAT{
  * In case of writing mode Geometry has to be mandatorily passed through port.
  *
  */
+// TODO ADD CUSTOM NUMBER OF PROCESSORS FOR INPUT/OUTPUT OF VTU FILES
 class MimmoGeometry: public BaseManipulation{
 
 protected:

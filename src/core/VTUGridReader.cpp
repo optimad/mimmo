@@ -705,6 +705,72 @@ void VTUGridStreamer::absorbData(std::fstream &stream, const std::string &name, 
                     break;
             }
         }
+    } else if (name == "cellRank") {
+        cellsRank.resize(sizeData);
+        for (auto & cellRank : cellsRank) {
+            switch(datatype){
+                case bitpit::VTKDataType::Int8 :
+                {
+                    int8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
+                    cellRank = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt8 :
+                {
+                    uint8_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
+                    cellRank = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int16 :
+                {
+                    int16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
+                    cellRank = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt16 :
+                {
+                    uint16_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
+                    cellRank = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int32 :
+                {
+                    int32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
+                    cellRank = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt32 :
+                {
+                    uint32_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
+                    cellRank = val;
+                }
+                break;
+                case bitpit::VTKDataType::Int64 :
+                {
+                    int64_t val;
+                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
+                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
+                    cellRank = val;
+                }
+                break;
+                case bitpit::VTKDataType::UInt64 :
+                default:
+                    throw std::runtime_error("VTUGridStreamer::absorbData : CellRank data format not available");
+                    break;
+            }
+        }
     }
 }
 
@@ -1351,11 +1417,8 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
     std::size_t nVertices, nCells;
     nVertices = points.size();
     nCells = offsets.size();
-    if(nVertices == 0){
-        throw std::runtime_error("Error VTUGridStreamer : no point coordinates detected while reading *.vtu file.");
-    }
-    if(nCells == 0 || types.empty() || connectivitylist.size() < nCells ){
-        throw std::runtime_error("Error VTUGridStreamer : no valid connectivity/offsets/types info detected while reading *.vtu file.");
+    if(connectivitylist.size() < nCells ){
+        throw std::runtime_error("Error VTUGridStreamer : no valid connectivity info detected while reading *.vtu file.");
     }
 
     patch.reserveVertices(nVertices);
@@ -1382,16 +1445,18 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
 
     //reading mesh connectivity by offsets and store it in cells.
     //check cell labels if any;
-    bool checkCellsID, checkFaceOffset, checkPID;
+    bool checkCellsID, checkFaceOffset, checkPID, checkRank;
     {
         std::unordered_set<long> checkSet(cellsID.begin(), cellsID.end());
         checkCellsID = ( checkSet.size() == nCells);
         checkFaceOffset = ( (faceoffsets.size() == nCells) && (faces.size()>= nCells) );
         checkPID = (pids.size() == nCells);
+        checkRank = (cellsRank.size() == nCells);
     }
     //insert points;
     counter = 0;
     long idC=0;
+    int rank;
     int posCellBegin = 0, posFaceBegin=0;
     bitpit::ElementType eltype;
     long PID;
@@ -1400,8 +1465,10 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
     for(const auto & off : offsets){
         idC = bitpit::Cell::NULL_ID;
         PID = 0;
+        rank = -1;
         if(checkCellsID)  {idC= cellsID[counter];}
         if(checkPID)      {PID = pids[counter];}
+        if(checkRank)      {rank = cellsRank[counter];}
         eltype = types[counter];
 
         if(eltype == bitpit::ElementType::POLYHEDRON){
@@ -1443,7 +1510,13 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
             }
         }
 
+#if MIMMO_ENABLE_MPI
+        if(rank < 0)    rank = patch.getRank();
+        bitpit::PatchKernel::CellIterator it = patch.addCell(eltype, conn, rank, idC);
+#else
         bitpit::PatchKernel::CellIterator it = patch.addCell(eltype, conn, idC);
+#endif
+
         (*it).setPID(PID);
 
         posCellBegin = off;
@@ -1453,285 +1526,6 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
         ++counter;
     }
 }
-
-/*!
- * Base Constructor
- */
-VTUPointCloudStreamer::VTUPointCloudStreamer():VTUAbsorbStreamer(){}
-
-/*!
- * Base Destructor
- */
-VTUPointCloudStreamer::~VTUPointCloudStreamer(){}
-
-/*!
- * Absorber of VTU mesh data. Reimplemented from bitpit::VTKBaseStreamer class
- * \param[in] stream    stream to read from
- * \param[in] name      name of the geometry field
- * \param[in] format    ASCII or APPENDED
- * \param[in] entries   number of entries for the data container
- * \param[in] components number of components of current data container
- * \param[in] datatype   data format for binary casting
- */
-void VTUPointCloudStreamer::absorbData(std::fstream &stream, const std::string &name, bitpit::VTKFormat format,
-                                 uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
-{
-    std::size_t sizeData = std::size_t(entries/components);
-    if (name == "Points") {
-        //get correct data type
-        points.resize(sizeData);
-        for (auto & p :points) {
-            for(auto &pval : p){
-                switch (datatype){
-                    case bitpit::VTKDataType::Float32 :
-                    {
-                        float val;
-                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                        pval = val;
-                    }
-                    break;
-                    case bitpit::VTKDataType::Float64:
-                    {
-                        double val;
-                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                        pval = val;
-                    }
-                    break;
-                    default:
-                        throw std::runtime_error("VTUGridStreamer::absorbData : Points data format not available");
-                        break;
-                }
-
-            }
-        }
-    }else if (name == "vertexIndex") {
-        pointsID.resize(sizeData);
-        for (auto & vpid : pointsID) {
-            switch(datatype){
-                case bitpit::VTKDataType::Int8 :
-                {
-                    int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::UInt8 :
-                {
-                    uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::Int16 :
-                {
-                    int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::UInt16 :
-                {
-                    uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::Int32 :
-                {
-                    int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::UInt32 :
-                {
-                    uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::Int64 :
-                {
-                    int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::UInt64 :
-                default:
-                    throw std::runtime_error("VTUPointCloudStreamer::absorbData : VertexIndex data format not available");
-                    break;
-            }
-        }
-    }
-}
-/*!
- * method to ensure bitpit_legacy with versions lesser then 1.6 release
- * \param[in] stream    stream to read from
- * \param[in] name      name of the geometry field
- * \param[in] format    ASCII or APPENDED
- * \param[in] entries   number of entries for the data container
- * \param[in] components number of components of current data container
- * \param[in] datatype   data format for binary casting
- */
-
-void VTUPointCloudStreamer::absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format,
-                                 uint64_t entries, uint8_t components, bitpit::VTKDataType datatype)
-{
-    std::size_t sizeData = std::size_t(entries/components);
-    if (name == "Points") {
-        //get correct data type
-        points.resize(sizeData);
-        for (auto & p :points) {
-            for(auto &pval : p){
-                switch (datatype){
-                    case bitpit::VTKDataType::Float32 :
-                    {
-                        float val;
-                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                        pval = val;
-                    }
-                    break;
-                    case bitpit::VTKDataType::Float64:
-                    {
-                        double val;
-                        if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                        else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                        pval = val;
-                    }
-                    break;
-                    default:
-                        throw std::runtime_error("VTUGridStreamer::absorbData : Points data format not available");
-                        break;
-                }
-
-            }
-        }
-    }else if (name == "vertexIndex") {
-        pointsID.resize(sizeData);
-        for (auto & vpid : pointsID) {
-            switch(datatype){
-                case bitpit::VTKDataType::Int8 :
-                {
-                    int8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::UInt8 :
-                {
-                    uint8_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::Int16 :
-                {
-                    int16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::UInt16 :
-                {
-                    uint16_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::Int32 :
-                {
-                    int32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::UInt32 :
-                {
-                    uint32_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::Int64 :
-                {
-                    int64_t val;
-                    if(format == bitpit::VTKFormat::ASCII)  bitpit::genericIO::absorbASCII(stream,val);
-                    else                                    bitpit::genericIO::absorbBINARY(stream, val);
-                    vpid = val;
-                }
-                break;
-                case bitpit::VTKDataType::UInt64 :
-                default:
-                    throw std::runtime_error("VTUPointCloudStreamer::absorbData : VertexIndex data format not available");
-                    break;
-            }
-        }
-    }
-}
-
-
-/*!
- * Use streamer absorbed data, if any, to fill vertices of target bitpit::PatchKernel container,
- * passed externally. Please notice, container must be empty.
- * \param[in] patch    container for mesh
- */
-void VTUPointCloudStreamer::decodeRawData(bitpit::PatchKernel & patch)
-{
-    //time to check reading result.
-    std::size_t nVertices, nCells;
-    nVertices = points.size();
-    nCells = nVertices;
-    if(nVertices == 0){
-        throw std::runtime_error("Error VTUPointCloudStreamer : no point coordinates detected while reading *.vtu file.");
-    }
-    patch.reserveVertices(nVertices);
-    patch.reserveCells(nCells);
-
-    //reading mesh nodes and store it in vertices.
-    //check labels if any;
-    bool checkPointsID;
-    {
-        std::unordered_set<long> checkSet(pointsID.begin(), pointsID.end());
-        checkPointsID = ( checkSet.size() == nVertices);
-    }
-    //insert points and recover local/global map of vertices;
-    std::unordered_map<int, long> mapVert;
-    int counter = 0;
-    long idV=0;
-    for(const auto & p : points){
-        idV = bitpit::Vertex::NULL_ID;
-        if(checkPointsID) idV = pointsID[counter];
-        bitpit::PatchKernel::VertexIterator it = patch.addVertex(p, idV);
-        mapVert[counter] = (*it).getId();
-
-        //Add cell of type VERTEX
-        long ID = mapVert[counter];
-        livector1D conn(1, ID);
-        long idC = ID;
-        patch.addCell(bitpit::ElementType::VERTEX, conn, idC);
-
-        ++counter;
-
-    }
-}
-
 
 
 /*!
@@ -1753,7 +1547,15 @@ VTUGridReader::VTUGridReader( std::string dir, std::string name, VTUAbsorbStream
 
     addData<long>("vertexIndex", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, &streamer);
     addData<long>("cellIndex", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, &streamer);
+    addData<int>("cellRank", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, &streamer);
     addData<int>("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, &streamer);
+
+#if MIMMO_ENABLE_MPI
+    if (m_patch.getProcessorCount() > 1) {
+        setParallel(m_patch.getProcessorCount(), m_patch.getRank());
+    }
+#endif
+
 }
 
 /*!
