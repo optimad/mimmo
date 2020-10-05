@@ -309,8 +309,6 @@ ProjSegmentOnSurface::projection(){
             ++id;
         }
     }
-    m_patch->cleanPatchInfo();
-    m_patch->updateAdjacencies();
     m_patch->update();
 
 #if MIMMO_ENABLE_MPI
