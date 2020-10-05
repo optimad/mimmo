@@ -71,7 +71,7 @@ bool isPointInsideSegment(const darray3E & p, const darray3E & V0,const darray3E
     if(normSegment > std::numeric_limits<double>::min()) segment /= normSegment;
     double V = dotProduct(Pv, segment);
     if(norm2(Pv - V*segment)> tol)  return false;
-    return ( V >=0.0 && V <= normSegment);
+    return ( V >= (0.0-tol) && V <= (normSegment + tol));
 }
 
 /*!
