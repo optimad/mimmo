@@ -936,23 +936,31 @@ MRBF::plotCloud(std::string directory, std::string filename, int counterFile, bo
 	bitpit::VTKFormat codex = bitpit::VTKFormat::ASCII;
 	if(binary){codex=bitpit::VTKFormat::APPENDED;}
 
-	ivector1D conn(nnodes);
-	{
-		int counter = 0;
-		for(auto & val: conn){
-			val = counter;
-			++counter;
-		}
-	}
-	bitpit::VTKUnstructuredGrid vtk(directory, filename, bitpit::VTKElementType::VERTEX);
-	vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, nodes) ;
-	vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
-	vtk.setDimensions(conn.size(), nnodes);
-    //use connectivity as node labels also;
-    vtk.addData("labels",bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, conn) ;
-	vtk.setCodex(codex);
-	if(counterFile>=0){vtk.setCounter(counterFile);}
-	vtk.write();
+    ivector1D conn(nnodes);
+    {
+        int counter = 0;
+        for(auto & val: conn){
+            val = counter;
+            ++counter;
+        }
+    }
+    bitpit::VTKUnstructuredGrid vtk(directory, filename, bitpit::VTKElementType::VERTEX);
+
+#if MIMMO_ENABLE_MPI
+    // only rank 0 writes (nodes are shared!)
+    if (getRank() == 0){
+#endif
+        vtk.setGeomData( bitpit::VTKUnstructuredField::POINTS, nodes) ;
+        vtk.setGeomData( bitpit::VTKUnstructuredField::CONNECTIVITY, conn) ;
+        vtk.setDimensions(conn.size(), nnodes);
+        //use connectivity as node labels also;
+        vtk.addData("labels",bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, conn) ;
+        vtk.setCodex(codex);
+        if(counterFile>=0){vtk.setCounter(counterFile);}
+        vtk.write();
+#if MIMMO_ENABLE_MPI
+    }
+#endif
 };
 
 /*!
