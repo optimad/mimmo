@@ -730,23 +730,22 @@ MimmoGeometry::read(){
     case FileType::SURFVTU :
         //Import Surface VTU meshes
     {
-    	setGeometry(1);
+        setGeometry(1);
+        std::string extension = ".vtu";
 #if MIMMO_ENABLE_MPI
-    	if (m_rank == 0) {
+        if (getGeometry()->getProcessorCount() > 1)
+            extension = ".pvtu";
 #endif
-    		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
-    		bool check = infile.good();
-    		if (!check) return false;
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname + extension);
+        bool check = infile.good();
+        if (!check) return false;
 
-    		VTUGridStreamer vtustreamer;
-    		VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        VTUGridStreamer vtustreamer;
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
 
-    		input.read() ;
+        input.read() ;
 
-    		getGeometry()->resyncPID();
-#if MIMMO_ENABLE_MPI
-    	}
-#endif
+        getGeometry()->resyncPID();
     }
     break;
 
@@ -754,10 +753,12 @@ MimmoGeometry::read(){
         //Import Volume VTU meshes
     {
         setGeometry(2);
+        std::string extension = ".vtu";
 #if MIMMO_ENABLE_MPI
-    	if (m_rank == 0) {
+        if (getGeometry()->getProcessorCount() > 1)
+            extension = ".pvtu";
 #endif
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+extension);
         bool check = infile.good();
         if (!check) return false;
 
@@ -766,9 +767,6 @@ MimmoGeometry::read(){
         input.read() ;
 
         getGeometry()->resyncPID();
-#if MIMMO_ENABLE_MPI
-    	}
-#endif
     }
     break;
 
@@ -864,21 +862,18 @@ MimmoGeometry::read(){
     case FileType::PCVTU :
     {
         setGeometry(3);
+        std::string extension = ".vtu";
 #if MIMMO_ENABLE_MPI
-    	if (m_rank == 0) {
+        if (getGeometry()->getProcessorCount() > 1)
+            extension = ".pvtu";
 #endif
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+extension);
         bool check = infile.good();
         if (!check) return false;
 
-        VTUPointCloudStreamer vtustreamer;
-        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()), bitpit::VTKElementType::VERTEX);
-//        VTUGridStreamer vtustreamer;
-//        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        VTUGridStreamer vtustreamer;
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
         input.read() ;
-#if MIMMO_ENABLE_MPI
-    	}
-#endif
     }
     break;
 
@@ -886,10 +881,12 @@ MimmoGeometry::read(){
         //Import 3D Curve VTU
     {
         setGeometry(4);
+        std::string extension = ".vtu";
 #if MIMMO_ENABLE_MPI
-    	if (m_rank == 0) {
+        if (getGeometry()->getProcessorCount() > 1)
+            extension = ".pvtu";
 #endif
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".vtu");
+        std::ifstream infile; //(m_rinfo.fdir+"/"+m_rinfo.fname + extension);
         bool check = infile.good();
         if (!check) return false;
 
@@ -898,9 +895,6 @@ MimmoGeometry::read(){
         input.read() ;
 
         getGeometry()->resyncPID();
-#if MIMMO_ENABLE_MPI
-    	}
-#endif
     }
     break;
 
