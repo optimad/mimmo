@@ -799,7 +799,8 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 	    }
 #if MIMMO_ENABLE_MPI
 	    // Delete orphan ghosts
-	    getGeometry()->deleteOrphanGhostCells();
+        getGeometry()->deleteOrphanGhostCells();
+        getGeometry()->getPatch()->deleteOrphanVertices();
 #endif
 	    // Update geometry
 	    getGeometry()->update();
