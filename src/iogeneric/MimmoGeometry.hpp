@@ -29,7 +29,7 @@
 #include <typeinfo>
 #include <type_traits>
 
-BETTER_ENUM(FileType, int, STL = 0, SURFVTU = 1, VOLVTU = 2, NAS = 3, OFP = 4, PCVTU = 5, CURVEVTU = 6, MIMMO = 99);
+BETTER_ENUM(FileType, int, STL = 0, SURFVTU = 1, VOLVTU = 2, NAS = 3, PCVTU = 4, CURVEVTU = 5, MIMMO = 99);
 
 BETTER_ENUM(NastranElementType, int, GRID = 0, CTRIA = 1, CQUAD = 2, CBAR = 3, RBE2 = 4, RBE3 = 5);
 
@@ -79,9 +79,8 @@ enum WFORMAT{
  * - <B>SURFVTU = 1</B> Surface mesh vtu, of any 2D bitpit::ElementType.
  * - <B>VOLVTU  = 2</B> Volume mesh VTU, of any 3D bitpit::ElementType.
  * - <B>NAS     = 3</B> Nastran surface triangular/quad surface meshes.
- * - <B>OFP     = 4</B> Ascii OpenFoam point cloud.
- * - <B>PCVTU   = 5</B> Point Cloud VTU, of only VERTEX elements
- * - <B>CURVEVTU= 6</B> 3D Curve in VTU, of only LINE elements
+ * - <B>PCVTU   = 4</B> Point Cloud VTU, of only VERTEX elements
+ * - <B>CURVEVTU= 5</B> 3D Curve in VTU, of only LINE elements
  * - <B>MIMMO   = 99</B> mimmo dump/restore format *.geomimmo
  *
  * Outside this list of options, the class cannot hold any other type of formats for now.
@@ -221,9 +220,6 @@ public:
     bool        read();
 
     void         execute();
-
-    void         readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points);
-    void         writeOFP(std::string& outputDir, std::string& surfaceName, dvecarr3E& points);
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");

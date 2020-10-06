@@ -605,20 +605,6 @@ MimmoGeometry::write(){
         return true;
     }
     break;
-
-    case FileType::OFP : //Export ascii OpenFOAM point cloud
-    {
-
-        dvecarr3E points = getGeometry()->getVerticesCoords();
-#if MIMMO_ENABLE_MPI
-        std::string namefile = m_winfo.fname+"."+std::to_string(m_rank);
-#else
-        std::string namefile = m_winfo.fname;
-#endif
-        writeOFP(m_winfo.fdir, namefile, points);
-        return true;
-    }
-    break;
 //
 //    case FileType::PCVTU :
 //        //Export Point Cloud VTU
@@ -826,38 +812,6 @@ MimmoGeometry::read(){
     }
     break;
 
-    //Import ascii OpenFOAM point cloud
-    case FileType::OFP :
-    {
-        setGeometry(3);
-#if MIMMO_ENABLE_MPI
-    	if (m_rank == 0) {
-#endif
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname);
-        bool check = infile.good();
-        if (!check) return false;
-        infile.close();
-
-        dvecarr3E    Ipoints;
-        readOFP(m_rinfo.fdir, m_rinfo.fname, Ipoints);
-
-        int sizeV = Ipoints.size();
-        getGeometry()->getPatch()->reserveVertices(sizeV);
-
-        long Id = 0;
-        for(const auto & vv : Ipoints){
-            getGeometry()->addVertex(vv, Id);
-        	livector1D conn(1,Id);
-        	bitpit::ElementType eltype = bitpit::ElementType::VERTEX;
-        	getGeometry()->addConnectedCell(conn, eltype, Id);
-			Id++;
-        }
-#if MIMMO_ENABLE_MPI
-    	}
-#endif
-    }
-    break;
-
     //Import point cloud from vtu
     case FileType::PCVTU :
     {
@@ -974,111 +928,6 @@ MimmoGeometry::execute(){
             return;
         }
     }
-}
-
-/*!
- *    Read openFoam format geometry file and absorb it as a point cloud ONLY.
- *\param[in]    inputDir    folder of file
- *\param[in]    surfaceName    name of file
- *\param[out]    points        list of points in the cloud
- *
- */
-void MimmoGeometry::readOFP(std::string& inputDir, std::string& surfaceName, dvecarr3E& points){
-
-    std::ifstream is(inputDir +"/"+surfaceName);
-
-    points.clear();
-    int ip = 0;
-    int np;
-    darray3E point;
-    std::string sread;
-    char par;
-
-    for (int i=0; i<18; i++){
-        std::getline(is,sread);
-    }
-    is >> np;
-    std::getline(is,sread);
-    std::getline(is,sread);
-
-    points.resize(np);
-    while(!is.eof() && ip<np){
-        is.get(par);
-        for (int i=0; i<3; i++) is >> point[i];
-        is.get(par);
-        std::getline(is,sread);
-        points[ip] = point;
-        ip++;
-    }
-    is.close();
-}
-/*!
- *    Write geometry file in openFoam format as a point cloud ONLY.
- *\param[in]    outputDir    folder of file
- *\param[in]    surfaceName    name of file
- *\param[out]    points        list of points in the cloud
- *
- */
-void MimmoGeometry::writeOFP(std::string& outputDir, std::string& surfaceName, dvecarr3E& points){
-
-    std::ofstream os(outputDir +"/"+surfaceName);
-    char nl = '\n';
-
-    std::string separator(" ");
-    std::string parl("("), parr(")");
-    std::string hline;
-
-    hline = "/*--------------------------------*- C++ -*----------------------------------*\\" ;
-    os << hline << nl;
-    hline = "| =========                 |                                                 |";
-    os << hline << nl;
-    hline = "| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |";
-    os << hline << nl;
-    hline = "|  \\\\    /   O peration     | Version:  2.4.x                                 |";
-    os << hline << nl;
-    hline = "|   \\\\  /    A nd           | Web:      www.OpenFOAM.org                      |";
-    os << hline << nl;
-    hline = "|    \\\\/     M anipulation  |                                                 |";
-    os << hline << nl;
-    hline = "\\*---------------------------------------------------------------------------*/";
-    os << hline << nl;
-    hline = "FoamFile";
-    os << hline << nl;
-    hline = "{";
-    os << hline << nl;
-    hline = "    version     2.0;";
-    os << hline << nl;
-    hline = "    format      ascii;";
-    os << hline << nl;
-    hline = "    class       vectorField;";
-    os << hline << nl;
-    hline = "    location    \"constant/polyMesh\";";
-    os << hline << nl;
-    hline = "    object      points;";
-    os << hline << nl;
-    hline = "}";
-    os << hline << nl;
-    hline = "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //";
-    os << hline << nl;
-    os << nl;
-    os << nl;
-    int np = points.size();
-    os << np << nl;
-    os << parl << nl;
-    for (int i=0; i<np; i++){
-        os << parl;
-        for (int j=0; j<2; j++){
-            os << std::setprecision(16) << points[i][j] << separator;
-        }
-        os << std::setprecision(16) << points[i][2] << parr << nl;
-    }
-    os << parr << nl;
-    os << nl;
-    os << nl;
-    hline = "// ************************************************************************* //";
-    os << hline << nl;
-
-    os.close();
 }
 
 /*!
