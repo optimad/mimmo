@@ -58,7 +58,6 @@ if(BUILD_EXAMPLES)
     isModuleEnabled("utils" MODULE_UTILS_ENABLED)
     isModuleEnabled("propagators" MODULE_PROPAGATORS_ENABLED)
     isModuleEnabled("parallel" MODULE_PARALLEL_ENABLED)
-    isModuleEnabled("iovtk" MODULE_IOVTK_ENABLED)
     isModuleEnabled("ioofoam" MODULE_IOOFOAM_ENABLED)
     isModuleEnabled("iocgns" MODULE_IOCGNS_ENABLED)
 
@@ -110,12 +109,6 @@ if(BUILD_EXAMPLES)
     if (MODULE_IOCGNS_ENABLED AND MODULE_UTILS_ENABLED)
         list(APPEND EXAMPLE_LIST "iocgns_example_00002")
     endif ()
-
-    #2
-    if (MODULE_IOVTK_ENABLED)
-        list(APPEND EXAMPLE_LIST "iovtk_example_00001")
-    endif ()
-
 
     #5
     if (MODULE_IOOFOAM_ENABLED)
@@ -321,14 +314,6 @@ if(BUILD_EXAMPLES)
         add_custom_command(
             TARGET "iocgns_example_00002" PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/grid.cgns" "${CMAKE_CURRENT_BINARY_DIR}/geodata/grid.cgns"
-        )
-    endif()
-
-    list(FIND EXAMPLE_LIST "iovtk_example_00001" _index)
-    if ( ${_index} GREATER -1)
-        add_custom_command(
-            TARGET "iovtk_example_00001" PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/iovtk.vtk" "${CMAKE_CURRENT_BINARY_DIR}/geodata/iovtk.vtk"
         )
     endif()
 

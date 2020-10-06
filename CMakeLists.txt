@@ -332,7 +332,6 @@ if(ENABLE_MPI)
 endif()
 list(APPEND MIMMO_MODULE_LIST "iogeneric")
 list(APPEND MIMMO_MODULE_LIST "iocgns")
-list(APPEND MIMMO_MODULE_LIST "iovtk")
 list(APPEND MIMMO_MODULE_LIST "ioofoam")
 list(APPEND MIMMO_MODULE_LIST "geohandlers")
 list(APPEND MIMMO_MODULE_LIST "manipulators")
@@ -354,7 +353,6 @@ endif()
 set(MIMMO_MODULEDISABLED_LIST "")
 list(APPEND MIMMO_MODULEDISABLED_LIST "propagators")
 list(APPEND MIMMO_MODULEDISABLED_LIST "iocgns")
-list(APPEND MIMMO_MODULEDISABLED_LIST "iovtk")
 list(APPEND MIMMO_MODULEDISABLED_LIST "ioofoam")
 list(APPEND MIMMO_MODULEDISABLED_LIST "utils")
 
@@ -364,7 +362,6 @@ list(APPEND MIMMO_MODULEDISABLED_LIST "utils")
 set(CORE_DEPS "common")
 set(IOCGNS_DEPS "core;common")
 set(IOGENERIC_DEPS "core;common")
-set(IOVTK_DEPS "core;common")
 set(IOOFOAM_DEPS "core;common")
 set(MANIPULATORS_DEPS "core;common")
 if(ENABLE_MPI)
@@ -463,7 +460,6 @@ set(OTHER_EXTERNAL_INCLUDE_DIRS "") ## put here include_dirs you need now and th
 ## search optional modules if activated
 isModuleEnabled("utils"  MODULE_ENABLED_UTILS)
 isModuleEnabled("propagators"  MODULE_ENABLED_PROPAGATORS)
-isModuleEnabled("iovtk"  MODULE_ENABLED_IOVTK)
 isModuleEnabled("ioofoam" MODULE_ENABLED_IOOFOAM)
 isModuleEnabled("iocgns" MODULE_ENABLED_IOCGNS)
 isModuleEnabled("parallel" MODULE_ENABLED_PARALLEL)
@@ -492,21 +488,6 @@ if (ENABLE_MPI)
     list (APPEND OTHER_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
     list (APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${MPI_CXX_INCLUDE_DIRS}" )
 endif()
-
-if (MODULE_ENABLED_IOVTK)
-    # ---- VTK forced ---
-    set(VTK_DIR "/opt/vtk/vtk_6.3.0" CACHE PATH "path to VTK installation")
-    set(VTK_QUERYPACKAGES "vtkCommonDataModel" "vtkCommonCore" "vtkFiltersCore" "vtkIOLegacy")
-    find_package(VTK REQUIRED COMPONENTS ${VTK_QUERYPACKAGES})
-    include(${VTK_USE_FILE})
-    ##BEtter to be refind after
-    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "VTK")
-    list(APPEND MIMMO_EXTERNAL_LIBRARIES "${VTK_LIBRARIES}")
-    ##include dirs are managed by vtk-use-file
-    #      ----
-else()
-    UNSET(VTK_DIR CACHE)
-endif ()
 
 if (MODULE_ENABLED_IOOFOAM)
 
