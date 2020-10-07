@@ -400,11 +400,18 @@ int getPatchIndex(const char *rootPath, const std::string &patchName)
  * \param[in] rootPath path to openfoam mesh directory.
  * \param[in] foamRunTime_retPtr pointer to foam Time object.
  * \param[in] foamMesh_retPtr pointer to foam fvMesh object.
+ * \param[in] processorCount number of processors of the case (optional, default =1).
  */
-void initializeCase(const char *rootPath, Foam::Time **foamRunTime_retPtr, Foam::fvMesh **foamMesh_retPtr)
+void initializeCase(const char *rootPath, Foam::Time **foamRunTime_retPtr, Foam::fvMesh **foamMesh_retPtr, int processorCount)
 {
+
     // Arguments and root case
     int nArguments = 3;
+#if MIMMO_ENABLE_MPI
+    if (processorCount > 1){
+        nArguments = 4;
+    }
+#endif
     char **arguments = new char*[nArguments];
 
     char executable[] = "foamReader";
@@ -417,6 +424,22 @@ void initializeCase(const char *rootPath, Foam::Time **foamRunTime_retPtr, Foam:
     strcpy(caseRoot, rootPath);
     arguments[2] = caseRoot;
 
+#if MIMMO_ENABLE_MPI
+    if (processorCount > 1){
+        char caseParallel[] = "-parallel";
+        arguments[3] = caseParallel;
+
+        // Fill with correct MPI executable during compilation
+
+        std::string parallel_executable = std::string("@MIMMO_MPIEXEC_EXECUTABLE") + " -n " + std::to_string(processorCount) + " foamReader";
+        char executable2[parallel_executable.size()];
+        strcpy(executable2, parallel_executable.c_str());;
+        arguments[0] = executable;
+
+    }
+#endif
+
+    Foam::argList::noCheckProcessorDirectories();
 
     static Foam::argList *foamArgs = 0;
     if (!foamArgs) {
@@ -491,6 +514,8 @@ const word getFieldClass(const char *rootPath, const char *fileName)
  * \param[in] points new pointField to substitute
  * \param[in] overwriteStart if true new points set will be overwritten in the current case time, otherwise
  *                           a new time case incremented by one w.r.t the current one will be created.
+ *
+ * \return false if input points are not coherent with OpenFOAM case
  */
 bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > & points, bool overwriteStart)
 {
@@ -514,6 +539,7 @@ bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > 
             movedPoints[i][j] = points[i][j];
         }
     }
+
 
     foamMesh->movePoints(movedPoints);
 
