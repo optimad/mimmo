@@ -196,7 +196,7 @@ public:
     int                  getNPortsOut();
 
 #if MIMMO_ENABLE_MPI
-    int                 getTotalProcs();
+    int                 getProcessorCount();
     int                 getRank();
     MPI_Comm &          getCommunicator();
 #endif

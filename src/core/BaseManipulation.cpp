@@ -931,7 +931,7 @@ std::vector<BaseManipulation*>    BaseManipulation::getSubBlocksEmbedded(){
 #if MIMMO_ENABLE_MPI
 
 /*! \return total number of processors in the job */
-int BaseManipulation::getTotalProcs(){
+int BaseManipulation::getProcessorCount(){
     return m_nprocs;
 }
 
