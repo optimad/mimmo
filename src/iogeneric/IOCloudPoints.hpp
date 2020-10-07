@@ -83,6 +83,9 @@ namespace mimmo{
  *
  * The point cloud is provided as a MimmoObject point cloud.
  * The geometry can be stored internally or given by an external block by set Geometry method/port.
+ * In parallel: in read mode only master rank(0) reads the file, i.e. the partition of the Point Cloud
+ * Object on the other processors are empty; in write mode all the ranks write on the same file, by filling
+ * it in a sequential way in order to export the entire Point Cloud in the same output.
  *
  *
  * \n

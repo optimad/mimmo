@@ -392,95 +392,107 @@ IOCloudPoints::plotOptionalResults(){
 void
 IOCloudPoints::read(){
 
-    std::unordered_map<long, int> mapP;
-    std::ifstream reading;
-    std::string source = m_dir+"/"+m_filename;
-    reading.open(source.c_str());
-    if(reading.is_open()){
+    m_points.clear();
+    m_labels.clear();
+    m_scalarfield.clear();
+    m_vectorfield.clear();
 
-        m_points.clear();
-        m_labels.clear();
-        m_scalarfield.clear();
-        m_vectorfield.clear();
-
-        std::string keyword, line;
-        long label;
-        darray3E dtrial;
-        double temp;
-
-        do{
-            line.clear();
-            keyword.clear();
-            std::getline(reading,line);
-            line = bitpit::utils::string::trim(line);
-            std::stringstream ss(line);
-            ss>>keyword;
-            keyword = bitpit::utils::string::trim(keyword);
-            if(keyword == "$POINT")    {
-
-                ss>>label;
-                m_labels.push_back(label);
-
-                dtrial.fill(0.0);
-                ss>>dtrial[0]>>dtrial[1]>>dtrial[2];
-                m_points.push_back(dtrial);
-            }
-
-        }while(!reading.eof());
-
-        int counter = 0;
-        for(auto &lab :m_labels){
-            mapP[lab] = counter;
-            ++counter;
-        }
-
-        m_scalarfield.reserve(m_points.size());
-        m_vectorfield.reserve(m_points.size());
-
-        reading.clear();
-        reading.seekg(0, std::ios::beg);
-
-        do{
-            line.clear();
-            keyword.clear();
-            std::getline(reading,line);
-            line = bitpit::utils::string::trim(line);
-            std::stringstream ss(line);
-            ss>>keyword;
-            keyword = bitpit::utils::string::trim(keyword);
-            if(keyword == "$SCALARF")    {
-
-                ss>>label>>temp;
-                m_scalarfield.insert(mapP[label],temp);
-            }
-            if(keyword == "$VECTORF")    {
-
-                dtrial.fill(0.0);
-                ss>>label>>dtrial[0]>>dtrial[1]>>dtrial[2];
-                m_vectorfield.insert(mapP[label],dtrial);
-            }
-
-        }while(!reading.eof());
-
-    }else{
-        (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
-        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested. Exiting... ");
-    }
-
-    reading.close();
-
-    // Fill geometry
-    // Instantiate a new MimmoObject of type point cloud and fill it
+    // Instantiate a new MimmoObject of type point cloud
     m_geometry.reset(new MimmoObject(3));
 
+#if MIMMO_ENABLE_MPI
+    // Leave the reading only to the master rank
+    if(getRank() == 0)
+#endif
+    {
+
+        std::unordered_map<long, int> mapP;
+        std::ifstream reading;
+        std::string source = m_dir+"/"+m_filename;
+        reading.open(source.c_str());
+        if(reading.is_open()){
+
+            std::string keyword, line;
+            long label;
+            darray3E dtrial;
+            double temp;
+
+            do{
+                line.clear();
+                keyword.clear();
+                std::getline(reading,line);
+                line = bitpit::utils::string::trim(line);
+                std::stringstream ss(line);
+                ss>>keyword;
+                keyword = bitpit::utils::string::trim(keyword);
+                if(keyword == "$POINT")    {
+
+                    ss>>label;
+                    m_labels.push_back(label);
+
+                    dtrial.fill(0.0);
+                    ss>>dtrial[0]>>dtrial[1]>>dtrial[2];
+                    m_points.push_back(dtrial);
+                }
+
+            }while(!reading.eof());
+
+            int counter = 0;
+            for(auto &lab :m_labels){
+                mapP[lab] = counter;
+                ++counter;
+            }
+
+            m_scalarfield.reserve(m_points.size());
+            m_vectorfield.reserve(m_points.size());
+
+            reading.clear();
+            reading.seekg(0, std::ios::beg);
+
+            do{
+                line.clear();
+                keyword.clear();
+                std::getline(reading,line);
+                line = bitpit::utils::string::trim(line);
+                std::stringstream ss(line);
+                ss>>keyword;
+                keyword = bitpit::utils::string::trim(keyword);
+                if(keyword == "$SCALARF")    {
+
+                    ss>>label>>temp;
+                    m_scalarfield.insert(mapP[label],temp);
+                }
+                if(keyword == "$VECTORF")    {
+
+                    dtrial.fill(0.0);
+                    ss>>label>>dtrial[0]>>dtrial[1]>>dtrial[2];
+                    m_vectorfield.insert(mapP[label],dtrial);
+                }
+
+            }while(!reading.eof());
+
+        }else{
+            (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
+            throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested. Exiting... ");
+        }
+
+        reading.close();
+
+    }
+
+    // Fill geometry
+
     // Fill geometry with point cloud list
+    // Only rank 0 read points, so only rank 0 enters the loop and fills its partition
     std::size_t ind = 0;
     for (darray3E & coords : m_points){
-            long label = m_labels[ind];
-            getGeometry()->addVertex(coords, label);
-            getGeometry()->addConnectedCell(livector1D(1,label), bitpit::ElementType::VERTEX, label);
-            ind++;
+        long label = m_labels[ind];
+        getGeometry()->addVertex(coords, label);
+        getGeometry()->addConnectedCell(livector1D(1,label), bitpit::ElementType::VERTEX, label);
+        ind++;
     }
+
+    getGeometry()->update();
 
     // Clear points and label structure
     dvecarr3E().swap(m_points);
@@ -521,50 +533,72 @@ IOCloudPoints::write(){
 
     std::ofstream writing;
     std::string source = m_dir+"/"+m_filename;
-    writing.open(source.c_str());
     std::string keyT1 = "{", keyT2 = "}";
-    if(writing.is_open()){
 
-        MimmoSharedPointer<MimmoObject> geometry = getGeometry();
-        darray3E coords;
-        for(const long & label : geometry->getVerticesIds()){
-            coords = geometry->getVertexCoords(label);
-            writing<<"$POINT"<<'\t'<<label<<'\t'<<coords[0]<<'\t'<<coords[1]<<'\t'<<coords[2]<<std::endl;
-        }
-        writing<<""<<std::endl;
+#if MIMMO_ENABLE_MPI
+    // Write on the file in a sequential way
+    for (int irank = 0; irank < getGeometry()->getProcessorCount(); irank++){
+        if(getRank() == irank){
 
-        for(const long & label : geometry->getVerticesIds()){
-            if(m_template){
-                std::string str1 = keyT1+"s"+std::to_string(label)+keyT2;
-                writing<<"$SCALARF"<<'\t'<<label<<'\t'<<str1<<std::endl;
+            // If parallel and not the first process open file in appending mode
+            if (getRank() == 0)
+                writing.open(source.c_str());
+            else
+                writing.open(source.c_str(), std::ofstream::out | std::ofstream::app);
+#else
+            writing.open(source.c_str());
+#endif
+
+            if(writing.is_open()){
+
+                MimmoSharedPointer<MimmoObject> geometry = getGeometry();
+                darray3E coords;
+                for(const long & label : geometry->getVerticesIds()){
+                    coords = geometry->getVertexCoords(label);
+                    writing<<"$POINT"<<'\t'<<label<<'\t'<<coords[0]<<'\t'<<coords[1]<<'\t'<<coords[2]<<std::endl;
+                }
+                writing<<""<<std::endl;
+
+                for(const long & label : geometry->getVerticesIds()){
+                    if(m_template){
+                        std::string str1 = keyT1+"s"+std::to_string(label)+keyT2;
+                        writing<<"$SCALARF"<<'\t'<<label<<'\t'<<str1<<std::endl;
+                    }else{
+                        if(!m_scalarfield.exists(label)) continue;
+                        double val = m_scalarfield[label];
+                        writing<<"$SCALARF"<<'\t'<<label<<'\t'<<val<<std::endl;
+                    }
+                }
+                writing<<""<<std::endl;
+
+                for(const long & label : geometry->getVerticesIds()){
+                    if(m_template){
+                        std::string str1 = keyT1+"x"+std::to_string(label)+keyT2;
+                        std::string str2 = keyT1+"y"+std::to_string(label)+keyT2;
+                        std::string str3 = keyT1+"z"+std::to_string(label)+keyT2;
+
+                        writing<<"$VECTORF"<<'\t'<<label<<'\t'<<str1<<'\t'<<str2<<'\t'<<str3<<std::endl;
+                    }else{
+                        if(!m_vectorfield.exists(label))    continue;
+                        std::array<double,3> val = m_vectorfield[label];
+                        writing<<"$VECTORF"<<'\t'<<label<<'\t'<<val[0]<<'\t'<<val[1]<<'\t'<<val[2]<<std::endl;
+                    }
+                }
+                writing<<""<<std::endl;
             }else{
-                if(!m_scalarfield.exists(label)) continue;
-                double val = m_scalarfield[label];
-                writing<<"$SCALARF"<<'\t'<<label<<'\t'<<val<<std::endl;
+                (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
+                throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested. Exiting... ");
             }
-        }
-        writing<<""<<std::endl;
 
-        for(const long & label : geometry->getVerticesIds()){
-            if(m_template){
-                std::string str1 = keyT1+"x"+std::to_string(label)+keyT2;
-                std::string str2 = keyT1+"y"+std::to_string(label)+keyT2;
-                std::string str3 = keyT1+"z"+std::to_string(label)+keyT2;
+            writing.close();
+#if MIMMO_ENABLE_MPI
+        }     // End if rank is the current one that has to write and wait all
 
-                writing<<"$VECTORF"<<'\t'<<label<<'\t'<<str1<<'\t'<<str2<<'\t'<<str3<<std::endl;
-            }else{
-                if(!m_vectorfield.exists(label))    continue;
-                std::array<double,3> val = m_vectorfield[label];
-                writing<<"$VECTORF"<<'\t'<<label<<'\t'<<val[0]<<'\t'<<val[1]<<'\t'<<val[2]<<std::endl;
-            }
-        }
-        writing<<""<<std::endl;
-    }else{
-        (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
-        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested. Exiting... ");
-    }
+        MPI_Barrier(getCommunicator());
 
-    writing.close();
+    }// End loop on processors to write sequentially
+#endif
+
 };
 
 
