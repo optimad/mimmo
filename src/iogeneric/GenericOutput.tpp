@@ -171,7 +171,7 @@ GenericOutput::setInput(T* data){
     _setInput(*data);
     std::fstream file;
 #if MIMMO_ENABLE_MPI
-    if(m_rank == 0)
+    if(getRank() == 0)
 #endif
     {
         file.open(m_dir+"/"+m_filename, std::fstream::out);
@@ -236,7 +236,7 @@ GenericOutputMPVData::setInput(MimmoPiercedVector< T > * data){
     collectDataFromAllProcs(*data, dataglobal.get());
     workingptr_ = dataglobal.get();
     // get only 0 to work;
-    if(m_rank == 0)
+    if(getRank() == 0)
 #endif
     {
         std::fstream file;
@@ -285,7 +285,7 @@ template<typename T>
 void
 GenericOutputMPVData::collectDataFromAllProcs(MimmoPiercedVector<T> & locdata, MimmoPiercedVector<T> * globdata){
 
-    if(m_rank == 0){
+    if(getRank() == 0){
         //prefill global data with 0 rank info.
         globdata->clear();
         globdata->setName(locdata.getName());

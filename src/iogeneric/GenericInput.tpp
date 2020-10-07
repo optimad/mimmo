@@ -321,7 +321,7 @@ GenericInput::getResult(){
     if (m_readFromFile){
         T data;
 #if MIMMO_ENABLE_MPI
-        if(m_rank == 0)
+        if(getRank() == 0)
 # endif
         {
             std::fstream file;
@@ -363,7 +363,7 @@ template<typename T>
 void
 GenericInput::sendReadDataToAllProcs(T & dataTC){
 
-    if(m_rank == 0){
+    if(getRank() == 0){
 
         //create char output data buffer and reverse data into it.
         mimmo::OBinaryStream dataBuffer;
@@ -438,7 +438,7 @@ GenericInputMPVData::_getResult(){
     MimmoSharedPointer<MimmoObject> refgeo = getGeometry();
 
 #if MIMMO_ENABLE_MPI
-    if(m_rank == 0)
+    if(getRank() == 0)
 #endif
     {
     	std::string name;
@@ -521,7 +521,7 @@ template<typename T>
 void
 GenericInputMPVData::sendReadDataToAllProcs(MimmoPiercedVector<T> & dataTC){
 
-    if(m_rank == 0){
+    if(getRank() == 0){
 
         mimmo::OBinaryStream dataBuffer;
         //create char output data buffer and reverse data into it.
