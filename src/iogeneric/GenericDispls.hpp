@@ -34,6 +34,9 @@ namespace mimmo{
  * \brief GenericDispls is the class to read from file an initial set of displacements
  * as a generic vector field of floats or write it to file
  *
+ * When parallel support is enabled only master rank 0 reads/writes the file; when reading
+ * it communicates the data to the other ranks, so the displacements are shared between
+ * all the processors.
  * The only admissible File format is an ascii list of values, organized as follow:
  *
  * <tt>
