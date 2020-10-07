@@ -221,9 +221,13 @@ CreatePointCloud::execute(){
 
     long np = m_rawpoints.size();
 
-// rawpoints are shared among all procs or retained by 0 only.
 #if MIMMO_ENABLE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, &np, 1 , MPI_LONG, MPI_MAX, m_communicator);
+    // Rawpoints can be shared among all procs or retained by 0 only.
+    // The condition is that rank 0 must have the input points, because
+    // the geometry is filled only by master processor 0. The only useful
+    // points are those owned by rank 0.
+    // Check if rank 0 owns some points (not communicated to the other processors).
+    MPI_Bcast(&np, 1, MPI_INT, 0, m_communicator);
 #endif
 
     if(np == 0){
@@ -237,7 +241,7 @@ CreatePointCloud::execute(){
     }
 #if MIMMO_ENABLE_MPI
     //leave the filling to the master rank
-    if(m_rank == 0)
+    if(getRank() == 0)
 #endif
     {
         m_geometry->getPatch()->reserveVertices(np);
@@ -260,7 +264,7 @@ CreatePointCloud::execute(){
     //fill data attached
 #if MIMMO_ENABLE_MPI
     //leave the filling to the master rank
-    if(m_rank == 0)
+    if(getRank() == 0)
 #endif
     {
         for(auto it=m_rawscalar.begin(); it!=m_rawscalar.end(); ++it){
@@ -271,8 +275,6 @@ CreatePointCloud::execute(){
         }
     }
 
-    m_geometry->cleanPatchInfo();
-    m_geometry->updateAdjacencies();
     m_geometry->update();
 };
 

@@ -49,8 +49,9 @@ namespace mimmo{
         1) only master rank (0) retains the data
         2) every rank has the same identical data sets.
     So, each time the class will consider only data from master rank.
-    No Point Cloud distribution among ranks is perfomed. Mesh and Field Data will be retained only on the
-    master rank(0).
+    No Point Cloud distribution among ranks is perfomed. Mesh and Field Data, even if are parallel,
+    are filled only for the partition of master rank(0). The other ranks have empty partition
+    for Mesh and Field Data.
 
  * \n
  * Ports available in CreatePointCloud Class :
