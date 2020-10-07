@@ -146,6 +146,7 @@ WavefrontOBJData::autoCompleteCellFields(){
 */
 void
 WavefrontOBJData::dump(std::ostream & out){
+
     int location  = static_cast<int>(MPVLocation::CELL);
     std::string name;
     std::size_t totSize, listSize;
@@ -771,10 +772,7 @@ void   ManipulateWFOBJData::execute(){
     computeNormals();
     extractPinnedLists();
 
-#if MIMMO_ENABLE_MPI
-    getGeometry()->cleanAllParallelSync();
-    getGeometry()->updatePointGhostExchangeInfo();
-#endif
+    getGeometry()->update();
 
 }
 
@@ -796,14 +794,14 @@ void ManipulateWFOBJData::checkNormalsMagnitude(){
         }
     }
 
+    m_extData->normals->update();
+
 }
 /*!
     Compute annotations and send it as new pids to the reference geometry.
     New Created PID will be named as the oldPid (if any) + _name of annotation.
 */
 void ManipulateWFOBJData::computeAnnotations(){
-
-    if(m_annotations.empty())   return;
 
     MimmoPiercedVector<std::string> & cgs  = m_extData->cellgroups;
 
@@ -866,7 +864,6 @@ void ManipulateWFOBJData::computeAnnotations(){
     WavefrontOBJData::normals structure;
 */
 void ManipulateWFOBJData::computeNormals(){
-    if(m_normalsCells.empty())   return;
 
     MimmoSharedPointer<MimmoObject> vnormals = m_extData->normals;
     MimmoSharedPointer<MimmoObject> mother = m_extData->refGeometry;
@@ -925,28 +922,43 @@ void ManipulateWFOBJData::computeNormals(){
     // loop on candidate cells
     for (long idCell : candidateCells){
 
-        bitpit::Cell & motherCell = motherCells.at(idCell);
-        mother_vids = motherCell.getVertexIds();
-        locsize = mother_vids.size();
-        //resize  future connectivity for vnormals cell
-        conn_normals.resize(locsize);
-
-        // for each local vertices find the 1Ring, calculate the new normals, and
-        // fill the local connectivity ready to be pushed in vnormals as the new cell with id=idCell.
-        for(int i=0; i<locsize; ++i){
-            candidateNormal = evalVNormal(motherSK, idCell, motherCell.findVertex(mother_vids[i]));
-
-            conn_normals[i] = vnormals->addVertex(candidateNormal, bitpit::Vertex::NULL_ID);
-            assert(conn_normals[i] >= 0 && "ManipulateWFOBJData::computeNormals cannot insert new vertex normal into WavefrontOBJData::normals. Data can be compromised");
-        }
-
-        //push the new cell
-        rank = -1;
 #if MIMMO_ENABLE_MPI
-        rank = mother->getPatch()->getCellRank(idCell);
+        if (motherSK->getCell(idCell).isInterior())
 #endif
-        vnormals->addConnectedCell(conn_normals, motherCell.getType(), long(motherCell.getPID()), idCell, rank);
+        {
+
+            bitpit::Cell & motherCell = motherCells.at(idCell);
+            mother_vids = motherCell.getVertexIds();
+            locsize = mother_vids.size();
+            //resize  future connectivity for vnormals cell
+            conn_normals.resize(locsize);
+
+            // for each local vertices find the 1Ring, calculate the new normals, and
+            // fill the local connectivity ready to be pushed in vnormals as the new cell with id=idCell.
+            for(int i=0; i<locsize; ++i){
+                candidateNormal = evalVNormal(motherSK, idCell, motherCell.findVertex(mother_vids[i]));
+
+                conn_normals[i] = vnormals->addVertex(candidateNormal, bitpit::Vertex::NULL_ID);
+                assert(conn_normals[i] >= 0 && "ManipulateWFOBJData::computeNormals cannot insert new vertex normal into WavefrontOBJData::normals. Data can be compromised");
+            }
+
+            //push the new cell
+            rank = -1;
+#if MIMMO_ENABLE_MPI
+            rank = mother->getPatch()->getCellRank(idCell);
+#endif
+            vnormals->addConnectedCell(conn_normals, motherCell.getType(), long(motherCell.getPID()), idCell, rank);
+
+        }
+    } // end loop on cells
+
+#if MIMMO_ENABLE_MPI
+    if (motherSK->isDistributed()){
+        throw std::runtime_error(m_name + " : distributed mesh not allowed. ");
+        // TODO COMMUNICATE NORMALS OF GHOST CELLS IN CASE OF DISTRIBUTED MESH
     }
+#endif
+
 
     // delete vnormals "vertex" entries not connected. They are no more  useful.
     vnormals->getPatch()->deleteOrphanVertices();
@@ -958,6 +970,8 @@ void ManipulateWFOBJData::computeNormals(){
     vnormals->setTolerance(1.0E-12);
     vnormals->cleanGeometry();
     vnormals->setTolerance(oldTol);
+
+    vnormals->update();
 
     //recover modifications if any to the mother mesh.
     if(deleteMotherAdjacency){
@@ -1113,8 +1127,6 @@ ManipulateWFOBJData::evalVNormal(bitpit::SurfaceKernel * mesh, long idCell, int 
     }
     return result;
 }
-
-
 
 /*!
     Check if entry string is contained in a root string. Comparison is
@@ -1593,11 +1605,11 @@ void   IOWavefrontOBJ::execute(){
         case IOMode::RESTORE:
         {
             std::string filedump = m_dir+"/"+m_filename;
-// #if MIMMO_ENABLE_MPI
-//             bitpit::IBinaryArchive binaryReader(filedump,"dump", m_rank);
-// #else
-            bitpit::IBinaryArchive binaryReader(filedump,"dump");
-//#endif
+#if MIMMO_ENABLE_MPI
+             bitpit::IBinaryArchive binaryReader(filedump,"objmimmo", m_rank);
+#else
+            bitpit::IBinaryArchive binaryReader(filedump,"objmimmo");
+#endif
             //instantiation of a brand new MimmoObject to absorb grid
             m_geometry.reset(new MimmoObject(1));
             m_intData = std::unique_ptr<WavefrontOBJData>(new WavefrontOBJData());
@@ -1614,11 +1626,11 @@ void   IOWavefrontOBJ::execute(){
             int archiveVersion = 1;
             std::string header(m_name);
             std::string filedump = m_dir+"/"+m_filename;
-// #if MIMMO_ENABLE_MPI
-//             bitpit::OBinaryArchive binaryWriter(filedump, "dump", archiveVersion, header, m_rank);
-// #else
-            bitpit::OBinaryArchive binaryWriter(filedump, "dump", archiveVersion, header);
-//#endif
+#if MIMMO_ENABLE_MPI
+             bitpit::OBinaryArchive binaryWriter(filedump, "objmimmo", archiveVersion, header, m_rank);
+#else
+            bitpit::OBinaryArchive binaryWriter(filedump, "objmimmo", archiveVersion, header);
+#endif
             dump(binaryWriter.getStream());
             binaryWriter.close();
         }
@@ -1627,7 +1639,6 @@ void   IOWavefrontOBJ::execute(){
             //never been reached;
             break;
     }
-
 
     if(m_resume){
         writeResumeFile();
@@ -1640,86 +1651,108 @@ void   IOWavefrontOBJ::execute(){
 void IOWavefrontOBJ::read(const std::string & filename){
 
     std::ifstream in(filename, std::ios::binary);
-    if(in.is_open()){
 
-        //search and store the material file fullpath.
-        m_intData->materialfile = searchMaterialFile(in);
-        //search and store the stream position of the sub-objects
-        std::vector<std::streampos> objectPositions; //streampos of each new object
-        std::vector<std::string> objectNames; // name of the new object
-        std::vector<std::array<long,3>> objectVCounters; //number of v, vt, and vn in each object
-        std::array<long,3>  totVCounters; //total number of v, vt, and vn
-        long nCellTot; // number of total facet f
+    //compile safely data options
+    m_intData->materials.setGeometry(getGeometry());
+    m_intData->cellgroups.setGeometry(getGeometry());
+    m_intData->smoothids.setGeometry(getGeometry());
+    m_intData->materials.setDataLocation(MPVLocation::CELL);
+    m_intData->cellgroups.setDataLocation(MPVLocation::CELL);
+    m_intData->smoothids.setDataLocation(MPVLocation::CELL);
+    m_intData->materials.setName("Material");
+    m_intData->cellgroups.setName("CellGroup");
+    m_intData->smoothids.setName("SmooothingGroupId");
 
-        // open the file and fill the information required.
-        searchObjectPosition(in, objectPositions, objectNames, objectVCounters, totVCounters, nCellTot);
+    m_intData->textures = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
+    m_intData->normals = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
 
-        //reserve geometry vertices and cells
-        m_geometry->getVertices().reserve(totVCounters[0]);
-        m_geometry->getCells().reserve(nCellTot);
 
-        //compile safely data options
-        m_intData->materials.reserve(nCellTot);
-        m_intData->cellgroups.reserve(nCellTot);
-        m_intData->smoothids.reserve(nCellTot);
+#if MIMMO_ENABLE_MPI
+    // Get only master rank 0 to read
+    if(getRank() == 0)
+#endif
+    {
+        if(in.is_open()){
 
-        m_intData->materials.setGeometry(getGeometry());
-        m_intData->cellgroups.setGeometry(getGeometry());
-        m_intData->smoothids.setGeometry(getGeometry());
-        m_intData->materials.setDataLocation(MPVLocation::CELL);
-        m_intData->cellgroups.setDataLocation(MPVLocation::CELL);
-        m_intData->smoothids.setDataLocation(MPVLocation::CELL);
-        m_intData->materials.setName("Material");
-        m_intData->cellgroups.setName("CellGroup");
-        m_intData->smoothids.setName("SmooothingGroupId");
+            //search and store the material file fullpath.
+            m_intData->materialfile = searchMaterialFile(in);
+            //search and store the stream position of the sub-objects
+            std::vector<std::streampos> objectPositions; //streampos of each new object
+            std::vector<std::string> objectNames; // name of the new object
+            std::vector<std::array<long,3>> objectVCounters; //number of v, vt, and vn in each object
+            std::array<long,3>  totVCounters; //total number of v, vt, and vn
+            long nCellTot; // number of total facet f
 
-        // prepare textures and normals
+            // open the file and fill the information required.
+            searchObjectPosition(in, objectPositions, objectNames, objectVCounters, totVCounters, nCellTot);
+
+            //reserve geometry vertices and cells
+            m_geometry->getVertices().reserve(totVCounters[0]);
+            m_geometry->getCells().reserve(nCellTot);
+            m_intData->materials.reserve(nCellTot);
+            m_intData->cellgroups.reserve(nCellTot);
+            m_intData->smoothids.reserve(nCellTot);
+
+            // prepare textures and normals
+            if(totVCounters[1]> 0){
+                m_intData->textures->getVertices().reserve(totVCounters[1]);
+                m_intData->textures->getCells().reserve(nCellTot);
+            }
+            if(totVCounters[2]> 0){
+                m_intData->normals->getVertices().reserve(totVCounters[2]);
+                m_intData->normals->getCells().reserve(nCellTot);
+            }
+
+            long pidObject(0);
+            long vOffset(1), vnOffset(1), vTxtOffset(1), cOffset(1);
+            //read file object by object
+            for(std::streampos & pos : objectPositions){
+
+                readObjectData(in, pos, pidObject,objectNames[pidObject], objectVCounters[pidObject],
+                        vOffset, vnOffset, vTxtOffset, cOffset);
+                m_geometry->setPIDName(pidObject, objectNames[pidObject]);
+                ++pidObject;
+            }
+
+            in.close();
+
+        }else{
+            *(m_log)<<m_name<<" : impossible to read from obj file "<<filename<<std::endl;
+            throw std::runtime_error("IOWavefrontOBJ::read(), impossible reading obj file");
+        }
+
+        //shrink to fit all the reserve stuffs;
+        m_geometry->getVertices().shrinkToFit();
+        m_geometry->getCells().shrinkToFit();
+
+        m_intData->materials.shrinkToFit();
+        m_intData->smoothids.shrinkToFit();
+        m_intData->cellgroups.shrinkToFit();
+
+        if(m_intData->textures){
+            m_intData->textures->getVertices().shrinkToFit();
+            m_intData->textures->getCells().shrinkToFit();
+        }
+        if(m_intData->normals){
+            m_intData->normals->getVertices().shrinkToFit();
+            m_intData->normals->getCells().shrinkToFit();
+        }
+
+    } // end scope
+
+    // Update geometry and data
+    m_geometry->update();
+    m_intData->textures->update();
+    m_intData->normals->update();
+
+    // Nullify empty structures (textures or normals)
+    if (m_intData->textures->getNGlobalVertices() == 0){
+        m_intData->textures.reset();
         m_intData->textures = nullptr;
-        if(totVCounters[1]> 0){
-            m_intData->textures = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
-            m_intData->textures->getVertices().reserve(totVCounters[1]);
-            m_intData->textures->getCells().reserve(nCellTot);
-        }
+    }
+    if (m_intData->normals->getNGlobalVertices() == 0){
+        m_intData->normals.reset();
         m_intData->normals = nullptr;
-        if(totVCounters[2]> 0){
-            m_intData->normals = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
-            m_intData->normals->getVertices().reserve(totVCounters[2]);
-            m_intData->normals->getCells().reserve(nCellTot);
-        }
-
-        long pidObject(0);
-        long vOffset(1), vnOffset(1), vTxtOffset(1), cOffset(1);
-        //read file object by object
-        for(std::streampos & pos : objectPositions){
-
-            readObjectData(in, pos, pidObject,objectNames[pidObject], objectVCounters[pidObject],
-                           vOffset, vnOffset, vTxtOffset, cOffset);
-            m_geometry->setPIDName(pidObject, objectNames[pidObject]);
-            ++pidObject;
-        }
-
-        in.close();
-
-    }else{
-        *(m_log)<<m_name<<" : impossible to read from obj file "<<filename<<std::endl;
-        throw std::runtime_error("IOWavefrontOBJ::read(), impossible reading obj file");
-    }
-
-    //shrink to fit all the reserve stuffs;
-    m_geometry->getVertices().shrinkToFit();
-    m_geometry->getCells().shrinkToFit();
-
-    m_intData->materials.shrinkToFit();
-    m_intData->smoothids.shrinkToFit();
-    m_intData->cellgroups.shrinkToFit();
-
-    if(m_intData->textures){
-        m_intData->textures->getVertices().shrinkToFit();
-        m_intData->textures->getCells().shrinkToFit();
-    }
-    if(m_intData->normals){
-        m_intData->normals->getVertices().shrinkToFit();
-        m_intData->normals->getCells().shrinkToFit();
     }
 
     // sync the lists of intData
@@ -1859,6 +1892,11 @@ void IOWavefrontOBJ::read(const std::string & filename){
 
     } //end of check for the degenerateElements.
 
+    // Update geometry and data
+    m_geometry->update();
+    m_intData->textures->update();
+    m_intData->normals->update();
+
     //all good ready to return;
 }
 
@@ -1903,58 +1941,65 @@ void IOWavefrontOBJ::write(const std::string & filename){
     long activeGroup;
     std::string defaultGroup;
 
-    std::ofstream out(filename, std::ios::binary);
-    if(out.is_open()){
+#if MIMMO_ENABLE_MPI
+    // Get only master rank 0 to write
+    if(getRank() == 0)
+#endif
+    {
+        std::ofstream out(filename, std::ios::binary);
+        if(out.is_open()){
 
-        out<<"# Optimad's mimmo : "<<m_name<<" OBJ file"<<'\n';
-        out<<"# www.github.com/optimad/mimmo"<<'\n';
-        std::string materialfile = objData->materialfile;
-        out<<"mtllib "<< materialfile<<'\n';
+            out<<"# Optimad's mimmo : "<<m_name<<" OBJ file"<<'\n';
+            out<<"# www.github.com/optimad/mimmo"<<'\n';
+            std::string materialfile = objData->materialfile;
+            out<<"mtllib "<< materialfile<<'\n';
 
-        std::map<long, livector1D> pidSubdivision = m_geometry->extractPIDSubdivision();
-        std::map<long, std::string> mapParts;
-        {
-            std::unordered_map<long, std::string> mapParts_temp = getSubParts();
-            mapParts.insert(mapParts_temp.begin(), mapParts_temp.end());
-        }
-
-        long refPid;
-
-        //write object by object
-        for(auto & entryPart : mapParts){
-            //write header object;
-            out<<"o "<<entryPart.second<<'\n';
-
-            refPid = entryPart.first;
-            defaultGroup = entryPart.second;
-
-            //select list of vertices and cells referring to this pid.
-            cellList = pidSubdivision[refPid];
-            vertexLists[0] = m_geometry->getVertexFromCellList(cellList);
-
-            if (objData->textures){
-                vertexLists[1] = objData->textures->getVertexFromCellList(cellList);
-            }else{
-                vertexLists[1].clear();
-            }
-            if (objData->normals){
-                vertexLists[2] = objData->normals->getVertexFromCellList(cellList);
-            }else{
-                vertexLists[2].clear();
+            std::map<long, livector1D> pidSubdivision = m_geometry->extractPIDSubdivision();
+            std::map<long, std::string> mapParts;
+            {
+                std::unordered_map<long, std::string> mapParts_temp = getSubParts();
+                mapParts.insert(mapParts_temp.begin(), mapParts_temp.end());
             }
 
-            //force writing g defaultGroup for each new object.
-            activeGroup = -1000;
-            writeObjectData(objData, out, vertexLists, cellList, vOffsets,
-                            cOffset, vinsertion_maps, defaultGroup, activeGroup,
-                            activeMaterial, activeSmoothId);
+            long refPid;
+
+            //write object by object
+            for(auto & entryPart : mapParts){
+                //write header object;
+                out<<"o "<<entryPart.second<<'\n';
+
+                refPid = entryPart.first;
+                defaultGroup = entryPart.second;
+
+                //select list of vertices and cells referring to this pid.
+                cellList = pidSubdivision[refPid];
+                vertexLists[0] = m_geometry->getVertexFromCellList(cellList);
+
+                if (objData->textures){
+                    vertexLists[1] = objData->textures->getVertexFromCellList(cellList);
+                }else{
+                    vertexLists[1].clear();
+                }
+                if (objData->normals){
+                    vertexLists[2] = objData->normals->getVertexFromCellList(cellList);
+                }else{
+                    vertexLists[2].clear();
+                }
+
+                //force writing g defaultGroup for each new object.
+                activeGroup = -1000;
+                writeObjectData(objData, out, vertexLists, cellList, vOffsets,
+                        cOffset, vinsertion_maps, defaultGroup, activeGroup,
+                        activeMaterial, activeSmoothId);
+            }
+
+            out.close();
+
+        }else{
+            *(m_log)<<m_name<<" : impossible to write obj file "<<filename<<std::endl;
+            throw std::runtime_error("IOWavefrontOBJ::write(), impossible writing obj file");
         }
 
-        out.close();
-
-    }else{
-        *(m_log)<<m_name<<" : impossible to write obj file "<<filename<<std::endl;
-        throw std::runtime_error("IOWavefrontOBJ::write(), impossible writing obj file");
     }
 }
 
@@ -2019,66 +2064,72 @@ void IOWavefrontOBJ::dump(std::ostream & out){
     Print the resume file
 */
 void    IOWavefrontOBJ::writeResumeFile(){
-    std::ofstream out;
-    std::string path = m_outputPlot+"/"+m_filename+"_RESUME.dat";
-    out.open(path);
-    if(out.is_open()){
-        out<< "#IO log for mimmo: "<<m_name <<" class execution"<<std::endl;
-        out<< "#"<<std::endl;
-        out<< "#Reference I/O file: "<<m_filename<<std::endl;
-        out<< "#"<<std::endl;
-        out<< "#"<<std::endl;
-        out<< "#Polygonal mesh info:"<<std::endl;
-        if(getGeometry()){
-            out<< "#    N vertices:     "<< getGeometry()->getNVertices()<<std::endl;
-            out<< "#    N cells:        "<< getGeometry()->getNCells()<<std::endl;
-            auto pidlist = getGeometry()->getPIDTypeListWNames();
-            out<< "#    N objects(PID): "<< pidlist.size()<<std::endl;
-            out<< "#    Object list:    "<<std::endl;
-            std::map<long, std::string> locmap(pidlist.begin(), pidlist.end());
-            for(auto & entry : locmap){
-                out<< "#        "<<entry.first<<" - "<< entry.second<<std::endl;
+
+#if MIMMO_ENABLE_MPI
+    // Get only master rank 0 to write
+    if(getRank() == 0)
+#endif
+    {
+        std::ofstream out;
+        std::string path = m_outputPlot+"/"+m_filename+"_RESUME.dat";
+        out.open(path);
+        if(out.is_open()){
+            out<< "#IO log for mimmo: "<<m_name <<" class execution"<<std::endl;
+            out<< "#"<<std::endl;
+            out<< "#Reference I/O file: "<<m_filename<<std::endl;
+            out<< "#"<<std::endl;
+            out<< "#"<<std::endl;
+            out<< "#Polygonal mesh info:"<<std::endl;
+            if(getGeometry()){
+                out<< "#    N vertices:     "<< getGeometry()->getNVertices()<<std::endl;
+                out<< "#    N cells:        "<< getGeometry()->getNCells()<<std::endl;
+                auto pidlist = getGeometry()->getPIDTypeListWNames();
+                out<< "#    N objects(PID): "<< pidlist.size()<<std::endl;
+                out<< "#    Object list:    "<<std::endl;
+                std::map<long, std::string> locmap(pidlist.begin(), pidlist.end());
+                for(auto & entry : locmap){
+                    out<< "#        "<<entry.first<<" - "<< entry.second<<std::endl;
+                }
             }
-        }
-        out<< "#"<<std::endl;
-        out<< "#"<<std::endl;
-        out<< "#Data mesh info:"<<std::endl;
-        if(getData()){
-            getData()->syncListsOnData();
-            //push materials
-            std::map<long, std::string> locmap;
-            for(auto & entry : getData()->inv_materialsList){
-                if(entry.first > 0)   locmap.insert({{entry.first, entry.second}});
+            out<< "#"<<std::endl;
+            out<< "#"<<std::endl;
+            out<< "#Data mesh info:"<<std::endl;
+            if(getData()){
+                getData()->syncListsOnData();
+                //push materials
+                std::map<long, std::string> locmap;
+                for(auto & entry : getData()->inv_materialsList){
+                    if(entry.first > 0)   locmap.insert({{entry.first, entry.second}});
+                }
+
+                out<< "#    N Materials:     "<< locmap.size()<<std::endl;
+                out<< "#    Material List:   "<<std::endl;
+                for(auto & entry : locmap){
+                    out<< "#        "<<entry.first<<" - "<<entry.second<<std::endl;
+                }
+                out<< "#"<<std::endl;
+                out<< "#"<<std::endl;
+                //push cellgroups
+                locmap.clear();
+                for(auto & entry : getData()->inv_cellgroupsList){
+                    if(entry.first > 0)   locmap.insert({{entry.first, entry.second}});
+                }
+                out<< "#    N CellGroups (not default):     "<< locmap.size()<<std::endl;
+                out<< "#    Cellgroups List:   "<<std::endl;
+                for(auto & entry : locmap){
+                    out<< "#        "<<entry.first<<" - "<<entry.second<<std::endl;
+                }
+                out<< "#"<<std::endl;
+                out<< "#"<<std::endl;
+                //push smoothids size.
+                out<< "#    N SmoothGroups:    "<< getData()->smoothidsList.size()<<std::endl;
             }
 
-            out<< "#    N Materials:     "<< locmap.size()<<std::endl;
-            out<< "#    Material List:   "<<std::endl;
-            for(auto & entry : locmap){
-                out<< "#        "<<entry.first<<" - "<<entry.second<<std::endl;
-            }
-            out<< "#"<<std::endl;
-            out<< "#"<<std::endl;
-            //push cellgroups
-            locmap.clear();
-            for(auto & entry : getData()->inv_cellgroupsList){
-                if(entry.first > 0)   locmap.insert({{entry.first, entry.second}});
-            }
-            out<< "#    N CellGroups (not default):     "<< locmap.size()<<std::endl;
-            out<< "#    Cellgroups List:   "<<std::endl;
-            for(auto & entry : locmap){
-                out<< "#        "<<entry.first<<" - "<<entry.second<<std::endl;
-            }
-            out<< "#"<<std::endl;
-            out<< "#"<<std::endl;
-            //push smoothids size.
-            out<< "#    N SmoothGroups:    "<< getData()->smoothidsList.size()<<std::endl;
+            out.close();
+        }else{
+            (*m_log)<<"WARNING in "<<m_name<<" : not able to write Resume File. Aborting..."<<std::endl;
         }
-
-        out.close();
-    }else{
-        (*m_log)<<"WARNING in "<<m_name<<" : not able to write Resume File. Aborting..."<<std::endl;
     }
-
 }
 
 /*!

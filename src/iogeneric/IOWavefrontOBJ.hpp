@@ -39,6 +39,8 @@ namespace mimmo{
     Mesh MimmoObject( each one has its own set of nodes, and local connectivities), but they must always share
     the same number and cell-id labels for element/simplex cross referencing between the three MimmoObjects.
 
+    In parallel the data are read/written by each processor.
+
 */
 class WavefrontOBJData{
 
@@ -102,6 +104,10 @@ The class performs manipulation of Wavefront mesh optional data such as:
 - recover list of cell-ids referring to target Wavefront data cell properties such as
   materials, cellgroups, smoothids (f.e. extract all mesh cell-ids with material
   property "body").
+
+  In parallel the geometry is supposed owned entirely by the master rank 0. The mesh is read/written only
+  by the master rank.
+
 \n
 Ports available in ManipulateWFOBJData Class :
 
