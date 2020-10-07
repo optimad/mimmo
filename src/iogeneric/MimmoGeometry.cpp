@@ -495,8 +495,6 @@ MimmoGeometry::setFormatNAS(WFORMAT wform){
 bool
 MimmoGeometry::write(){
 
-//    if (isEmpty()) return false;
-
     //adjusting with reference pid;
     {
         auto locpids = getGeometry()->getCompactPID();
@@ -592,15 +590,17 @@ MimmoGeometry::write(){
                 val+=offset;
             }
         }
-#if MIMMO_ENABLE_MPI
-        std::string namefile = m_winfo.fname+"."+std::to_string(m_rank);
-#else
         std::string namefile = m_winfo.fname;
+#if MIMMO_ENABLE_MPI
+        // Only master rank 0 writes on file
+        if (getRank() == 0)
 #endif
-        if (pids.size() == connectivity.size()){
-            nastran.write(m_winfo.fdir,namefile,points, pointsID, connectivity,elementsID, &pids, &pidsset);
-        }else{
-            nastran.write(m_winfo.fdir,namefile,points, pointsID, connectivity, elementsID);
+        {
+            if (pids.size() == connectivity.size()){
+                nastran.write(m_winfo.fdir,namefile,points, pointsID, connectivity,elementsID, &pids, &pidsset);
+            }else{
+                nastran.write(m_winfo.fdir,namefile,points, pointsID, connectivity, elementsID);
+            }
         }
         return true;
     }
@@ -634,7 +634,7 @@ MimmoGeometry::write(){
     	std::string header = m_name;
     	std::string filename = (m_winfo.fdir+"/"+m_winfo.fname);
 #if MIMMO_ENABLE_MPI
-    	bitpit::OBinaryArchive binaryWriter(filename, "geomimmo", archiveVersion, header, m_rank);
+    	bitpit::OBinaryArchive binaryWriter(filename, "geomimmo", archiveVersion, header, getRank());
 #else
     	bitpit::OBinaryArchive binaryWriter(filename, "geomimmo", archiveVersion, header);
 #endif
@@ -671,7 +671,7 @@ MimmoGeometry::read(){
         setGeometry(1);
         std::string name;
 #if MIMMO_ENABLE_MPI
-        if (m_rank == 0) {
+        if (getRank() == 0) {
 #endif
         	{
         		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".stl");
@@ -761,7 +761,7 @@ MimmoGeometry::read(){
     {
         setGeometry(1);
 #if MIMMO_ENABLE_MPI
-    	if (m_rank == 0) {
+    	if (getRank() == 0) {
 #endif
         std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".nas");
         bool check = infile.good();
@@ -857,7 +857,7 @@ MimmoGeometry::read(){
     {
     	std::string filename = (m_rinfo.fdir+"/"+m_rinfo.fname);
 #if MIMMO_ENABLE_MPI
-    	bitpit::IBinaryArchive binaryReader(filename,"geomimmo", m_rank);
+    	bitpit::IBinaryArchive binaryReader(filename,"geomimmo", getRank());
 #else
     	bitpit::IBinaryArchive binaryReader(filename, "geomimmo");
 #endif

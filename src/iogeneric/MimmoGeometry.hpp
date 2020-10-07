@@ -59,12 +59,16 @@ enum WFORMAT{
  *  ascii .nas (triangle elements) for surface mesh; ascii .vtu (tetra/hexa elements)
  *  for volume mesh.
  *
- * On distributed archs, MimmoGeometry can write and read in parallel,
- * by adding the collective file extension .pvtu to the input filename.
+ * On distributed archs, MimmoGeometry can write and read in parallel in VTU formats and in mimmo dumping format.
+ * In case of VTU formats the collective file extension .pvtu is used for the input/output filename.
  * When reading, the number of processors used to write the input file had to be equal
  * to the current number of processors used to read.
- * If MPI support is enabled but the number of processors is 1, MimmoGeometry read VTU file as serial one,
+ * If MPI support is enabled but the number of processors is 1, MimmoGeometry reads/writes VTU file as serial one,
  * by postponing the usual file extension .vtu.
+ * Nastran files are always written in serial mode, i.e. only the master rank 0 writes on file its partition. In order
+ * to write a distributed mesh in a Nastran format, the user has to serialize it before to pass the MimmoObject
+ * to the MimmoGeometry block.
+ *
  *  \n
  *  It can be used in three modes reader/writer/converter. To set the mode it uses an enum
  *  IOMode list:
