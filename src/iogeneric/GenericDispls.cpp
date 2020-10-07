@@ -385,43 +385,64 @@ void GenericDispls::read(){
     std::ifstream reading;
     std::string source = m_dir+"/"+ m_filename;
     reading.open(source.c_str());
-    if(reading.is_open()){
 
-        m_displ.clear();
-        m_labels.clear();
+#if MIMMO_ENABLE_MPI
+    // Leave the reading only to the master rank
+    if(getRank() == 0)
+#endif
+    {
 
-        std::string keyword, line;
-        long label;
-        darray3E dtrial;
+        if(reading.is_open()){
 
-        do{
-            line.clear();
-            keyword.clear();
-            std::getline(reading,line);
-            line = bitpit::utils::string::trim(line);
-            std::stringstream ss(line);
-            ss>>keyword;
-            keyword = bitpit::utils::string::trim(keyword);
-            if(keyword == "$DISPL")    {
+            m_displ.clear();
+            m_labels.clear();
 
-                ss>>label;
-                m_labels.push_back(label);
+            std::string keyword, line;
+            long label;
+            darray3E dtrial;
 
-                dtrial.fill(0.0);
-                ss>>dtrial[0]>>dtrial[1]>>dtrial[2];
-                m_displ.push_back(dtrial);
-            }
+            do{
+                line.clear();
+                keyword.clear();
+                std::getline(reading,line);
+                line = bitpit::utils::string::trim(line);
+                std::stringstream ss(line);
+                ss>>keyword;
+                keyword = bitpit::utils::string::trim(keyword);
+                if(keyword == "$DISPL")    {
 
-        }while(!reading.eof());
+                    ss>>label;
+                    m_labels.push_back(label);
 
-        m_nDispl = m_displ.size();
+                    dtrial.fill(0.0);
+                    ss>>dtrial[0]>>dtrial[1]>>dtrial[2];
+                    m_displ.push_back(dtrial);
+                }
 
-    }else{
-        (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
-        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
+            }while(!reading.eof());
+
+            m_nDispl = m_displ.size();
+
+        }else{
+            (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
+            throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
+        }
+
+        reading.close();
+
     }
 
-    reading.close();
+#if MIMMO_ENABLE_MPI
+    // Communicate the data read by master rank to other ranks
+    MPI_Bcast(&m_nDispl, 1, MPI_INT, 0, m_communicator);
+
+    m_displ.resize(m_nDispl);
+    MPI_Bcast(m_displ.data(), 3*m_nDispl, MPI_DOUBLE, 0, m_communicator);
+
+    m_labels.resize(m_nDispl);
+    MPI_Bcast(m_labels.data(), m_nDispl, MPI_LONG, 0, m_communicator);
+#endif
+
 };
 
 /*!
@@ -429,56 +450,64 @@ void GenericDispls::read(){
  */
 void GenericDispls::write(){
 
-    //assessing data;
-    int sizelabels = m_labels.size();
-    long maxlabel = 0;
-    for(const auto & val: m_labels){
-        maxlabel = std::max(maxlabel,val);
-    }
+#if MIMMO_ENABLE_MPI
+    // Leave the writing only to the master rank
+    if(getRank() == 0)
+#endif
+    {
 
-    int sizedispl = m_displ.size();
-
-    m_labels.resize(m_displ.size(), -1);
-    if(sizelabels < sizedispl){
-        for(int i = sizelabels; i<sizedispl; ++i){
-            m_labels[i] = maxlabel+1;
-            ++maxlabel;
+        //assessing data;
+        int sizelabels = m_labels.size();
+        long maxlabel = 0;
+        for(const auto & val: m_labels){
+            maxlabel = std::max(maxlabel,val);
         }
-    }
 
-    std::string filename;
-    if(m_template){
-        filename = "TEMPLATE_"+m_filename;
-    }else{
-        filename = m_filename;
-    }
+        int sizedispl = m_displ.size();
 
-    std::ofstream writing;
-    std::string source = m_dir+"/"+ m_filename;
-    writing.open(source.c_str());
-    std::string keyT1 = "{", keyT2 = "}";
-    if(writing.is_open()){
-
-        int counter = 0;
-        for(const auto & dd : m_displ){
-            if(m_template){
-                std::string str1 = keyT1+"x"+std::to_string(m_labels[counter])+keyT2;
-                std::string str2 = keyT1+"y"+std::to_string(m_labels[counter])+keyT2;
-                std::string str3 = keyT1+"z"+std::to_string(m_labels[counter])+keyT2;
-
-                writing<<"$DISPL"<<'\t'<<m_labels[counter]<<'\t'<<str1<<'\t'<<str2<<'\t'<<str3<<std::endl;
-            }else{
-                writing<<"$DISPL"<<'\t'<<m_labels[counter]<<'\t'<<dd[0]<<'\t'<<dd[1]<<'\t'<<dd[2]<<std::endl;
+        m_labels.resize(m_displ.size(), -1);
+        if(sizelabels < sizedispl){
+            for(int i = sizelabels; i<sizedispl; ++i){
+                m_labels[i] = maxlabel+1;
+                ++maxlabel;
             }
-            ++counter;
         }
 
-    }else{
-        (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
-        throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
-    }
+        std::string filename;
+        if(m_template){
+            filename = "TEMPLATE_"+m_filename;
+        }else{
+            filename = m_filename;
+        }
 
-    writing.close();
+        std::ofstream writing;
+        std::string source = m_dir+"/"+ m_filename;
+        writing.open(source.c_str());
+        std::string keyT1 = "{", keyT2 = "}";
+        if(writing.is_open()){
+
+            int counter = 0;
+            for(const auto & dd : m_displ){
+                if(m_template){
+                    std::string str1 = keyT1+"x"+std::to_string(m_labels[counter])+keyT2;
+                    std::string str2 = keyT1+"y"+std::to_string(m_labels[counter])+keyT2;
+                    std::string str3 = keyT1+"z"+std::to_string(m_labels[counter])+keyT2;
+
+                    writing<<"$DISPL"<<'\t'<<m_labels[counter]<<'\t'<<str1<<'\t'<<str2<<'\t'<<str3<<std::endl;
+                }else{
+                    writing<<"$DISPL"<<'\t'<<m_labels[counter]<<'\t'<<dd[0]<<'\t'<<dd[1]<<'\t'<<dd[2]<<std::endl;
+                }
+                ++counter;
+            }
+
+        }else{
+            (*m_log)<<"error of "<<m_name<<" : cannot open "<<m_filename<< " requested. Exiting... "<<std::endl;
+            throw std::runtime_error (m_name + " : cannot open " + m_filename + " requested");
+        }
+
+        writing.close();
+
+    }
 };
 
 
