@@ -23,6 +23,7 @@
 \*---------------------------------------------------------------------------*/
 #include "IOOFOAM.hpp"
 #include "openFoamFiles_native.hpp"
+#include <processorCyclicFvPatch.H>
 
 namespace mimmo{
 
@@ -30,7 +31,7 @@ namespace mimmo{
  * Default constructor of IOOFOAM_Kernel.
  * \param[in] writemode if true, put the class in write mode, otherwise in read mode.
  */
-IOOFOAM_Kernel::IOOFOAM_Kernel(bool writemode):MimmoFvMesh(){
+IOOFOAM_Kernel::IOOFOAM_Kernel(bool writemode):BaseManipulation(){
 	m_write = writemode;
 	setDefaults();
 }
@@ -50,9 +51,24 @@ IOOFOAM_Kernel::IOOFOAM_Kernel(bool writemode):MimmoFvMesh(){
  *\param[in] writemode if true, put the class in write mode, otherwise in read mode.
  *
  */
-IOOFOAM_Kernel::IOOFOAM_Kernel(MimmoSharedPointer<MimmoObject> bulk, MimmoSharedPointer<MimmoObject> boundary, bool writemode): MimmoFvMesh(bulk,boundary){
+IOOFOAM_Kernel::IOOFOAM_Kernel(MimmoSharedPointer<MimmoObject> bulk, MimmoSharedPointer<MimmoObject> boundary, bool writemode){
 	m_write = writemode;
 	setDefaults();
+
+	// Check input geometries
+	if(!bulk && !boundary){
+	    throw std::runtime_error("Error in MimmoFvMesh Constructor: nullptr linked as bulk mesh or boundary mesh");
+	}
+	std::string key = std::to_string(bulk->getType()) + std::to_string(boundary->getType());
+
+	if(key !="21" && key !="14"){
+	    throw std::runtime_error("Error in MimmoFvMesh Constructor: not valid types in pair bulk-boundary meshes");
+	}
+
+    setGeometry(bulk);
+    setBoundaryGeometry(boundary);
+
+
 }
 
 /*!Default destructor of IOOFOAM_Kernel.
@@ -63,7 +79,7 @@ IOOFOAM_Kernel::~IOOFOAM_Kernel(){};
 /*!
     Convenience copy constructor
 */
-IOOFOAM_Kernel::IOOFOAM_Kernel(const IOOFOAM_Kernel & other): MimmoFvMesh(other){
+IOOFOAM_Kernel::IOOFOAM_Kernel(const IOOFOAM_Kernel & other): BaseManipulation(other){
 
     m_OFE_supp.clear();
     m_OFE_supp["hex"]   = bitpit::ElementType::HEXAHEDRON;
@@ -76,6 +92,7 @@ IOOFOAM_Kernel::IOOFOAM_Kernel(const IOOFOAM_Kernel & other): MimmoFvMesh(other)
     m_path = other.m_path;
     m_fieldname = other.m_fieldname;
     m_OFbitpitmapfaces = other.m_OFbitpitmapfaces;
+    m_boundary = other.m_boundary;
 }
 
 /*!
@@ -87,9 +104,10 @@ void IOOFOAM_Kernel::swap(IOOFOAM_Kernel & x) noexcept
 	std::swap(m_write, x.m_write);
 	std::swap(m_path, x.m_path);
 	std::swap(m_fieldname, x.m_fieldname);
-	std::swap(m_OFbitpitmapfaces, x.m_OFbitpitmapfaces);
+    std::swap(m_OFbitpitmapfaces, x.m_OFbitpitmapfaces);
+    std::swap(m_boundary, x.m_boundary);
 
-	MimmoFvMesh::swap(x);
+	BaseManipulation::swap(x);
 };
 
 /*!
@@ -105,6 +123,7 @@ IOOFOAM_Kernel::setDefaults(){
 	m_OFE_supp["tet"]   = bitpit::ElementType::TETRA;
 	m_OFE_supp["prism"] = bitpit::ElementType::WEDGE;
 	m_OFE_supp["pyr"]   = bitpit::ElementType::PYRAMID;
+	m_boundary.reset();
 }
 
 /*!
@@ -125,6 +144,15 @@ IOOFOAM_Kernel::isWriteMode(){
 }
 
 /*!
+ * Get current boundary geometry coherent with bulk.
+ * \return boundary pointer to internal boundary mesh MimmoObject.
+ */
+MimmoSharedPointer<MimmoObject>
+IOOFOAM_Kernel::getBoundaryGeometry(){
+    return m_boundary;
+}
+
+/*!
  * It sets the name of directory to read/write the OpenFOAM mesh.
  * \param[in] dir mesh input directory.
  */
@@ -137,7 +165,7 @@ IOOFOAM_Kernel::setDir(const std::string &dir){
  * Set current bulk geometry MimmoObject mesh.
  * The mesh must be of volume type. Internal check to know if interfaces are built is done,
  * since without them can be not coherent link with OpenFoam mesh from file (setDir method).
- * Any previous mesh internally allocated will be destroyed. See MimmoFvMesh::setGeometry.
+ * Any previous mesh internally allocated will be destroyed. See BaseManipulation::setGeometry.
  * \param[in] bulk pointer to external bulk mesh MimmoObject.
  */
 void
@@ -146,18 +174,26 @@ IOOFOAM_Kernel::setGeometry(MimmoSharedPointer<MimmoObject> bulk){
     if(bulk->getInterfacesSyncStatus() != SyncStatus::SYNC) {
         *(m_log)<<"Warning IOOFOAM_Kernel:: linked MimmoObject bulk mesh can be not coherent with an OpenFoam mesh"<<std::endl;
     }
-	MimmoFvMesh::setGeometry(bulk);
+    if (bulk->getType() != 2 && bulk->getType() != 1){
+        *(m_log)<<"Warning IOOFOAM_Kernel:: linked MimmoObject bulk mesh can be only volume or surface mesh. Continue without bulk geometry."<<std::endl;
+        return;
+    }
+	BaseManipulation::setGeometry(bulk);
 }
 
 /*!
  * Set current boundary geometry -> mesh coherent with bulk set with setGeometry();
- * Any previous mesh internally allocated will be destroyed. See MimmoFvMesh::setBoundaryGeometry
+ * Any previous mesh internally allocated will be destroyed.
  * \param[in] boundary pointer to external boundary mesh MimmoObject.
  */
 void
 IOOFOAM_Kernel::setBoundaryGeometry(MimmoSharedPointer<MimmoObject> boundary){
     if(!boundary) return;
-	MimmoFvMesh::setBoundaryGeometry(boundary);
+    if (boundary->getType() != 1 && boundary->getType() != 4){
+        *(m_log)<<"Warning IOOFOAM_Kernel:: linked MimmoObject boundary mesh can be only surface or 3D-curve mesh. Continue without boundary geometry."<<std::endl;
+        return;
+    }
+    m_boundary = boundary;
 }
 
 /*!
@@ -215,6 +251,51 @@ IOOFOAM_Kernel::flushSectionXML(bitpit::Config::Section & slotXML, std::string n
 	slotXML.set("IOMode", std::to_string(m_write));
 	slotXML.set("Dir", m_path);
 };
+
+
+/*!
+ * Check coeherence between bulk and boundary mesh, i.e.:
+ *
+ * - bulk non-null and non-empty
+ * - if boundary non null and non empty, it checks out:
+ *   - bulk/boundary pair must be of MimmoObject types 2-Volume bulk and 1-Surface boundary or 1-Surface bulk and 4-3Dcurve boundary
+ *   - ids tight matching between border interfaces on the bulk and cells of the boundary
+ * - otherwise:
+ *   - create internally a boundary patch, without pid segmentation informations, and return true.
+ *
+ * \return false if one of the check failed.
+ */
+bool
+IOOFOAM_Kernel::checkMeshCoherence(){
+
+    MimmoSharedPointer<MimmoObject> bulk = getGeometry();
+    if(bulk == nullptr)  return false;
+
+    MimmoSharedPointer<MimmoObject> boundary = getBoundaryGeometry();
+
+    bool checkBoundaries = true;
+    if(boundary == nullptr)  checkBoundaries = false;
+
+    if(checkBoundaries){
+
+        if(bulk->getInterfacesSyncStatus() != SyncStatus::SYNC)  return false;
+        std::string key = std::to_string(bulk->getType()) + std::to_string(boundary->getType());
+        if(key !="21" && key !="14")    return false;
+
+        std::set<long> idBorderInterf;
+        for(const auto & interf : bulk->getInterfaces()){
+            if(interf.isBorder())   idBorderInterf.insert(interf.getId());
+        };
+        std::vector<long> idInterf;
+        idInterf.insert(idInterf.end(), idBorderInterf.begin(), idBorderInterf.end());
+        std::vector<long> idCell   = boundary->getCells().getIds(true);
+
+        return idInterf == idCell;
+    }else{
+        m_geometry->extractBoundaryMesh();
+        return true;
+    }
+}
 
 /*
  * ========================================================================================================
@@ -341,13 +422,17 @@ IOOFOAM::buildPorts(){
     bool m_mandbndy = (m_write && getBoundaryGeometry() == nullptr);
     m_mandbndy = m_mandbndy && !m_writepointsonly; //boundary are not needed really if you write only points.
 
-    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, m_mandbulk));
-    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, m_mandbndy));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, m_mandbulk, 1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &IOOFOAM_Kernel::setGeometry, M_GEOM, m_mandbulk, 1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, m_mandbndy, 2));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOM2, m_mandbndy, 2));
     built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAM>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
 
     // creating output ports
-    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
-    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &BaseManipulation::getGeometry, M_GEOMOFOAM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &BaseManipulation::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &IOOFOAM_Kernel::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAM>(this, &IOOFOAM_Kernel::getBoundaryGeometry, M_GEOM2));
     built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAM>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
 
    m_arePortsBuilt = built;
@@ -472,152 +557,513 @@ IOOFOAM::execute(){
 bool
 IOOFOAM::read(){
 
+    //instantiate my bulk geometry container
+    m_geometry = MimmoSharedPointer<MimmoObject>(new MimmoObject(2));
+    MimmoSharedPointer<MimmoObject> mesh = m_geometry;
+
 	Foam::Time *foamRunTime = 0;
 	Foam::fvMesh *foamMesh = 0;
 
-    //prepare my bulk geometry container
-    m_bulk = MimmoSharedPointer<MimmoObject>(new MimmoObject(2));
-    MimmoSharedPointer<MimmoObject> mesh = m_bulk;
+	//read mesh from OpenFoam case directory
+	foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh, m_geometry->getProcessorCount());
+
+	//prepare my bulk geometry container
+    mesh->getPatch()->reserveVertices(std::size_t(foamMesh->nPoints()));
+	mesh->getPatch()->reserveCells(std::size_t(foamMesh->nCells()));
+
+	//start absorbing mesh nodes/points.
+	Foam::pointField nodes = foamMesh->points();
+	darray3E coords;
+	forAll(nodes, in){
+		for (int k = 0; k < 3; k++) {
+			coords[k] = nodes[in][k];
+		}
+		mesh->addVertex(coords, long(in));
+	}
+
+	//absorbing cells.
+	const Foam::cellList & cells           = foamMesh->cells();
+	const Foam::cellShapeList & cellShapes = foamMesh->cellShapes();
+	const Foam::faceList & faces           = foamMesh->faces();
+	const Foam::labelList & faceOwner      = foamMesh->faceOwner();
+	const Foam::labelList & faceNeighbour  = foamMesh->faceNeighbour();
+
+	Foam::label sizeNeighbours = faceNeighbour.size();
+
+	std::string eleshape;
+	bitpit::ElementType eltype;
+	long iDC;
+	long PID = 0;
+	livector1D conn, temp;
+
+	forAll(cells, iC){
+
+	    iDC = long(iC);
+	    eleshape = std::string(cellShapes[iC].model().name());
+	    //first step verify the model in twin cellShapes list.
+	    conn.clear();
+
+	    if(m_OFE_supp.count(eleshape) > 0){
+
+	        eltype = m_OFE_supp[eleshape];
+	        temp.resize(cellShapes[iC].size());
+	        forAll(cellShapes[iC], loc){
+	            temp[loc] = (long)cellShapes[iC][loc];
+	        }
+	        conn = foamUtilsNative::mapEleVConnectivity(temp, eltype);
+	    }else{
+
+	        eltype = bitpit::ElementType::POLYHEDRON;
+	        //manually calculate connectivity.
+	        conn.push_back((long)cells[iC].size()); //total number of faces on the top.
+	        forAll(cells[iC], locC){
+	            Foam::label iFace = cells[iC][locC];
+	            long faceNVertex = (long)faces[iFace].size();
+	            temp.resize(faceNVertex);
+	            forAll(faces[iFace], locF){
+	                temp[locF] = (long)faces[iFace][locF];
+	            }
+
+	            conn.push_back(faceNVertex);
+	            if(iFace >= sizeNeighbours) {
+	                //border face, normal outwards, take as it is
+	                conn.insert(conn.end(), temp.begin(), temp.end());
+	                continue;
+	            }
+	            bool normalIsOut;
+	            //recover right adjacency and check if face normal pointing outwards.
+	            //OpenFoam policy wants the face normal between cell pointing towards
+	            // the cell with greater id.
+	            if(iC == faceOwner[iFace]){
+	                normalIsOut = faceNeighbour[iFace] > iC;
+	            }else{
+	                normalIsOut = faceOwner[iFace] > iC;
+	            }
+
+	            if(normalIsOut){
+	                conn.insert(conn.end(), temp.begin(), temp.end());
+	            }else{
+	                conn.insert(conn.end(), temp.rbegin(), temp.rend());
+	            }
+	        }
+	    }
+	    mesh->addConnectedCell(conn, eltype, PID, iDC);
+	}
+
+
+    std::vector<long> vectorVertexIds = mesh->getVertexFromCellList(mesh->getCellsIds(true));
 
 #if MIMMO_ENABLE_MPI
-    // Only master rank 0 reads the mesh
-    if (getRank() == 0)
-    {
+
+	// Build ghost cells only in case of multi-processors run
+	if (getProcessorCount() > 1){
+
+	    // Build Ghost Cells from boundary cells of patches of type processor boundary
+
+	    // Recovering boundary nodes for each partition
+	    std::vector<long> boundary_vertices = mesh->extractBoundaryVertexID();
+
+	    // Communicate boundary vertices to all other partitions
+	    std::unordered_map<int, std::vector<long>*> boundaryVertexExchangeSources;
+	    std::unordered_map<int, bitpit::PiercedVector<bitpit::Vertex> > receivedBoundaryVertices;
+
+	    // Fill map to communicate
+	    for (int irank = 0; irank < getProcessorCount(); irank++){
+	        if (irank != getRank()){
+	            boundaryVertexExchangeSources[irank] = &boundary_vertices;
+	        }
+	    }
+
+	    {
+	        // Send boundary vertices
+	        std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+	        dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
+
+	        for (auto & entry : boundaryVertexExchangeSources){
+
+	            int target_rank = entry.first;
+	            std::vector<long> & vertexList = *entry.second;
+
+	            // Prepare buffer for source cells and vertices of the source cells
+	            size_t vertexBufferSize = 0;
+	            for (long vertexId : vertexList){
+	                vertexBufferSize += mesh->getPatch()->getVertex(vertexId).getBinarySize();
+	            }
+	            dataCommunicator->setSend(target_rank, sizeof(size_t) + vertexBufferSize);
+	            bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(target_rank);
+
+	            // Fill the buffer with the source cells and vertices
+	            buffer << vertexList.size();
+	            for (long vertexId : vertexList){
+	                buffer << mesh->getPatch()->getVertex(vertexId);
+	            }
+	            dataCommunicator->startSend(target_rank);
+
+	        }
+
+	        // Discover & start all the receives
+	        dataCommunicator->discoverRecvs();
+	        dataCommunicator->startAllRecvs();
+
+	        // Receive the target boundary vertices
+	        int nCompletedRecvs = 0;
+	        while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+	            int source_rank = dataCommunicator->waitAnyRecv();
+	            bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(source_rank);
+
+	            // Receive boundary vertices from mesh partitions
+	            std::size_t vertexCount;
+	            buffer >> vertexCount;
+	            receivedBoundaryVertices[source_rank].reserve(vertexCount);
+	            for (std::size_t ivertex = 0; ivertex < vertexCount; ivertex++){
+	                bitpit::Vertex boundaryVertex;
+	                buffer >> boundaryVertex;
+	                receivedBoundaryVertices[source_rank].insert(boundaryVertex.getId(), boundaryVertex);
+	            }
+
+	            ++nCompletedRecvs;
+	        }
+	        // Wait for the sends to finish
+	        dataCommunicator->waitAllSends();
+
+	    }
+
+	    // Update kdtree
+	    if (mesh->getKdTreeSyncStatus() != SyncStatus::SYNC){
+	        mesh->buildKdTree();
+	    }
+
+	    // Found list of vertices coincident
+	    // with received boundary vertices for each partition
+
+	    // Initialize ghost cells to communicate to each processor
+	    std::unordered_map<int, long> ghostVertexExchangeSourcesCount;
+	    std::unordered_map<int, std::unordered_set<long>> ghostCellExchangeSources;
+	    std::unordered_map<int, std::unordered_set<long>> vertexCellExchangeSources;
+
+	    // Loop over received bounday vertices for rank
+	    for (int irank = 0; irank < getProcessorCount(); irank ++){
+
+	        if (irank == getRank()) continue;
+
+	        long received_vertices_count = receivedBoundaryVertices[irank].size();
+	        std::vector<long> coincident_vertices;
+	        coincident_vertices.reserve(received_vertices_count);
+
+	        // Check received vertices with local kdtree
+	        for (bitpit::Vertex vertex : receivedBoundaryVertices[irank]){
+
+	            long coincident_vertex_id = bitpit::Vertex::NULL_ID;
+	            mesh->getKdTree()->exist(&vertex, coincident_vertex_id);
+	            if (coincident_vertex_id != bitpit::Vertex::NULL_ID){
+	                coincident_vertices.push_back(coincident_vertex_id);
+	            }
+	            coincident_vertices.shrink_to_fit();
+
+	        }
+
+	        // Extract local source cells those are ghost cells for i-th rank
+	        std::vector<long> ghosts = mesh->getCellFromVertexList(coincident_vertices, false);
+
+	        // Fill communication structures
+	        ghostVertexExchangeSourcesCount[irank] = 0;
+	        for (long cellId : ghosts){
+	            ghostCellExchangeSources[irank].insert(cellId);
+	            for (long vertexId : mesh->getPatch()->getCell(cellId).getVertexIds()){
+	                vertexCellExchangeSources[irank].insert(vertexId);
+	                ghostVertexExchangeSourcesCount[irank]++;
+	            }
+	        }
+
+	    }
+
+
+	    {
+	        // Send number of vertices
+	        std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+	        dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
+
+	        for (auto & entry : ghostCellExchangeSources){
+
+	            int target_rank = entry.first;
+	            std::unordered_set<long> & cellList = entry.second;
+	            std::unordered_set<long> & vertexList = vertexCellExchangeSources[target_rank];
+
+	            // Prepare buffer for source cells and vertices of the source cells
+	            long vertexCount = 0;
+	            for (long vertexId : vertexList){
+	                vertexCount++;
+	            }
+	            dataCommunicator->setSend(target_rank, vertexCount*sizeof(long));
+	            bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(target_rank);
+
+	            // Fill the buffer with the source cells and vertices
+	            buffer << vertexCount;
+	            dataCommunicator->startSend(target_rank);
+	        }
+
+	        // Discover & start all the receives
+	        dataCommunicator->discoverRecvs();
+	        dataCommunicator->startAllRecvs();
+
+	        // Receive the target count vertices
+
+	        int nCompletedRecvs = 0;
+	        while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+	            int source_rank = dataCommunicator->waitAnyRecv();
+	            bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(source_rank);
+
+	            long vertexCount;
+	            buffer >> vertexCount;
+
+	            ghostVertexExchangeSourcesCount[source_rank] = vertexCount;
+
+	            ++nCompletedRecvs;
+	        }
+	        // Wait for the sends to finish
+	        dataCommunicator->waitAllSends();
+
+	    } // end communication of receive vertex count
+
+
+	    // Force re-build kdTree of vertices with new over-sized reserved vertex container
+	    mesh->buildKdTree();
+
+	    // Instantiate a to_insert structure for unique received vertices for each sending rank
+	    // Initialize a kdTree tree for the received ghost vertices
+	    std::unordered_map< long , std::vector<bitpit::Vertex> > unique_ghosts;
+	    for (auto entry : ghostVertexExchangeSourcesCount){
+	        unique_ghosts[entry.first].reserve(entry.second);
+	    }
+	    bitpit::KdTree<3, bitpit::Vertex, std::pair<int, long> > ghost_tree;
+
+	    // Renumber connectivity of cells with new vertex ids for each sending rnak
+	    std::unordered_map< long, std::unordered_map<long, long> > oldToNewVertexId;
+
+	    // Some vertex are coincident with other ghost vertices already to be insert
+	    // Link these vertices to renumber after the insertion of the linked ones of the related source rank
+	    std::unordered_map< long, std::unordered_map<long, std::pair<int, long> > > oldToRenumberedGhostVertexId;
+
+	    {
+	        // Send vertices
+	        std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+	        dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
+
+	        for (auto & entry : ghostCellExchangeSources){
+
+	            int target_rank = entry.first;
+	            std::unordered_set<long> & vertexList = vertexCellExchangeSources[target_rank];
+
+	            // Prepare buffer for vertices of the source cells
+	            size_t vertexBufferSize = 0;
+	            for (long vertexId : vertexList){
+	                vertexBufferSize += mesh->getPatch()->getVertex(vertexId).getBinarySize();
+	            }
+	            dataCommunicator->setSend(target_rank, sizeof(size_t) + vertexBufferSize);
+	            bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(target_rank);
+
+	            // Fill the buffer with the source vertices
+	            buffer << vertexList.size();
+	            for (long vertexId : vertexList){
+	                buffer << mesh->getPatch()->getVertex(vertexId);
+	            }
+	            dataCommunicator->startSend(target_rank);
+	        }
+
+	        // Discover & start all the receives
+	        dataCommunicator->discoverRecvs();
+	        dataCommunicator->startAllRecvs();
+
+	        // Receive the target ghost vertices
+
+	        int nCompletedRecvs = 0;
+	        while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+	            int source_rank = dataCommunicator->waitAnyRecv();
+	            bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(source_rank);
+
+	            // Receive ghost vertices
+	            std::size_t vertexCount;
+	            buffer >> vertexCount;
+	            for (std::size_t ivertex = 0; ivertex < vertexCount; ivertex++){
+	                bitpit::Vertex ghostVertex;
+	                buffer >> ghostVertex;
+	                long oldGhostVertexId = ghostVertex.getId();
+	                // ADd vertex if not already in the tree
+	                long ghostVertexId = oldGhostVertexId;
+	                std::pair<int, long> ghost_label(source_rank, ghostVertexId);
+	                std::pair<int, long> old_ghost_label(ghost_label);
+
+	                // Check if already an insert ghost vertex
+	                if (ghost_tree.exist(&ghostVertex, ghost_label) == -1){
+
+	                    // Check if coincident qith a local vertex
+	                    if ((mesh->getKdTree()->exist(&ghostVertex, ghostVertexId)) == -1){
+
+	                        // To insert ghost vertex
+	                        unique_ghosts[source_rank].push_back(ghostVertex);
+
+	                        // Insert in the tree because the received vertices can be duplicated between partitions
+	                        ghost_tree.insert(&unique_ghosts[source_rank].back(), ghost_label);
+
+	                    }
+
+	                    // Insert item in map oldid->newid for ghost vertices coincident with a vertex
+	                    // already in the local tree
+	                    if (ghostVertexId != oldGhostVertexId){
+	                        oldToNewVertexId[source_rank].insert({{oldGhostVertexId, ghostVertexId}});
+	                    }
+
+	                }
+
+	                // Insert item in map oldid->newid for ghost vertices coincident with a vertex
+	                // already in the tree of ghosts [received by a previous partition])
+	                if (ghost_label != old_ghost_label){
+	                    oldToRenumberedGhostVertexId[source_rank].insert({{old_ghost_label.second, ghost_label}});
+	                }
+
+	            }
+	            ++nCompletedRecvs;
+	        }
+
+	        // Wait for the sends to finish
+	        dataCommunicator->waitAllSends();
+	    }
+
+	    // Insert unique vertices in mesh
+	    for (auto & entry : unique_ghosts){
+	        int source_rank = entry.first;
+	        for (auto & ghostVertex : entry.second){
+	            long oldGhostVertexId = ghostVertex.getId();
+	            long ghostVertexId = bitpit::Vertex::NULL_ID;
+	            ghostVertex.setId(bitpit::Vertex::NULL_ID);
+	            ghostVertexId = mesh->addVertex(ghostVertex.getCoords(), bitpit::Vertex::NULL_ID);
+	            // Insert new vertex id in map old->new to update connectivity
+	            if (ghostVertexId != oldGhostVertexId){
+	                oldToNewVertexId[source_rank].insert({{oldGhostVertexId, ghostVertexId}});
+	            }
+	        }
+	    }
+
+	    // Insert in the map the id of the ghost vertices dependent
+	    // from the insertion of the ghost vertices received from other partitions
+	    for (auto entry : oldToRenumberedGhostVertexId){
+	        int source_rank = entry.first;
+	        for (auto tuple : entry.second){
+	            long old_id = tuple.first;
+	            int linked_source_rank = tuple.second.first;
+	            long linked_old_id = tuple.second.second;
+	            oldToNewVertexId[source_rank].insert({{old_id, oldToNewVertexId[linked_source_rank][linked_old_id]}});
+	        }
+	    }
+
+	    {
+	        // Send cells
+	        std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
+	        dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
+
+	        for (auto & entry : ghostCellExchangeSources){
+
+	            int target_rank = entry.first;
+	            std::unordered_set<long> & cellList = entry.second;
+
+	            // Prepare buffer for source cells
+	            size_t cellBufferSize = 0;
+	            for (long cellId : cellList){
+	                cellBufferSize += mesh->getPatch()->getCell(cellId).getBinarySize();
+	            }
+	            dataCommunicator->setSend(target_rank, sizeof(size_t) + cellBufferSize);
+	            bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(target_rank);
+
+	            // Fill the buffer with the source cells
+	            buffer << cellList.size();
+	            for (long cellId : cellList){
+	                buffer << mesh->getPatch()->getCell(cellId);
+	            }
+	            dataCommunicator->startSend(target_rank);
+
+	        }
+
+	        // Discover & start all the receives
+	        dataCommunicator->discoverRecvs();
+	        dataCommunicator->startAllRecvs();
+
+	        // Receive the target ghost cells
+	        int nCompletedRecvs = 0;
+	        while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+	            int source_rank = dataCommunicator->waitAnyRecv();
+	            bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(source_rank);
+
+	            // Receive ghost cells add to mesh partition
+	            std::size_t cellCount;
+	            buffer >> cellCount;
+	            for (std::size_t icell = 0; icell < cellCount; icell++){
+	                bitpit::Cell ghostCell;
+	                buffer >> ghostCell;
+	                ghostCell.renumberVertices(oldToNewVertexId[source_rank]);
+	                ghostCell.setId(bitpit::Cell::NULL_ID);
+	                long ghostId = mesh->addCell(ghostCell, int(source_rank));
+
+	            }
+	            ++nCompletedRecvs;
+	        }
+	        // Wait for the sends to finish
+	        dataCommunicator->waitAllSends();
+
+	    }
+
+	} // end if multi-processors
+
+    // Update mesh
+    mesh->update();
+
 #endif
-        //read mesh from OpenFoam case directory
-        foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh);
 
-        mesh->reserveVertices(std::size_t(foamMesh->nPoints()));
-        mesh->reserveCells(std::size_t(foamMesh->nCells()));
+    mesh->updateAdjacencies();
+    mesh->updateInterfaces();
+    mesh->update();
 
-        //start absorbing mesh nodes/points.
-        Foam::pointField nodes = foamMesh->points();
-        darray3E coords;
-        forAll(nodes, in){
-            for (int k = 0; k < 3; k++) {
-                coords[k] = nodes[in][k];
-            }
-            mesh->addVertex(coords, long(in));
+    // TODO bitpit sort is bugged
+    // Sort cells and vertices
+//    mesh->getPatch()->sortVertices();
+//    mesh->getPatch()->sortCells();
+
+    bitpit::PiercedVector<bitpit::Cell> & bitCells = mesh->getCells();
+    bitpit::PiercedVector<bitpit::Interface> & bitInterfaces = mesh->getInterfaces();
+
+    forAll(faces, iOF){
+
+        std::vector<long> vListOF(faces[iOF].size());
+        forAll(faces[iOF], index){
+            vListOF[index] = long(faces[iOF][index]);
         }
+        std::sort(vListOF.begin(), vListOF.end());
 
-        //absorbing cells.
-        const Foam::cellList & cells           = foamMesh->cells();
-        const Foam::cellShapeList & cellShapes = foamMesh->cellShapes();
-        const Foam::faceList & faces           = foamMesh->faces();
-        const Foam::labelList & faceOwner      = foamMesh->faceOwner();
-        const Foam::labelList & faceNeighbour  = foamMesh->faceNeighbour();
+        long iDC = long(faceOwner[iOF]);
+        long * bitFaceList = bitCells[iDC].getInterfaces();
+        std::size_t sizeFList = bitCells[iDC].getInterfaceCount();
 
-        Foam::label sizeNeighbours = faceNeighbour.size();
+        long iBIT = bitpit::Interface::NULL_ID;
+        std::size_t j(0);
+        while(iBIT < 0 && j<sizeFList){
+            bitpit::ConstProxyVector<long> vconn = bitInterfaces[bitFaceList[j]].getVertexIds();
+            std::size_t vconnsize = vconn.size();
+            std::vector<long> vListBIT(vconn.begin(), vconn.end());
+            std::sort(vListBIT.begin(), vListBIT.end());
 
-        std::string eleshape;
-        bitpit::ElementType eltype;
-        long iDC;
-        long PID = 0;
-        livector1D conn, temp;
-
-        forAll(cells, iC){
-
-            iDC = long(iC);
-            eleshape = std::string(cellShapes[iC].model().name());
-            //first step verify the model in twin cellShapes list.
-            conn.clear();
-
-            if(m_OFE_supp.count(eleshape) > 0){
-
-                eltype = m_OFE_supp[eleshape];
-                temp.resize(cellShapes[iC].size());
-                forAll(cellShapes[iC], loc){
-                    temp[loc] = (long)cellShapes[iC][loc];
-                }
-                conn = foamUtilsNative::mapEleVConnectivity(temp, eltype);
+            if(std::equal(vListBIT.begin(), vListBIT.end(), vListOF.begin()) ){
+                iBIT = bitFaceList[j];
             }else{
-
-                eltype = bitpit::ElementType::POLYHEDRON;
-                //manually calculate connectivity.
-                conn.push_back((long)cells[iC].size()); //total number of faces on the top.
-                forAll(cells[iC], locC){
-                    Foam::label iFace = cells[iC][locC];
-                    long faceNVertex = (long)faces[iFace].size();
-                    temp.resize(faceNVertex);
-                    forAll(faces[iFace], locF){
-                        temp[locF] = (long)faces[iFace][locF];
-                    }
-
-                    conn.push_back(faceNVertex);
-                    if(iFace >= sizeNeighbours) {
-                        //border face, normal outwards, take as it is
-                        conn.insert(conn.end(), temp.begin(), temp.end());
-                        continue;
-                    }
-                    bool normalIsOut;
-                    //recover right adjacency and check if face normal pointing outwards.
-                    //OpenFoam policy wants the face normal between cell pointing towards
-                    // the cell with greater id.
-                    if(iC == faceOwner[iFace]){
-                        normalIsOut = faceNeighbour[iFace] > iC;
-                    }else{
-                        normalIsOut = faceOwner[iFace] > iC;
-                    }
-
-                    if(normalIsOut){
-                        conn.insert(conn.end(), temp.begin(), temp.end());
-                    }else{
-                        conn.insert(conn.end(), temp.rbegin(), temp.rend());
-                    }
-                }
+                ++j;
             }
-#if MIMMO_ENABLE_MPI
-            bitpit::PatchKernel::CellIterator it = mesh->addCell(eltype, conn, 0, iDC);
-#else
-            bitpit::PatchKernel::CellIterator it = mesh->addCell(eltype, conn, iDC);
-#endif
-            it->setPID(int(PID));
         }
-
-        mesh->updateAdjacencies();
-        mesh->updateInterfaces();
-
-        bitpit::PiercedVector<bitpit::Cell> & bitCells = mesh->getCells();
-        bitpit::PiercedVector<bitpit::Interface> & bitInterfaces = mesh->getInterfaces();
-
-        forAll(faces, iOF){
-
-            std::vector<long> vListOF(faces[iOF].size());
-            forAll(faces[iOF], index){
-                vListOF[index] = long(faces[iOF][index]);
-            }
-            std::sort(vListOF.begin(), vListOF.end());
-
-            long iDC = long(faceOwner[iOF]);
-            long * bitFaceList = bitCells[iDC].getInterfaces();
-            std::size_t sizeFList = bitCells[iDC].getInterfaceCount();
-
-            long iBIT = bitpit::Interface::NULL_ID;
-            std::size_t j(0);
-            while(iBIT < 0 && j<sizeFList){
-                bitpit::ConstProxyVector<long> vconn = bitInterfaces[bitFaceList[j]].getVertexIds();
-                std::size_t vconnsize = vconn.size();
-                std::vector<long> vListBIT(vconn.begin(), vconn.end());
-                std::sort(vListBIT.begin(), vListBIT.end());
-
-                if(std::equal(vListBIT.begin(), vListBIT.end(), vListOF.begin()) ){
-                    iBIT = bitFaceList[j];
-                }else{
-                    ++j;
-                }
-            }
-            m_OFbitpitmapfaces.insert(std::make_pair(long(iOF),iBIT) );
-        }
-#if MIMMO_ENABLE_MPI
+        m_OFbitpitmapfaces.insert(std::make_pair(long(iOF),iBIT) );
     }
-#endif
 
-    m_bulk->update();
 
-	//from MimmoFvMesh protected utilities, create the raw boundary mesh, storing it in m_boundary internal member.
-	//PID will be every where 0. Need to be compiled to align with patch division of foamBoundaryMesh.
-	//every cell of the boundary mesh will have the same id of the border interfaces of the bulk.
-	createBoundaryMesh();
+	// From MimmoObject utilities, create the raw boundary mesh, storing it in m_boundary internal member.
+	// PID will be every where 0. Need to be compiled to align with patch division of foamBoundaryMesh.
+	// Every cell of the boundary mesh will have the same id of the border interfaces of the bulk.
+    m_boundary = mesh->extractBoundaryMesh();
 
 	//Once OFoam faces and bitpit Interfaces link is set,
 	//Extract boundary patch info from foamBoundary and
@@ -638,10 +1084,11 @@ IOOFOAM::read(){
 	}
 	m_boundary->resyncPID();
 
+	// Update bounfary mesh
 	m_boundary->update();
 
 	// Destroy interfaces to save memory
-	m_bulk->destroyInterfaces();
+	m_geometry->destroyInterfaces();
 
 	return true;
 
@@ -666,19 +1113,45 @@ IOOFOAM::write(){
  */
 bool
 IOOFOAM::writePointsOnly(){
-	if(!checkMeshCoherence()) return false;
 
-	dvecarr3E points = getGeometry()->getVerticesCoords();
+	dvecarr3E points;
 
 #if MIMMO_ENABLE_MPI
-    // Only master rank writes the mesh
-    if (getRank() == 0)
-    {
+	// If MPI enable and multi-process run use only vertices of internal cells
+	if (getProcessorCount() > 1){
+        // Recover vertex ids of internal cells only
+	    std::vector<long> vectorVertexIds = getGeometry()->getVertexFromCellList(getGeometry()->getCellsIds(true));
+        // In order to maintain the same order of the original mesh
+	    // put the find vertex ids in a set
+	    points.reserve(vectorVertexIds.size());
+	    // Run over vertices of internal cells and put coordinates of the vertex in the set
+	    std::set<long> orderedVertexIds;
+	    for (long vertexId : vectorVertexIds){
+	        orderedVertexIds.insert(vertexId);
+	    }
+        for (long vertexId : orderedVertexIds){
+            points.emplace_back(getGeometry()->getPatch()->getVertex(vertexId).getCoords());
+        }
+	}
+	else
 #endif
-        return foamUtilsNative::writePointsOnCase(m_path.c_str(), points, m_overwrite);
-#if MIMMO_ENABLE_MPI
+	{
+	    points = getGeometry()->getVerticesCoords();
+	}
+
+    bool check = foamUtilsNative::writePointsOnCase(m_path.c_str(), points, m_overwrite);
+
+    // In foamUtilsNative::writePointsOnCase the number of points of the initialized case are checked
+    // vs the number of points of the input mesh.
+    // It is the only check performed, the coherence between the order of the points is charged to the user
+    // No coherence check on other structures and info of the mesh are done
+    if(!check){
+        (*m_log)<<"ERROR: "<<m_name<<" OpenFOAM mesh points coherence check failed during writing."<<std::endl;
+        return false;
     }
-#endif
+
+    return true;
+
 }
 
 /*
@@ -758,12 +1231,16 @@ IOOFOAMScalarField::buildPorts(){
 
     //depending if the field to be read/written is bulk or boundary, you need at least bulk or boundary connected.
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, true,1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setGeometry, M_GEOM, true,1));
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, true,1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOM2, true,1));
     built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
 
     // creating output ports
-    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
-    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &BaseManipulation::getGeometry, M_GEOMOFOAM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &BaseManipulation::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::getBoundaryGeometry, M_GEOM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::getBoundaryGeometry, M_GEOMOFOAM2));
     built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAMScalarField>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
 	built = (built && createPortOut<dmpvector1D*, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getField, M_SCALARFIELD));
 	built = (built && createPortOut<dmpvector1D*, IOOFOAMScalarField>(this, &IOOFOAMScalarField::getBoundaryField, M_SCALARFIELD2));
@@ -851,86 +1328,77 @@ IOOFOAMScalarField::read(){
 	Foam::fvMesh *foamMesh = 0;
 	foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh);
 
-#if MIMMO_ENABLE_MPI
-    // Only master rank reads the field
-    if (getRank() == 0)
-    {
-#endif
-        if ( getGeometry() != nullptr){
-            std::size_t size;
-            std::vector<double> field;
-            foamUtilsNative::readScalarField(m_path.c_str(), m_fieldname.c_str(), -1, size, field);
-            m_field.clear();
-            m_field.reserve(size);
+	if ( getGeometry() != nullptr){
+	    std::size_t size;
+	    std::vector<double> field;
+	    foamUtilsNative::readScalarField(m_path.c_str(), m_fieldname.c_str(), -1, size, field);
+	    m_field.clear();
+	    m_field.reserve(size);
 
-            auto itfield = field.begin();
-            for (bitpit::Cell & cell : getGeometry()->getCells()){
-                m_field.insert(cell.getId(), *itfield);
-                itfield++;
-            }
-        }
-#if MIMMO_ENABLE_MPI
-    }
-#endif
+	    auto itfield = field.begin();
+	    for (bitpit::Cell & cell : getGeometry()->getCells()){
+	        m_field.insert(cell.getId(), *itfield);
+	        itfield++;
+	    }
+	}
 
-    m_field.setGeometry(getGeometry());
-    //Data on cells
-    m_field.setDataLocation(2);
+	m_field.setGeometry(getGeometry());
+	//Data on cells
+	m_field.setDataLocation(2);
 
     //TODO ADD CELL TO POINT INTERPOLATION
+    //TODO ADD COMMUNICATION ON GHOSTS
 
-    // Read boundary field
+	// Read boundary field
     dmpvector1D boundaryFieldOnFace;
 
-#if MIMMO_ENABLE_MPI
-    // Only master rank reads the field
-    if (getRank() == 0)
-    {
-#endif
-        //One field stored.
-	if ( getBoundaryGeometry() != nullptr ){
-		const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
-		long startIndex;
-		std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
-		for (long pid : pids){
-		    if (pid > 0){
-				std::size_t size = 0;
-				std::vector<double> field;
-				foamUtilsNative::readScalarField(m_path.c_str(), m_fieldname.c_str(), pid-1, size, field);
-				boundaryFieldOnFace.reserve(boundaryFieldOnFace.size() + size);
-				if (size > 0){
-					long iBoundary = pid-1;
-					startIndex = foamBMesh[iBoundary].start();
-					long ind = startIndex;
-					for (double val : field){
-						boundaryFieldOnFace.insert(m_OFbitpitmapfaces[ind], val);
-						ind++;
-					}
-				}
-				else{
-					for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
-						if (cell.getPID() == pid)
-							boundaryFieldOnFace.insert(cell.getId(), 0.);
-					}
-				}
-			}
-			else{
-				for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
-					if (cell.getPID() == pid){
-						if (!boundaryFieldOnFace.exists(cell.getId()))
-							boundaryFieldOnFace.insert(cell.getId(), 0.);
-					}
-				}
-			}
-		}
-	}
-#if MIMMO_ENABLE_MPI
-    }
-#endif
+    //One field stored.
+    if ( getBoundaryGeometry() != nullptr ){
+        const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
+        long startIndex;
+        std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
+        for (long pid : pids){
+            if (pid > 0){
+                std::size_t size = 0;
+                std::vector<double> field;
+                foamUtilsNative::readScalarField(m_path.c_str(), m_fieldname.c_str(), pid-1, size, field);
+                boundaryFieldOnFace.reserve(boundaryFieldOnFace.size() + size);
+                if (size > 0){
+                    long iBoundary = pid-1;
+                    startIndex = foamBMesh[iBoundary].start();
+                    long ind = startIndex;
+                    for (double val : field){
+                        boundaryFieldOnFace.insert(m_OFbitpitmapfaces[ind], val);
+                        ind++;
+                    }
+                }
+                else{
+                    for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
+                        if (cell.getPID() == pid)
+                            boundaryFieldOnFace.insert(cell.getId(), 0.);
+                    }
+                }
+            }
+            else{
+                for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
+                    if (cell.getPID() == pid){
+                        if (!boundaryFieldOnFace.exists(cell.getId()))
+                            boundaryFieldOnFace.insert(cell.getId(), 0.);
+                    }
+                }
+            }
+        }
 
-    boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
-    boundaryFieldOnFace.setDataLocation(1);
-    foamUtilsNative::interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
+        boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
+        boundaryFieldOnFace.setDataLocation(1);
+        foamUtilsNative::interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
+
+    }
+
+#if MIMMO_ENABLE_MPI
+    // Communicate ghost data
+    communicateScalarPointGhostData(&m_boundaryField);
+#endif
 
 	//TODO exception for null or empty geometries and return false for error during reading
 	return true;
@@ -1027,12 +1495,16 @@ IOOFOAMScalarField::write(){
     bool built = true;
 
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setGeometry, M_GEOMOFOAM, true,1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setGeometry, M_GEOM, true,1));
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOMOFOAM2, true,1));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setBoundaryGeometry, M_GEOM2, true,1));
     built = (built && createPortIn<std::unordered_map<long,long>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::setFacesMap, M_UMAPIDS));
 
     // creating output ports
-    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &MimmoFvMesh::getGeometry, M_GEOMOFOAM));
-    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &MimmoFvMesh::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &BaseManipulation::getGeometry, M_GEOMOFOAM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &BaseManipulation::getGeometry, M_GEOM));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::getBoundaryGeometry, M_GEOMOFOAM2));
+    built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::getBoundaryGeometry, M_GEOM2));
     built = (built && createPortOut<std::unordered_map<long,long>, IOOFOAMVectorField>(this, &IOOFOAM_Kernel::getFacesMap, M_UMAPIDS));
  	built = (built && createPortOut<dmpvecarr3E*, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getField, M_VECTORFIELD));
  	built = (built && createPortOut<dmpvecarr3E*, IOOFOAMVectorField>(this, &IOOFOAMVectorField::getBoundaryField, M_VECTORFIELD2));
@@ -1121,77 +1593,68 @@ IOOFOAMVectorField::read(){
 	//read mesh from OpenFoam case directory
 	foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh);
 
-#if MIMMO_ENABLE_MPI
-    // Only master rank reads the field
-    if (getRank() == 0)
-    {
-#endif
-        if ( getGeometry() != nullptr){
-            std::size_t size;
-            std::vector<std::array<double,3>> field;
-            foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), -1, size, field);
-            m_field.clear();
-            m_field.reserve(size);
+	if ( getGeometry() != nullptr){
+	    std::size_t size;
+	    std::vector<std::array<double,3>> field;
+	    foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), -1, size, field);
+	    m_field.clear();
+	    m_field.reserve(size);
 
-            auto itfield = field.begin();
-            for (bitpit::Cell & cell : getGeometry()->getCells()){
-                m_field.insert(cell.getId(), *itfield);
-                itfield++;
-            }
-        }
-#if MIMMO_ENABLE_MPI
-    }
-#endif
+	    auto itfield = field.begin();
+	    for (bitpit::Cell & cell : getGeometry()->getCells()){
+	        m_field.insert(cell.getId(), *itfield);
+	        itfield++;
+	    }
+	}
 
     m_field.setGeometry(getGeometry());
     m_field.setDataLocation(2);
 
+    //TODO ADD CELL TO POINT INTERPOLATION
+    //TODO ADD COMMUNICATION ON GHOSTS
+
     // Read boundary field
     dmpvecarr3E boundaryFieldOnFace;
 
-#if MIMMO_ENABLE_MPI
-    // Only master rank reads the field
-    if (getRank() == 0)
-    {
-#endif
-        //One field stored.
-        if ( getBoundaryGeometry() != nullptr ){
+    //One field stored.
+    if ( getBoundaryGeometry() != nullptr ){
 
-            const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
-            long startIndex;
+        const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
+        long startIndex;
 
-            std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
-            for (long pid : pids){
-                if (pid > 0){
-                    std::size_t size = 0;
-                    std::vector<std::array<double,3>> field;
-                    foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), pid-1, size, field);
-                    boundaryFieldOnFace.reserve(boundaryFieldOnFace.size() + size);
-                    if (size > 0){
-                        long iBoundary = pid-1;
-                        startIndex = foamBMesh[iBoundary].start();
-                        long ind = startIndex;
-                        for (std::array<double,3> val : field){
-                            boundaryFieldOnFace.insert(m_OFbitpitmapfaces[ind], val);
-                            ind++;
-                        }
+        std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
+        for (long pid : pids){
+            if (pid > 0){
+                std::size_t size = 0;
+                std::vector<std::array<double,3>> field;
+                foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), pid-1, size, field);
+                boundaryFieldOnFace.reserve(boundaryFieldOnFace.size() + size);
+                if (size > 0){
+                    long iBoundary = pid-1;
+                    startIndex = foamBMesh[iBoundary].start();
+                    long ind = startIndex;
+                    for (std::array<double,3> val : field){
+                        boundaryFieldOnFace.insert(m_OFbitpitmapfaces[ind], val);
+                        ind++;
                     }
-                    else{
-                        for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
-                            if (cell.getPID() == pid)
-                                boundaryFieldOnFace.insert(cell.getId(), {{0.,0.,0.}});
-                        }
+                }
+                else{
+                    for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
+                        if (cell.getPID() == pid)
+                            boundaryFieldOnFace.insert(cell.getId(), {{0.,0.,0.}});
                     }
                 }
             }
         }
-#if MIMMO_ENABLE_MPI
+        boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
+        boundaryFieldOnFace.setDataLocation(1);
+        foamUtilsNative::interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
     }
-#endif
 
-    boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
-    boundaryFieldOnFace.setDataLocation(1);
-    foamUtilsNative::interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
+#if MIMMO_ENABLE_MPI
+    // Communicate ghost data
+    communicatePointGhostData(&m_boundaryField);
+#endif
 
 	//TODO exception for null or empty geometries and return false for error during reading
 	return true;
@@ -1210,5 +1673,240 @@ IOOFOAMVectorField::write(){
 
 	return true;
 }
+
+
+//******************
+//EXCLUSIVE MPI METHODS
+//******************
+//TODO USE BITPIT DATA COMMUNICATORS, STREAMERS AND TAGS WHEN READY
+//TODO IT IS THE SAME CODE OF PROPAGATEFIELD DELETE DUPLICATE CODE !!!!!
+#if MIMMO_ENABLE_MPI
+/*!
+    Creates a new ghost communicator and return its tag. if already exists, do nothing
+    and return its current tag.
+
+    \param[in] refGeo pointer to reference partitioned MimmoObject
+    \param[in] continuous defines if the communicator will be set in continuous mode
+    \return The tag associated to the newly created/or already existent communicator.
+ */
+int
+IOOFOAM_Kernel::createGhostCommunicator(MimmoObject* refGeo, bool continuous){
+
+    if(m_ghostCommunicators.count(refGeo) == 0){
+        // Create communicator
+        m_ghostCommunicators[refGeo] = std::unique_ptr<GhostCommunicator>(new GhostCommunicator(refGeo->getPatch()));
+        m_ghostCommunicators[refGeo]->resetExchangeLists();
+        m_ghostCommunicators[refGeo]->setRecvsContinuous(continuous);
+    }
+    // Return Communicator tag
+    return int(m_ghostCommunicators[refGeo]->getTag());
+}
+
+/*!
+    Creates a new ghost communicator and return its tag. if already exists, do nothing
+    and return its current tag.
+
+    \param[in] refGeo pointer to reference partitioned MimmoObject
+    \param[in] continuous defines if the communicator will be set in continuous mode
+    \return The tag associated to the newly created/or already existent communicator.
+ */
+int
+IOOFOAM_Kernel::createScalarGhostCommunicator(MimmoObject* refGeo, bool continuous){
+
+    if(m_scalarGhostCommunicators.count(refGeo) == 0){
+        // Create communicator
+        m_scalarGhostCommunicators[refGeo] = std::unique_ptr<GhostCommunicator>(new GhostCommunicator(refGeo->getPatch()));
+        m_scalarGhostCommunicators[refGeo]->resetExchangeLists();
+        m_scalarGhostCommunicators[refGeo]->setRecvsContinuous(continuous);
+    }
+    // Return Communicator tag
+    return int(m_scalarGhostCommunicators[refGeo]->getTag());
+}
+
+/*!
+    Creates a new point ghost communicator.
+
+    \param[in] refGeo pointer to reference partitioned MimmoObject
+    \param[in] continuous defines if the communicator will be set in continuous mode
+    \return The tag associated to the newly created communicator.
+ */
+int
+IOOFOAM_Kernel::createPointGhostCommunicator(MimmoObject* refGeo, bool continuous){
+    if(m_pointGhostCommunicators.count(refGeo) == 0){
+        // Create communicator
+        m_pointGhostCommunicators[refGeo] = std::unique_ptr<PointGhostCommunicator>(new PointGhostCommunicator(refGeo));
+        m_pointGhostCommunicators[refGeo]->resetExchangeLists();
+        m_pointGhostCommunicators[refGeo]->setRecvsContinuous(continuous);
+    }
+    // Return Communicator tag
+    return int(m_pointGhostCommunicators[refGeo]->getTag());
+}
+
+/*!
+    Creates a new scalar point ghost communicator.
+
+    \param[in] refGeo pointer to reference partitioned MimmoObject
+    \param[in] continuous defines if the communicator will be set in continuous mode
+    \return The tag associated to the newly created communicator.
+ */
+int
+IOOFOAM_Kernel::createScalarPointGhostCommunicator(MimmoObject* refGeo, bool continuous){
+    if(m_scalarPointGhostCommunicators.count(refGeo) == 0){
+        // Create communicator
+        m_scalarPointGhostCommunicators[refGeo] = std::unique_ptr<PointGhostCommunicator>(new PointGhostCommunicator(refGeo));
+        m_scalarPointGhostCommunicators[refGeo]->resetExchangeLists();
+        m_scalarPointGhostCommunicators[refGeo]->setRecvsContinuous(continuous);
+    }
+    // Return Communicator tag
+    return int(m_scalarPointGhostCommunicators[refGeo]->getTag());
+}
+
+
+/*!
+    Communicate MPV data on ghost cells on the reference geometry linked by data itself.
+    The method creates a new communicator and streamer if not already allocated.
+    Otherwise the pointer of the communicator to the data is updated with the input argument.
+    \param[in] data Pointer to field with data to communicate
+ */
+void
+IOOFOAM_Kernel::communicateGhostData(MimmoPiercedVector<std::array<double,3>> *data){
+    // Creating cell ghost communications for exchanging interpolated values
+    MimmoObject * geo = data->getGeometry().get();
+    if(!geo){
+        throw std::runtime_error("Propagate Class ::communicateGhostData no ref Geometry in mpv data!");
+    }
+    //if geo is not partitioned you have nothing to communicate.
+    if (!geo->isDistributed()) return;
+
+    //check for communicator on geometry, if not exists create it
+    m_ghostTags[geo] = createGhostCommunicator(geo, true);
+    //after this call a communicator dedicated to geo surely exists
+    //check if streamer for data type exists
+    if(m_ghostStreamers.count(geo) > 0){
+        //set data to the streamer. If you created the streamer
+        //you have already add it to its comunicator.
+        m_ghostStreamers[geo]->setData(data);
+    }else{
+        //you need to create it brand new. Attach data directly.
+        m_ghostStreamers[geo] = std::unique_ptr<MimmoDataBufferStreamer<std::array<double,3>>>(new MimmoDataBufferStreamer<std::array<double,3>>(data));
+        m_ghostCommunicators[geo]->addData(m_ghostStreamers[geo].get());
+    }
+
+    // Send data
+    m_ghostCommunicators[geo]->startAllExchanges();
+    // Receive data
+    m_ghostCommunicators[geo]->completeAllExchanges();
+}
+
+
+/*!
+    Communicate MPV data on ghost cells on the reference geometry linked by data itself.
+    The method creates a new communicator and streamer if not already allocated.
+    Otherwise the pointer of the communicator to the data is updated with the input argument.
+    \param[in] data Pointer to field with data to communicate
+ */
+void
+IOOFOAM_Kernel::communicateScalarGhostData(MimmoPiercedVector<double> *data){
+    // Creating cell ghost communications for exchanging interpolated values
+    MimmoObject * geo = data->getGeometry().get();
+    if(!geo){
+        throw std::runtime_error("Propagate Class ::communicateGhostData no ref Geometry in mpv data!");
+    }
+    //if geo is not partitioned you have nothing to communicate.
+    if (!geo->isDistributed()) return;
+
+    //check for communicator on geometry, if not exists create it
+    m_scalarGhostTags[geo] = createScalarGhostCommunicator(geo, true);
+    //after this call a communicator dedicated to geo surely exists
+    //check if streamer for data type exists
+    if(m_scalarGhostStreamers.count(geo) > 0){
+        //set data to the streamer. If you created the streamer
+        //you have already add it to its comunicator.
+        m_scalarGhostStreamers[geo]->setData(data);
+    }else{
+        //you need to create it brand new. Attach data directly.
+        m_scalarGhostStreamers[geo] = std::unique_ptr<MimmoDataBufferStreamer<double>>(new MimmoDataBufferStreamer<double>(data));
+        m_scalarGhostCommunicators[geo]->addData(m_scalarGhostStreamers[geo].get());
+    }
+
+    // Send data
+    m_scalarGhostCommunicators[geo]->startAllExchanges();
+    // Receive data
+    m_scalarGhostCommunicators[geo]->completeAllExchanges();
+}
+
+/*!
+    Communicate MPV data on ghost nodes on the reference geometry linked by data itself.
+    The method creates a new communicator and streamer if not already allocated.
+    Otherwise the pointer of the communicator to the data is updated with the input argument.
+    \param[in] data Pointer to field with data to communicate
+ */
+void
+IOOFOAM_Kernel::communicatePointGhostData(MimmoPiercedVector<std::array<double,3>> *data){
+    // Creating cell ghost communications for exchanging interpolated values
+    MimmoObject * geo = data->getGeometry().get();
+    if(!geo){
+        throw std::runtime_error("Propagate Class ::communicatePointGhostData no ref Geometry in mpv data!");
+    }
+    //if geo is not partitioned you have nothing to communicate.
+    if (!geo->isDistributed()) return;
+
+    //check for communicator on geometry, if not exists create it
+    m_pointGhostTags[geo] = createPointGhostCommunicator(geo, true);
+    //after this call a communicator dedicated to geo surely exists
+    //check if streamer for data type exists
+    if(m_pointGhostStreamers.count(geo) > 0){
+        //set data to the streamer. If you created the streamer
+        //you have already add it to its comunicator.
+        m_pointGhostStreamers[geo]->setData(data);
+    }else{
+        //you need to create it brand new. Attach data directly.
+        m_pointGhostStreamers[geo] = std::unique_ptr<MimmoPointDataBufferStreamer<std::array<double,3>>>(new MimmoPointDataBufferStreamer<std::array<double,3>>(data));
+        m_pointGhostCommunicators[geo]->addData(m_pointGhostStreamers[geo].get());
+    }
+
+    // Send data
+    m_pointGhostCommunicators[geo]->startAllExchanges();
+    // Receive data
+    m_pointGhostCommunicators[geo]->completeAllExchanges();
+}
+
+
+/*!
+    Communicate MPV scalar field on ghost nodes on the reference geometry linked by data itself.
+    The method creates a new communicator and streamer if not already allocated.
+    Otherwise the pointer of the communicator to the data is updated with the input argument.
+    \param[in] data Pointer to scalar field with data to communicate
+ */
+void
+IOOFOAM_Kernel::communicateScalarPointGhostData(MimmoPiercedVector<double> *data){
+    // Creating cell ghost communications for exchanging interpolated values
+    MimmoObject * geo = data->getGeometry().get();
+    if(!geo){
+        throw std::runtime_error("Propagate Class ::communicatePointGhostData no ref Geometry in mpv data!");
+    }
+    //if geo is not partitioned you have nothing to communicate.
+    if (!geo->isDistributed()) return;
+
+    //check for communicator on geometry, if not exists create it
+    m_scalarPointGhostTags[geo] = createScalarPointGhostCommunicator(geo, true);
+    //after this call a communicator dedicated to geo surely exists
+    //check if streamer for data type exists
+    if(m_scalarPointGhostStreamers.count(geo) > 0){
+        //set data to the streamer. If you created the streamer
+        //you have already add it to its comunicator.
+        m_scalarPointGhostStreamers[geo]->setData(data);
+    }else{
+        //you need to create it brand new. Attach data directly.
+        m_scalarPointGhostStreamers[geo] = std::unique_ptr<MimmoPointDataBufferStreamer<double>>(new MimmoPointDataBufferStreamer<double>(data));
+        m_scalarPointGhostCommunicators[geo]->addData(m_scalarPointGhostStreamers[geo].get());
+    }
+
+    // Send data
+    m_scalarPointGhostCommunicators[geo]->startAllExchanges();
+    // Receive data
+    m_scalarPointGhostCommunicators[geo]->completeAllExchanges();
+}
+#endif
 
 }

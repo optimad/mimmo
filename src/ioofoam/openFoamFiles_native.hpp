@@ -52,7 +52,7 @@ namespace foamUtilsNative{
     int countPatches(const char *rootPath);
     int getPatchIndex(const char *rootPath, const std::string & patchName);
 
-    void initializeCase(const char *rootPath, Foam::Time **runTime, Foam::fvMesh **mesh);
+    void initializeCase(const char *rootPath, Foam::Time **runTime, Foam::fvMesh **mesh, int processorCount = 1);
     const word getFieldClass(const char *rootPath, const char *fileName);
     bool writePointsOnCase(const char *rootPath, std::vector<std::array<double,3> > &points, bool overwriteStart = false);
 

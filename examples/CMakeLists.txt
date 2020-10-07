@@ -114,6 +114,9 @@ if(BUILD_EXAMPLES)
     #5
     if (MODULE_IOOFOAM_ENABLED)
         list(APPEND EXAMPLE_LIST "ioofoam_example_00001")
+        if (MODULE_PARALLEL_ENABLED)
+            list(APPEND EXAMPLE_LIST "ioofoam_example_00002")        
+        endif ()
     endif ()
 
     #6

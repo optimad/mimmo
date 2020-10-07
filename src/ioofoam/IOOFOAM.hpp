@@ -24,7 +24,11 @@
 #ifndef __IOOFOAM_HPP__
 #define __IOOFOAM_HPP__
 
-#include "MimmoFvMesh.hpp"
+#include "BaseManipulation.hpp"
+
+#if MIMMO_ENABLE_MPI
+#include "mimmo_parallel.hpp"
+#endif
 
 namespace mimmo{
 
@@ -34,7 +38,8 @@ namespace mimmo{
  * \brief Abstract class to import/export an OpenFOAM volume mesh alongside its boundary information
  *        or field attached to the mesh.
  *
- * The class is derived from MimmoFvMesh interface.
+ * The class uses the geometry base member (from base class BaseManipulation) as bulk mesh, while an internal member
+ * is defined for the boundary mesh related to the bulk mesh..
  *
  * Dependencies : OpenFOAM libraries (tested with OpenFOAM Fundation official releases from 2.4.x up to 6)
  *
@@ -47,6 +52,8 @@ namespace mimmo{
  | <B>PortType</B>  | <B>variable/function</B>  |<B>DataType</B>       |
  | M_GEOMOFOAM      | setGeometry         | (MC_SCALAR, MD_MIMMO_)     |
  | M_GEOMOFOAM2     | setBoundaryGeometry | (MC_SCALAR, MD_MIMMO_)     |
+ | M_GEOM           | setGeometry         | (MC_SCALAR, MD_MIMMO_)     |
+ | M_GEOM2          | setBoundaryGeometry | (MC_SCALAR, MD_MIMMO_)     |
  | M_UMAPIDS        | setFacesMap         | (MC_UMAP, MD_LONG) |
 
 
@@ -55,6 +62,8 @@ namespace mimmo{
  | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B>            |
  | M_GEOMOFOAM       | getGeometry               | (MC_SCALAR, MD_MIMMO_)    |
  | M_GEOMOFOAM2      | getBoundaryGeometry       | (MC_SCALAR, MD_MIMMO_)    |
+ | M_GEOM            | getGeometry               | (MC_SCALAR, MD_MIMMO_)    |
+ | M_GEOM2           | getBoundaryGeometry       | (MC_SCALAR, MD_MIMMO_)    |
  | M_UMAPIDS         | getFacesMap               | (MC_UMAP, MD_LONG)|
 
  * =========================================================
@@ -65,7 +74,7 @@ namespace mimmo{
  * in the proper derived classes.
  *
  */
-class IOOFOAM_Kernel: public MimmoFvMesh{
+class IOOFOAM_Kernel: public BaseManipulation{
 
 protected:
     bool                     m_write;         /**<1-write, 0-read */
@@ -73,6 +82,35 @@ protected:
     std::unordered_map<std::string, bitpit::ElementType>    m_OFE_supp;     /**<list of openfoam shapes actually supported as it is, and not as generic polyhedron*/
 	std::unordered_map<long,long> 	m_OFbitpitmapfaces; /**< OpenFoam faces -> bitpit Interfaces map. Used to to detect boundaries correspondence. */
     std::string                     m_fieldname;    /**< name of current field for reading/writing */
+
+    MimmoSharedPointer<MimmoObject>  m_boundary;          /**<Boundary mesh as MimmoObject. */
+
+    using BaseManipulation::m_geometry;
+
+    // TODO AVOID DUPLICATED CODE !!!
+    // MPI
+#if MIMMO_ENABLE_MPI
+    // Vector field cell communication
+    std::unordered_map<MimmoObject *, std::unique_ptr<GhostCommunicator> > m_ghostCommunicators;    /**<List of Cell Ghost communicator objects, for each one of ref. geometry */
+    std::unordered_map<MimmoObject *, int> m_ghostTags;/**< List of Tags of cell communicator objects, one for each ref geometry*/
+    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoDataBufferStreamer<std::array<double, 3>>> > m_ghostStreamers; /**<list of Point Data streamer, one for each ref geometry */
+
+    // Scalar field cell communication
+    std::unordered_map<MimmoObject *, std::unique_ptr<GhostCommunicator> > m_scalarGhostCommunicators;    /**<List of Cell Ghost communicator objects, for each one of ref. geometry */
+    std::unordered_map<MimmoObject *, int> m_scalarGhostTags;/**< List of Tags of cell communicator objects, one for each ref geometry*/
+    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoDataBufferStreamer<double>> > m_scalarGhostStreamers; /**<list of Point Data streamer, one for each ref geometry */
+
+    // Vector field point communication
+    std::unordered_map<MimmoObject *, std::unique_ptr<PointGhostCommunicator> > m_pointGhostCommunicators;    /**<List of Point Ghost communicator objects, for each one of ref. geometry */
+    std::unordered_map<MimmoObject *, int> m_pointGhostTags;/**< List of Tags of point communicator objects, one for each ref geometry*/
+    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoPointDataBufferStreamer<std::array<double, 3>>> > m_pointGhostStreamers; /**<list of Point Data streamer, one for each ref geometry */
+
+    // Scalar field point communication
+    std::unordered_map<MimmoObject *, std::unique_ptr<PointGhostCommunicator> > m_scalarPointGhostCommunicators;    /**<List of Scalar Field Point Ghost communicator objects, for each one of ref. geometry */
+    std::unordered_map<MimmoObject *, int> m_scalarPointGhostTags;/**< List of Scalar Field Tags of point communicator objects, one for each ref geometry*/
+    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoPointDataBufferStreamer<double>> > m_scalarPointGhostStreamers; /**<list of Scalar Field Point Data streamer, one for each ref geometry */
+
+#endif
 
 public:
     IOOFOAM_Kernel(bool writemode = false);
@@ -83,6 +121,7 @@ public:
     std::unordered_map<long,long>   getFacesMap();
     bool                            isWriteMode();
 
+    MimmoSharedPointer<MimmoObject> getBoundaryGeometry();
 
     void            setDir(const std::string &dir);
     void            setGeometry(MimmoSharedPointer<MimmoObject> bulk);
@@ -93,14 +132,28 @@ public:
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
 
+    using BaseManipulation::getGeometry;
+
 protected:
     void 			swap(IOOFOAM_Kernel & x) noexcept;
     virtual void    setDefaults();
+    bool            checkMeshCoherence();
     /*! writing execution*/
     virtual bool    write() = 0;
     /*! reading execution*/
     virtual bool    read() = 0;
 
+#if MIMMO_ENABLE_MPI
+    int createGhostCommunicator(MimmoObject * refgeo, bool continuous);
+    int createScalarGhostCommunicator(MimmoObject * refgeo, bool continuous);
+    int createPointGhostCommunicator(MimmoObject * refgeo, bool continuous);
+    int createScalarPointGhostCommunicator(MimmoObject * refgeo, bool continuous);
+
+    void communicateGhostData(MimmoPiercedVector<std::array<double,3>> *data);
+    void communicateScalarGhostData(MimmoPiercedVector<double> *data);
+    void communicatePointGhostData(MimmoPiercedVector<std::array<double,3>> *data);
+    void communicateScalarPointGhostData(MimmoPiercedVector<double> *data);
+#endif
 };
 
 
@@ -117,7 +170,10 @@ protected:
   NOTE: if setWritePointsOnly is enabled to true, write mode will export only bulk
   mesh points coordinates to a pre-existent and compatible OpenFOAM case.
 
- WARNING: WRITE mode is available at the moment only with writePointsOnly option always enabled.
+WARNING: WRITE mode is available at the moment only with writePointsOnly option always enabled.
+
+NOTE: in case of MPI support enabled the OpenFOAM mesh has to be read with the same number of processors
+used to write it with OpenFOAM utilities.
 
  Proper of the class :
 *
@@ -126,6 +182,8 @@ protected:
 | <B>PortType</B>  | <B>variable/function</B>  |<B>DataType</B>       |
 | M_GEOMOFOAM      | setGeometry         | (MC_SCALAR, MD_MIMMO_)     |
 | M_GEOMOFOAM2     | setBoundaryGeometry | (MC_SCALAR, MD_MIMMO_)     |
+| M_GEOM           | setGeometry         | (MC_SCALAR, MD_MIMMO_)     |
+| M_GEOM2          | setBoundaryGeometry | (MC_SCALAR, MD_MIMMO_)     |
 | M_UMAPIDS        | setFacesMap         | (MC_UMAP, MD_LONG) |
 
 
@@ -134,6 +192,8 @@ protected:
 | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B>            |
 | M_GEOMOFOAM       | getGeometry               | (MC_SCALAR, MD_MIMMO_)    |
 | M_GEOMOFOAM2      | getBoundaryGeometry       | (MC_SCALAR, MD_MIMMO_)    |
+| M_GEOM            | getGeometry               | (MC_SCALAR, MD_MIMMO_)    |
+| M_GEOM2           | getBoundaryGeometry       | (MC_SCALAR, MD_MIMMO_)    |
 | M_UMAPIDS         | getFacesMap               | (MC_UMAP, MD_LONG)|
 
 * =========================================================
@@ -159,6 +219,8 @@ protected:
     bool        m_overwrite;        /**< Overwrite in time case when in mode WRITE and writePointsOnly is true */
     bool        m_writepointsonly;  /**< write points only attaching it to a preexistent OF mesh */
 
+    using       IOOFOAM_Kernel::m_geometry;
+
 public:
    IOOFOAM(bool writemode = false);
    IOOFOAM(MimmoSharedPointer<MimmoObject> bulk, MimmoSharedPointer<MimmoObject> boundary);
@@ -177,6 +239,8 @@ public:
 
    virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
    virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
+
+   using IOOFOAM_Kernel::getGeometry;
 
 protected:
    void swap(IOOFOAM & x) noexcept;
@@ -372,6 +436,8 @@ protected:
 
 REGISTER_PORT(M_GEOMOFOAM, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
 REGISTER_PORT(M_GEOMOFOAM2, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
+REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
+REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_, __IOOFOAM_HPP__)
 REGISTER_PORT(M_UMAPIDS, MC_UMAP, MD_LONG, __IOOFOAM_HPP__)
 REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_, __IOOFOAM_HPP__)
 REGISTER_PORT(M_SCALARFIELD2, MC_SCALAR, MD_MPVECFLOAT_, __IOOFOAM_HPP__)

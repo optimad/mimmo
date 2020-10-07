@@ -65,7 +65,7 @@ int test1() {
         minval = std::min(minval, *it);
     }
 
-    //std::cout<<maxval<<"  "<<minval<<std::endl;
+    std::cout<<maxval<<"  "<<minval<<std::endl;
     check = check && std::abs(std::abs(maxval)-0.14221) <=1.0E-5;
     check = check && std::abs(std::abs(minval)-0.08285) <=1.0E-5;
 
