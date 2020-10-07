@@ -76,6 +76,7 @@ if(BUILD_EXAMPLES)
     list(APPEND EXAMPLE_LIST "genericinput_example_00002")
     list(APPEND EXAMPLE_LIST "genericinput_example_00003")
     list(APPEND EXAMPLE_LIST "genericinput_example_00004")
+    list(APPEND EXAMPLE_LIST "genericinput_example_00005")
 
 
     #0
@@ -300,6 +301,15 @@ if(BUILD_EXAMPLES)
     )
     endif()
 
+    list(FIND EXAMPLE_LIST "genericinput_example_00005" _index)
+    if ( ${_index} GREATER -1)
+        add_custom_command(
+            TARGET "genericinput_example_00005" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/eyeball.obj" "${CMAKE_CURRENT_BINARY_DIR}/geodata/eyeball.obj"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/eyeball.mtl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/eyeball.mtl"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/eyeball.mtl" "${CMAKE_CURRENT_BINARY_DIR}/eyeball.mtl"
+        )
+    endif()
 
     list(FIND EXAMPLE_LIST "iocgns_example_00001" _index)
     if ( ${_index} GREATER -1)
