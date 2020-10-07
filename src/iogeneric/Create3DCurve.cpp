@@ -337,9 +337,13 @@ Create3DCurve::execute(){
 
     int np = int(m_rawpoints.size());
 
-// rawpoints are shared among all procs or retained by 0 only.
 #if MIMMO_ENABLE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, &np, 1 , MPI_INT, MPI_MAX, m_communicator);
+    // Rawpoints can be shared among all procs or retained by 0 only.
+    // The condition is that rank 0 must have the input points, because
+    // the geometry is filled only by master processor 0. The only useful
+    // points are those owned by rank 0.
+    // Check if rank 0 owns some points (not communicated to the other processors).
+    MPI_Bcast(&np, 1, MPI_INT, 0, m_communicator);
 #endif
 
     if(np == 0){
@@ -361,7 +365,7 @@ Create3DCurve::execute(){
     std::unordered_map<long, std::array<long,2> > connectivity;
 #if MIMMO_ENABLE_MPI
     //leave the job to the master rank
-    if(m_rank == 0)
+    if(getRank() == 0)
 #endif
     {
         points = m_rawpoints;
@@ -412,11 +416,7 @@ Create3DCurve::execute(){
         if(m_vectorfield.exists(it.getId()))    m_vectorfield[it.getId()] = *it;
     }
 
-    m_geometry->cleanPatchInfo();
-    m_geometry->updateAdjacencies();
     m_geometry->update();
-
-
 };
 
 
