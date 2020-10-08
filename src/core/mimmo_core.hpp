@@ -42,7 +42,6 @@
 #include "IOConnections.hpp"
 #include "Lattice.hpp"
 #include "MimmoCGUtils.hpp"
-#include "MimmoFvMesh.hpp"
 #include "MimmoNamespace.hpp"
 #include "MimmoObject.hpp"
 #include "MimmoPiercedVector.hpp"
