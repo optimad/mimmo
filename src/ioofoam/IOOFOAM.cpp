@@ -144,7 +144,7 @@ void
 IOOFOAM_Kernel::setGeometry(MimmoSharedPointer<MimmoObject> bulk){
     if(!bulk) return;
     if(bulk->getInterfacesSyncStatus() != SyncStatus::SYNC) {
-        *(m_log)<<"Warning IOOFOAM_Kernel:: linked MimmoObject bulk mesh cannot be coherent with an OpenFoam mesh"<<std::endl;
+        *(m_log)<<"Warning IOOFOAM_Kernel:: linked MimmoObject bulk mesh can be not coherent with an OpenFoam mesh"<<std::endl;
     }
 	MimmoFvMesh::setGeometry(bulk);
 }
