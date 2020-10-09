@@ -166,7 +166,11 @@ GenericSelection::isDual(){
  * Return list of constrained boundary nodes (all those boundary nodes of
  * the subpatch extracted which are not part of the boundary of the mother
  * geometry)
- * \return list of boundary nodes ID, according to bitpit::PatchKernel indexing
+  MPI version return a list of all subpatch physical border vertices not belonging to
+  the physical border of the mother, ghost included (internal rank border faces are not accounted).
+  This list is computed locally, and vary from rank to rank, according to mesh distribution
+  among ranks.
+ * \return list of physical boundary vertex ID
  */
 livector1D
 GenericSelection::constrainedBoundary(){
@@ -174,10 +178,10 @@ GenericSelection::constrainedBoundary(){
     if(getGeometry() == nullptr || getPatch() == nullptr)    return livector1D(0);
     std::unordered_map<long, std::set<int> > survivors;
 
-    auto daughterBCells  = getPatch()->extractBoundaryFaceCellID();
-    auto motherBCells = getGeometry()->extractBoundaryFaceCellID();
+    auto daughterBCells  = getPatch()->extractBoundaryFaceCellID(true);
+    auto motherBCells = getGeometry()->extractBoundaryFaceCellID(true);
 
-    //save all those daughter boundary faces not included in mother alse
+    //save all those daughter boundary faces not included in mother pot
     for(const auto & sT : daughterBCells){
         if(motherBCells.count(sT.first) > 0){
             for(const auto & val: sT.second){
