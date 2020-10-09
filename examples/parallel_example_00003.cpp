@@ -44,8 +44,8 @@ typedef std::chrono::high_resolution_clock Clock;
 
 
 // =================================================================================== //
-
-mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<bitpit::Vertex> &bcdir1_vertlist, std::vector<bitpit::Vertex> &bcdir2_vertlist){
+//creating a mesh on master rank 0 and fill on it lists of marked boundary vertices
+mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
 
 	std::array<double,3> center({{0.0,0.0,0.0}});
 	double radiusin(2.0), radiusout(5.0);
@@ -107,21 +107,15 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std
 		bcdir2_vertlist.clear();
 		bcdir1_vertlist.reserve(mesh->getNVertices());
 		bcdir2_vertlist.reserve(mesh->getNVertices());
-		std::vector<long> list1, list2;
-		list1.reserve(mesh->getNVertices());
-		list2.reserve(mesh->getNVertices());
 
 		for(int k=0; k<=nh; ++k){
 			for(int i=0; i<=nr; ++i){
-				bcdir1_vertlist.push_back(mesh->getPatch()->getVertex((nr+1)*(nt+1)*k + i));
-				bcdir2_vertlist.push_back(mesh->getPatch()->getVertex((nr+1)*(nt+1)*k + (nr+1)*nt + i));
-				list1.push_back((nr+1)*(nt+1)*k + i);
-				list2.push_back((nr+1)*(nt+1)*k + (nr+1)*nt + i);
+				bcdir1_vertlist.push_back((nr+1)*(nt+1)*k + i);
+				bcdir2_vertlist.push_back((nr+1)*(nt+1)*k + (nr+1)*nt + i);
 			}
 		}
 	}
 
-	mesh->updateAdjacencies();
 	mesh->updateInterfaces();
 	mesh->update();
 
@@ -138,48 +132,41 @@ int test00003() {
 	MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-	std::vector<bitpit::Vertex> bc1list, bc2list;
+	std::vector<long> bc1list, bc2list;
 	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> boundary= mesh->extractBoundaryMesh();
+    //pidding the boundary
+    livector1D pidlist1 = boundary->getCellFromVertexList(bc1list, true);
+    livector1D pidlist2 = boundary->getCellFromVertexList(bc2list, true);
+    //pid the cells.
+    for(long cellid : pidlist1){
+        boundary->setPIDCell(cellid, long(1));
+    }
+    for(long cellid : pidlist2){
+        boundary->setPIDCell(cellid, long(2));
+    }
 
-	std::vector<long> bc1list_, bc2list_;
-	for (auto v : bc1list)
-		bc1list_.push_back(v.getId());
-	for (auto v : bc2list)
-		bc2list_.push_back(v.getId());
+    //create a subselection of the boundary
+    mimmo::MimmoSharedPointer<mimmo::MimmoObject> bDirMesh(new mimmo::MimmoObject(boundary->getType()));
 
-	livector1D cellInterfaceList1 = mesh->getInterfaceFromVertexList(bc1list_, true, true);
-	livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list_, true, true);
+    if(rank == 0){   //create a subselection of the whole boundary
+        //vertices
+        std::unordered_set<long> potvertices(bc1list.begin(), bc1list.end());
+        potvertices.insert(bc2list.begin(), bc2list.end());
+        for(long idv: potvertices){
+            bDirMesh->addVertex(boundary->getVertexCoords(idv), idv);
+        }
+        //cell
+        //mark to delete all cells not in the pidlist1 and 2.
+        std::unordered_set<long> preservedcells (pidlist1.begin(), pidlist1.end());
+        preservedcells.insert(pidlist2.begin(), pidlist2.end());
 
-	//create the portion of boundary mesh carrying Dirichlet conditions
-	mimmo::MimmoSharedPointer<mimmo::MimmoObject> bdirMesh (new mimmo::MimmoObject(1));
-	if (rank == 0){
-		bdirMesh->getPatch()->reserveVertices(bc1list.size()+bc2list.size());
-		bdirMesh->getPatch()->reserveCells(cellInterfaceList1.size()+cellInterfaceList2.size());
-
-		for(auto & val : bc1list_){
-			bdirMesh->addVertex(mesh->getVertexCoords(val), val);
-		}
-		for(auto & val : bc2list_){
-			bdirMesh->addVertex(mesh->getVertexCoords(val), val);
-		}
-		for(auto & val : cellInterfaceList1){
-			int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
-			long * conn = mesh->getInterfaces().at(val).getConnect();
-			bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
-					bitpit::ElementType::QUAD, val);
-			bdirMesh->getPatch()->getCell(val).setPID(1);
-		}
-		for(auto & val : cellInterfaceList2){
-			int sizeconn =mesh->getInterfaces().at(val).getConnectSize();
-			long * conn = mesh->getInterfaces().at(val).getConnect();
-			bdirMesh->addConnectedCell(std::vector<long>(&conn[0], &conn[sizeconn]),
-					bitpit::ElementType::QUAD, val);
-			bdirMesh->getPatch()->getCell(val).setPID(2);
-		}
-	}
-	bdirMesh->updateAdjacencies();
-    bdirMesh->updateInterfaces();
-    bdirMesh->update();
+        for(long idc: preservedcells){
+            bDirMesh->addCell(boundary->getPatch()->getCell(idc), idc, rank);
+        }
+    }
+    bDirMesh->updateInterfaces();
+    bDirMesh->update();
 
 	/* Instantiation of a Partition object with default patition method space filling curve.
 	 * Plot Optional results during execution active for Partition block.
@@ -187,7 +174,7 @@ int test00003() {
 	mimmo::Partition* partition = new mimmo::Partition();
 	partition->setPlotInExecution(true);
 	partition->setGeometry(mesh);
-	partition->setBoundaryGeometry(bdirMesh);
+	partition->setBoundaryGeometry(bDirMesh);
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
 	auto t1 = Clock::now();
 	if (rank == 0)
@@ -199,7 +186,6 @@ int test00003() {
 				<< std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
 				<< " seconds" << std::endl;
 	}
-
 	/* Creation of mimmo containers. MimmoGeometry used to dump partitioned mesh
 	 */
 	mimmo::MimmoGeometry * mimmoVolumeOut = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
@@ -219,7 +205,7 @@ int test00003() {
 	mimmoVolumeIn->setWriteFileType(FileType::VOLVTU);
 	mimmoVolumeIn->setWriteFilename("parallel_example_00003.volume.restored");
 	mimmoVolumeIn->exec();
-    
+
 	/* Instantiation of a Partition object with serialize partition method.
 	 * Plot Optional results during execution active for Partition block.
 	 */
@@ -227,7 +213,7 @@ int test00003() {
 	serialize->setName("mimmo.Serialization");
 	serialize->setPlotInExecution(true);
 	serialize->setGeometry(mesh);//mimmoVolumeIn->getGeometry());
-	serialize->setBoundaryGeometry(bdirMesh);
+	serialize->setBoundaryGeometry(bDirMesh);
 	serialize->setPartitionMethod(mimmo::PartitionMethod::SERIALIZE);
 
 	t1 = Clock::now();
