@@ -2044,7 +2044,7 @@ MimmoObject::cleanParallelInterfacesSync(){
 	MPI_Allreduce(MPI_IN_PLACE, &m_IntSync, 1, MPI_LONG, MPI_MIN, m_communicator);
 
     //if status is none destroy interfaces
-	if(m_IntSync != SyncStatus::NONE){
+	if(m_IntSync == SyncStatus::NONE){
 		destroyInterfaces();
 	}
 
