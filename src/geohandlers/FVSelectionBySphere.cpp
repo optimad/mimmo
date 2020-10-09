@@ -23,7 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "FVMeshSelection.hpp"
-#include <bitpit_common.hpp>
 
 namespace mimmo{
 
@@ -36,9 +35,9 @@ namespace mimmo{
  * No other values are allowed
  * \param[in] topo topology of the target MimmoFvMesh.
  */
-FVSelectionBySphere::FVSelectionBySphere(int topo): FVGenericSelection(topo), Sphere(){
+FVSelectionBySphere::FVSelectionBySphere(int topo): FVGenericSelection(topo){
     m_name = "mimmo.FVSelectionBySphere";
-    m_type = FVSelectionType::SPHERE;
+    m_selectEngine = MimmoSharedPointer<GenericSelection>(new SelectionBySphere());
 };
 
 /*!
@@ -48,7 +47,7 @@ FVSelectionBySphere::FVSelectionBySphere(int topo): FVGenericSelection(topo), Sp
 FVSelectionBySphere::FVSelectionBySphere(const bitpit::Config::Section & rootXML){
 
     m_name = "mimmo.FVSelectionBySphere";
-    m_type = FVSelectionType::SPHERE;
+    m_selectEngine = MimmoSharedPointer<GenericSelection>(new SelectionBySphere());
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -79,12 +78,15 @@ FVSelectionBySphere::FVSelectionBySphere(const bitpit::Config::Section & rootXML
  * \param[in] infLimPhi    Starting origin of the polar coordinate. default is 0 radians.
  */
 FVSelectionBySphere::FVSelectionBySphere(int topo, darray3E origin, darray3E span, double infLimTheta, double infLimPhi):
-                                         FVGenericSelection(topo), Sphere(origin, span)
+                                         FVGenericSelection(topo)
 {
     m_name = "mimmo.FVSelectionBySphere";
-    m_type = FVSelectionType::SPHERE;
-    setInfLimits(infLimTheta,1);
-    setInfLimits(infLimPhi,2);
+    m_selectEngine = MimmoSharedPointer<GenericSelection>(new SelectionByCylinder());
+    SelectionBySphere *weng = static_cast<SelectionBySphere *>(m_selectEngine.get());
+    weng->setOrigin(origin);
+    weng->setSpan(span);
+    weng->setInfLimits(infLimTheta,1);
+    weng->setInfLimits(infLimPhi,2);
 };
 
 /*!
@@ -95,7 +97,7 @@ FVSelectionBySphere::~FVSelectionBySphere(){};
 /*!
  * Copy Constructor
  */
-FVSelectionBySphere::FVSelectionBySphere(const FVSelectionBySphere & other):FVGenericSelection(other), Sphere(other){};
+FVSelectionBySphere::FVSelectionBySphere(const FVSelectionBySphere & other):FVGenericSelection(other){};
 
 /*!
  * Copy operator
@@ -113,7 +115,6 @@ FVSelectionBySphere & FVSelectionBySphere::operator=(FVSelectionBySphere other){
 void FVSelectionBySphere::swap(FVSelectionBySphere & x) noexcept
 {
     FVGenericSelection::swap(x);
-    Sphere::swap(x);
 }
 
 /*!
@@ -122,9 +123,9 @@ void FVSelectionBySphere::swap(FVSelectionBySphere & x) noexcept
 void
 FVSelectionBySphere::buildPorts(){
 
-    bool built = true;
 
     FVGenericSelection::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<darray3E, FVSelectionBySphere>(this, &FVSelectionBySphere::setOrigin,M_POINT));
     built = (built && createPortIn<darray3E, FVSelectionBySphere>(this, &FVSelectionBySphere::setSpan, M_SPAN));
@@ -135,32 +136,40 @@ FVSelectionBySphere::buildPorts(){
 };
 
 /*!
- * Clear content of the class
+ * Set origin of the sphere. .
+ * \param[in] origin new origin point
  */
-void FVSelectionBySphere::clear(){
-    m_volpatch.reset();
-    m_bndpatch.reset();
-    m_dual = false;
-    m_bndgeometry.reset();
-    BaseManipulation::clear();
-};
+void FVSelectionBySphere::setOrigin(darray3E origin){
+    static_cast<SelectionBySphere *>(m_selectEngine.get())->setOrigin(origin);
+}
 
 /*!
- * Extract portion of target bulk-boundary geometry got by box
- * \param[out] bulk cell ids of target bulk extracted
- * \param[out] boundary cell ids of target boundary extracted, divided by PID if any.
+ * Set span of the cylinder according to its local reference system of axes
+   Azimuthal and polar span [1 and 2 positions] are expressed in radians
+ * \param[in] span
  */
-void
-FVSelectionBySphere::extractSelection(livector1D & bulk, livector1D & boundary){
+void FVSelectionBySphere::setSpan(darray3E span){
+    static_cast<SelectionBySphere *>(m_selectEngine.get())->setSpan(span);
+}
 
-    if(m_dual){
-        bulk = excludeGeometry(m_geometry);
-        boundary = excludeGeometry(m_bndgeometry);
-    }else{
-        bulk = includeGeometry(m_geometry);
-        boundary = includeGeometry(m_bndgeometry);
-    }
-};
+
+/*!
+ * Set new axis orientation of the local reference system
+ * \param[in] axes
+ */
+void FVSelectionBySphere::setRefSystem(dmatrix33E axes){
+    static_cast<SelectionBySphere *>(m_selectEngine.get())->setRefSystem(axes);
+}
+
+/*!
+ * Set inferior limits of sphere, useful to alter starting azimuthal (0,2*pi) and polar coordinates (0,pi)
+   of sphere (position 1 and 2 in the array, for example {{0, pi/3, pi/2}}).
+ * \param[in] val lower value origin for all three coordinates
+ */
+void FVSelectionBySphere::setInfLimits(darray3E val){
+    static_cast<SelectionBySphere *>(m_selectEngine.get())->setInfLimits(val);
+}
+
 
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
@@ -291,23 +300,24 @@ FVSelectionBySphere::flushSectionXML(bitpit::Config::Section & slotXML, std::str
 
     slotXML.set("Topology", std::to_string(m_topo));
     slotXML.set("Dual", std::to_string(int(m_dual)));
+    SelectionBySphere * sel = static_cast<SelectionBySphere*>(m_selectEngine.get());
 
     {
-        darray3E org = getOrigin();
+        darray3E org = sel->getOrigin();
         std::stringstream ss;
         ss<<std::scientific<<org[0]<<'\t'<<org[1]<<'\t'<<org[2];
         slotXML.set("Origin",ss.str());
     }
 
     {
-        darray3E span = getSpan();
+        darray3E span = sel->getSpan();
         std::stringstream ss;
         ss<<std::scientific<<span[0]<<'\t'<<span[1]<<'\t'<<span[2];
         slotXML.set("Span",ss.str());
     }
 
     {
-        dmatrix33E axes = getRefSystem();
+        dmatrix33E axes = sel->getRefSystem();
         bitpit::Config::Section & axesXML = slotXML.addSection("RefSystem");
 
         for(int i=0; i<3; ++i){
@@ -319,7 +329,7 @@ FVSelectionBySphere::flushSectionXML(bitpit::Config::Section & slotXML, std::str
     }
 
     {
-        darray3E inflim = getInfLimits();
+        darray3E inflim = sel->getInfLimits();
         std::stringstream ss;
         ss<<std::scientific<<inflim[0]<<'\t'<<inflim[1]<<'\t'<<inflim[2];
         slotXML.set("InfLimits",ss.str());

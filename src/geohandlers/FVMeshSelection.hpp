@@ -26,30 +26,33 @@
 #define __FVMESHSELECTION_HPP__
 
 #include <BaseManipulation.hpp>
-#include <BasicShapes.hpp>
-#include <memory>
+#include <MeshSelection.hpp>
 
 namespace mimmo{
 
 /*!
- * \ingroup geohandlers
- * \brief Enum class listing selection method for MimmoFvMesh type mesh
-    sub-patch extraction
- */
-enum class FVSelectionType{
-    UNDEFINED    = 0, /**< undefined shape */
-    BOX          = 1, /**< box shape */
-    CYLINDER     = 2, /**< cylindrical shape */
-    SPHERE       = 3  /**< spherical shape */
-};
-
-/*!
  * \class FVGenericSelection
  * \ingroup geohandlers
- * \brief Abstract Interface for selection classes working with MimmoFvMesh mesh types (bulk + boundary)
+ * \brief Interface for applying selection methods simultaneously on bulk+boundary compound meshes
  *
- * Class/BaseManipulation Object managing selection of sub-patches of MimmoFvMesh data structures.
- *
+ * The class is meant as a wrapping to a GenericSelection derivate classes.
+   It applies selection on a coumpound target made by a bulk mesh (volume mesh, surface mesh) and its
+   boundaries (surface mesh, 3D curve mesh respectively).
+   it performs selection extracting bulk and boundary sub-patches. Additionally,
+   it exposes all the other boundaries of the bulk sub-patch, not belonging to
+   the original boundary (referred here as "internal" boundary).
+
+   The compound bulk+boundary must comply with the following requisites:
+   - topological coherence: if a bulk volume mesh is linked, its boundary mesh must be
+     a surface mesh. If a bulk surface mesh is linked, a boundary 3D curve/line must be linked.
+     No other cases are taken into account.
+   - vertex ids coherence: boundary vertex ids of the bulk and constitutive vertex ids of the boundary
+     must be the same
+   - MPI only: bulk and boundary must be distributed coherently among ranks. (see output of mimmo::Partition class)
+
+   BEWARE: This class does not have its xml interface implemented. Please refer to one of its specialized classes
+   for xml TUI usage.
+
  * Ports available in FVGenericSelection Class :
  *
  *    =========================================================
@@ -74,29 +77,16 @@ enum class FVSelectionType{
  */
 class FVGenericSelection: public mimmo::BaseManipulation {
 
-protected:
-
-    FVSelectionType                 m_type;      /**< Type of enum class SelectionType for selection method */
-    mimmo::MimmoSharedPointer<MimmoObject>    m_volpatch;  /**< Pointer to result volume sub-patch */
-    mimmo::MimmoSharedPointer<MimmoObject>    m_bndpatch;  /**< Pointer to result boundary sub-patch */
-    mimmo::MimmoSharedPointer<MimmoObject>    m_intbndpatch;  /**< Pointer to boundary internal (not shared with boundary sub-patch) to the volume selection */
-    int                             m_topo;      /**< 1 = volume (default value), 2 = surface */
-    bool                            m_dual;      /**< False selects w/ current set up, true gets its "negative". False is default. */
-    mimmo::MimmoSharedPointer<MimmoObject>    m_bndgeometry; /**<target boundary geometry */
-
 public:
-
     FVGenericSelection(int topo = 1);
     virtual ~FVGenericSelection();
     FVGenericSelection(const FVGenericSelection & other);
-    FVGenericSelection & operator=(const FVGenericSelection & other);
+    FVGenericSelection & operator=(FVGenericSelection other);
 
-    void    buildPorts();
-
-    FVSelectionType    whichMethod();
     void               setGeometry(mimmo::MimmoSharedPointer<MimmoObject>);
     void               setBoundaryGeometry(mimmo::MimmoSharedPointer<MimmoObject>);
     void               setDual(bool flag=false);
+    void               setSelection(MimmoSharedPointer<GenericSelection> selectBlock);
 
     const mimmo::MimmoSharedPointer<MimmoObject>    getVolumePatch()const;
     const mimmo::MimmoSharedPointer<MimmoObject>    getBoundaryPatch()const;
@@ -107,18 +97,29 @@ public:
     mimmo::MimmoSharedPointer<MimmoObject>          getInternalBoundaryPatch();
 
     bool    isDual();
-
     void    execute();
 
-    virtual void plotOptionalResults();
-    bool checkCoherenceBulkBoundary();
 
 protected:
-    /*!
-     * Extract selection from target geometry
-     */
-    virtual void extractSelection(livector1D &, livector1D &) = 0;
     void swap(FVGenericSelection &x) noexcept;
+    void    buildPorts();
+    virtual void plotOptionalResults();
+    bool checkCoherenceBulkBoundary();
+    void cleanUpBoundaryPatch();
+    MimmoSharedPointer<MimmoObject> createInternalBoundaryPatch();
+
+    int                             m_topo;      /**< 1 = volume (default value), 2 = surface */
+    bool                            m_dual;      /**< False selects w/ current set up, true gets its "negative". False is default. */
+    MimmoSharedPointer<MimmoObject>    m_bndgeometry; /**<target boundary geometry */
+    MimmoSharedPointer<GenericSelection> m_selectEngine; /**<pointer to valid selector block */
+    MimmoSharedPointer<MimmoObject>    m_volpatch;  /**< Pointer to result volume sub-patch */
+    MimmoSharedPointer<MimmoObject>    m_bndpatch;  /**< Pointer to result boundary sub-patch */
+    MimmoSharedPointer<MimmoObject>    m_intbndpatch;  /**< Pointer to boundary internal (not shared with boundary sub-patch) to the volume selection */
+
+private:
+    //interface blocked method.
+    MimmoSharedPointer<MimmoObject> getGeometry(){return nullptr;};
+
 };
 
 
@@ -127,8 +128,7 @@ protected:
  * \ingroup geohandlers
  * \brief FVGenericSelection class specialized for selections with volume box primitive shapes.
  *
- * Select all elements contained in the box and return two objects carrying the bulk volume and
-   the related boundary (if any) extracted.
+ * Use SelectionByBox internally to extract bulk+boundary sub-patches.
  *
  * Ports available in FVSelectionByBox Class :
  *
@@ -189,7 +189,7 @@ protected:
  * Geometry has to be mandatorily passed through port.
  *
  */
-class FVSelectionByBox: public FVGenericSelection, public mimmo::Cube {
+class FVSelectionByBox: public FVGenericSelection {
 
 public:
     FVSelectionByBox(int topo = 1);
@@ -199,16 +199,19 @@ public:
     FVSelectionByBox(const FVSelectionByBox & other);
     FVSelectionByBox & operator=(FVSelectionByBox other);
 
-    void buildPorts();
-
-    void clear();
+    void setOrigin(darray3E origin);
+    void setSpan(darray3E span);
+    void setRefSystem(dmatrix33E axes);
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="" );
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
 protected:
-    void extractSelection(livector1D &, livector1D &);
     void swap(FVSelectionByBox &) noexcept;
+    void buildPorts();
+
+private:
+   void  setSelection(MimmoSharedPointer<GenericSelection> selectBlock){BITPIT_UNUSED(selectBlock);};
 };
 
 /*!
@@ -216,8 +219,7 @@ protected:
  * \ingroup geohandlers
  * \brief FVGenericSelection class specialized for selections with volume cylindrical primitive shapes.
  *
- * Select all elements contained in the cylinder and return two objects carrying the bulk volume and
-   the related boundary (if any) extracted.
+ * Use SelectionByCylinder internally to extract bulk+boundary sub-patches.
  *
  * Ports available in FVSelectionByCylinder Class :
  *
@@ -281,7 +283,7 @@ protected:
  * Geometry has to be mandatorily passed through port.
  *
  */
-class FVSelectionByCylinder: public FVGenericSelection, public mimmo::Cylinder {
+class FVSelectionByCylinder: public FVGenericSelection{
 
 public:
     FVSelectionByCylinder(int topo = 1);
@@ -291,25 +293,30 @@ public:
     FVSelectionByCylinder(const FVSelectionByCylinder & other);
     FVSelectionByCylinder & operator=(FVSelectionByCylinder other);
 
-    void buildPorts();
-
-    void clear();
+    void setOrigin(darray3E origin);
+    void setSpan(darray3E span);
+    void setRefSystem(dmatrix33E axes);
+    void setInfLimits(darray3E val);
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="" );
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
 protected:
-    void extractSelection(livector1D &, livector1D &);
     void swap(FVSelectionByCylinder &) noexcept;
+    void buildPorts();
+
+private:
+    void  setSelection(MimmoSharedPointer<GenericSelection> selectBlock){BITPIT_UNUSED(selectBlock);};
+
 };
+
 
 /*!
  * \class FVSelectionBySphere
  * \ingroup geohandlers
  * \brief FVGenericSelection class specialized for selections with volume spherical primitive shapes.
  *
- * Select all elements contained in the sphere and return two objects carrying the bulk volume and
-   the related boundary (if any) extracted.
+ * Use SelectionBySphere internally to extract bulk+boundary sub-patches.
 *
  * Ports available in FVSelectionBySphere Class :
  *
@@ -376,7 +383,7 @@ protected:
 
  *
  */
-class FVSelectionBySphere: public FVGenericSelection, public mimmo::Sphere {
+class FVSelectionBySphere: public FVGenericSelection {
 
 public:
     FVSelectionBySphere(int topo = 1);
@@ -386,16 +393,21 @@ public:
     FVSelectionBySphere(const FVSelectionBySphere & other);
     FVSelectionBySphere & operator=(FVSelectionBySphere other);
 
-    void buildPorts();
-
-    void clear();
+    void setOrigin(darray3E origin);
+    void setSpan(darray3E span);
+    void setRefSystem(dmatrix33E axes);
+    void setInfLimits(darray3E val);
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="" );
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="" );
 
 protected:
-    void extractSelection(livector1D &, livector1D &);
     void swap(FVSelectionBySphere &) noexcept;
+    void buildPorts();
+
+private:
+    void  setSelection(MimmoSharedPointer<GenericSelection> selectBlock){BITPIT_UNUSED(selectBlock);};
+
 };
 
 

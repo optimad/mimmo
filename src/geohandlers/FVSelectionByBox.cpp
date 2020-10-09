@@ -31,13 +31,13 @@ namespace mimmo{
  * Parameter topo get topology of the target MimmoFvMesh where performing extraction:
  * - 1 for volume bulk and surface boundary
  * - 2 for surface bulk and 3DCurve boundary
- 
+
  * No other values are allowed
  * \param[in] topo topology of the target MimmoFvMesh.
  */
-FVSelectionByBox::FVSelectionByBox(int topo): FVGenericSelection(topo), Cube(){
+FVSelectionByBox::FVSelectionByBox(int topo): FVGenericSelection(topo){
     m_name = "mimmo.FVSelectionByBox";
-    m_type = FVSelectionType::BOX;
+    m_selectEngine = MimmoSharedPointer<GenericSelection>(new SelectionByBox());
 };
 
 /*!
@@ -47,7 +47,7 @@ FVSelectionByBox::FVSelectionByBox(int topo): FVGenericSelection(topo), Cube(){
 FVSelectionByBox::FVSelectionByBox(const bitpit::Config::Section & rootXML){
 
     m_name = "mimmo.FVSelectionByBox";
-    m_type = FVSelectionType::BOX;
+    m_selectEngine = MimmoSharedPointer<GenericSelection>(new SelectionByBox());
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -74,9 +74,14 @@ FVSelectionByBox::FVSelectionByBox(const bitpit::Config::Section & rootXML){
  * \param[in] origin Origin of the box->baricenter.
  * \param[in] span     Span of the box, width/height/depth.
  */
-FVSelectionByBox::FVSelectionByBox(int topo, darray3E origin, darray3E span): FVGenericSelection(topo), Cube(origin, span){
+FVSelectionByBox::FVSelectionByBox(int topo, darray3E origin, darray3E span): FVGenericSelection(topo){
     m_name = "mimmo.FVSelectionByBox";
-    m_type = FVSelectionType::BOX;
+    m_selectEngine = MimmoSharedPointer<GenericSelection>(new SelectionByBox());
+
+    SelectionByBox * weng = static_cast<SelectionByBox*>(m_selectEngine.get());
+    weng->setOrigin(origin);
+    weng->setSpan(span);
+
 };
 
 /*!
@@ -87,7 +92,7 @@ FVSelectionByBox::~FVSelectionByBox(){};
 /*!
  * Copy Constructor
  */
-FVSelectionByBox::FVSelectionByBox(const FVSelectionByBox & other):FVGenericSelection(other), Cube(other){};
+FVSelectionByBox::FVSelectionByBox(const FVSelectionByBox & other):FVGenericSelection(other){};
 
 /*!
  * Copy operator - CAS idiom
@@ -105,7 +110,6 @@ FVSelectionByBox & FVSelectionByBox::operator=(FVSelectionByBox other){
 void FVSelectionByBox::swap(FVSelectionByBox & x) noexcept
 {
    FVGenericSelection::swap(x);
-   Cube::swap(x);
 }
 
 /*!
@@ -114,9 +118,8 @@ void FVSelectionByBox::swap(FVSelectionByBox & x) noexcept
 void
 FVSelectionByBox::buildPorts(){
 
-    bool built = true;
-
     FVGenericSelection::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<darray3E, FVSelectionByBox>(this, &FVSelectionByBox::setOrigin, M_POINT ));
     built = (built && createPortIn<darray3E, FVSelectionByBox>(this, &FVSelectionByBox::setSpan, M_SPAN));
@@ -125,37 +128,31 @@ FVSelectionByBox::buildPorts(){
     m_arePortsBuilt = built;
 };
 
-/*!
- * Clear content of the class
- */
-void
-FVSelectionByBox::clear(){
-    m_volpatch.reset();
-    m_bndpatch.reset();
-    m_dual = false;
-    m_bndgeometry.reset();
-    BaseManipulation::clear();
-};
-
-
 
 /*!
- * Extract portion of target bulk-boundary geometry got by box
- * \param[out] bulk cell ids of target bulk extracted
- * \param[out] boundary cell ids of target boundary extracted, divided by PID if any.
+ * Set origin of the box. The origin is meant as the box baricenter.
+ * \param[in] origin new origin point
  */
-void
-FVSelectionByBox::extractSelection(livector1D & bulk, livector1D & boundary){
+void FVSelectionByBox::setOrigin(darray3E origin){
+    static_cast<SelectionByBox *>(m_selectEngine.get())->setOrigin(origin);
+}
 
-    if(m_dual){
-        bulk = excludeGeometry(m_geometry);
-        boundary = excludeGeometry(m_bndgeometry);
-    }else{
-        bulk = includeGeometry(m_geometry);
-        boundary = includeGeometry(m_bndgeometry);
-    }
-};
+/*!
+ * Set span of the box according to its local reference system of axes
+ * \param[in] span
+ */
+void FVSelectionByBox::setSpan(darray3E span){
+    static_cast<SelectionByBox *>(m_selectEngine.get())->setSpan(span);
+}
 
+
+/*!
+ * Set new axis orientation of the local reference system
+ * \param[in] axes
+ */
+void FVSelectionByBox::setRefSystem(dmatrix33E axes){
+    static_cast<SelectionByBox *>(m_selectEngine.get())->setRefSystem(axes);
+}
 
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
@@ -273,22 +270,24 @@ FVSelectionByBox::flushSectionXML(bitpit::Config::Section & slotXML, std::string
 
     slotXML.set("Topology", std::to_string(m_topo));
     slotXML.set("Dual", std::to_string(int(m_dual)));
+
+    SelectionByBox * sel = static_cast<SelectionByBox*>(m_selectEngine.get());
     {
-        darray3E org = getOrigin();
+        darray3E org = sel->getOrigin();
         std::stringstream ss;
         ss<<std::scientific<<org[0]<<'\t'<<org[1]<<'\t'<<org[2];
         slotXML.set("Origin",ss.str());
     }
 
     {
-        darray3E span = getSpan();
+        darray3E span = sel->getSpan();
         std::stringstream ss;
         ss<<std::scientific<<span[0]<<'\t'<<span[1]<<'\t'<<span[2];
         slotXML.set("Span",ss.str());
     }
 
     {
-        dmatrix33E axes = getRefSystem();
+        dmatrix33E axes = sel->getRefSystem();
         bitpit::Config::Section & axesXML = slotXML.addSection("RefSystem");
 
         for(int i=0; i<3; ++i){
