@@ -125,7 +125,7 @@ int test1() {
 
     std::vector<long> bc1list, bc2list;
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(bc1list, bc2list);
-
+    //serial test.
     livector1D cellInterfaceList1 = mesh->getInterfaceFromVertexList(bc1list, true, true);
     livector1D cellInterfaceList2 = mesh->getInterfaceFromVertexList(bc2list, true, true);
 

@@ -104,9 +104,8 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, mim
         }
     }// end rank 0
 
-    mesh->updateAdjacencies();
-    mesh->updateInterfaces();
     mesh->update();
+    boundary = mesh->extractBoundaryMesh();
 
     //decompose manually the six boundary faces.
     std::vector<std::vector<long>> bverts(6, std::vector<long>());
@@ -139,41 +138,17 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, mim
     mimmo::MimmoPiercedVector<long> pidfaces;
     long pidder = 1;
     for(livector1D & vert : bverts ){
-        livector1D boundaryfaces = mesh->getInterfaceFromVertexList(vert, true, true);
+        livector1D boundaryfaces = boundary->getCellFromVertexList(vert, true);
         for(long id : boundaryfaces){
             pidfaces.insert(id, pidder);
         }
         ++pidder;
     }
     bverts.clear();
-    std::vector<long> boundaryverts = mesh->extractBoundaryVertexID();
 
-    //create the boundary meshes
-    auto orinterfaces = mesh->getInterfaces();
-    auto orcells = mesh->getCells();
-
-    boundary = mimmo::MimmoSharedPointer<mimmo::MimmoObject>(new mimmo::MimmoObject(1));
-
-    if (rank == 0){
-        boundary->getPatch()->reserveVertices(boundaryverts.size());
-        boundary->getPatch()->reserveCells(pidfaces.size());
-
-        //push in verts
-        for(long id : boundaryverts){
-            boundary->addVertex(mesh->getVertexCoords(id), id);
-        }
-
-        //push in interfaces ad 2D cells
-        for(auto it=pidfaces.begin(); it!=pidfaces.end(); ++it){
-            bitpit::Interface & ii = orinterfaces.at(it.getId());
-            long * conn = ii.getConnect();
-            std::size_t connsize = ii.getConnectSize();
-
-            bitpit::ElementType et = orcells.at(ii.getOwner()).getFaceType(ii.getOwnerFace());
-
-            boundary->addConnectedCell(std::vector<long>(&conn[0], &conn[connsize]), et, *it,it.getId());
-        }
-    } // end rank 0
+    for(auto it= pidfaces.begin(); it!= pidfaces.end(); ++it){
+        boundary->setPIDCell(it.getId(), *it);
+    }
 
     boundary->updateAdjacencies();
     boundary->update();
