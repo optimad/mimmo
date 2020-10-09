@@ -204,6 +204,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh( mimmo::Mimmo
             boundary2verts.push_back(idv);
         }
     }
+    //serial test
     livector1D boundary1faces = mesh->getInterfaceFromVertexList(boundary1verts, true, true);
     livector1D boundary2faces = mesh->getInterfaceFromVertexList(boundary2verts, true, true);
 
