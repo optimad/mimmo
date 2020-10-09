@@ -33,10 +33,11 @@ set(TESTS "")
 list(APPEND TESTS "test_geohandlers_00001")
 list(APPEND TESTS "test_geohandlers_00002")
 list(APPEND TESTS "test_geohandlers_00003")
+list(APPEND TESTS "test_geohandlers_00004")
 
-# if (ENABLE_MPI)
-# 	list(APPEND TESTS "test_geohandlers_parallel_00001:3") ##:x number of procs
-# endif ()
+if (ENABLE_MPI)
+    list(APPEND TESTS "test_geohandlers_parallel_00004:3") ##:x number of procs
+endif ()
 
 # Test extra libraries
 set(TEST_EXTRA_LIBRARIES "")
@@ -49,4 +50,3 @@ unset(TESTS)
 #     TARGET "name test in the list" PRE_BUILD
 #     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/data/xxx" "${CMAKE_CURRENT_BINARY_DIR}/data/xxx"
 #     )
-
