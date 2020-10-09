@@ -778,7 +778,11 @@ PropagateField<NCOMP>::updateDampingFunction(){
     // bulk volume mesh borders (ghost included)
     if (seedlist.empty()){
         // Initialize seeds to avoid use of skdtree in narrowband computing
-        seedlist = getGeometry()->extractBoundaryCellID(true); // with ghost included
+        // BEWARE this is done to seed the partition initially, and if updating,
+        //to avoid the case in which a single partition does not have seeds.
+        // Due to flawed propagation in getCellsNarrowBandToExtSurfaceWDist in parallel
+        //
+        seedlist = getGeometry()->getBorderCells(); // all border ghost included
     }
     seedlist.shrink_to_fit();
 
@@ -882,7 +886,11 @@ PropagateField<NCOMP>::updateNarrowBand(){
     // bulk volume mesh borders (ghost included)
     if (seedlist.empty()){
         // Initialize seeds to avoid use of skdtree in narrowband computing
-        seedlist = getGeometry()->extractBoundaryVertexID(true); // ghost included
+        // BEWARE this is done to seed the partition initially, and if updating,
+        //to avoid the case in which a single partition does not have seeds.
+        // Due to flawed propagation in getVerticesNarrowBandToExtSurfaceWDist in parallel 
+        //
+        seedlist = getGeometry()->getBorderVertices(); // all border ghost included
     }
     seedlist.shrink_to_fit();
 
