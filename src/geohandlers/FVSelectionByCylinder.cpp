@@ -23,7 +23,6 @@
  \ *---------------------------------------------------------------------------*/
 
 #include "FVMeshSelection.hpp"
-#include <bitpit_common.hpp>
 
 namespace mimmo{
 
@@ -36,9 +35,9 @@ namespace mimmo{
  * No other values are allowed
  * \param[in] topo topology of the target MimmoFvMesh.
  */
-FVSelectionByCylinder::FVSelectionByCylinder(int topo): FVGenericSelection(topo), Cylinder(){
+FVSelectionByCylinder::FVSelectionByCylinder(int topo): FVGenericSelection(topo){
     m_name = "mimmo.FVSelectionByCylinder";
-    m_type = FVSelectionType::CYLINDER;
+    m_selectEngine = MimmoSharedPointer<GenericSelection>(new SelectionByCylinder());
 };
 
 /*!
@@ -48,7 +47,7 @@ FVSelectionByCylinder::FVSelectionByCylinder(int topo): FVGenericSelection(topo)
 FVSelectionByCylinder::FVSelectionByCylinder(const bitpit::Config::Section & rootXML){
 
     m_name = "mimmo.FVSelectionByCylinder";
-    m_type = FVSelectionType::CYLINDER;
+    m_selectEngine = MimmoSharedPointer<GenericSelection>(new SelectionByCylinder());
 
     std::string fallback_name = "ClassNONE";
     std::string input = rootXML.get("ClassName", fallback_name);
@@ -80,12 +79,15 @@ FVSelectionByCylinder::FVSelectionByCylinder(const bitpit::Config::Section & roo
  */
 FVSelectionByCylinder::FVSelectionByCylinder(int topo, darray3E origin, darray3E span,
                                             double infLimTheta, darray3E mainAxis):
-                                            FVGenericSelection(topo), Cylinder(origin, span)
+                                            FVGenericSelection(topo)
 {
     m_name = "mimmo.FVSelectionByCylinder";
-    m_type = FVSelectionType::CYLINDER;
-    setInfLimits(infLimTheta,1);
-    setRefSystem(2, mainAxis);
+    m_selectEngine = MimmoSharedPointer<GenericSelection>(new SelectionByCylinder());
+    SelectionByCylinder *weng = static_cast<SelectionByCylinder *>(m_selectEngine.get());
+    weng->setOrigin(origin);
+    weng->setSpan(span);
+    weng->setInfLimits(infLimTheta,1);
+    weng->setRefSystem(2, mainAxis);
 };
 
 /*!
@@ -96,7 +98,7 @@ FVSelectionByCylinder::~FVSelectionByCylinder(){};
 /*!
  * Copy Constructor
  */
-FVSelectionByCylinder::FVSelectionByCylinder(const FVSelectionByCylinder & other):FVGenericSelection(other), Cylinder(other){};
+FVSelectionByCylinder::FVSelectionByCylinder(const FVSelectionByCylinder & other):FVGenericSelection(other){};
 
 /*!
  * Copy operator
@@ -114,7 +116,6 @@ FVSelectionByCylinder & FVSelectionByCylinder::operator=(FVSelectionByCylinder o
 void FVSelectionByCylinder::swap(FVSelectionByCylinder & x) noexcept
 {
     FVGenericSelection::swap(x);
-    Cylinder::swap(x);
 }
 
 /*!
@@ -123,9 +124,8 @@ void FVSelectionByCylinder::swap(FVSelectionByCylinder & x) noexcept
 void
 FVSelectionByCylinder::buildPorts(){
 
-    bool built = true;
-
     FVGenericSelection::buildPorts();
+    bool built = m_arePortsBuilt;
 
     built = (built && createPortIn<darray3E, FVSelectionByCylinder>(this, &FVSelectionByCylinder::setOrigin,M_POINT));
     built = (built && createPortIn<darray3E, FVSelectionByCylinder>(this, &FVSelectionByCylinder::setSpan, M_SPAN));
@@ -135,37 +135,41 @@ FVSelectionByCylinder::buildPorts(){
     m_arePortsBuilt = built;
 };
 
-/*!
- * Clear content of the class
- */
-void
-FVSelectionByCylinder::clear(){
-    m_volpatch.reset();
-    m_bndpatch.reset();
-    m_dual = false;
-    m_bndgeometry.reset();
-    BaseManipulation::clear();
-};
 
 /*!
- * Extract portion of target bulk-boundary geometry got by cylinder
- * \param[out] bulk cell ids of target bulk extracted
- * \param[out] boundary cell ids of target boundary extracted, divided by PID if any.
+ * Set origin of the cylinder. The origin is meant as the cylinder baricenter.
+ * \param[in] origin new origin point
  */
-void
-FVSelectionByCylinder::extractSelection(livector1D & bulk, livector1D & boundary){
+void FVSelectionByCylinder::setOrigin(darray3E origin){
+    static_cast<SelectionByCylinder *>(m_selectEngine.get())->setOrigin(origin);
+}
 
-    if(m_dual){
-        bulk = excludeGeometry(m_geometry);
-        boundary = excludeGeometry(m_bndgeometry);
-    }else{
-        bulk = includeGeometry(m_geometry);
-        boundary = includeGeometry(m_bndgeometry);
-    }
-};
+/*!
+ * Set span of the cylinder according to its local reference system of axes
+   Angular span (1 position) is expressed in radians
+ * \param[in] span
+ */
+void FVSelectionByCylinder::setSpan(darray3E span){
+    static_cast<SelectionByCylinder *>(m_selectEngine.get())->setSpan(span);
+}
 
 
+/*!
+ * Set new axis orientation of the local reference system
+ * \param[in] axes
+ */
+void FVSelectionByCylinder::setRefSystem(dmatrix33E axes){
+    static_cast<SelectionByCylinder *>(m_selectEngine.get())->setRefSystem(axes);
+}
 
+/*!
+ * Set inferior limits of cylinder, useful to alter starting angular coordinate (0,2*pi)
+   of cylinder (pos 1 in the array,for example {{0, pi/3, 0}}).
+ * \param[in] val lower value origin for all three coordinates
+ */
+void FVSelectionByCylinder::setInfLimits(darray3E val){
+    static_cast<SelectionByCylinder *>(m_selectEngine.get())->setInfLimits(val);
+}
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
  * \param[in] slotXML bitpit::Config::Section of XML file
@@ -295,23 +299,24 @@ FVSelectionByCylinder::flushSectionXML(bitpit::Config::Section & slotXML, std::s
 
     slotXML.set("Topology", std::to_string(m_topo));
     slotXML.set("Dual", std::to_string(int(m_dual)));
+    SelectionByCylinder * sel = static_cast<SelectionByCylinder*>(m_selectEngine.get());
 
     {
-        darray3E org = getOrigin();
+        darray3E org = sel->getOrigin();
         std::stringstream ss;
         ss<<std::scientific<<org[0]<<'\t'<<org[1]<<'\t'<<org[2];
         slotXML.set("Origin",ss.str());
     }
 
     {
-        darray3E span = getSpan();
+        darray3E span = sel->getSpan();
         std::stringstream ss;
         ss<<std::scientific<<span[0]<<'\t'<<span[1]<<'\t'<<span[2];
         slotXML.set("Span",ss.str());
     }
 
     {
-        dmatrix33E axes = getRefSystem();
+        dmatrix33E axes = sel->getRefSystem();
         bitpit::Config::Section & axesXML = slotXML.addSection("RefSystem");
 
         for(int i=0; i<3; ++i){
@@ -323,7 +328,7 @@ FVSelectionByCylinder::flushSectionXML(bitpit::Config::Section & slotXML, std::s
     }
 
     {
-        darray3E inflim = getInfLimits();
+        darray3E inflim = sel->getInfLimits();
         std::stringstream ss;
         ss<<std::scientific<<inflim[0]<<'\t'<<inflim[1]<<'\t'<<inflim[2];
         slotXML.set("InfLimits",ss.str());
