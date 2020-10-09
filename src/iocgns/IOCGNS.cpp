@@ -984,9 +984,15 @@ IOCGNS::read(const std::string & file){
 
              if(!bcOnElements[target_zone][j]){
 
-                //compute borderFaceCells once.
+                //compute borderFaceCells once, for pidding purposes.
                 if(borderFaceCells.empty()) {
-                    borderFaceCells = patchVol->extractBoundaryFaceCellID();
+                    //TODO review this in MPI. "Collective" ExtractBoundaryFaceCellID with no ghost return all
+                    // faces of the physical border on internals. If ghost is true return also face on ghost
+                    // on physical border, but exclude rank borders. if you want also faces on rank borders
+                    // use MimmoObject non-collective method getBorderFaceCells().
+                    // In serial version or if the mesh is not distributed (master rank only) both method should return
+                    // the same face list. Take this into account before proceeding to MPI this code.  
+                    borderFaceCells = patchVol->extractBoundaryFaceCellID(false);
                 }
                 // reverse each singular list of bcs in a more suitable container
                 std::set<long> pool;
