@@ -52,27 +52,27 @@ unset(TESTS)
 
  add_custom_command(
      TARGET "test_utils_00003" PRE_BUILD
-     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
-     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/StanfordBunnyDecimated.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/StanfordBunnyDecimated.stl"
+     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/Sphere2Decimated.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/Sphere2Decimated.stl"
      )
 
 if (ENABLE_MPI)
 
     add_custom_command(
          TARGET "test_utils_00003_parallel" PRE_BUILD
-         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/stanfordBunny2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/stanfordBunny2.stl"
-         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/StanfordBunnyDecimated.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/StanfordBunnyDecimated.stl"
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/Sphere2Decimated.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/Sphere2Decimated.stl"
         )
 
 
     add_custom_command(
          TARGET "test_utils_00004_parallel" PRE_BUILD
          COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/projectPlane.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/projectPlane.stl"
-         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/Sphere2Decimated.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/Sphere2Decimated.stl"
         )
     add_custom_command(
         TARGET "test_utils_00005_parallel" PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/sphere2.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/sphere2.stl"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/Sphere2Decimated.stl" "${CMAKE_CURRENT_BINARY_DIR}/geodata/Sphere2Decimated.stl"
         )
 
 endif ()
