@@ -39,7 +39,7 @@ int test4() {
     log<<"reading files "<<std::endl;
 
     reader1->setReadDir("geodata");
-    reader1->setReadFilename("sphere2");
+    reader1->setReadFilename("Sphere2Decimated");
     reader1->setReadFileType(FileType::STL);
     reader1->execute();
 

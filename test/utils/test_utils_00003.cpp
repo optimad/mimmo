@@ -34,13 +34,13 @@ int test3() {
     mimmo::MimmoGeometry * reader1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     bitpit::Logger & log = reader1->getLog();
     reader1->setReadDir("geodata");
-    reader1->setReadFilename("stanfordBunny2");
+    reader1->setReadFilename("StanfordBunnyDecimated");
     reader1->setReadFileType(FileType::STL);
     reader1->execute();
 
     mimmo::MimmoGeometry * reader2 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     reader2->setReadDir("geodata");
-    reader2->setReadFilename("sphere2");
+    reader2->setReadFilename("Sphere2Decimated");
     reader2->setReadFileType(FileType::STL);
     reader2->execute();
 
@@ -63,8 +63,8 @@ int test3() {
     double AABBvol = span2[0]*span2[1]*span2[2];
     double OBBvol = span1[0]*span1[1]*span1[2];
 
-    double AABBvol_exp = 2.17084;
-    double OBBvol_exp = 2.08764;
+    double AABBvol_exp = 2.17049;
+    double OBBvol_exp = 2.08724;
 
     log.setPriority(bitpit::log::Priority::NORMAL);
     log<<"AABB volume: "<<AABBvol<< " vs Expected : "<< AABBvol_exp<<std::endl;
