@@ -31,6 +31,8 @@
 
 BETTER_ENUM(FileType, int, STL = 0, SURFVTU = 1, VOLVTU = 2, NAS = 3, OFP = 4, PCVTU = 5, CURVEVTU = 6, MIMMO = 99);
 
+BETTER_ENUM(NastranElementType, int, GRID = 0, CTRIA = 1, CQUAD = 2, CBAR = 3, RBE2 = 4, RBE3 = 5);
+
 namespace mimmo{
 
 class NastranInterface;
@@ -244,6 +246,10 @@ public:
 
     WFORMAT    m_wformat; /**< member storing the file type format Short/Long */
 
+    std::map<NastranElementType, bool> m_enabled; /** element type enabled for the current session */
+
+    NastranInterface();
+
     void setWFormat(WFORMAT);
     void writeKeyword(std::string key, std::ofstream& os);
     void writeCoord(const darray3E & p, const long& pointI, std::ofstream& os);
@@ -255,6 +261,18 @@ public:
 
     std::string trim(std::string in);
     std::string convertVertex(std::string in);
+
+    void appendLineRecords(std::string & sread, std::size_t recordlength, std::vector<std::string> & records);
+    void absorbRBE2(std::vector<std::string> & records, long & ID, long & PID, std::vector<long> & connectivity, std::string & components);
+    void absorbRBE3(std::vector<std::string> & records, long & ID, long & PID, std::vector<long> & connectivity, std::string & components);
+    bool isInteger(std::string & str);
+
+    bool isEnabled(NastranElementType type);
+
+protected:
+    void enable(NastranElementType type);
+    void disable(NastranElementType type);
+
 
     /*!
      * Write a template value according to WFORMAT chosen by the User

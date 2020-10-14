@@ -807,8 +807,11 @@ MimmoGeometry::read(){
             eltype = bitpit::ElementType::UNDEFINED;
             std::size_t ccsize = cc.size();
             if(ccsize == 1)  eltype = bitpit::ElementType::VERTEX;
+            if(ccsize == 2)  eltype = bitpit::ElementType::LINE;
             if(ccsize == 3)  eltype = bitpit::ElementType::TRIANGLE;
             if(ccsize == 4)  eltype = bitpit::ElementType::QUAD;
+            if(ccsize > 4)   eltype = bitpit::ElementType::POLYGON;
+
             getGeometry()->addConnectedCell(cc, eltype, cellsID[counter]);
             ++counter;
         }
@@ -1335,6 +1338,19 @@ MimmoGeometry::flushSectionXML(bitpit::Config::Section & slotXML, std::string na
 //===============================//
 
 /*!
+ * Default constructor
+ */
+NastranInterface::NastranInterface(){
+    // Enable grid points and surface elements by default
+    enable(NastranElementType::GRID);
+    enable(NastranElementType::CTRIA);
+    enable(NastranElementType::CQUAD);
+    disable(NastranElementType::CBAR);
+    disable(NastranElementType::RBE2);
+    disable(NastranElementType::RBE3);
+}
+
+/*!
  * Set the format Short/Long of data in your nastran file
  * \param[in] wf WFORMAT Short/Long of your nastran file
  */
@@ -1531,7 +1547,7 @@ bool NastranInterface::writeGeometry(dvecarr3E& points, livector1D& pointsID, li
             writeFace("CQUAD4", f, facesID[counter], os, PID);
             ++counter;
         }else{
-            throw std::runtime_error ("Error NastranInterface::writeGeometry : unknown face format");
+            std::cerr << "Warning NastranInterface::writeGeometry : unknown face format" << std::endl;
         }
     }
 
@@ -1648,18 +1664,15 @@ void NastranInterface::read(std::string& inputDir, std::string& surfaceName, dve
     std::string ssub = trim(sread.substr(0,8));
 
     while(!is.eof()){
-        while(ssub != "GRID" &&
-                ssub != "GRID*" &&
-                ssub != "CTRIA3" &&
-                ssub != "CTRIA3*" &&
-                ssub != "CQUAD4" &&
-                ssub != "CQUAD4*" &&
-                ssub != "RBE3" &&
+        while(((ssub != "GRID" && ssub != "GRID*") || !isEnabled(NastranElementType::GRID)) &&
+                ((ssub != "CTRIA3" && ssub != "CTRIA3*") || !isEnabled(NastranElementType::CTRIA)) &&
+                ((ssub != "CQUAD4" && ssub != "CQUAD4*") || !isEnabled(NastranElementType::CQUAD)) &&
+                (ssub != "RBE2" || !isEnabled(NastranElementType::RBE2)) &&
+                (ssub != "RBE3" || !isEnabled(NastranElementType::RBE3)) &&
+                (ssub != "CBAR" || !isEnabled(NastranElementType::CBAR)) &&
                 !is.eof()){
-
             std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
-
         }
         if(ssub == "GRID"){
             ipoint = stoi(sread.substr(8,8));
@@ -1722,7 +1735,7 @@ void NastranInterface::read(std::string& inputDir, std::string& surfaceName, dve
             ssub = trim(sread.substr(0,8));
         }
         else if(ssub == "CQUAD4*"){
-            face.resize(3);
+            face.resize(4);
             iface = stoi(sread.substr(16,16));
             pid = stoi(sread.substr(32,16));
             face[0] = stoi(sread.substr(48,16));
@@ -1735,20 +1748,89 @@ void NastranInterface::read(std::string& inputDir, std::string& surfaceName, dve
             std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
-        else if(ssub == "RBE3"){
-        	//RBE3 is read as single vertex with its id
-            face.resize(1);
+        else if(ssub == "CBAR"){
+            face.resize(2);
             iface = stoi(sread.substr(8,8));
-            std::string dummy = (sread.substr(16,8));
+            pid = stoi(sread.substr(16,8));
             face[0] = stoi(sread.substr(24,8));
+            face[1] = stoi(sread.substr(32,8));
             faces.push_back(face);
             facesID.push_back(iface);
-            PIDS.push_back(0);
+            PIDS.push_back(pid);
             std::getline(is,sread);
             ssub = trim(sread.substr(0,8));
         }
+        else if(ssub == "RBE3"){
+
+            long ID;
+            std::vector<long> conn;
+            long PID;
+            std::string components;
+
+            std::vector<std::string> records;
+            bool toexit = false;
+            while (!toexit){
+                appendLineRecords(sread, 8, records);
+                getline(is,sread);
+                ssub = sread.substr(0,8);
+                if ((ssub != "        " && ssub[0] != '+'))
+                    toexit = true;
+            }
+
+            absorbRBE3(records, ID, PID, conn, components);
+
+            //If surface elements build polygon
+            std::size_t nv = conn.size();
+
+            int ispolygon = int(nv > 4);
+            face.resize(nv+ispolygon);
+            face[0] = nv;
+            for (int i=0; i<nv; i++){
+                face[i+ispolygon] = conn[i];
+            }
+            faces.push_back(face);
+            facesID.push_back(ID);
+            PIDS.push_back(PID);
+
+        }
+        else if(ssub == "RBE2"){
+
+            long ID;
+            std::vector<long> conn;
+            long PID;
+            std::string components;
+
+            std::vector<std::string> records;
+            bool toexit = false;
+            while (!toexit){
+                appendLineRecords(sread, 8, records);
+                getline(is,sread);
+                ssub = sread.substr(0,8);
+                if ((ssub != "        " && ssub[0] != '+')){
+                    toexit = true;
+                }
+            }
+
+            absorbRBE2(records, ID, PID, conn, components);
+
+            // build polygon
+            std::size_t nv = conn.size();
+
+            int ispolygon = int(nv > 4);
+            face.resize(nv+ispolygon);
+            face[0] = nv;
+            for (int i=0; i<nv; i++){
+                face[i+ispolygon] = conn[i];
+            }
+            faces.push_back(face);
+            facesID.push_back(ID);
+            PIDS.push_back(PID);
+
+        }
+
     }
     is.close();
+
 }
 
 /*!
@@ -1758,10 +1840,17 @@ void NastranInterface::read(std::string& inputDir, std::string& surfaceName, dve
 std::string
 NastranInterface::trim(std::string in){
 
+    return bitpit::utils::string::trim(in);
+
+/*
+ * Old implementation for CentOS 5 system
+
     std::stringstream out;
     out << in;
     out >> in;
     return in;
+*/
+
 }
 
 /*!
@@ -1781,6 +1870,149 @@ NastranInterface::convertVertex(std::string in){
         }
     }
     return in;
+}
+
+/*
+ * Append records of given length of an input line in a records structure
+ * \param[in] sread input line given as string
+ * \param[in] length length of single record string
+ * \param[out] records vector of string records to be filled
+ */
+void
+NastranInterface::appendLineRecords(std::string & sread, std::size_t recordlength, std::vector<std::string> & records)
+{
+    std::size_t readlength = sread.size();
+    std::size_t readpos = 0;
+    while (readpos < readlength){
+        std::string record = sread.substr(readpos, recordlength);
+        record = bitpit::utils::string::trim(record);
+        // Do not append empty records or blank spaces or new line tag (ANSA format, starting with character '+')
+        if (!record.empty() && record != "        " && record[0] != '+'){
+            records.push_back(record);
+        }
+        readpos += recordlength;
+    }
+}
+
+/*
+ * Absorb rbe3 element from a records structure
+ * \param[in] records vector of string records
+ * \param[out] ID ID of the RBE3 element
+ * \param[out] PID PID of the RBE3 element
+ * \param[out] connectivity connectivity of the RBE3 element
+ * \param[out] components reaction components of the element
+ */
+void
+NastranInterface::absorbRBE3(std::vector<std::string> & records, long & ID, long & PID, std::vector<long> & connectivity, std::string & components)
+{
+    connectivity.clear();
+    ID = std::stoi(records[1]);
+    records[2] = bitpit::utils::string::trim(records[2]);
+    if(!records[2].empty()){
+        PID = std::stoi(records[2]);
+    }
+    else{
+        PID = 0;
+    }
+    components = records[3];
+    std::size_t startpos = 4;
+    std::size_t endpos = records.size();
+    for (std::size_t pos = startpos; pos < endpos; pos++){
+        // If it is not integer it is the string UM or the weight factor
+        // It can be even a new line tag (ANSA format)
+        if(!isInteger(records[pos]) || records[pos].empty()){
+            if(records[pos] == "UM" || records[pos].empty()){
+                return;
+            }
+            else{
+                // If not integer it is weight factor
+                if(!isInteger(records[pos])){
+                    if (pos < endpos - 1 && records[pos][0] != '+'){
+                        // Skip even components numbers after weight factor
+                        pos++;
+                    }
+                }
+            }
+        }
+        else{
+            long item = std::stoi(records[pos]);
+            if (!std::count(connectivity.begin(), connectivity.end(), item)){
+                connectivity.push_back(item);
+            }
+        }
+    }
+}
+
+/*
+ * Absorb rbe2 element from a records structure
+ * \param[in] records vector of string records
+ * \param[out] ID ID of the RBE2 element
+ * \param[out] PID PID of the RBE2 element
+ * \param[out] connectivity connectivity of the RBE2 element
+ * \param[out] components reaction components of the element
+ */
+void
+NastranInterface::absorbRBE2(std::vector<std::string> & records, long & ID, long & PID, std::vector<long> & connectivity, std::string & components)
+{
+    connectivity.clear();
+    ID = std::stoi(records[1]);
+    PID = std::stoi(records[2]);
+    components = records[3];
+    std::size_t startpos = 4;
+    std::size_t endpos = records.size();
+    for (std::size_t pos = startpos; pos < endpos; pos++){
+        if(isInteger(records[pos])){
+            long item = std::stoi(records[pos]);
+            if (!std::count(connectivity.begin(), connectivity.end(), item))
+                connectivity.push_back(item);
+        }
+    }
+}
+
+/*
+ * Check if a string contains an integer
+ * \param[in] str string to test
+ * \return true if the string has only digits
+ */
+bool
+NastranInterface::isInteger(std::string & str){
+    for (auto &val : str){
+        if (!std::isdigit(val))
+            return false;
+    }
+    return true;
+}
+
+/*
+ * Get if an element type is enbaled
+ * \param[in] type element type
+ * \return true if the element type is enbaled for the current read session
+ */
+bool
+NastranInterface::isEnabled(NastranElementType type){
+    // If not in the map return false
+    if (!m_enabled.count(type)){
+        return false;
+    }
+    return m_enabled[type];
+}
+
+/*
+ * Enable an element type for the current read session
+ * \param[in] type element type
+ */
+void
+NastranInterface::enable(NastranElementType type){
+    m_enabled[type] = true;
+}
+
+/*
+ * Disable an element type for the current read session
+ * \param[in] type element type
+ */
+void
+NastranInterface::disable(NastranElementType type){
+    m_enabled[type] = false;
 }
 
 }
