@@ -3151,7 +3151,7 @@ bool MimmoObject::checkCellConnCoherence(const bitpit::ElementType & type, const
 		return (list.size() == 4);
 		break;
 	case bitpit::ElementType::POLYGON:
-		if(list.size() < 5) return false;
+		if(list.size() < 3) return false;
 		return(list.size() == std::size_t(list[0]+1));
 		break;
 	case bitpit::ElementType::TETRA:
