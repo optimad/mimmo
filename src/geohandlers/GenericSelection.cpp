@@ -237,7 +237,9 @@ GenericSelection::execute(){
 
     /*Create subpatch.*/
     mimmo::MimmoSharedPointer<MimmoObject> temp(new MimmoObject(m_topo));
-
+	
+	/* Set the same tolerance of the mother geoemtry*/
+    temp->setTolerance(getGeometry()->getTolerance());
 
     if (m_topo != 3){
 
