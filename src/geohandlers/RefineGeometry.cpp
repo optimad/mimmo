@@ -332,26 +332,30 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 		// Refine cell
 		std::vector<long> generatedCells = ternaryRefineCell(cellId, perimeter, centroid);
 
-		//Add cell to todelete and refined structure
-		toDelete.insert(cellId);
+        if (!generatedCells.empty()){
 
-		// Add vertices and cell to coarse patch
-		if (coarsepatch != nullptr)
-		{
-			bitpit::Cell cell = getGeometry()->getPatch()->getCell(cellId);
-			coarsepatch->addCell(cell, cellId);
-			for (long vertexId : cell.getVertexIds()){
-				bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
-				coarsepatch->addVertex(vertex, vertexId);
-			}
-		}
+            //Add cell to todelete and refined structure
+            toDelete.insert(cellId);
 
-		// Add entry to refine-coarse mapping and newCells structure
-		for (long newCellId : generatedCells){
-			if (mapping != nullptr)
-				mapping->insert({newCellId, cellId});
-			newCells.insert(newCellId);
-		}
+            // Add vertices and cell to coarse patch
+            if (coarsepatch != nullptr)
+            {
+                bitpit::Cell cell = getGeometry()->getPatch()->getCell(cellId);
+                coarsepatch->addCell(cell, cellId);
+                for (long vertexId : cell.getVertexIds()){
+                    bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
+                    coarsepatch->addVertex(vertex, vertexId);
+                }
+            }
+
+            // Add entry to refine-coarse mapping and newCells structure
+            for (long newCellId : generatedCells){
+                if (mapping != nullptr)
+                    mapping->insert({newCellId, cellId});
+                newCells.insert(newCellId);
+            }
+
+        } // end if generated cells is not empty
 
 	} // end loop on cells
 
@@ -437,7 +441,16 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 	//REDGREEN REFINEMENT
 
 	// Redgreen refinement needs the geometry to be a triangulation.
-	for (bitpit::Cell & cell : getGeometry()->getPatch()->getCells()){
+    // If none active cells are present fill the container with all cells
+    if (m_activecells.empty()){
+        m_activecells.reserve(getGeometry()->getNCells());
+        for (bitpit::Cell & cell : getGeometry()->getPatch()->getCells()){
+            m_activecells.emplace_back(cell.getId());
+        }
+    }
+    // Check active cells
+    for (long cellId : m_activecells){
+        bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
 		if (cell.getType() != bitpit::ElementType::TRIANGLE){
 			(*m_log)<< "WARNING " <<m_name <<" : found a non-triangle element. Red-Green refinement allowed only for triangles. Skip block execution."<<std::endl;
 			return;
@@ -505,66 +518,71 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 			bitpit::Cell redCell = geometry->getPatch()->getCell(redId);
 
 			//Only for triangles!!!
-			for (int iface = 0; iface < 3; iface++){
+			if (redCell.getType() == bitpit::ElementType::TRIANGLE){
 
-				if (!redCell.isFaceBorder(iface)){
+			    for (int iface = 0; iface < 3; iface++){
 
-					// Find face neighbours (only one in conform case)
-					std::vector<long> neighs = geometry->getPatch()->findCellFaceNeighs(redId, iface);
-					for (long neighId : neighs){
+			        if (!redCell.isFaceBorder(iface)){
 
-						// Increase tag (at the end the red elements have a tag >=2)
-						refinementTag[neighId]++;
+			            // Find face neighbours (only one in conform case)
+			            std::vector<long> neighs = geometry->getPatch()->findCellFaceNeighs(redId, iface);
+			            for (long neighId : neighs){
 
-						// Insert edge between current red and neighbor
-						// The edges structure is a set, so each edge will be not duplicated
-						// Recover interface
-						long interfaceId = geometry->getPatch()->getCell(redId).getInterface(iface);
-						bitpit::Interface & interface = geometry->getPatch()->getInterface(interfaceId);
-						edges.insert(interfaceId);
+			                // Increase tag (at the end the red elements have a tag >=2)
+			                refinementTag[neighId]++;
 
-						if (refinementTag[neighId] > 2){
-							continue;
-						} // if neigh already red
+			                // Insert edge between current red and neighbor
+			                // The edges structure is a set, so each edge will be not duplicated
+			                // Recover interface
+			                long interfaceId = geometry->getPatch()->getCell(redId).getInterface(iface);
+			                bitpit::Interface & interface = geometry->getPatch()->getInterface(interfaceId);
+			                edges.insert(interfaceId);
+
+			                if (refinementTag[neighId] > 2){
+			                    continue;
+			                } // if neigh already red
 
 
-						if (refinementTag[neighId] == 2){
+			                if (refinementTag[neighId] == 2){
 
-							// Push neigh to new reds
-							newreds.push_back(neighId);
+			                    // Push neigh to new reds
+			                    newreds.push_back(neighId);
 
-							// Destroy green entry with splitting edge index
-							greenSplitFaceIndex.erase(neighId);
+			                    // Destroy green entry with splitting edge index
+			                    greenSplitFaceIndex.erase(neighId);
 
-						} // If is neigh is new red
-						else if (refinementTag[neighId] == 1){
+			                } // If is neigh is new red
+			                else if (refinementTag[neighId] == 1){
 
-							// Get if neighbor is owner of neigh
-							bool isOwner = (interface.getOwner() == neighId);
+			                    // Get if neighbor is owner of neigh
+			                    bool isOwner = (interface.getOwner() == neighId);
 
-							// Recover splitting face index of the neighbor
-							int splitface;
-							if (isOwner){
-								splitface = interface.getOwnerFace();
-							}
-							else{
-								splitface = interface.getNeighFace();
-							}
-							greenSplitFaceIndex[neighId] = splitface;
+			                    // Recover splitting face index of the neighbor
+			                    int splitface;
+			                    if (isOwner){
+			                        splitface = interface.getOwnerFace();
+			                    }
+			                    else{
+			                        splitface = interface.getNeighFace();
+			                    }
+			                    greenSplitFaceIndex[neighId] = splitface;
 
-						} // Else if neigh is green
-					} // end loop on neighs
-				} // end if not border face
-				else{
+			                } // Else if neigh is green
+			            } // end loop on neighs
+			        } // end if not border face
+			        else{
 
-					// If border face the edge is to be refined
-					// Recover border interface
-					long interfaceId = redCell.getInterface(iface);
-					edges.insert(interfaceId);
+			            // If border face the edge is to be refined
+			            // Recover border interface
+			            long interfaceId = redCell.getInterface(iface);
+			            edges.insert(interfaceId);
 
-				}// end if border face
+			        }// end if border face
 
-			}// End loop on face
+			    }// End loop on face
+
+			} // if triangle
+
 			check = newreds.empty();
 		} // end while stack
 
@@ -618,25 +636,29 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 			generatedCells = greenRefineCell(cellId, newCellVertexId, splitFaceIndex);
 		}
 
-		//Add cell to todelete structure
-		toDelete.insert(cellId);
+		if (!generatedCells.empty()){
 
-		// Add vertices and cell to coarse patch
-		if (coarsepatch != nullptr)
-		{
-			coarsepatch->addCell(cell, cellId);
-			for (long vertexId : cell.getVertexIds()){
-				bitpit::Vertex vertex = geometry->getPatch()->getVertex(vertexId);
-				coarsepatch->addVertex(vertex, vertexId);
-			}
-		}
+		    //Add cell to todelete structure
+		    toDelete.insert(cellId);
 
-		// Add entry to refine-coarse mapping and newCells structure
-		for (long newCellId : generatedCells){
-			if (mapping != nullptr)
-				mapping->insert({newCellId, cellId});
-			newCells.insert(newCellId);
-		}
+		    // Add vertices and cell to coarse patch
+		    if (coarsepatch != nullptr)
+		    {
+		        coarsepatch->addCell(cell, cellId);
+		        for (long vertexId : cell.getVertexIds()){
+		            bitpit::Vertex vertex = geometry->getPatch()->getVertex(vertexId);
+		            coarsepatch->addVertex(vertex, vertexId);
+		        }
+		    }
+
+		    // Add entry to refine-coarse mapping and newCells structure
+		    for (long newCellId : generatedCells){
+		        if (mapping != nullptr)
+		            mapping->insert({newCellId, cellId});
+		        newCells.insert(newCellId);
+		    }
+
+		} // end if generated cells is not empty
 
 	} // end loop on refinement tag
 
@@ -844,9 +866,6 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 				geometry->modifyVertex(newcoordinates[id], id);
 			}
 
-//						//TODO DEBUG WRITE
-//						std::string name = "geometry.a."+std::to_string(istep);
-//						geometry->getPatch()->write(name);
 		}
 
 		{
@@ -885,11 +904,8 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 				geometry->modifyVertex(newcoordinates[id], id);
 			}
 
-			//			//TODO DEBUG WRITE
-			//			std::string name = "geometry.b."+std::to_string(istep);
-			//			geometry->getPatch()->write(name);
 		}
-	}
+	} // end loop on smoothing step
 
 }
 
