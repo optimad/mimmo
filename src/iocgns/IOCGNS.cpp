@@ -525,9 +525,6 @@ IOCGNS::read(const std::string & file){
     m_surfmesh = MimmoSharedPointer<MimmoObject>(new MimmoObject(1));
     MimmoSharedPointer<MimmoObject> patchVol(new MimmoObject(2));
 
-#if MIMMO_ENABLE_MPI
-    if(m_rank == 0){
-#endif
     std::string error_string = "read CGNS grid: " + file;
 
     std::vector<long> nVertices;
@@ -545,6 +542,10 @@ IOCGNS::read(const std::string & file){
     std::vector<std::unordered_map<int, bool > > bcOnElements;
 
     //FIRST STEP ABSORB INFO from FILE//
+
+#if MIMMO_ENABLE_MPI
+    if(m_rank == 0){
+#endif
 
     //Open cgns file
     int indexfile;
@@ -1004,8 +1005,10 @@ IOCGNS::read(const std::string & file){
             }
         } //end of looping bcs.
         flaggedBCConns.clear();
+
         //clean up adjacencies. These portion is local, you need to append this structure to the real mesh manager after.
-        if(patchVol->areAdjacenciesBuilt()) patchVol->destroyAdjacencies();
+        if(patchVol->getAdjacenciesSyncStatus() == SyncStatus::SYNC)
+            patchVol->destroyAdjacencies();
 
         //reversing patchVol inside volmesh .
         for(auto it=patchVol->getPatch()->vertexBegin(); it != patchVol->getPatch()->vertexEnd(); ++it){
@@ -1057,7 +1060,6 @@ IOCGNS::read(const std::string & file){
     m_surfmesh->getPatch()->reserveVertices(totSV);
     m_surfmesh->getPatch()->reserveCells(totSC);
 
-
     bitpit::PiercedVector<bitpit::Cell> & volCells = m_volmesh->getCells();
     bitpit::PiercedVector<bitpit::Vertex> & volVerts = m_volmesh->getVertices();
     bitpit::PiercedVector<bitpit::Vertex> & surfVerts = m_surfmesh->getVertices();
@@ -1108,16 +1110,24 @@ IOCGNS::read(const std::string & file){
         }
     }
 
+    //Squeeze the surface mesh
+    m_surfmesh->getPatch()->squeeze();
 
 #if MIMMO_ENABLE_MPI
-    } //endif mpi
-    MPI_Barrier(m_communicator);
+    }
     //make sure all procs know the m_storedBC info absorbed while reading.
     communicateAllProcsStoredBC();
 #endif
 
-    //Squeeze the surface mesh
-    m_surfmesh->getPatch()->squeeze();
+    // Update volmesh
+    m_volmesh->update();
+
+    // Update surfmesh
+    m_surfmesh->update();
+
+    // Build patch info
+    m_volmesh->buildPatchInfo();
+    m_surfmesh->buildPatchInfo();
 
     return true;
 }
@@ -1873,7 +1883,6 @@ bool IOCGNS::restore(std::istream &stream){
 #if MIMMO_ENABLE_MPI
     m_volmesh->updatePointGhostExchangeInfo();
     m_surfmesh->updatePointGhostExchangeInfo();
-
 #endif
     return true;
 }
