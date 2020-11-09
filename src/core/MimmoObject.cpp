@@ -1663,47 +1663,35 @@ void MimmoObject::updatePointGhostExchangeInfo()
 
             long cellId = cell.getId();
 
+            int cellRank = getPatch()->getCellRank(cellId);
+
             for (int ivertex = 0; ivertex < cell.getVertexCount(); ivertex++){
 
                 long vertexId = cell.getVertexIds()[ivertex];
 
                 if (!visited[vertexId]){
+                        // If not visited and ghost cell initialize owner to max integer
+                        m_pointOwner.at(vertexId) = std::numeric_limits<int>::max();
 
-                    // Set is visited
-                    visited[vertexId] = true;
+                        // Set is visited by ghost
+                        visited[vertexId] = true;
+                }
 
-                    bitpit::Vertex vertex = getPatch()->getVertex(vertexId);
+                pointRankInvolved[vertexId].insert(cellRank);
 
-                    std::vector<long> oneRingCells = getPatch()->findCellVertexOneRing(cellId, ivertex);
-                    int nCells = oneRingCells.size();
-                    std::vector<int> oneRingCellRanks(nCells, -1);
-                    for (int i = 0; i < nCells; i++){
-                        long _cellId = oneRingCells[i];
-                        int _cellRank = getPatch()->getCellRank(_cellId);
-                        oneRingCellRanks[i] = _cellRank;
-                        pointRankInvolved[vertexId].insert(_cellRank);
-                    }
-                    // Guess the owner of the point as the minimum rank
-                    // It cannot be the right one in case of boundary ghost point;
-                    // The sharing rank on the other side is yet unknown
-                    std::vector<int>::iterator itranksbegin = oneRingCellRanks.begin();
-                    std::vector<int>::iterator itranksend = oneRingCellRanks.end();
-                    int & pointowner = m_pointOwner.at(vertexId);
-                    std::vector<int>::iterator itowner = std::min_element(itranksbegin, itranksend);
-                    pointowner = *itowner;
-                    // If the owner is the current rank everything is set
-                    if (pointowner != m_rank){
-                        // Set as not interior
-                        m_isPointInterior[vertexId] = false;
-                        // Check if it is a complete ghost node and set owner to unknown (-1)
-                        // Complete ghost means a partition boundary node with only ghost
-                        // cells in one ring
-                        std::vector<int>::iterator itranks;
-                        if (std::find(itranksbegin, itranksend, m_rank) == itranksend){
-                            pointowner = -1;
-                        }
-                    }
-                } // end vertex is visited
+                int & pointowner = m_pointOwner.at(vertexId);
+
+                pointowner = std::min(pointowner, cellRank);
+
+                // If the owner is the current rank everything is set
+                if (pointowner != m_rank){
+                    // Set as not interior
+                    m_isPointInterior[vertexId] = false;
+                }
+                else{
+                    m_isPointInterior[vertexId] = true;
+                }
+
             } // end loop on local vertices
         } // end loop on cells
 
@@ -1734,7 +1722,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
                         involvedCount += pointRankInvolved[vertexId].size();
                     }
                 }
-                dataCommunicator->setSend(rank, VertexCount * pointOwnerDataSize + VertexCount * (int) + involvedCount * pointInvolvedDataSize);
+                dataCommunicator->setSend(rank, VertexCount * pointOwnerDataSize + VertexCount * sizeof(int) + involvedCount * pointInvolvedDataSize);
                 bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
                 // Fill the buffer with the point owner of the vertices of each source cell
                 // Note. Some nodes will be repeated, but they have the same values
@@ -1770,7 +1758,8 @@ void MimmoObject::updatePointGhostExchangeInfo()
                         int owner;
                         buffer >> owner;
                         int & currentOwner = m_pointOwner[vertexId];
-                        if (currentOwner == -1){
+                        // If current owner is current rank the point is shared and not to be corrected
+                        if (currentOwner != m_rank && currentOwner > owner){
                             currentOwner = owner;
                         }
                         int nInvolved;
