@@ -143,7 +143,7 @@ IOOFOAM_Kernel::setDir(const std::string &dir){
 void
 IOOFOAM_Kernel::setGeometry(MimmoSharedPointer<MimmoObject> bulk){
     if(!bulk) return;
-    if(!bulk->areInterfacesBuilt()) {
+    if(bulk->getInterfacesSyncStatus() != SyncStatus::SYNC) {
         *(m_log)<<"Warning IOOFOAM_Kernel:: linked MimmoObject bulk mesh cannot be coherent with an OpenFoam mesh"<<std::endl;
     }
 	MimmoFvMesh::setGeometry(bulk);
@@ -475,133 +475,150 @@ IOOFOAM::read(){
 	Foam::Time *foamRunTime = 0;
 	Foam::fvMesh *foamMesh = 0;
 
-	//read mesh from OpenFoam case directory
-	foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh);
+    //prepare my bulk geometry container
+    bitpit::PatchKernel* mesh(new mimmo::MimmoVolUnstructured(3));
+    mesh->partition(getCommunicator(), false);
 
-	//prepare my bulk geometry container
-	bitpit::PatchKernel* mesh(new mimmo::MimmoVolUnstructured(3));
-	mesh->partition(getCommunicator(), false);
-	mesh->reserveVertices(std::size_t(foamMesh->nPoints()));
-	mesh->reserveCells(std::size_t(foamMesh->nCells()));
+    mesh->initializeAdjacencies();
+    mesh->initializeInterfaces();
 
-	//start absorbing mesh nodes/points.
-	Foam::pointField nodes = foamMesh->points();
-	darray3E coords;
-	forAll(nodes, in){
-		for (int k = 0; k < 3; k++) {
-			coords[k] = nodes[in][k];
-		}
-		mesh->addVertex(coords, long(in));
-	}
+#if MIMMO_ENABLE_MPI
+    // Only master rank 0 reads the mesh
+    if (getRank() == 0)
+    {
+#endif
+        //read mesh from OpenFoam case directory
+        foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh);
 
-	//absorbing cells.
-	const Foam::cellList & cells           = foamMesh->cells();
-	const Foam::cellShapeList & cellShapes = foamMesh->cellShapes();
-	const Foam::faceList & faces           = foamMesh->faces();
-	const Foam::labelList & faceOwner      = foamMesh->faceOwner();
-	const Foam::labelList & faceNeighbour  = foamMesh->faceNeighbour();
+        mesh->reserveVertices(std::size_t(foamMesh->nPoints()));
+        mesh->reserveCells(std::size_t(foamMesh->nCells()));
 
-	Foam::label sizeNeighbours = faceNeighbour.size();
-
-	std::string eleshape;
-	bitpit::ElementType eltype;
-	long iDC;
-	long PID = 0;
-	livector1D conn, temp;
-
-	forAll(cells, iC){
-
-		iDC = long(iC);
-		eleshape = std::string(cellShapes[iC].model().name());
-		//first step verify the model in twin cellShapes list.
-		conn.clear();
-
-		if(m_OFE_supp.count(eleshape) > 0){
-
-			eltype = m_OFE_supp[eleshape];
-			temp.resize(cellShapes[iC].size());
-			forAll(cellShapes[iC], loc){
-				temp[loc] = (long)cellShapes[iC][loc];
-			}
-			conn = foamUtilsNative::mapEleVConnectivity(temp, eltype);
-
-		}else{
-
-			eltype = bitpit::ElementType::POLYHEDRON;
-			//manually calculate connectivity.
-			conn.push_back((long)cells[iC].size()); //total number of faces on the top.
-			forAll(cells[iC], locC){
-				Foam::label iFace = cells[iC][locC];
-				long faceNVertex = (long)faces[iFace].size();
-				temp.resize(faceNVertex);
-				forAll(faces[iFace], locF){
-					temp[locF] = (long)faces[iFace][locF];
-				}
-
-				conn.push_back(faceNVertex);
-				if(iFace >= sizeNeighbours) {
-					//border face, normal outwards, take as it is
-					conn.insert(conn.end(), temp.begin(), temp.end());
-					continue;
-				}
-				bool normalIsOut;
-				//recover right adjacency and check if face normal pointing outwards.
-				//OpenFoam policy wants the face normal between cell pointing towards
-				// the cell with greater id.
-				if(iC == faceOwner[iFace]){
-					normalIsOut = faceNeighbour[iFace] > iC;
-				}else{
-					normalIsOut = faceOwner[iFace] > iC;
-				}
-
-				if(normalIsOut){
-					conn.insert(conn.end(), temp.begin(), temp.end());
-				}else{
-					conn.insert(conn.end(), temp.rbegin(), temp.rend());
-				}
-			}
-		}
-		bitpit::PatchKernel::CellIterator it = mesh->addCell(eltype, conn, iDC);
-		it->setPID(int(PID));
-	}
-
-    mesh->buildAdjacencies();
-    mesh->buildInterfaces();
-
-    bitpit::PiercedVector<bitpit::Cell> & bitCells = mesh->getCells();
-    bitpit::PiercedVector<bitpit::Interface> & bitInterfaces = mesh->getInterfaces();
-
-	forAll(faces, iOF){
-
-        std::vector<long> vListOF(faces[iOF].size());
-        forAll(faces[iOF], index){
-            vListOF[index] = long(faces[iOF][index]);
-        }
-        std::sort(vListOF.begin(), vListOF.end());
-
-        long iDC = long(faceOwner[iOF]);
-		long * bitFaceList = bitCells[iDC].getInterfaces();
-		std::size_t sizeFList = bitCells[iDC].getInterfaceCount();
-
-        long iBIT = bitpit::Interface::NULL_ID;
-        std::size_t j(0);
-        while(iBIT < 0 && j<sizeFList){
-            bitpit::ConstProxyVector<long> vconn = bitInterfaces[bitFaceList[j]].getVertexIds();
-            std::size_t vconnsize = vconn.size();
-            std::vector<long> vListBIT(vconn.begin(), vconn.end());
-            std::sort(vListBIT.begin(), vListBIT.end());
-
-            if(std::equal(vListBIT.begin(), vListBIT.end(), vListOF.begin()) ){
-                iBIT = bitFaceList[j];
-            }else{
-                ++j;
+        //start absorbing mesh nodes/points.
+        Foam::pointField nodes = foamMesh->points();
+        darray3E coords;
+        forAll(nodes, in){
+            for (int k = 0; k < 3; k++) {
+                coords[k] = nodes[in][k];
             }
+            mesh->addVertex(coords, long(in));
         }
-		m_OFbitpitmapfaces.insert(std::make_pair(long(iOF),iBIT) );
-	}
+
+        //absorbing cells.
+        const Foam::cellList & cells           = foamMesh->cells();
+        const Foam::cellShapeList & cellShapes = foamMesh->cellShapes();
+        const Foam::faceList & faces           = foamMesh->faces();
+        const Foam::labelList & faceOwner      = foamMesh->faceOwner();
+        const Foam::labelList & faceNeighbour  = foamMesh->faceNeighbour();
+
+        Foam::label sizeNeighbours = faceNeighbour.size();
+
+        std::string eleshape;
+        bitpit::ElementType eltype;
+        long iDC;
+        long PID = 0;
+        livector1D conn, temp;
+
+        forAll(cells, iC){
+
+            iDC = long(iC);
+            eleshape = std::string(cellShapes[iC].model().name());
+            //first step verify the model in twin cellShapes list.
+            conn.clear();
+
+            if(m_OFE_supp.count(eleshape) > 0){
+
+                eltype = m_OFE_supp[eleshape];
+                temp.resize(cellShapes[iC].size());
+                forAll(cellShapes[iC], loc){
+                    temp[loc] = (long)cellShapes[iC][loc];
+                }
+                conn = foamUtilsNative::mapEleVConnectivity(temp, eltype);
+
+            }else{
+
+                eltype = bitpit::ElementType::POLYHEDRON;
+                //manually calculate connectivity.
+                conn.push_back((long)cells[iC].size()); //total number of faces on the top.
+                forAll(cells[iC], locC){
+                    Foam::label iFace = cells[iC][locC];
+                    long faceNVertex = (long)faces[iFace].size();
+                    temp.resize(faceNVertex);
+                    forAll(faces[iFace], locF){
+                        temp[locF] = (long)faces[iFace][locF];
+                    }
+
+                    conn.push_back(faceNVertex);
+                    if(iFace >= sizeNeighbours) {
+                        //border face, normal outwards, take as it is
+                        conn.insert(conn.end(), temp.begin(), temp.end());
+                        continue;
+                    }
+                    bool normalIsOut;
+                    //recover right adjacency and check if face normal pointing outwards.
+                    //OpenFoam policy wants the face normal between cell pointing towards
+                    // the cell with greater id.
+                    if(iC == faceOwner[iFace]){
+                        normalIsOut = faceNeighbour[iFace] > iC;
+                    }else{
+                        normalIsOut = faceOwner[iFace] > iC;
+                    }
+
+                    if(normalIsOut){
+                        conn.insert(conn.end(), temp.begin(), temp.end());
+                    }else{
+                        conn.insert(conn.end(), temp.rbegin(), temp.rend());
+                    }
+                }
+            }
+#if MIMMO_ENABLE_MPI
+            bitpit::PatchKernel::CellIterator it = mesh->addCell(eltype, conn, 0, iDC);
+#else
+            bitpit::PatchKernel::CellIterator it = mesh->addCell(eltype, conn, iDC);
+#endif
+            it->setPID(int(PID));
+        }
+
+        mesh->updateAdjacencies();
+        mesh->updateInterfaces();
+
+        bitpit::PiercedVector<bitpit::Cell> & bitCells = mesh->getCells();
+        bitpit::PiercedVector<bitpit::Interface> & bitInterfaces = mesh->getInterfaces();
+
+        forAll(faces, iOF){
+
+            std::vector<long> vListOF(faces[iOF].size());
+            forAll(faces[iOF], index){
+                vListOF[index] = long(faces[iOF][index]);
+            }
+            std::sort(vListOF.begin(), vListOF.end());
+
+            long iDC = long(faceOwner[iOF]);
+            long * bitFaceList = bitCells[iDC].getInterfaces();
+            std::size_t sizeFList = bitCells[iDC].getInterfaceCount();
+
+            long iBIT = bitpit::Interface::NULL_ID;
+            std::size_t j(0);
+            while(iBIT < 0 && j<sizeFList){
+                bitpit::ConstProxyVector<long> vconn = bitInterfaces[bitFaceList[j]].getVertexIds();
+                std::size_t vconnsize = vconn.size();
+                std::vector<long> vListBIT(vconn.begin(), vconn.end());
+                std::sort(vListBIT.begin(), vListBIT.end());
+
+                if(std::equal(vListBIT.begin(), vListBIT.end(), vListOF.begin()) ){
+                    iBIT = bitFaceList[j];
+                }else{
+                    ++j;
+                }
+            }
+            m_OFbitpitmapfaces.insert(std::make_pair(long(iOF),iBIT) );
+        }
+#if MIMMO_ENABLE_MPI
+    }
+#endif
 
 	//finally store bulk mesh in the internal bulk member of the class (from MimmoFvMesh);
     m_bulk = MimmoSharedPointer<MimmoObject>(new MimmoObject(2, mesh));
+    m_bulk->update();
 
 	//from MimmoFvMesh protected utilities, create the raw boundary mesh, storing it in m_boundary internal member.
 	//PID will be every where 0. Need to be compiled to align with patch division of foamBoundaryMesh.
@@ -617,7 +634,7 @@ IOOFOAM::read(){
 	long endIndex;
 
 	forAll(foamBMesh, iBoundary){
-		PID = long(iBoundary+1);
+		long PID = long(iBoundary+1);
 		startIndex = foamBMesh[iBoundary].patch().start();
 		endIndex = startIndex + long(foamBMesh[iBoundary].patch().size());
         for(long ind=startIndex; ind<endIndex; ++ind){
@@ -626,7 +643,9 @@ IOOFOAM::read(){
         m_boundary->setPIDName(PID,foamBMesh[iBoundary].name().c_str());
 	}
 	m_boundary->resyncPID();
-	//minimo sindacale fatto.
+
+	m_boundary->update();
+
 	return true;
 
 }
@@ -654,7 +673,15 @@ IOOFOAM::writePointsOnly(){
 
 	dvecarr3E points = getGeometry()->getVerticesCoords();
 
-	return foamUtilsNative::writePointsOnCase(m_path.c_str(), points, m_overwrite);
+#if MIMMO_ENABLE_MPI
+    // Only master rank writes the mesh
+    if (getRank() == 0)
+    {
+#endif
+        return foamUtilsNative::writePointsOnCase(m_path.c_str(), points, m_overwrite);
+#if MIMMO_ENABLE_MPI
+    }
+#endif
 }
 
 /*
@@ -827,35 +854,49 @@ IOOFOAMScalarField::read(){
 	Foam::fvMesh *foamMesh = 0;
 	foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh);
 
+#if MIMMO_ENABLE_MPI
+    // Only master rank reads the field
+    if (getRank() == 0)
+    {
+#endif
+        if ( getGeometry() != nullptr){
+            std::size_t size;
+            std::vector<double> field;
+            foamUtilsNative::readScalarField(m_path.c_str(), m_fieldname.c_str(), -1, size, field);
+            m_field.clear();
+            m_field.reserve(size);
 
-	if ( getGeometry() != nullptr){
-		std::size_t size;
-		std::vector<double> field;
-		foamUtilsNative::readScalarField(m_path.c_str(), m_fieldname.c_str(), -1, size, field);
-		m_field.clear();
-		m_field.reserve(size);
+            auto itfield = field.begin();
+            for (bitpit::Cell & cell : getGeometry()->getCells()){
+                m_field.insert(cell.getId(), *itfield);
+                itfield++;
+            }
+        }
+#if MIMMO_ENABLE_MPI
+    }
+#endif
 
-		auto itfield = field.begin();
-		for (bitpit::Cell & cell : getGeometry()->getCells()){
-			m_field.insert(cell.getId(), *itfield);
-			itfield++;
-		}
-		m_field.setGeometry(getGeometry());
-		//Data on cells
-		m_field.setDataLocation(2);
+    m_field.setGeometry(getGeometry());
+    //Data on cells
+    m_field.setDataLocation(2);
 
-		//TODO ADD CELL TO POINT INTERPOLATION
+    //TODO ADD CELL TO POINT INTERPOLATION
 
-	}
+    // Read boundary field
+    dmpvector1D boundaryFieldOnFace;
 
-	//One field stored.
+#if MIMMO_ENABLE_MPI
+    // Only master rank reads the field
+    if (getRank() == 0)
+    {
+#endif
+        //One field stored.
 	if ( getBoundaryGeometry() != nullptr ){
 
 		const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
 		long startIndex;
 
 		std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
-		dmpvector1D boundaryFieldOnFace;
 		for (long pid : pids){
 			if (pid > 0){
 				std::size_t size = 0;
@@ -887,10 +928,14 @@ IOOFOAMScalarField::read(){
 				}
 			}
 		}
-		boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
-		boundaryFieldOnFace.setDataLocation(1);
-		foamUtilsNative::interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
 	}
+#if MIMMO_ENABLE_MPI
+    }
+#endif
+
+    boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
+    boundaryFieldOnFace.setDataLocation(1);
+    foamUtilsNative::interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
 
 	//TODO exception for null or empty geometries and return false for error during reading
 	return true;
@@ -1081,57 +1126,77 @@ IOOFOAMVectorField::read(){
 	//read mesh from OpenFoam case directory
 	foamUtilsNative::initializeCase(m_path.c_str(), &foamRunTime, &foamMesh);
 
-	if ( getGeometry() != nullptr){
-		std::size_t size;
-		std::vector<std::array<double,3>> field;
-		foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), -1, size, field);
-		m_field.clear();
-		m_field.reserve(size);
+#if MIMMO_ENABLE_MPI
+    // Only master rank reads the field
+    if (getRank() == 0)
+    {
+#endif
+        if ( getGeometry() != nullptr){
+            std::size_t size;
+            std::vector<std::array<double,3>> field;
+            foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), -1, size, field);
+            m_field.clear();
+            m_field.reserve(size);
 
-		auto itfield = field.begin();
-		for (bitpit::Cell & cell : getGeometry()->getCells()){
-			m_field.insert(cell.getId(), *itfield);
-			itfield++;
-		}
-		m_field.setGeometry(getGeometry());
-		m_field.setDataLocation(2);
-	}
+            auto itfield = field.begin();
+            for (bitpit::Cell & cell : getGeometry()->getCells()){
+                m_field.insert(cell.getId(), *itfield);
+                itfield++;
+            }
+        }
+#if MIMMO_ENABLE_MPI
+    }
+#endif
 
-	//One field stored.
-	if ( getBoundaryGeometry() != nullptr ){
+    m_field.setGeometry(getGeometry());
+    m_field.setDataLocation(2);
 
-		const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
-		long startIndex;
+    // Read boundary field
+    dmpvecarr3E boundaryFieldOnFace;
 
-		std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
-		dmpvecarr3E boundaryFieldOnFace;
-		for (long pid : pids){
-			if (pid > 0){
-				std::size_t size = 0;
-				std::vector<std::array<double,3>> field;
-				foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), pid-1, size, field);
-				boundaryFieldOnFace.reserve(boundaryFieldOnFace.size() + size);
-				if (size > 0){
-					long iBoundary = pid-1;
-					startIndex = foamBMesh[iBoundary].start();
-					long ind = startIndex;
-					for (std::array<double,3> val : field){
-						boundaryFieldOnFace.insert(m_OFbitpitmapfaces[ind], val);
-						ind++;
-					}
-				}
-				else{
-					for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
-						if (cell.getPID() == pid)
-							boundaryFieldOnFace.insert(cell.getId(), {{0.,0.,0.}});
-					}
-				}
-			}
-		}
-		boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
-		boundaryFieldOnFace.setDataLocation(1);
-		foamUtilsNative::interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
-	}
+#if MIMMO_ENABLE_MPI
+    // Only master rank reads the field
+    if (getRank() == 0)
+    {
+#endif
+        //One field stored.
+        if ( getBoundaryGeometry() != nullptr ){
+
+            const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
+            long startIndex;
+
+            std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
+            for (long pid : pids){
+                if (pid > 0){
+                    std::size_t size = 0;
+                    std::vector<std::array<double,3>> field;
+                    foamUtilsNative::readVectorField(m_path.c_str(), m_fieldname.c_str(), pid-1, size, field);
+                    boundaryFieldOnFace.reserve(boundaryFieldOnFace.size() + size);
+                    if (size > 0){
+                        long iBoundary = pid-1;
+                        startIndex = foamBMesh[iBoundary].start();
+                        long ind = startIndex;
+                        for (std::array<double,3> val : field){
+                            boundaryFieldOnFace.insert(m_OFbitpitmapfaces[ind], val);
+                            ind++;
+                        }
+                    }
+                    else{
+                        for (bitpit::Cell cell : getBoundaryGeometry()->getCells()){
+                            if (cell.getPID() == pid)
+                                boundaryFieldOnFace.insert(cell.getId(), {{0.,0.,0.}});
+                        }
+                    }
+                }
+            }
+        }
+#if MIMMO_ENABLE_MPI
+    }
+#endif
+
+    boundaryFieldOnFace.setGeometry(getBoundaryGeometry());
+    boundaryFieldOnFace.setDataLocation(1);
+    foamUtilsNative::interpolateFaceToPoint(boundaryFieldOnFace, m_boundaryField);
 
 	//TODO exception for null or empty geometries and return false for error during reading
 	return true;
