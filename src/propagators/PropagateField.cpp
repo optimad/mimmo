@@ -978,8 +978,8 @@ PropagateVectorField::computeSlipBCCorrector(const MimmoPiercedVector<std::array
         //loop on surface points.
         for(auto it = m_slip_bc_dir.begin(); it != m_slip_bc_dir.end(); ++it){
             long idV = it.getId();
-            std::array<double,3> point = m_geometry->getVertexCoords(idV) + *it;
-            projectionVector[idV] = bitpit::CGElem::projectPointPlane(point, m_AVGslipCenter, m_AVGslipNormal) - point;
+            std::array<double,3> point = m_geometry->getVertexCoords(idV);
+            projectionVector[idV] = bitpit::CGElem::projectPointPlane(point+*it, m_AVGslipCenter, m_AVGslipNormal) - point;
         }
 
     }else{
