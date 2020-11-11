@@ -145,6 +145,8 @@ IOCGNS::setDefaults(){
     m_elementsSectionName[static_cast<int>(CGNS_ENUMV(TRI_3))]   = "Elem_tri";
     m_elementsSectionName[static_cast<int>(CGNS_ENUMV(QUAD_4))]  = "Elem_quad";
 
+    m_tolerance = 1.0e-10;
+
 }
 
 /*!
@@ -392,6 +394,14 @@ void    IOCGNS::setWritingMultiZone(bool multizone){
     m_multizone = false;
 }
 
+/*!
+ * Set geometric tolerance used to perform geometric operations on the mimmo object.
+ * param[in] tol input geometric tolerance
+ */
+void
+IOCGNS::setTolerance(double tol){
+    m_tolerance = std::max(1.0e-15, tol);
+}
 
 /*!Execution command.
  * It reads the geometry if the condition m_read is true.
@@ -1119,6 +1129,12 @@ IOCGNS::read(const std::string & file){
     communicateAllProcsStoredBC();
 #endif
 
+    // Set Tolerance
+    m_volmesh->setTolerance(m_tolerance);
+
+    // Set Tolerance
+    m_surfmesh->setTolerance(m_tolerance);
+
     // Update volmesh
     m_volmesh->update();
 
@@ -1471,6 +1487,17 @@ IOCGNS::absorbSectionXML(const bitpit::Config::Section & slotXML, std::string na
         };
         setWritingMultiZone(value);
     };
+
+    if(slotXML.hasOption("Tolerance")){
+        input = slotXML.get("Tolerance");
+        double value = 1.0e-10;
+        if(!input.empty()){
+            std::stringstream ss(bitpit::utils::string::trim(input));
+            ss >> value;
+            setTolerance(value);
+        }
+    };
+
 };
 
 /*!
@@ -1491,6 +1518,10 @@ IOCGNS::flushSectionXML(bitpit::Config::Section & slotXML, std::string name){
     slotXML.set("WriteInfo", std::to_string(int(m_writeOnFile)));
     slotXML.set("WriteFormat", std::to_string(static_cast<int>(whatWritingFormat())));
     slotXML.set("WriteMultiZone", std::to_string(int(isWritingMultiZone())));
+
+    std::stringstream ss;
+    ss<<std::scientific<<m_tolerance;
+    slotXML.set("Tolerance", ss.str());
 
 };
 
