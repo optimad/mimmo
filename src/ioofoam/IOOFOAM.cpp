@@ -476,11 +476,8 @@ IOOFOAM::read(){
 	Foam::fvMesh *foamMesh = 0;
 
     //prepare my bulk geometry container
-    bitpit::PatchKernel* mesh(new mimmo::MimmoVolUnstructured(3));
-    mesh->partition(getCommunicator(), false);
-
-    mesh->initializeAdjacencies();
-    mesh->initializeInterfaces();
+    m_bulk = MimmoSharedPointer<MimmoObject>(new MimmoObject(2));
+    MimmoSharedPointer<MimmoObject> mesh = m_bulk;
 
 #if MIMMO_ENABLE_MPI
     // Only master rank 0 reads the mesh
@@ -533,7 +530,6 @@ IOOFOAM::read(){
                     temp[loc] = (long)cellShapes[iC][loc];
                 }
                 conn = foamUtilsNative::mapEleVConnectivity(temp, eltype);
-
             }else{
 
                 eltype = bitpit::ElementType::POLYHEDRON;
@@ -616,8 +612,6 @@ IOOFOAM::read(){
     }
 #endif
 
-	//finally store bulk mesh in the internal bulk member of the class (from MimmoFvMesh);
-    m_bulk = MimmoSharedPointer<MimmoObject>(new MimmoObject(2, mesh));
     m_bulk->update();
 
 	//from MimmoFvMesh protected utilities, create the raw boundary mesh, storing it in m_boundary internal member.
@@ -638,13 +632,16 @@ IOOFOAM::read(){
 		startIndex = foamBMesh[iBoundary].patch().start();
 		endIndex = startIndex + long(foamBMesh[iBoundary].patch().size());
         for(long ind=startIndex; ind<endIndex; ++ind){
-			m_boundary->setPIDCell(m_OFbitpitmapfaces[ind], PID);
+            m_boundary->setPIDCell(m_OFbitpitmapfaces[ind], PID);
 		}
         m_boundary->setPIDName(PID,foamBMesh[iBoundary].name().c_str());
 	}
 	m_boundary->resyncPID();
 
 	m_boundary->update();
+
+	// Destroy interfaces to save memory
+	m_bulk->destroyInterfaces();
 
 	return true;
 
@@ -892,13 +889,11 @@ IOOFOAMScalarField::read(){
 #endif
         //One field stored.
 	if ( getBoundaryGeometry() != nullptr ){
-
 		const Foam::fvBoundaryMesh &foamBMesh = foamMesh->boundary();
 		long startIndex;
-
 		std::unordered_set<long> pids = getBoundaryGeometry()->getPIDTypeList();
 		for (long pid : pids){
-			if (pid > 0){
+		    if (pid > 0){
 				std::size_t size = 0;
 				std::vector<double> field;
 				foamUtilsNative::readScalarField(m_path.c_str(), m_fieldname.c_str(), pid-1, size, field);
