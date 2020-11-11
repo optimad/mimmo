@@ -130,6 +130,7 @@ private:
  * - <B>WriteInfo</B>: boolean (1/0) write on file zoneNames, bcNames, either in reading and writing mode. The save directory path is specified with Dir.
  * - <B>WriteFormat</B>: writing format supported by the class, see IOCGNS_WriteType enum
  * - <B>WriteMultiZone</B>: 0- write single zone, 1- write multizone(if multi zone are available in the mesh).
+ * - <B>Tolerance</B>:value of the geometric tolerance to be used;
  *
  * Geometry has to be mandatorily read or passed through port.
  *
@@ -190,6 +191,8 @@ public:
     void            setWritingMultiZone(bool multizone);
     void            setWriteOnFileMeshInfo(bool write);
 
+    void            setTolerance(double tol);
+
     void            execute();
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
@@ -242,6 +245,9 @@ private:
 
     bool    m_writeOnFile;                                  /**! write mesh info on file */
     std::unordered_map<int, std::string> m_elementsSectionName;  /**< facility to giv name to group of elements in writing mode*/
+
+    double      m_tolerance;                /**<Geometric tolerance of the related geometry. */
+
 };
 
 

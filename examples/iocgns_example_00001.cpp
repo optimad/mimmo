@@ -57,6 +57,7 @@ void example00001() {
 	mimmo::IOCGNS * cgnsI = new mimmo::IOCGNS(mimmo::IOCGNS::IOCGNS_Mode::READ);
     cgnsI->setDir("geodata");
     cgnsI->setFilename("grid");
+    cgnsI->setTolerance(1.0e-12);
 
     /* Create IO_CGNS object to export output file. */
     mimmo::IOCGNS * cgnsO = new mimmo::IOCGNS(mimmo::IOCGNS::IOCGNS_Mode::WRITE);
