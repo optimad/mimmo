@@ -183,7 +183,6 @@ MPVGradientUPtr   computeFVCellGradientStencil(MimmoSharedPointer<MimmoObject> g
         }
 
         it->addComplementToZero(cellID); // adding the central node weight as minus sum of other weights.
-        it->flatten();
 
     }
     return result;
@@ -345,16 +344,13 @@ MPVGradientUPtr   updateFVFaceGradientStencil(MimmoSharedPointer<MimmoObject> ge
             //xxxCentroid.
             ownerProjStencil.appendItem(ownerID, 1.0);
             ownerProjStencil += dotProduct(ownerStencil, ownerProjection-ownerCentroid);
-            ownerProjStencil.flatten();
 
             neighProjStencil.appendItem(neighID, 1.0);
             neighProjStencil += dotProduct(neighStencil, neighProjection-neighCentroid);
-            neighProjStencil.flatten();
 
             //calculate stencil @ interface as the plain average of owner and neigh ccell
             // gradient stencil
             avgStencil = 0.5*(ownerStencil + neighStencil);
-            avgStencil.flatten();
             // push it in MPV.
             auto it = result->insert(interfid, avgStencil);
 
@@ -655,7 +651,6 @@ MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, dou
     	if (geo->isPointInterior(id))
     	{
     		result->at(id).addComplementToZero(id); // adding the central node weight as minus sum of other weights.
-    		result->at(id).flatten();
     	}
     }
 
@@ -742,7 +737,6 @@ MPVStencilUPtr computeLaplacianStencils(MimmoSharedPointer<MimmoObject> geo, std
     	if (geo->isPointInterior(id))
     	{
     		result->at(id).addComplementToZero(id); // adding the central node weight as minus sum of other weights.
-    		result->at(id).flatten();
     	}
     }
 
