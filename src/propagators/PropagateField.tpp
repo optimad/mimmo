@@ -1000,16 +1000,16 @@ PropagateField<NCOMP>::updateNarrowBand(){
         double correction_new = 0.0;
         //the last one is the point idT itself carrying the complement weight.
         for (std::size_t i=0; i<size-1; ++i){
-            long &idL = loc_stencil.rawGetPattern(i);
+            long &idL = loc_stencil.patternData()[i];
             if(!m_banddistances.exists(idL))         continue;
             if(m_banddistances.at(idL) > localdist ){
-                correction_old += loc_stencil.rawGetWeight(i);
-                loc_stencil.rawGetWeight(i) *= m_bandrelax; // use here the band relaxation factor.
-                correction_new += loc_stencil.rawGetWeight(i);
+                correction_old += loc_stencil.weightData()[i];
+                loc_stencil.weightData()[i] *= m_bandrelax; // use here the band relaxation factor.
+                correction_new += loc_stencil.weightData()[i];
             }
 
         }
-        loc_stencil.rawGetWeight(size-1) += (correction_old - correction_new); //(-sum(w_i) + sum(w_excluded) - sum_recalc );
+        loc_stencil.weightData()[size-1] += (correction_old - correction_new); //(-sum(w_i) + sum(w_excluded) - sum_recalc );
     }
 }
 
