@@ -47,6 +47,6 @@
 #include "RotationAxes.hpp"
 #include "SpecularPoints.hpp"
 #include "TranslationPoint.hpp"
-
+#include "AABBox.hpp"
 
 #endif
