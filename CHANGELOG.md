@@ -5,17 +5,20 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Fixed
+- fixed get bounding box method of MimmoObject for parallel support
 - fixed copy during compilation of binary samples additional files
 - various bug fixes
 ### Added
+- added parallel SkdTreeUtils: use new parallel version of SkdTree of bitpit library
 - restored name in MimmoPiercedVector objects
 - new methods to write geometries with several and different kind of fields (scalar/vector, defined on points/cells) added to BaseManipulation class
 - added geometric tolerance to mimmo objects
 - added use of geometric tolerance and cleaning flag during reading with MimmoGeometry objects
-- Added RefineGeometry class to handle refinement of surface mesh: ternary and red-green engines provided for triangular based meshes
-- Added IOWaveFrontOBJ to handle input/output of surface mesh in Wavefront OBJ format. Enabled class ManipulateWFOBJData to manipulate data attached to the OBJ mesh (texture, normal fields, cell groups)
-- Added new feature to MRBF manipulator class, i.e. the possibility to handle RBF node set with variable support radii.
+- added RefineGeometry class to handle refinement of surface mesh: ternary and red-green engines provided for triangular based meshes
+- added IOWaveFrontOBJ to handle input/output of surface mesh in Wavefront OBJ format. Enabled class ManipulateWFOBJData to manipulate data attached to the OBJ mesh (texture, normal fields, cell groups)
+- added new feature to MRBF manipulator class, i.e. the possibility to handle RBF node set with variable support radii.
 ### Changed
+- update MimmoGeometry to export geometry object in a unique STL file during parallel processes
 - Geometry container MimmoObject through MimmoSharedPointer: use custom mimmo smart pointer to exchange geometries through ports or set/get method of blocks interfaces.
 - modified plotOptionalResults methods in some classes to use the new write function of base class
 - Point Cloud geometries now build the cell too. The cells are defined as bitpit::VERTEX type elements.
