@@ -3,11 +3,14 @@ All notable changes to **mimmo** project will be documented in this file.
 
 This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 
+
 ## Unreleased
+
 ### Fixed
 - fixed get bounding box method of MimmoObject for parallel support
 - fixed copy during compilation of binary samples additional files
 - various bug fixes
+
 ### Added
 - added parallel SkdTreeUtils: use new parallel version of SkdTree of bitpit library
 - restored name in MimmoPiercedVector objects
@@ -16,19 +19,28 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - added use of geometric tolerance and cleaning flag during reading with MimmoGeometry objects
 - added RefineGeometry class to handle refinement of surface mesh: ternary and red-green engines provided for triangular based meshes
 - added IOWaveFrontOBJ to handle input/output of surface mesh in Wavefront OBJ format. Enabled class ManipulateWFOBJData to manipulate data attached to the OBJ mesh (texture, normal fields, cell groups)
-- added new feature to MRBF manipulator class, i.e. the possibility to handle RBF node set with variable support radii.
+- added new feature to MRBF manipulator class, i.e. the possibility to handle RBF node set with variable support radii
+- added MPI parallel support for the library (I/O not completely supported in parallel)
+- added synchronization status to info and structures stored in mimmo object
+- added update method in mimmo object
+
 ### Changed
 - update MimmoGeometry to export geometry object in a unique STL file during parallel processes
-- Geometry container MimmoObject through MimmoSharedPointer: use custom mimmo smart pointer to exchange geometries through ports or set/get method of blocks interfaces.
+- Geometry container MimmoObject through MimmoSharedPointer: use custom mimmo smart pointer to exchange geometries through ports or set/get method of blocks interfaces
 - modified plotOptionalResults methods in some classes to use the new write function of base class
-- Point Cloud geometries now build the cell too. The cells are defined as bitpit::VERTEX type elements.
+- Point Cloud geometries now build the cell too. The cells are defined as bitpit::VERTEX type elements
 - introducing SelectField blocks, instead of SwitchField blocks for selecting a field in a block chain
 - reworked IOCLoudPoints class: interface enhanced
-- general cmake enhanced to retrack more robustly mimmo external dependencies.
-### Removed
-- SwitchField classes removed.
+- general cmake enhanced to retrack more robustly mimmo external dependencies
+- Proj3DCurveOnSurface and ProjCloudOnSurface are now replaced by ProjPatchOnSurface
 
- ## [1.3.0] - 2019-10-25
+### Removed
+- removed SwitchField classes
+- removed I/O OpenFOAM points from MimmoGeometry class
+
+
+## [1.3.0] - 2019-10-25
+ 
 ### Fixed
 - fixed cmake retracking dependancies (as in case of bitpit v.1.6.0).
 - fixed BasicShape: XML interface.
