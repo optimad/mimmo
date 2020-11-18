@@ -76,7 +76,6 @@ if(BUILD_EXAMPLES)
     list(APPEND EXAMPLE_LIST "genericinput_example_00002")
     list(APPEND EXAMPLE_LIST "genericinput_example_00003")
     list(APPEND EXAMPLE_LIST "genericinput_example_00004")
-    list(APPEND EXAMPLE_LIST "genericinput_example_00005")
 
 
     #0
@@ -91,6 +90,7 @@ if(BUILD_EXAMPLES)
 
     #4
     if (MODULE_UTILS_ENABLED)
+        list(APPEND EXAMPLE_LIST "genericinput_example_00005")
         list(APPEND EXAMPLE_LIST "manipulators_example_00006")
         list(APPEND EXAMPLE_LIST "manipulators_example_00007")
         list(APPEND EXAMPLE_LIST "utils_example_00001")
