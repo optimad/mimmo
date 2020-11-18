@@ -1497,13 +1497,7 @@ bool
 MimmoObject::isPointInterior(long id)
 {
 #if MIMMO_ENABLE_MPI
-
-	//If not partitioned return true
-	if (!isDistributed())
-		return true;
-
-	return m_isPointInterior.at(id);
-
+	return getPatch()->getVertex(id).isInterior();
 #else
 	return true;
 #endif
@@ -1573,7 +1567,7 @@ MimmoObject::isParallel()
  */
 const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExchangeTargets() const
 {
-	return m_pointGhostExchangeTargets;
+    return getPatch()->getGhostVertexExchangeTargets();
 }
 
 /*!
@@ -1584,7 +1578,7 @@ const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExc
  */
 const std::unordered_map<int, std::vector<long>> & MimmoObject::getPointGhostExchangeSources() const
 {
-	return m_pointGhostExchangeSources;
+    return getPatch()->getGhostVertexExchangeSources();
 }
 
 
@@ -1607,248 +1601,12 @@ MimmoObject::getPointGhostExchangeInfoSyncStatus()
 void MimmoObject::updatePointGhostExchangeInfo()
 {
 
-    // Clear targets
-    m_pointGhostExchangeTargets.clear();
-
-    // Clear sources
-    m_pointGhostExchangeSources.clear();
-
-    //Clear interior points structure
-    m_isPointInterior.clear();
-
-    //Clear point owners structure
-    m_pointOwner.clear();
-
-    //Initialize point rank involved structure
-    std::unordered_map<long, std::set<int>> pointRankInvolved;
-
-    //Start update structure
-
-    //Fill interior points structure
-    //Initialize as interior all the local nodes
-    // Initialize as unkown the point owners
-    for (long id : getVertices().getIds()){
-        m_isPointInterior[id] = true;
-        m_pointOwner[id] = m_rank;
-        pointRankInvolved[id].insert(m_rank);
-    }
-
-
-    //Start update structure if distributed and not a point cloud
-    if (isDistributed() && getType() != 3){
-
-        // Build skdtree if not built
-        if (getSkdTreeSyncStatus() != SyncStatus::SYNC){
-            buildSkdTree();
-        }
-
-        // Initialize count targets
-        std::unordered_map<long, int> countTargets;
-        for (int irank = 0; irank < getProcessorCount(); irank++){
-            countTargets[irank] = 0;
-        }
-
-        // Initialize structure to check vertices already visited
-        std::unordered_map<long, bool> visited;
-        for (const bitpit::Vertex & vertex : getVertices()){
-            long vertexId = vertex.getId();
-            visited[vertexId] = false;
-        }
-
-        // Set as not interior the nodes shared with ghosts
-        // with owner rank lower than the local one and shared
-        // only between ghosts
-        //for (const bitpit::Vertex & vertex : getVertices()){
-        for (const bitpit::Cell & cell : getCells()){
-
-            long cellId = cell.getId();
-
-            int cellRank = getPatch()->getCellRank(cellId);
-
-            for (int ivertex = 0; ivertex < cell.getVertexCount(); ivertex++){
-
-                long vertexId = cell.getVertexIds()[ivertex];
-
-                if (!visited[vertexId]){
-                        // If not visited and ghost cell initialize owner to max integer
-                        m_pointOwner.at(vertexId) = std::numeric_limits<int>::max();
-
-                        // Set is visited by ghost
-                        visited[vertexId] = true;
-                }
-
-                pointRankInvolved[vertexId].insert(cellRank);
-
-                int & pointowner = m_pointOwner.at(vertexId);
-
-                pointowner = std::min(pointowner, cellRank);
-
-                // If the owner is the current rank everything is set
-                if (pointowner != m_rank){
-                    // Set as not interior
-                    m_isPointInterior[vertexId] = false;
-                }
-                else{
-                    m_isPointInterior[vertexId] = true;
-                }
-
-            } // end loop on local vertices
-        } // end loop on cells
-
-        // All the nodes shared with local rank knwos their owners
-        // I can communicate the owner of the nodes of the ghost cells
-        // and substitue the owner if before was set to -1 value;
-
-        {
-            size_t pointOwnerDataSize = sizeof(int);
-            size_t pointInvolvedDataSize = sizeof(int);
-            std::unique_ptr<bitpit::DataCommunicator> dataCommunicator;
-            dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
-
-            // Set and start the sends
-            for (const auto entry : getPatch()->getGhostCellExchangeSources()) {
-                const int rank = entry.first;
-                auto &list = entry.second;
-                // Recover number of vertices
-                int VertexCount = 0;
-                for (long cellId : list){
-                    VertexCount += getPatch()->getCell(cellId).getVertexCount();
-                }
-
-                // Recover number of involved rank per vertex
-                int involvedCount = 0;
-                for (long cellId : list){
-                    for (long vertexId : getPatch()->getCell(cellId).getVertexIds()){
-                        involvedCount += pointRankInvolved[vertexId].size();
-                    }
-                }
-                dataCommunicator->setSend(rank, VertexCount * pointOwnerDataSize + VertexCount * sizeof(int) + involvedCount * pointInvolvedDataSize);
-                bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
-                // Fill the buffer with the point owner of the vertices of each source cell
-                // Note. Some nodes will be repeated, but they have the same values
-                for (long cellId : list){
-                    for (long vertexId : getPatch()->getCell(cellId).getVertexIds()){
-                        int owner = m_pointOwner[vertexId];
-                        buffer << owner;
-                        int nInvolved = pointRankInvolved[vertexId].size();
-                        buffer << nInvolved;
-                        for (int rankInvolved : pointRankInvolved[vertexId]){
-                            buffer << rankInvolved;
-                        }
-                    }
-                }
-                dataCommunicator->startSend(rank);
-            }
-
-            // Discover & start all the receives
-            dataCommunicator->discoverRecvs();
-            dataCommunicator->startAllRecvs();
-
-            // Receive the owner of the ghosts
-            int nCompletedRecvs = 0;
-
-            while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
-                int rank = dataCommunicator->waitAnyRecv();
-                const auto &list = getPatch()->getGhostCellExchangeTargets(rank);
-                bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
-                // Fill the owner from the buffer values with the point owner of
-                // the vertices of each target cell only if the current point owner is -1
-                for (long cellId : list){
-                    for (long vertexId : getPatch()->getCell(cellId).getVertexIds()){
-                        int owner;
-                        buffer >> owner;
-                        int & currentOwner = m_pointOwner[vertexId];
-                        // If current owner is current rank the point is shared and not to be corrected
-                        if (currentOwner != m_rank && currentOwner > owner){
-                            currentOwner = owner;
-                        }
-                        int nInvolved;
-                        buffer >> nInvolved;
-                        // Insert new involved ranks
-                        for (int i = 0; i < nInvolved; i++){
-                            int rank;
-                            buffer >> rank;
-                            pointRankInvolved[vertexId].insert(rank);
-                        }
-                    }
-                }
-                ++nCompletedRecvs;
-            }
-            // Wait for the sends to finish
-            dataCommunicator->waitAllSends();
-
-        } //End communicate point owners
-
-        // Fill source and targets with the correct ranks
-
-        // Fill the target with the received owners
-        for (long id : getVertices().getIds()){
-            int owner = m_pointOwner[id];
-            countTargets[owner]++;
-        }
-        for (int irank = 0; irank < getProcessorCount(); irank++){
-            m_pointGhostExchangeTargets[irank].reserve(countTargets[irank]);
-        }
-        for (long id : getVertices().getIds()){
-            int owner = m_pointOwner[id];
-            if (owner != m_rank){
-                m_pointGhostExchangeTargets[owner].push_back(id);
-            }
-        }
-
-        // Fill the source of all the involved ranks in points owned by local rank
-
-        // Collect involved rank for each point by insert the involved rank of the whole cell
-        std::unordered_map<long, std::set<int>> cellRankInvolved;
-        for (bitpit::Cell & cell : getCells()){
-            std::set<int> involveds;
-            for (long vertexId : cell.getVertexIds()){
-                involveds.insert(pointRankInvolved[vertexId].begin(), pointRankInvolved[vertexId].end());
-            }
-            cellRankInvolved[cell.getId()] = involveds;
-        }
-
-        // Store sources temporary in a set to avoid double insertion
-        {
-            std::unordered_map<int, std::set<long>> set_pointGhostExchangeSources;
-            for (bitpit::Cell & cell : getCells()){
-                for (long vertexId : cell.getVertexIds()){
-                    int owner = m_pointOwner[vertexId];
-                    if (owner == m_rank){
-                        for (int involved : cellRankInvolved[cell.getId()]){
-                            if (involved != m_rank){
-                                set_pointGhostExchangeSources[involved].insert(vertexId);
-                            }
-                        }
-                    }
-                }
-            }
-            // Fill point exchange source by set
-            for (int irank = 0; irank < getProcessorCount(); irank++){
-                m_pointGhostExchangeSources[irank].assign(set_pointGhostExchangeSources[irank].begin(), set_pointGhostExchangeSources[irank].end());
-            }
-        }
-
-        // Sort the targets
-        for (auto &entry : m_pointGhostExchangeTargets) {
-            std::vector<long> &rankTargets = entry.second;
-            std::sort(rankTargets.begin(), rankTargets.end(), VertexPositionLess(*this));
-        }
-
-        // Sort the sources
-        for (auto &entry : m_pointGhostExchangeSources) {
-            std::vector<long> &rankSources = entry.second;
-            std::sort(rankSources.begin(), rankSources.end(), VertexPositionLess(*this));
-        }
-
-    } // end if distributed
-
-
     //Update n interior vertices
     m_ninteriorvertices = 0;
-    for (auto &entry : m_isPointInterior){
-        if (entry.second)
+    for (long vertexId : getVerticesIds()){
+        if (isPointInterior(vertexId)){
             m_ninteriorvertices++;
+        }
     }
 
     //Update n global vertices
@@ -1874,8 +1632,8 @@ void MimmoObject::updatePointGhostExchangeInfo()
     m_pointConsecutiveId.clear();
     long consecutiveId = m_globaloffset;
     //Insert owned vertices
-    for (const long & id : getVertices().getIds()){
-        if (m_isPointInterior.at(id)){
+    for (const long & id : getVerticesIds()){
+        if (isPointInterior(id)){
             m_pointConsecutiveId[id] = consecutiveId;
             consecutiveId++;
         }
@@ -1891,7 +1649,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
         dataCommunicator = std::unique_ptr<bitpit::DataCommunicator>(new bitpit::DataCommunicator(getCommunicator()));
 
         // Set and start the sends
-        for (const auto entry : m_pointGhostExchangeSources) {
+        for (const auto entry : getPointGhostExchangeSources()) {
             const int rank = entry.first;
             auto &list = entry.second;
             dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
@@ -1914,7 +1672,7 @@ void MimmoObject::updatePointGhostExchangeInfo()
         int nCompletedRecvs = 0;
         while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
             int rank = dataCommunicator->waitAnyRecv();
-            const auto &list = m_pointGhostExchangeTargets[rank];
+            const auto &list = getPointGhostExchangeTargets().at(rank);
             bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
             for (long id : list) {
                 buffer >> consecutiveId;
@@ -1938,15 +1696,6 @@ void MimmoObject::updatePointGhostExchangeInfo()
  */
 void MimmoObject::resetPointGhostExchangeInfo()
 {
-	// Clear targets
-	m_pointGhostExchangeTargets.clear();
-
-	// Clear sources
-	m_pointGhostExchangeSources.clear();
-
-	//Clear interior points structure
-	m_isPointInterior.clear();
-
 	//Update n interior vertices
 	m_ninteriorvertices = 0;
 

@@ -153,13 +153,8 @@ protected:
 	long						m_nglobalvertices = 0;						/**< Global number of vertices.*/
 	std::vector<long>			m_rankinteriorvertices;						/**< Number of interior vertices for each rank.*/
 	long						m_globaloffset;								/**< Points offset for local partition.*/
-	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeTargets;	/**< List of Ids of the local ghost points that are local points for each other processor.*/
-	std::unordered_map<int, std::vector<long>> m_pointGhostExchangeSources;	/**< List of Ids of the local points that are ghost points for each other processor.*/
-    std::unordered_map<long, bool> m_isPointInterior;                       /**< True or False if the current rank is considered the real owner (the lower rank for shared points) or not of the id-th (key) point. */
-    std::unordered_map<long, int> m_pointOwner;                             /**< Owner of the vertices of the object. */
     std::unordered_map<long, long> m_pointConsecutiveId;                    /**< Map id->consecutive id for vertices. */
 	SyncStatus					m_pointGhostExchangeInfoSync;				/**< Synchronization status of point ghost exchange info along with geometry modifications */
-
 #endif
 
  	bitpit::PatchNumberingInfo	m_patchInfo;			/**< Patch Numbering Info structure for cells.*/
