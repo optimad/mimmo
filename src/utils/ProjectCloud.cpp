@@ -254,6 +254,7 @@ ProjectCloud::execute(){
     skdTreeUtils::projectPoint(npoints, m_points.data(), getGeometry()->getSkdTree(), projs.data(), ids.data());
 #endif
 
+    std::swap(m_proj, projs);
     return;
 };
 
