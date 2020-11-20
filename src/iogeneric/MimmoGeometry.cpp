@@ -508,7 +508,12 @@ MimmoGeometry::write(){
         //action completed, reset m_refPID to zero.
         m_refPID = 0;
     }
-    //writing
+
+    //check writing filetype
+    if (!FileType::_from_integral_nothrow(m_winfo.ftype)){
+        return false;
+    }
+
     switch(FileType::_from_integral(m_winfo.ftype)){
 
     case FileType::STL :
@@ -666,6 +671,11 @@ MimmoGeometry::write(){
  */
 bool
 MimmoGeometry::read(){
+
+    //check reading filetype
+    if (!FileType::_from_integral_nothrow(m_rinfo.ftype)){
+        return false;
+    }
 
     switch(FileType::_from_integral(m_rinfo.ftype)){
 
