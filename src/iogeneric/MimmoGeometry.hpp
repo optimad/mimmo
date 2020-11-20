@@ -133,7 +133,7 @@ enum WFORMAT{
  */
 class MimmoGeometry: public BaseManipulation{
 
-private:
+protected:
     bool         m_read;         /**<If true it reads the geometry from file during the execution.*/
     FileDataInfo m_rinfo;       /**< Info on the external file to read */
 
@@ -226,8 +226,6 @@ protected:
     void swap(MimmoGeometry & x) noexcept;
     void        setIOMode(IOMode mode);
     void        setIOMode(int mode);
-
-private:
     void    setDefaults();
     void    _setRead(bool read = true);
     void    _setWrite(bool write = true);
