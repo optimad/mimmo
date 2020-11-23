@@ -281,7 +281,7 @@ int test1() {
     mimmo::PropagateScalarField * prop = new mimmo::PropagateScalarField();
     prop->setName("test00002_PropagateScalarField");
     prop->setGeometry(mesh);
-    prop->addDirichletBoundarySurface(boundary);
+    prop->addDirichletBoundaryPatch(boundary);
     prop->addDirichletConditions(&bc_surf_field);
     prop->setDamping(false);
     prop->setPlotInExecution(true);

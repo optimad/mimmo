@@ -223,7 +223,7 @@ int test00003() {
 	// Now create a PropagateScalarField and solve the laplacian.
 	mimmo::PropagateVectorField * prop = new mimmo::PropagateVectorField();
 	prop->setGeometry(partition->getGeometry());
-	prop->addDirichletBoundarySurface(partition->getBoundaryGeometry());
+	prop->addDirichletBoundaryPatch(partition->getBoundaryGeometry());
 	prop->addDirichletConditions(&bc_surf_field);
 	prop->setSolverMultiStep(10);
 	prop->setPlotInExecution(true);

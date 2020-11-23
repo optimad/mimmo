@@ -172,7 +172,7 @@ int test1() {
     mimmo::PropagateScalarField * prop = new mimmo::PropagateScalarField();
     prop->setName("test00001_PropagateScalarField");
     prop->setGeometry(mesh);
-    prop->addDirichletBoundarySurface(bdirMesh);
+    prop->addDirichletBoundaryPatch(bdirMesh);
     prop->addDirichletConditions(&bc_surf_field);
     prop->setDamping(false);
     prop->setPlotInExecution(true);
@@ -202,7 +202,7 @@ int test1() {
     mimmo::PropagateVectorField * prop3D = new mimmo::PropagateVectorField();
     prop3D->setName("test00001_PropagateVectorField");
     prop3D->setGeometry(mesh);
-    prop3D->addDirichletBoundarySurface(bdirMesh);
+    prop3D->addDirichletBoundaryPatch(bdirMesh);
     prop3D->addDirichletConditions(&bc_surf_3Dfield);
     prop3D->setDamping(true);
     prop3D->setDampingType(1);

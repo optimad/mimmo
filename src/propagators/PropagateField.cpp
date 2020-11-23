@@ -138,7 +138,6 @@ PropagateScalarField::addDirichletConditions(dmpvector1D * bc){
     //avoid linking null field or field with null geometry inside.
     if (!bc) return;
     if(!bc->getGeometry()) return;
-    if(bc->getGeometry()->getType() != 1) return;
 
     //store it in temporary structure for dirichlet
     m_tempDirichletBcs.push_back(MimmoPiercedVector<std::array<double,1>> (bc->getGeometry(), bc->getDataLocation()));
@@ -149,7 +148,7 @@ PropagateScalarField::addDirichletConditions(dmpvector1D * bc){
     //insert the pointer of the temp structure in the official list of bcs.
     m_dirichletBcs.insert(&m_tempDirichletBcs.back());
     //save also bc geometry in the list of Dirichlet surfaces.
-    m_dirichletSurfaces.insert(m_tempDirichletBcs.back().getGeometry());
+    m_dirichletPatches.insert(m_tempDirichletBcs.back().getGeometry());
 }
 
 /*!
@@ -240,11 +239,11 @@ PropagateScalarField::execute(){
 
     MimmoSharedPointer<MimmoObject> geo = getGeometry();
     if(!geo){
-        (*m_log)<<"Error in "<<m_name<<" .No target volume mesh linked"<<std::endl;
-        throw std::runtime_error("Error in "+m_name+" .No target volume mesh linked");
+        (*m_log)<<"Error in "<<m_name<<" .No target bulk mesh linked"<<std::endl;
+        throw std::runtime_error("Error in "+m_name+" .No target bulk mesh linked");
     }
 
-    if(m_dirichletSurfaces.empty()){
+    if(m_dirichletPatches.empty()){
         (*m_log)<<"Warning in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
     }
 
@@ -269,12 +268,12 @@ PropagateScalarField::execute(){
     //check if damping or narrow band control are active,
     //initialize their reference surfaces and compute them
     if(m_dampingActive){
-        if(m_dampingSurfaces.empty())   m_dampingSurfaces = m_dirichletSurfaces;
+        if(m_dampingSurfaces.empty())   m_dampingSurfaces = m_dirichletPatches;
         initializeUniqueSurface(m_dampingSurfaces, m_dampingUniSurface);
     }
 
     if(m_bandActive){
-        if(m_bandSurfaces.empty())   m_bandSurfaces = m_dirichletSurfaces;
+        if(m_bandSurfaces.empty())   m_bandSurfaces = m_dirichletPatches;
         initializeUniqueSurface(m_bandSurfaces, m_bandUniSurface);
     }
 
@@ -288,13 +287,20 @@ PropagateScalarField::execute(){
     // Graph Laplace method on points
 
     //store the id of the border nodes only;
-    livector1D borderPointsID = geo->extractBoundaryVertexID(false);
+    //TODO extract boundary vertex ID as unordered_set
+    livector1D borderPointsID_vector = geo->extractBoundaryVertexID(false);
+    std::unordered_set<long> borderPointsID(borderPointsID_vector.begin(), borderPointsID_vector.end());
 
     //get this inverse map -> you will need it to compact the stencils.
     dataInv = geo->getMapDataInv(true);
 
     //pass dirichlet bc point information to bulk m_bc_dir member.
     distributeBCOnBoundaryPoints();
+
+    // Insert dirichlet points in borderPoints set to consider even dirichlet points immersed in bulk (not physical boundaries)
+    for (long id : m_bc_dir.getIds()){
+        borderPointsID.insert(id);
+    }
 
     // compute the laplacian stencils
     GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, m_tol, &m_damping);
@@ -474,7 +480,10 @@ PropagateVectorField::isForcingPlanarSlip(){
 void
 PropagateVectorField::addSlipBoundarySurface(MimmoSharedPointer<MimmoObject> surface){
     if (!surface)       return;
-    if (surface->getType()!= 1 ) return;
+    if (surface->getType()!= 1 ){
+        (*m_log)<<"Warning: "<<m_name<<" allows only slip boundary surfaces. Skipping input slip patch."<<std::endl;
+        return;
+    }
     m_slipSurfaces.insert(surface);
 }
 
@@ -488,7 +497,10 @@ PropagateVectorField::addSlipBoundarySurface(MimmoSharedPointer<MimmoObject> sur
 void
 PropagateVectorField::addSlipReferenceSurface(MimmoSharedPointer<MimmoObject> surface){
     if (!surface)       return;
-    if (surface->getType()!= 1 ) return;
+    if (surface->getType()!= 1 ){
+        (*m_log)<<"Warning: "<<m_name<<" allows only slip boundary surfaces. Skipping input slip reference patch."<<std::endl;
+        return;
+    }
     m_slipReferenceSurfaces.insert(surface);
 }
 
@@ -505,7 +517,10 @@ PropagateVectorField::addSlipReferenceSurface(MimmoSharedPointer<MimmoObject> su
 void
 PropagateVectorField::addPeriodicBoundarySurface(MimmoSharedPointer<MimmoObject> surface){
     if (!surface)       return;
-    if (surface->getType()!= 1 ) return;
+    if (surface->getType()!= 1 ){
+        (*m_log)<<"Warning: "<<m_name<<" allows only slip boundary surfaces. Skipping input periodic patch."<<std::endl;
+        return;
+    }
     m_periodicSurfaces.insert(surface);
     //save also surface in the list of slip surfaces.
     m_slipSurfaces.insert(surface);
@@ -530,18 +545,18 @@ PropagateVectorField::forcePlanarSlip(bool planar){
 
 
 /*!
- * Add a Dirichlet condition field for each patch linked as Dirichlet (see addDirichletBoundarySurface).
+ * Add a Dirichlet condition field for each patch linked as Dirichlet (see addDirichletBoundaryPatch).
  * \param[in] bc dirichlet conditions
  */
 void
 PropagateVectorField::addDirichletConditions(dmpvecarr3E * bc){
     if(!bc) return;
     if(!bc->getGeometry()) return;
-    if(bc->getGeometry()->getType() != 1) return;
+
     //insert the field pointer in the official list of bcs.
     m_dirichletBcs.insert(bc);
     //save also bc geometry in the list of Dirichlet surfaces.
-    m_dirichletSurfaces.insert(bc->getGeometry());
+    m_dirichletPatches.insert(bc->getGeometry());
 }
 
 /*!
@@ -621,10 +636,10 @@ void PropagateVectorField::flushSectionXML(bitpit::Config::Section & slotXML, st
 
 /*!
  * Check coherence of the input data of the class, in particular:
-   - check if Dirichlet surfaces belongs to the bulk mesh.
-   - check if NarrowBand surfaces belongs to the bulk mesh.
-   - check if Damping surfaces belongs to the bulk mesh.
-   - check if Slip surfaces belongs to bulk mesh (this include periodic surfaces if any)
+   - check if points of Dirichlet patches belongs to the bulk mesh.
+   - check if points of NarrowBand surfaces belongs to the bulk mesh.
+   - check if points of Damping surfaces belongs to the bulk mesh.
+   - check if points of Slip surfaces belongs to bulk mesh (this include periodic surfaces if any)
    - set the internal members m_slip_bc_dir (init to zero) and m_periodicBoundaryPoints
  * \return true if coherence is satisfied, false otherwise.
  */
@@ -1046,7 +1061,7 @@ void PropagateVectorField::initializeSlipSurfaceAsPlane(){
 }
 
 /*!
-    Return values of m_field associated to boundary nodes of the bulk volume mesh.
+    Return values of m_field associated to boundary nodes of the bulk mesh.
     In case of MPI Version, returned structure is serialized, i.e. the boundary values
     collected are not only those owned by the local rank, but
     also those coming from all other ranks. In the end all ranks will had a copy
@@ -1138,7 +1153,7 @@ PropagateVectorField::execute(){
         throw std::runtime_error("Error in "+m_name+" .No target volume mesh linked");
     }
 
-    if(m_dirichletSurfaces.empty()){
+    if(m_dirichletPatches.empty()){
         (*m_log)<<"Warning in "<<m_name<<" .No Dirichlet Boundary patch linked"<<std::endl;
     }
 
@@ -1165,12 +1180,12 @@ PropagateVectorField::execute(){
     //check if damping or narrow band control are active,
     //initialize their reference surfaces and compute them
     if(m_dampingActive){
-        if(m_dampingSurfaces.empty())   m_dampingSurfaces = m_dirichletSurfaces;
+        if(m_dampingSurfaces.empty())   m_dampingSurfaces = m_dirichletPatches;
         initializeUniqueSurface(m_dampingSurfaces, m_dampingUniSurface);
     }
 
     if(m_bandActive){
-        if(m_bandSurfaces.empty())   m_bandSurfaces = m_dirichletSurfaces;
+        if(m_bandSurfaces.empty())   m_bandSurfaces = m_dirichletPatches;
         initializeUniqueSurface(m_bandSurfaces, m_bandUniSurface);
     }
 
@@ -1194,12 +1209,23 @@ PropagateVectorField::execute(){
     // Graph Laplace method on points
 
     //store the id of the border nodes only;
-    livector1D borderPointsID = geo->extractBoundaryVertexID(false);
+    //TODO extract boundary vertex ID as unordered_set
+    livector1D borderPointsID_vector = geo->extractBoundaryVertexID(false);
+    std::unordered_set<long> borderPointsID(borderPointsID_vector.begin(), borderPointsID_vector.end());
 
     //get this inverse map -> you will need it to compact the stencils.
     dataInv = geo->getMapDataInv(true);
     //get this direct map -> you will need it to deflate compact solution of the system.
     data = geo->getMapData(true);
+
+    //since bc is constant, even in case of multistep, once and for all
+    //pass dirichlet bc point information to bulk m_bc_dir internal member.
+    distributeBCOnBoundaryPoints();
+
+    // Insert dirichlet points in borderPoints set to consider even dirichlet points immersed in bulk (not physical boundaries)
+    for (long id : m_bc_dir.getIds()){
+        borderPointsID.insert(id);
+    }
 
     // compute the laplacian stencils
     GraphLaplStencil::MPVStencilUPtr laplaceStencils = GraphLaplStencil::computeLaplacianStencils(geo, m_tol, &m_damping);
@@ -1216,9 +1242,6 @@ PropagateVectorField::execute(){
     //declare results here and keep it during the loop to re-use the older steps.
     std::vector<std::vector<double>> results(3);
 
-    //since bc is constant, even in case of multistep, once and for all
-    //pass dirichlet bc point information to bulk m_bc_dir internal member.
-    distributeBCOnBoundaryPoints();
     //PREPARE THE MULTISTEP;
     bitpit::PiercedVector<bitpit::Vertex> undeformedTargetVertices;
     std::unique_ptr<livector1D> movingElementList = nullptr;

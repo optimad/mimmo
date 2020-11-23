@@ -78,7 +78,7 @@ PropagateField<NCOMP>::PropagateField(const PropagateField<NCOMP> & other):BaseM
     this->m_print   = other.m_print;
     this->m_field   = other.m_field;
 
-    this->m_dirichletSurfaces = other.m_dirichletSurfaces;
+    this->m_dirichletPatches = other.m_dirichletPatches;
     this->m_dirichletBcs      = other.m_dirichletBcs;
 
     this->m_dampingActive= other.m_dampingActive;
@@ -107,7 +107,7 @@ void PropagateField<NCOMP>::swap(PropagateField<NCOMP> & x) noexcept {
     std::swap(this->m_print, x.m_print);
     this->m_field.swap(x.m_field);
 
-    std::swap(this->m_dirichletSurfaces, x.m_dirichletSurfaces);
+    std::swap(this->m_dirichletPatches, x.m_dirichletPatches);
     std::swap(this->m_dirichletBcs, x.m_dirichletBcs);
 
     std::swap(this->m_dampingActive, x.m_dampingActive);
@@ -135,7 +135,7 @@ void
 PropagateField<NCOMP>::buildPorts(){
     bool built = true;
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::setGeometry, M_GEOM, true));
-    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addDirichletBoundarySurface, M_GEOM2, true));
+    built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addDirichletBoundaryPatch, M_GEOM2, true));
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addDampingBoundarySurface, M_GEOM3));
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, PropagateField<NCOMP> >(this, &PropagateField<NCOMP>::addNarrowBandBoundarySurface, M_GEOM7));
     m_arePortsBuilt = built;
@@ -177,8 +177,8 @@ void PropagateField<NCOMP>::setPrint(bool print){
 }
 
 /*!
- * Set pointer to your target bulk volume geometry. Reimplemented from mimmo::BaseManipulation::setGeometry().
- * Geometry must be a of volume type (MimmoObject type = 2);
+ * Set pointer to your target bulk geometry. Reimplemented from mimmo::BaseManipulation::setGeometry().
+ * Geometry must be a of volume or surface type (MimmoObject type = 2 and type = 1);
  * \param[in] geometry_ pointer to target geometry
  */
 template <std::size_t NCOMP>
@@ -186,7 +186,12 @@ void
 PropagateField<NCOMP>::setGeometry(MimmoSharedPointer<MimmoObject> geometry_){
 
     if (geometry_ == nullptr) return;
-    if (geometry_->getType()!= 2 ) return;
+    if (geometry_->getType() != 2 && geometry_->getType() != 1){
+        m_log->setPriority(bitpit::log::Verbosity::DEBUG);
+        (*m_log)<<"Warning: "<<m_name<<" allows only surface or volume bulk mesh. Skip set geometry."<<std::endl;
+        m_log->setPriority(bitpit::log::Verbosity::NORMAL);
+        return;
+    }
 
     m_geometry = geometry_;
 
@@ -206,9 +211,22 @@ template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::addDirichletBoundarySurface(MimmoSharedPointer<MimmoObject> bsurface){
     if (bsurface == nullptr)       return;
-    if (bsurface->getType()!= 1 ) return;
 
-    m_dirichletSurfaces.insert(bsurface);
+    m_dirichletPatches.insert(bsurface);
+}
+
+/*!
+ * Add a portion of boundary mesh relative to geometry target
+ * that must be constrained with Dirichlet conditions. See method
+   addDirichletConditions to properly provide a field of bc.
+ * \param[in] bsurface Dirichlet boundary patch.
+ */
+template <std::size_t NCOMP>
+void
+PropagateField<NCOMP>::addDirichletBoundaryPatch(MimmoSharedPointer<MimmoObject> bsurface){
+    if (bsurface == nullptr)       return;
+
+    m_dirichletPatches.insert(bsurface);
 }
 
 /*!
@@ -232,7 +250,12 @@ PropagateField<NCOMP>::setNarrowBand(bool flag){
  void
  PropagateField<NCOMP>::addNarrowBandBoundarySurface(MimmoSharedPointer<MimmoObject> surface){
 	if (surface == nullptr)      return;
-	if (surface->getType()!= 1 ) return;
+	if (surface->getType()!= 1 ){
+        m_log->setPriority(bitpit::log::Verbosity::DEBUG);
+        (*m_log)<<"Warning: "<<m_name<<" allows only narrouw band boundary surfaces. Skipping input slip patch."<<std::endl;
+        m_log->setPriority(bitpit::log::Verbosity::NORMAL);
+        return;
+	}
 
     m_bandSurfaces.insert(surface);
 }
@@ -300,7 +323,12 @@ template <std::size_t NCOMP>
 void
 PropagateField<NCOMP>::addDampingBoundarySurface(MimmoSharedPointer<MimmoObject> bdumping){
 	if (bdumping == nullptr)       return;
-	if (bdumping->getType()!= 1 ) return;
+	if (bdumping->getType()!= 1 ){
+        m_log->setPriority(bitpit::log::Verbosity::DEBUG);
+        (*m_log)<<"Warning: "<<m_name<<" allows only slip boundary surfaces. Skipping input slip patch."<<std::endl;
+        m_log->setPriority(bitpit::log::Verbosity::NORMAL);
+        return;
+	}
 
 	m_dampingSurfaces.insert(bdumping);
 }
@@ -531,7 +559,7 @@ void
 PropagateField<NCOMP>::clear(){
     BaseManipulation::clear();
     m_field.clear();
-    m_dirichletSurfaces.clear();
+    m_dirichletPatches.clear();
     m_bc_dir.clear();
     m_dirichletBcs.clear();
     m_damping.clear();
@@ -546,9 +574,9 @@ PropagateField<NCOMP>::clear(){
 
 /*!
  * Check coherence of the input data of the class, in particular:
-   - check if Dirichlet surfaces belongs to the bulk mesh.
-   - check if NarrowBand surfaces belongs to the bulk mesh.
-   - check if Damping surfaces belongs to the bulk mesh.
+   - check if points of Dirichlet patches belongs to the bulk mesh.
+   - check if points of NarrowBand surfaces belongs to the bulk mesh.
+   - check if points of Damping surfaces belongs to the bulk mesh.
  * \return true if coherence is satisfied, false otherwise.
  */
 template <std::size_t NCOMP>
@@ -558,7 +586,7 @@ PropagateField<NCOMP>::checkBoundariesCoherence(){
     if(!m_geometry) return false;
 
     std::unordered_set<long> nodeList;
-    for(MimmoSharedPointer<MimmoObject> obj : m_dirichletSurfaces){
+    for(MimmoSharedPointer<MimmoObject> obj : m_dirichletPatches){
         std::vector<long> temp = obj->getVerticesIds(true); //only on internals
         nodeList.insert(temp.begin(), temp.end());
     }
@@ -588,7 +616,7 @@ PropagateField<NCOMP>::checkBoundariesCoherence(){
 }
 
 /*!
- * Distribute the dirichlet bc values on the border points of the bulk mesh.
+ * Distribute the dirichlet bc values on the points of the bulk mesh.
    i.e. fill the internal member m_bc_dir.
  */
 template <std::size_t NCOMP>
@@ -596,7 +624,7 @@ void
 PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
     //estimate the total number of internal nodes carrying dirichlet bc
     int ncount = 0;
-    for(MimmoSharedPointer<MimmoObject> obj : m_dirichletSurfaces){
+    for(MimmoSharedPointer<MimmoObject> obj : m_dirichletPatches){
         ncount += obj->getNInternalVertices();
     }
     m_bc_dir.clear();
@@ -604,10 +632,10 @@ PropagateField<NCOMP>::distributeBCOnBoundaryPoints(){
     m_bc_dir.setDataLocation(MPVLocation::POINT);
     m_bc_dir.setGeometry(m_geometry);
 
-    //starting from fields, fill in m_bc_dir and track those surfaces without a proper field;
+    //starting from fields, fill in m_bc_dir and track those patches without a proper field;
     std::array<double,NCOMP> zeroval;
     zeroval.fill(0.0);
-    std::unordered_set<MimmoSharedPointer<MimmoObject> > withoutField = m_dirichletSurfaces;
+    std::unordered_set<MimmoSharedPointer<MimmoObject> > withoutField = m_dirichletPatches;
     for(MimmoPiercedVector<std::array<double,NCOMP>> * field : m_dirichletBcs){
         MimmoSharedPointer<MimmoObject> ref = field->getGeometry();
         //remove it from unvisited patch list
@@ -654,7 +682,7 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSha
         return;
     };
 
-    //put all surface in the list in a unique surface. For MPI version, surface
+    //put all patches in the list in a unique surface (NOTE TYPE SURFACE). For MPI version, surface
     //are most likely partitioned, so you need to have information on internals/ghosts updated.
     //reconstructed surface is made by internals element/nodes only.
     MimmoSharedPointer<MimmoObject> tempSurface(new MimmoObject(1));
@@ -823,7 +851,7 @@ PropagateField<NCOMP>::initializeUniqueSurface(const std::unordered_set<MimmoSha
 /*!
    It computes for the first time the damping function (artificial diffusivity)
    used to modulate Laplacian solution over the target mesh.
-   The damping function is a scalar field data referred on CELLS of the bulk volume
+   The damping function is a scalar field data referred on CELLS of the bulk
   (ghost included) and it will be stored in internal member m_damping.
    Please be sure to create the unique Surface m_dampingUniSurface first.
  */
@@ -919,7 +947,9 @@ PropagateField<NCOMP>::updateDampingFunction(){
             volmax = std::max(volmax,locvol);
         }
         if(countNegativeVolumes > 0){
+            m_log->setPriority(bitpit::log::Verbosity::DEBUG);
             (*m_log)<<"Warning in "<<m_name<<". Detected " << countNegativeVolumes<<" cells with almost zero or negative volume"<<std::endl;
+            m_log->setPriority(bitpit::log::Verbosity::NORMAL);
         }
 
 #if MIMMO_ENABLE_MPI
@@ -932,7 +962,7 @@ PropagateField<NCOMP>::updateDampingFunction(){
             m_damping.at(it.getId()) = std::pow(1.0 + (volmax -volmin)/volFactor.rawAt(it.getRawIndex()), *it);
         }
     }
-	//all done if you are here, you computed also the volume part and put together all the stuffs.
+	//all done if you are here, you computed also the bulk part and put together all the stuffs.
     // you don't need to communicate ghost data for dumping. Everyone, ghost included had the correct info.
 }
 
@@ -1162,12 +1192,16 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
     rhs.resize(geo->getNInternalVertices(), 0.0);
 
     if (!m_solver->isAssembled()) {
+        m_log->setPriority(bitpit::log::Verbosity::DEBUG);
         (*m_log)<<"Warning in "<<m_name<<". Unable to assign BC to the system. The solver is not yet initialized."<<std::endl;
+        m_log->setPriority(bitpit::log::Verbosity::NORMAL);
         return;
     }
 
     if (!borderLaplacianStencil) {
+        m_log->setPriority(bitpit::log::Verbosity::DEBUG);
         (*m_log)<<"Warning in "<<m_name<<". Unable to reach border nodes stencils data. Nothing to do."<<std::endl;
+        m_log->setPriority(bitpit::log::Verbosity::NORMAL);
         return;
     }
 
@@ -1223,7 +1257,9 @@ PropagateField<NCOMP>::solveLaplace(const dvector1D &rhs, dvector1D &result){
 
     // Check if the internal solver is initialized
     if (!m_solver->isAssembled()) {
+        m_log->setPriority(bitpit::log::Verbosity::DEBUG);
         (*m_log)<<"Warning in "<<m_name<<". Unable to solve the system. The solver is not yet initialized."<<std::endl;
+        m_log->setPriority(bitpit::log::Verbosity::NORMAL);
         return;
     }
 
@@ -1245,7 +1281,9 @@ void
 PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const lilimap & mapglobals, livector1D * marked)
 {
     if(results.size() != NCOMP){
+        m_log->setPriority(bitpit::log::Verbosity::DEBUG);
         (*m_log) << "WARNING in "<<m_name<<" . A field with dimension different from" <<NCOMP<<" is feeded to reconstructResults. m_field is not touched"<<std::endl;
+        m_log->setPriority(bitpit::log::Verbosity::NORMAL);
         return;
     }
     // push result in a mpv linked to target mesh and on cell location.

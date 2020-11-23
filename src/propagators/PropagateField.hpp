@@ -37,22 +37,23 @@ namespace mimmo{
  * \class PropagateField
  * \ingroup propagators
  * \brief Executable block that provides the computation of a field
- * over a 3D volume mesh. The field is calculated solving a Laplacian problem over
+ * over a 3D volume or surface mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given boundary conditions.
  *
  * Class/BaseManipulation Object managing field defined on the boundaries of a
-   3D volume mesh. It uses MimmoObject informations as input geometry.
+   3D volume or surface mesh. It uses MimmoObject informations as input geometry.
  * The key to handle with constraints is an explicit calculation of the solution of a
  * Laplacian problem.
- * The Laplacian solver employs a node-based scheme (Graph Laplacian scheme).
+ * The Laplacian solver employs a node-based scheme (Discrete Graph Laplacian operator).
 
    To improve quality of the boundary information propagation inside the mesh two
    approaches that directly influence the solution of Laplacian
    \f$\nabla\cdot( \nabla\Phi) = 0\f$ are proposed:
 
    - Narrow Band Control (NBC) : in a the neighbourhood of some prescribed boundary surfaces
-    Laplacian stencils can be altered to relax the final solution and increase penetration
-    inside the bulk mesh. This approach requires the User to specify the target boundary surfaces,
+    Laplacian stencils can be altered by using a Weighted Graph Lapalcian operator. The objectove is to
+    increase the diffusion length of the boundary conditions inside the bulk mesh.
+    This approach requires the User to specify the target boundary surfaces,
     a target distance from them (width of the narrow band) and a relaxation parameter to tune
     the control.
 
@@ -60,18 +61,21 @@ namespace mimmo{
     artificial diffusivity D function inside the governing equation \f$\nabla\cdot( D\nabla\Phi) = 0\f$.
     Such diffusivity can be defined alternatively as variable with distance from
     prescribed deforming surfaces (damping surfaces), or with cell volumes distribution,
-    modulated with distance from the damping surface. In the first case, cells more distant
-    from damping surfaces are forced to move more than nearer ones, in the second case,
-    bigger volume cell far from dumping surface are forced to move more.
+    even modulated with distance from the damping surface. In the first case, cells more distant
+    from damping surfaces allow greater deformations than nearer ones, that have a more stiff behavior.
+    In the second case, bigger volume cell far from dumping surface are less stiff and more deformable.
     The effect of artificial diffusivity is confined into a bulk mesh zone starting from the
-    reference damping surfaces up to a certain distance r from them. This distance
+    reference damping surfaces up to a certain distance from them. This distance
     can be tuned providing the Damping Outer Distance parameter.
-    Damping Inner Distance parameter represents an intermediate distance p between boundaries and r
+    Damping Inner Distance parameter represents an intermediate distance between boundaries and Damping Outer Distance
     so that the damping function decays from inner to outer distance and is set to constant from
     damping surfaces up to inner distance.
    <B>WARNING</B>: Damping Function Control is an EXPERIMENTAL feature, subject
                    of still ongoing investigations. Sometimes it can lead to
-                   unpredicatable results. Use it carefully and at your own risk.
+                   unpredicatable results.
+
+
+    <B>Note.</B> Currently, NBC and artificial diffusivity are available only for volume bulk mesh.
 
  * Result field is stored in m_field member and returned as data field through ports.
  *
@@ -110,17 +114,18 @@ template<std::size_t NCOMP>
 class PropagateField: public mimmo::BaseManipulation {
 
 protected:
-    //general data
-    double        m_thres; /**< Lower Threshold to internally mark cells whose solution field norm is above its value. For update purposes only */
-    double        m_tol;   /**< Convergence tolerance. [default tol = 1.0e-12 .*/
-    bool          m_print; /**< If true residuals and other info are print during system solving.*/
-    std::unique_ptr<bitpit::SystemSolver> m_solver;            /**< linear system solver for Laplace */
-    MimmoPiercedVector<std::array<double, NCOMP> > m_field;    /**< Resulting Propagated Field on bulk nodes */
+    // General members
+    double        m_thres;          /**< Lower Threshold to internally mark cells whose solution field norm is above its value. For update purposes only */
+    double        m_tol;            /**< Convergence tolerance. [default tol = 1.0e-12].*/
+    bool          m_print;          /**< If true residuals and other info are print during system solving.*/
 
-    // dirichlet surfaces and bcs
-    std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_dirichletSurfaces;           /**<list of MimmoObject boundary patches pointers identifying Dirichlet boundaries.*/
-    MimmoPiercedVector<std::array<double, NCOMP> > m_bc_dir;         /**< Dirichlet-type condition values of POINTS on target volume mesh */
-    std::unordered_set<MimmoPiercedVector<std::array<double, NCOMP> >* > m_dirichletBcs; /**< list of Dirichlet-type conditions on boundary surface POINTS*/
+    std::unique_ptr<bitpit::SystemSolver> m_solver;             /**< linear system solver for Laplace */
+    MimmoPiercedVector<std::array<double, NCOMP> > m_field;     /**< Resulting Propagated Field on bulk nodes */
+
+    // Dirichlet surfaces and bcs
+    std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_dirichletPatches;              /**<list of MimmoObject boundary patches pointers identifying Dirichlet boundaries.*/
+    MimmoPiercedVector<std::array<double, NCOMP> > m_bc_dir;                                /**< Dirichlet-type condition values of POINTS on target volume mesh */
+    std::unordered_set<MimmoPiercedVector<std::array<double, NCOMP> >* > m_dirichletBcs;    /**< list of Dirichlet-type conditions on boundary patch POINTS*/
 
     // Damping surfaces and parameters set
     bool          m_dampingActive;  /**< true the damping control is active, false otherwise.*/
@@ -131,18 +136,21 @@ protected:
     double        m_plateau;        /**<Inner limit distance of damping function. At distance <= m_plateau from boundary with bc != 0
                                         the stencil during the laplacian computing account of the maximum artificial diffusivity.*/
     dmpvector1D   m_damping;        /**<Damping field used for weights computing.*/
-    std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_dampingSurfaces;   /**<list of MimmoObject boundary patches pointers to identify surface for damping calculation.*/
-    MimmoSharedPointer<MimmoObject> m_dampingUniSurface; /**< INTERNAL use. Final damping reference surface. If MPI, surface is serialized and shared among all procs*/
+
+    std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_dampingSurfaces;    /**<list of MimmoObject boundary patches pointers to identify surface for damping calculation.*/
+    MimmoSharedPointer<MimmoObject> m_dampingUniSurface;                        /**<INTERNAL use. Final damping reference surface.
+                                                                                    If MPI, surface is serialized and shared among all procs*/
 
     // Narrow Band surfaces and parameters set
-    bool          m_bandActive;  /**< true the Narrow Band Control is active, false otherwise.*/
-    double        m_bandwidth;   /**< width of the narrow band region.*/
-    double        m_bandrelax;   /**< Narrow band relaxation param [0,1]. 1 no relaxing occurs, 0 full relaxation is performed */
-    bitpit::PiercedVector<double> m_banddistances; /**< INTERNAL use, list of distances for vertex belonging to narrow band */
-    std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_bandSurfaces;   /**<list of MimmoObject boundary patches pointers to identify target baundaries for Narrow Band definition.*/
-    MimmoSharedPointer<MimmoObject> m_bandUniSurface; /**< INTERNAL use. Final narrow band reference surface. If MPI, surface is serialized and shared among all procs*/
+    bool          m_bandActive;     /**< true the Narrow Band Control is active, false otherwise.*/
+    double        m_bandwidth;      /**< width of the narrow band region.*/
+    double        m_bandrelax;      /**< Narrow band relaxation param [0,1]. 1 no relaxing occurs, 0 full relaxation is performed */
 
-    //MPI
+    bitpit::PiercedVector<double> m_banddistances;                          /**< INTERNAL use, list of distances for vertex belonging to narrow band */
+    std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_bandSurfaces;   /**<list of MimmoObject boundary patches pointers to identify target baundaries for Narrow Band definition.*/
+    MimmoSharedPointer<MimmoObject> m_bandUniSurface;                       /**< INTERNAL use. Final narrow band reference surface. If MPI, surface is serialized and shared among all procs*/
+
+    // MPI
 #if MIMMO_ENABLE_MPI
     std::unordered_map<MimmoObject *, std::unique_ptr<GhostCommunicator> > m_ghostCommunicators;    /**<List of Cell Ghost communicator objects, for each one of ref. geometry */
     std::unordered_map<MimmoObject *, int> m_ghostTags;/**< List of Tags of cell communicator objects, one for each ref geometry*/
@@ -167,7 +175,8 @@ public:
     void	setPrint(bool print = true);
 
     void    setGeometry(MimmoSharedPointer<MimmoObject> geometry_);
-    void    addDirichletBoundarySurface(MimmoSharedPointer<MimmoObject>);
+    BITPIT_DEPRECATED(void    addDirichletBoundarySurface(MimmoSharedPointer<MimmoObject>));
+    void    addDirichletBoundaryPatch(MimmoSharedPointer<MimmoObject>);
 
     void    setNarrowBand(bool flag);
     void    addNarrowBandBoundarySurface(MimmoSharedPointer<MimmoObject>);
@@ -210,7 +219,7 @@ protected:
                                         const lilimap & maplocals, dvector1D & rhs);
     virtual void solveLaplace(const dvector1D &rhs, dvector1D & result);
 
-    // reconstruct final result field
+    // Reconstruct final result field
     virtual void reconstructResults(const dvector2D & results, const lilimap & mapglobals,  livector1D * markedcells = nullptr);
 
 #if MIMMO_ENABLE_MPI
@@ -225,18 +234,18 @@ protected:
  * \class PropagateScalarField
  * \ingroup propagators
  * \brief Executable block that provides the computation of a scalar field
- * over a 3D mesh. The field is calculated solving a Laplacian problem over
+ * over a volume or surface mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given Dirichlet boundary conditions.
  *
  * Dirichlet boundary conditions are explicitly provided by the User,
-   identifying boundaries through MimmoObject patches and associating to them
-   the scalar fields as Dirichlet conditions on each patch.
+   identifying boundaries through MimmoObject patches (all types allowed) and associating
+   to their points the scalar fields as Dirichlet conditions on each patch.
  * A natural zero gradient like condition is automatically provided on unbounded borders.
  *
  * The block can perform multistep evaluation to relax field propagation
  *
  * Class/BaseManipulation Object specialization of class PropagateField
- * for the propagation in a volume mesh of a scalar field.
+ * for the propagation in a volume/surface mesh of a scalar field.
  *
  * Ports available in PropagateScalarField Class :
  *
@@ -246,7 +255,7 @@ protected:
     ||||
     | <B>PortType</B>| <B>variable/function</B>  |<B>DataType</B> |
     | M_GEOM         | setGeometry                           | (MC_SCALAR, MD_MIMMO_) |
-    | M_GEOM2        | addDirichletBoundarySurface           | (MC_SCALAR, MD_MIMMO_) |
+    | M_GEOM2        | addDirichletBoundaryPatch             | (MC_SCALAR, MD_MIMMO_) |
     | M_GEOM3        | addDampingBoundarySurface             | (MC_SCALAR, MD_MIMMO_) |
     | M_GEOM7        | addNarrowBandBoundarySurface          | (MC_SCALAR, MD_MIMMO_) |
     | M_FILTER       | addDirichletConditions                | (MC_SCALAR, MD_MPVECFLOAT_)|
@@ -338,30 +347,33 @@ private:
  * \class PropagateVectorField
  * \ingroup propagators
  * \brief Executable block that provides the computation of a 3D array field
- * over a 3D mesh. The field is calculated solving a Laplacian problem over
+ * over a volume/surface mesh. The field is calculated solving a Laplacian problem over
  * the mesh with given boundary conditions.
  *
  * Dirichlet boundary conditions are explicitly provided by the User,
-   identifying boundaries through MimmoObject patches and associating to them
-   the vector fields as Dirichlet conditions on each patch.
+   identifying boundaries through MimmoObject patches (all types allowed) and associating
+   to their points the vector fields as Dirichlet conditions on each patch.
 
  * Optionally an impermeability-like/slip condition (as a zero vector field normal to
    boundary surface realized with a deformation reprojection onto a reference
-   surface) can be imposed on chosen boundary patches. The nodes of the slip
-   boundary patch are moved on a reference surface, that is completely independent
+   patch) can be imposed on chosen boundary patches. The nodes of the slip
+   boundary patch are moved on a reference patch, that is completely independent
    from the slip boundary patches. If not provided by the User
    the reference surface is fixed as a copy of the reconstructed slip boundary patches list.
+   <b>Note.</b> Currently, slip conditions are allowed only for bulk volume meshes.
 
  * The User can force the slip reference surface to be a plane
    by activating the related flag; in this case the mean plane defined over
-   the slip boundary patches (the slip reference surface is useless) is used.
+   the slip boundary patches (the slip reference patch is useless) is used.
+   <b>Note.</b> Currently, slip conditions are allowed only for bulk volume meshes.
 
- * Another option is to set periodic conditions on boundary surface patches. In this context,
-   periodic means that the original shape of the surface patch remains unaltered,
-   but its nodes can move, constrained onto the surface itself. It is a "special" condition
+ * Another option is to set periodic conditions on boundary patches. In this context,
+   periodic means that the original boundary shape of the patch remains unaltered,
+   but its nodes can move, constrained onto the patch itself. It is a "special" condition
    of slip patches, whose borders are fixed to zero Dirichlet conditions.
+   <b>Note.</b> Currently, periodic conditions are allowed only for bulk volume meshes.
 
- * A natural zero gradient like condition is automatically provided on unbounded bulk volume borders.
+ * A natural zero gradient like condition is automatically provided on unbounded borders.
  *
  * The block can perform multistep evaluation to further relax the field propagation. In this case,
    on each step evaluation the vector field is applied on the bulk/boundaries to achieve a
@@ -375,7 +387,7 @@ private:
     ||||
     | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>             |
     | M_GEOM          | setGeometry                 | (MC_SCALAR, MD_MIMMO_)  |
-    | M_GEOM2         | addDirichletBoundarySurface |(MC_SCALAR, MD_MIMMO_)   |
+    | M_GEOM2         | addDirichletBoundaryPatch   |(MC_SCALAR, MD_MIMMO_)   |
     | M_GEOM3         | addDampingBoundarySurface   | (MC_SCALAR, MD_MIMMO_)  |
     | M_GEOM4         | addSlipBoundarySurface      | (MC_SCALAR, MD_MIMMO_)  |
     | M_GEOM5         | addPeriodicBoundarySurface  | (MC_SCALAR, MD_MIMMO_)  |

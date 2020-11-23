@@ -231,7 +231,7 @@ int test1() {
     mimmo::PropagateVectorField * prop3D = new mimmo::PropagateVectorField();
     prop3D->setName("test00003_PropagateVectorField");
     prop3D->setGeometry(mesh);
-    prop3D->addDirichletBoundarySurface(bDIR);
+    prop3D->addDirichletBoundaryPatch(bDIR);
     prop3D->addDirichletConditions(&bc_surf_3Dfield);
     prop3D->addSlipBoundarySurface(bSLIP);
     prop3D->addSlipReferenceSurface(bSLIP);

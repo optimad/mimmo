@@ -561,7 +561,7 @@ MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil, 
     }
 
     //clean result and fit its dimension to the only cells involved
-    result->squeezeOutExcept(std::vector<long>(cellInvolved.begin(), cellInvolved.end()), true);
+    result->squeezeOutExcept(cellInvolved, true);
 
     //divide stencils by their cell volume and optimize
     for(MPVDivergence::iterator it = result->begin(); it !=result->end(); ++it){
