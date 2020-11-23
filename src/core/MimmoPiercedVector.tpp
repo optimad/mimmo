@@ -906,5 +906,39 @@ MimmoPiercedVector<mpv_t>::squeezeOutExcept(const std::vector<long int> & list, 
     }
 }
 
+/*!
+ * Erase all data not contained in the target list and squeeze the structure.
+ *
+ * \param[in] list of ids to save from cleaning
+ * \param[in] keepOrder if true keep the survivors in the same order as they appear in the original list.
+ */
+template<typename mpv_t>
+void
+MimmoPiercedVector<mpv_t>::squeezeOutExcept(const std::unordered_set<long int> & list, bool keepOrder){
+
+    if(keepOrder){
+        // erase elements in the list then squeeze the piercedvector.
+        MimmoPiercedVector<mpv_t> result (m_geometry, m_loc);
+        result.setName(m_name);
+        result.reserve(list.size());
+        for(auto it = this->begin(); it != this->end(); ++it){
+            if(list.count(it.getId()) > 0){
+                result.insert(it.getId(), *it);
+            }
+        }
+        this->swap(result);
+    }else{
+        // if the order does not matter, create a new mpv and swap with the current
+        MimmoPiercedVector<mpv_t> result (m_geometry, m_loc);
+        result.setName(m_name);
+        for(long id: list){
+            if(this->exists(id)){
+                result.insert(id, this->at(id));
+            }
+        }
+        this->swap(result);
+    }
+}
+
 
 }

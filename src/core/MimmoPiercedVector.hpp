@@ -106,6 +106,8 @@ public:
 
     std::size_t getDataFrom(const MimmoPiercedVector<mpv_t> & other, bool strict = false);
     void squeezeOutExcept(const std::vector<long int> & list, bool keepOrder = false);
+    void squeezeOutExcept(const std::unordered_set<long int> & list, bool keepOrder = false);
+
 
 private:
     livector1D getGeometryIds(bool ordered=false);
