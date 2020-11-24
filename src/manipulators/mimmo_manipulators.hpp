@@ -37,6 +37,7 @@
 #include "mimmo_core.hpp"
 
 #include "Apply.hpp"
+#include "ApplyFilter.hpp"
 #include "BendGeometry.hpp"
 #include "FFDLattice.hpp"
 #include "MRBF.hpp"
