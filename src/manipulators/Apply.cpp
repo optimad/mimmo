@@ -108,7 +108,8 @@ void
 Apply::buildPorts(){
 	bool built = true;
 	built = (built && createPortIn<dmpvecarr3E*, Apply>(this, &Apply::setInput, M_GDISPLS, true, 1));
-	built = (built && createPortIn<dmpvector1D*, Apply>(this, &Apply::setScalarInput, M_SCALARFIELD, true, 1));
+    built = (built && createPortIn<dmpvector1D*, Apply>(this, &Apply::setScalarInput, M_SCALARFIELD, true, 1));
+    built = (built && createPortIn<dmpvector1D*, Apply>(this, &Apply::setFilter, M_FILTER));
 	built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, Apply>(this, &BaseManipulation::setGeometry, M_GEOM, true));
 
 	built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, Apply>(this, &BaseManipulation::getGeometry, M_GEOM));
@@ -136,7 +137,17 @@ Apply::setInput(dmpvecarr3E *input){
 void
 Apply::setScalarInput(dmpvector1D *input){
     if(!input) return;
-	m_scalarinput = *input;
+    m_scalarinput = *input;
+};
+
+/*!It sets the filter to be applied during the deformation of the geometry.
+ * The deformation field will be multiplied by the scalar filter field passed as input.
+ * \param[in] input Input filter field used during the deformation.
+ */
+void
+Apply::setFilter(dmpvector1D *input){
+    if(!input) return;
+    m_filter = *input;
 };
 
 /*!It sets the displacements scalar factor.
@@ -419,6 +430,24 @@ Apply::checkInput(){
 				m_input.insert(id, darray3E(m_scalarinput[id]*vNormals[id]));
 			}
 		}
+	}
+	if (m_filter.size()){
+	    check = m_filter.getDataLocation() == mimmo::MPVLocation::POINT;
+	    check = check && m_geometry->getType() == 1;
+        // Force filter to link to the morphing geometry
+	    bool geometry_check = m_filter.getGeometry() == m_geometry;
+	    if (!geometry_check){
+	        m_filter.setGeometry(m_geometry);
+	    }
+	    // Complete missing data force filter to 0.
+	    check = check && m_filter.completeMissingData(0.0);
+	    if (check){
+	        // Apply filter to deformation field
+	        for (const auto & vertex : m_geometry->getVertices()){
+	            long ID = vertex.getId();
+	            m_input[ID] *= m_filter[ID];
+	        }
+	    }
 	}
 	if (!check){
 		m_log->setPriority(bitpit::log::Verbosity::DEBUG);

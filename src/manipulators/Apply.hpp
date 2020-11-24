@@ -38,7 +38,13 @@ namespace mimmo{
  *    a pin linking or set by the user, i.e. one has to use setInput method to set
  *    the displacements to be applied to the geometry.
  *    The displacements can be isotropically scaled by setting a scaling factor.
+ *    The displacements can be passed as scalar field. In this case the scalar field is used as magnitude
+ *    of a displacements field with direction along the normal of the surface on each vertex.
+ *    The Apply block allows to pass a scalar filter field; the filter field is applied to the
+ *    displacements field before the geometry deformation.
+ *
  *    After the execution of an object Apply, the original geometry will be modified.
+ *    The resulting deformation field is provided as output of the block.
  *
  * \n
  * Ports available in Apply Class :
@@ -50,12 +56,14 @@ namespace mimmo{
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
      | M_GDISPLS | setInput          | (MC_SCALAR,MD_MPVECARR3FLOAT_) |
      | M_SCALARFIELD | setScalarInput    | (MC_SCALAR,MD_MPVECFLOAT_) |
+     | M_FILTER | setFilter    | (MC_SCALAR,MD_MPVECFLOAT_) |
      | M_GEOM    | setGeometry       | (MC_SCALAR,MD_MIMMO_) |
 
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>  |
      | M_GEOM          | getGeometry              | (MC_SCALAR,MD_MIMMO_) |
+     | M_GDISPLS       | getOutput          | (MC_SCALAR,MD_MPVECARR3FLOAT_) |
      | M_LONGFIELD     | getAnnotatedVertices     | (MC_SCALAR,MD_MPVECLONG_) |
      | M_LONGFIELD2    | getAnnotatedCells        | (MC_SCALAR,MD_MPVECLONG_) |
 
@@ -93,6 +101,7 @@ public:
 
     void setInput(dmpvecarr3E *input);
     void setScalarInput(dmpvector1D* input);
+    void setFilter(dmpvector1D* input);
 
     void setScaling(double alpha);
 
@@ -114,6 +123,7 @@ protected:
 
     dmpvecarr3E    m_input; /**< storing vector fields of floats */
     dmpvector1D    m_scalarinput; /**< storing scalar fields of floats */
+    dmpvector1D    m_filter; /**< storing filter multiplying to the deformation field */
     double		   m_factor; /**< scaling factor of deformation field. */
     dmpvecarr3E    m_output; /**< storing vector fields of floats for output (input modified with filter and factor)*/
 
@@ -132,6 +142,7 @@ protected:
 
 REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_, __APPLYDEFORMATION_HPP__)
 REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_, __APPLYDEFORMATION_HPP__)
+REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_, __APPLYDEFORMATION_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __APPLYDEFORMATION_HPP__)
 REGISTER_PORT(M_LONGFIELD, MC_SCALAR, MD_MPVECLONG_, __APPLYDEFORMATION_HPP__)
 REGISTER_PORT(M_LONGFIELD2, MC_SCALAR, MD_MPVECLONG_, __APPLYDEFORMATION_HPP__)
