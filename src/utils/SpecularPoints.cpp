@@ -410,7 +410,7 @@ SpecularPoints::execute(){
     if(project){
         double areaTot = 0.0;
         bitpit::SurfaceKernel * tri = static_cast<bitpit::SurfaceKernel * >(getGeometry()->getPatch());
-        for(auto it = tri->internalBegin(); it != tri->internalEnd(); ++it ){
+        for(auto it = tri->internalCellBegin(); it != tri->internalCellEnd(); ++it ){
             areaTot += tri->evalCellArea(it.getId());
         }
 #if MIMMO_ENABLE_MPI

@@ -395,7 +395,7 @@ Partition::serialPartition(){
 	if ((getGeometry()->isDistributed())){
 
 		// Build partition to send to zero
-		long ncells = getGeometry()->getPatch()->getInternalCount();
+		long ncells = getGeometry()->getPatch()->getInternalCellCount();
 		std::unordered_map<long, int>().swap(m_partition);
 		m_partition.reserve(ncells);
 		for (long id : getGeometry()->getPatch()->getCells().getIds()){
@@ -418,7 +418,7 @@ Partition::computeBoundaryPartition()
 		if (getBoundaryGeometry()->isDistributed()){
 
 			// Build partition to send to zero
-			long ncells = getBoundaryGeometry()->getPatch()->getInternalCount();
+			long ncells = getBoundaryGeometry()->getPatch()->getInternalCellCount();
 			m_boundarypartition.clear();
 			m_boundarypartition.reserve(ncells);
 			for (long id : getBoundaryGeometry()->getPatch()->getCells().getIds()){

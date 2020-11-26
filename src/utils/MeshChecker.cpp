@@ -398,7 +398,7 @@ MeshChecker::checkVolume()
     livector1D mvolcells;
     livector1D mvolchangecells;
 
-	for (auto it = getGeometry()->getPatch()->internalBegin(); it!= getGeometry()->getPatch()->internalEnd(); ++it){
+	for (auto it = getGeometry()->getPatch()->internalCellBegin(); it!= getGeometry()->getPatch()->internalCellEnd(); ++it){
 		long id = it.getId();
 		double vol = m_volumes[id];
 
@@ -603,7 +603,7 @@ MeshChecker::checkFaceValidity()
     // save the sick elements in a list.
     livector1D listSickCell;
 
-	for (auto it = getGeometry()->getPatch()->internalBegin(); it!=getGeometry()->getPatch()->internalEnd(); ++it){
+	for (auto it = getGeometry()->getPatch()->internalCellBegin(); it!=getGeometry()->getPatch()->internalCellEnd(); ++it){
         long idcell = it.getId();
 		double area = areaGood[idcell] / sumArea[idcell];
 		m_minFaceValidity = std::min(m_minFaceValidity, area);

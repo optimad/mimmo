@@ -636,8 +636,8 @@ GhostCommunicator::GhostCommunicator(const bitpit::PatchKernel *patch)
 */
 void GhostCommunicator::resetExchangeLists()
 {
-    const ExchangeList &exchangeSources = m_patch->getGhostExchangeSources();
-    const ExchangeList &exchangeTargets = m_patch->getGhostExchangeTargets();
+    const ExchangeList &exchangeSources = m_patch->getGhostCellExchangeSources();
+    const ExchangeList &exchangeTargets = m_patch->getGhostCellExchangeTargets();
 
     ExchangeList sendList = sequentialIndexesConversion(exchangeSources);
     ExchangeList recvList = sequentialIndexesConversion(exchangeTargets);
@@ -734,10 +734,10 @@ const GhostCommunicator::RankExchangeList & GhostCommunicator::getStreamableSend
 void GhostCommunicator::createStreamableLists()
 {
     m_sendListIds = m_sendList;
-    remapList(m_sendListIds, m_patch->getGhostExchangeSources());
+    remapList(m_sendListIds, m_patch->getGhostCellExchangeSources());
 
     m_recvListIds = m_recvList;
-    remapList(m_recvListIds, m_patch->getGhostExchangeTargets());
+    remapList(m_recvListIds, m_patch->getGhostCellExchangeTargets());
 }
 
 /*!
@@ -1328,7 +1328,7 @@ PointGhostCommunicator::PointGhostCommunicator(const MimmoObject *object)
 void PointGhostCommunicator::resetExchangeLists()
 {
 
-	//Use the getGhostExchangeSources and getGhostExchangeSources defined in MimmoObject
+	//Use the getGhostCellExchangeSources and getGhostCellExchangeSources defined in MimmoObject
 
     const ExchangeList &exchangeSources = m_object->getPointGhostExchangeSources();
     const ExchangeList &exchangeTargets = m_object->getPointGhostExchangeTargets();
@@ -1427,7 +1427,7 @@ const PointGhostCommunicator::RankExchangeList & PointGhostCommunicator::getStre
 */
 void PointGhostCommunicator::createStreamableLists()
 {
-	//Use the getGhostExchangeSources and getGhostExchangeSources defined in MimmoObject
+	//Use the getGhostCellExchangeSources and getGhostCellExchangeSources defined in MimmoObject
 
     m_sendListIds = m_sendList;
     remapList(m_sendListIds, m_object->getPointGhostExchangeSources());

@@ -234,7 +234,7 @@ VTUGridWriterASCII::VTUGridWriterASCII( VTUFlushStreamerASCII & streamer, bitpit
          vtkCellCount = m_patch.getCellCount();
  #if MIMMO_ENABLE_MPI==1
     } else if (m_patch.getVTKWriteTarget() == bitpit::PatchKernel::WriteTarget::WRITE_TARGET_CELLS_INTERNAL) {
-         vtkCellCount = m_patch.getInternalCount();
+         vtkCellCount = m_patch.getInternalCellCount();
  #endif
     }
 
