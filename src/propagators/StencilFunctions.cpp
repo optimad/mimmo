@@ -504,8 +504,8 @@ MPVDivergenceUPtr computeFVLaplacianStencil (MPVGradient & faceGradientStencil, 
     MPVDivergenceUPtr result = MPVDivergenceUPtr(new MPVDivergence(geo, MPVLocation::CELL));
     if(geo->getType() != 2) return result; //only for Volume Meshes
 
-    result->reserve(geo->getPatch()->getInternalCount());
-    for(auto it = geo->getPatch()->internalBegin(); it != geo->getPatch()->internalEnd(); ++it){
+    result->reserve(geo->getPatch()->getInternalCellCount());
+    for(auto it = geo->getPatch()->internalCellBegin(); it != geo->getPatch()->internalCellEnd(); ++it){
         result->insert(it->getId(), bitpit::StencilScalar());
     }
 

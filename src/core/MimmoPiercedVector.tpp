@@ -243,7 +243,7 @@ MimmoPiercedVector<mpv_t>::getInternalDataAsVector(bool ordered, bool squeeze){
 	switch (getDataLocation())
 	{
 	case MPVLocation::CELL:
-		result.reserve(getGeometry()->getPatch()->getInternalCount());
+		result.reserve(getGeometry()->getPatch()->getInternalCellCount());
 		ids = getGeometryIds(ordered);
 		for(const auto val: ids){
 			if(this->exists(val) && getGeometry()->getPatch()->getCell(val).isInterior()){

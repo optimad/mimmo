@@ -1052,7 +1052,7 @@ void PropagateVectorField::initializeSlipSurfaceAsPlane(){
         }
 
         //evaluating average facet normal of interior cells.
-        for(auto itC = surfkernss->internalBegin(); itC != surfkernss->internalEnd(); ++itC){
+        for(auto itC = surfkernss->internalCellBegin(); itC != surfkernss->internalCellEnd(); ++itC){
             m_AVGslipNormal += surfkernss->evalFacetNormal(itC.getId());
             ++countC;
         }

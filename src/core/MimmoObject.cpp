@@ -916,7 +916,7 @@ MimmoObject::getNCells() const {
 long
 MimmoObject::getNInternals() const {
 	const auto p = getPatch();
-	return p->getInternalCount();
+	return p->getInternalCellCount();
 };
 
 /*!
@@ -1202,8 +1202,8 @@ MimmoObject::getCellsIds(bool internalsOnly){
 #if MIMMO_ENABLE_MPI
     //MPI version
     if(internalsOnly){
-        ids.reserve(getPatch()->getInternalCount());
-        for(bitpit::PatchKernel::CellIterator it = getPatch()->internalBegin(); it!= getPatch()->internalEnd(); ++it){
+        ids.reserve(getPatch()->getInternalCellCount());
+        for(bitpit::PatchKernel::CellIterator it = getPatch()->internalCellBegin(); it!= getPatch()->internalCellEnd(); ++it){
             ids.push_back(it.getId());
         }
     }else{
@@ -2167,7 +2167,7 @@ void MimmoObject::deleteOrphanGhostCells(){
 
 	//Track orphan ghosts, that is ghost cells which have no neighbour cell marked as internal.
 	bitpit::PiercedVector<bitpit::Cell> & patchCells = getCells();
-	for(auto it = getPatch()->ghostBegin(); it != getPatch()->ghostEnd(); ++it){
+	for(auto it = getPatch()->ghostCellBegin(); it != getPatch()->ghostCellEnd(); ++it){
 		std::vector<long> neighs = getPatch()->findCellNeighs(it.getId());
 		bool check = false;
 		std::vector<long>::iterator itN = neighs.begin();
@@ -2844,11 +2844,11 @@ livector1D  MimmoObject::extractBoundaryCellID(bool ghost){
 
 	std::unordered_set<long> container;
 	container.reserve(getPatch()->getCellCount());
-	auto itBegin = getPatch()->internalBegin();
-	auto itEnd = getPatch()->internalEnd();
+	auto itBegin = getPatch()->internalCellBegin();
+	auto itEnd = getPatch()->internalCellEnd();
 #if MIMMO_ENABLE_MPI
 	if(ghost){
-		itEnd = getPatch()->ghostEnd();
+		itEnd = getPatch()->ghostCellEnd();
 	}
 #else
 	BITPIT_UNUSED(ghost);
@@ -2881,11 +2881,11 @@ std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID
 	if(isEmpty() || m_type ==3)   return result;
 	updateAdjacencies();
 
-	auto itBegin = getPatch()->internalBegin();
-	auto itEnd = getPatch()->internalEnd();
+	auto itBegin = getPatch()->internalCellBegin();
+	auto itEnd = getPatch()->internalCellEnd();
 #if MIMMO_ENABLE_MPI
 	if(ghost){
-		itEnd = getPatch()->ghostEnd();
+		itEnd = getPatch()->ghostCellEnd();
 	}
 #else
 	BITPIT_UNUSED(ghost);

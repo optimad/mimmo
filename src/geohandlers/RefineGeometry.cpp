@@ -513,7 +513,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
         MimmoPiercedVector<int> greenSplitFaceIndexCommunicated;
 
         // Fill initial sources and targets values
-        for (auto source_tuple : geometry->getPatch()->getGhostExchangeSources()){
+        for (auto source_tuple : geometry->getPatch()->getGhostCellExchangeSources()){
             int rank = source_tuple.first;
             for (long id : source_tuple.second){
                 if (!refinementTagCommunicated.exists(id)){
@@ -522,7 +522,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                 }
             }
         }
-        for (auto target_tuple : geometry->getPatch()->getGhostExchangeTargets()){
+        for (auto target_tuple : geometry->getPatch()->getGhostCellExchangeTargets()){
             int rank = target_tuple.first;
             for (long id : target_tuple.second){
                 // Initialize targets (ghosts) to -1
@@ -645,7 +645,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                 // Update ghost refinement tags
                 // The if needed insert new edges and put new reds in stack
                 // Fill with sources and targets values
-                for (auto source_tuple : geometry->getPatch()->getGhostExchangeSources()){
+                for (auto source_tuple : geometry->getPatch()->getGhostCellExchangeSources()){
                     int rank = source_tuple.first;
                     for (long id : source_tuple.second){
                         refinementTagCommunicated.at(id) = refinementTag.at(id);
@@ -657,7 +657,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                         }
                     }
                 }
-                for (auto target_tuple : geometry->getPatch()->getGhostExchangeTargets()){
+                for (auto target_tuple : geometry->getPatch()->getGhostCellExchangeTargets()){
                     int rank = target_tuple.first;
                     for (long id : target_tuple.second){
                         // Initialize targets (ghosts) to -1
@@ -672,7 +672,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                 ghostCommunicator.completeAllExchanges();
 
                 // Update refinement tags if different from communicated
-                for (auto ghostIt = geometry->getPatch()->ghostConstBegin(); ghostIt != geometry->getPatch()->ghostConstEnd(); ghostIt++){
+                for (auto ghostIt = geometry->getPatch()->ghostCellConstBegin(); ghostIt != geometry->getPatch()->ghostCellConstEnd(); ghostIt++){
                     long ghostId = ghostIt->getId();
 
                     // Maximum communicated tag to 2
