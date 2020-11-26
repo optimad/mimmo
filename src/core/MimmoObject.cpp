@@ -3418,7 +3418,7 @@ void MimmoObject::updateAdjacencies(){
         return;
         break;
     case SyncStatus::NONE:
-        getPatch()->buildAdjacencies();
+        getPatch()->initializeAdjacencies();
         break;
     case SyncStatus::UNSYNC:
         getPatch()->updateAdjacencies();
@@ -3451,7 +3451,7 @@ void MimmoObject::updateInterfaces(){
         return;
         break;
     case SyncStatus::NONE:
-        getPatch()->buildInterfaces();
+        getPatch()->initializeInterfaces();
         break;
     case SyncStatus::UNSYNC:
         getPatch()->updateInterfaces();
