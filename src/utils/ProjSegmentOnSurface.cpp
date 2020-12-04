@@ -305,7 +305,9 @@ ProjSegmentOnSurface::projection(){
         id = 0;
         for(int i=0; i<m_nC; ++i){
             m_patch->addConnectedCell(livector1D({{i, i+1}}), eltype, 0, id, 0);
+#if MIMMO_ENABLE_MPI
             partMap[id]= std::min(ranks[i], ranks[i+1]);
+#endif
             ++id;
         }
     }

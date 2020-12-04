@@ -250,9 +250,9 @@ void test00003() {
 
    //Last step write deformed original geometry in vtu
 #if MIMMO_ENABLE_MPI
-    mimmo0->getGeometry()->getPatch()->write("utils_mesh_00003.0001");
-#else
     serialize->getGeometry()->getPatch()->write("utils_mesh_00003.0001");
+#else
+    mimmo0->getGeometry()->getPatch()->write("utils_mesh_00003.0001");
 #endif
 
     /* Clean up & exit;

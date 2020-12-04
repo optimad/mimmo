@@ -888,7 +888,7 @@ PropagateField<NCOMP>::updateNarrowBand(){
         // Initialize seeds to avoid use of skdtree in narrowband computing
         // BEWARE this is done to seed the partition initially, and if updating,
         //to avoid the case in which a single partition does not have seeds.
-        // Due to flawed propagation in getVerticesNarrowBandToExtSurfaceWDist in parallel 
+        // Due to flawed propagation in getVerticesNarrowBandToExtSurfaceWDist in parallel
         //
         seedlist = getGeometry()->getBorderVertices(); // all border ghost included
     }
@@ -980,7 +980,10 @@ PropagateField<NCOMP>::initializeLaplaceSolver(GraphLaplStencil::MPVStencil * la
 	long id, ind;
 	for(auto it=laplacianStencils->begin(); it!=laplacianStencils->end(); ++it){
 		id = it.getId();
-		ind = maplocals.at(id) - getGeometry()->getPointGlobalCountOffset();
+        ind = maplocals.at(id);
+#if MIMMO_ENABLE_MPI
+        ind -= getGeometry()->getPointGlobalCountOffset();
+#endif
 		mapsort[ind] = id;
 	}
 
@@ -1044,7 +1047,10 @@ PropagateField<NCOMP>::updateLaplaceSolver(FVolStencil::MPVDivergence * laplacia
 	long id, ind;
 	for(auto it=laplacianStencils->begin(); it != laplacianStencils->end(); ++it){
 		id = it.getId();
-		ind = maplocals.at(id) -  getGeometry()->getPointGlobalCountOffset();
+        ind = maplocals.at(id);
+#if MIMMO_ENABLE_MPI
+        ind -= getGeometry()->getPointGlobalCountOffset();
+#endif
 		rows_involved.push_back(ind);
 		bitpit::StencilScalar item(*it);
 		item.renumber(maplocals);
@@ -1126,7 +1132,10 @@ PropagateField<NCOMP>::assignBCAndEvaluateRHS(std::size_t comp, bool unused,
 
     // now get the rhs
     for(auto it = lapwork->begin(); it != lapwork->end();++it){
-        long index = maplocals.at(it.getId()) - geo->getPointGlobalCountOffset();
+        long index = maplocals.at(it.getId());
+#if MIMMO_ENABLE_MPI
+        index -= getGeometry()->getPointGlobalCountOffset();
+#endif
         rhs[index] -= it->getConstant();
     }
 
@@ -1190,7 +1199,10 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const lilim
     for(auto & pair : mapglobals){
         id = pair.second;
         if (geo->isPointInterior(id)){
-            counter = pair.first - geo->getPointGlobalCountOffset();
+            counter = pair.first;
+#if MIMMO_ENABLE_MPI
+            counter -= getGeometry()->getPointGlobalCountOffset();
+#endif
             for(int i=0; i<int(NCOMP); ++i){
                 temp[i] = results[i][counter];
             }

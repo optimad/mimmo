@@ -941,7 +941,10 @@ PropagateVectorField::assignBCAndEvaluateRHS(std::size_t comp, bool slipCorrect,
 
     // now get the rhs
     for(auto it = lapwork->begin(); it != lapwork->end();++it){
-        long index = maplocals.at(it.getId()) - getGeometry()->getPointGlobalCountOffset();
+        long index = maplocals.at(it.getId());
+#if MIMMO_ENABLE_MPI
+        index -= getGeometry()->getPointGlobalCountOffset();
+#endif
         rhs[index] -= it->getConstant();
     }
 }
