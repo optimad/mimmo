@@ -37,10 +37,10 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 ### Removed
 - removed SwitchField classes
 - removed I/O OpenFOAM points from MimmoGeometry class
-
+- removed class MimmoFVMesh
 
 ## [1.3.0] - 2019-10-25
- 
+
 ### Fixed
 - fixed cmake retracking dependancies (as in case of bitpit v.1.6.0).
 - fixed BasicShape: XML interface.
