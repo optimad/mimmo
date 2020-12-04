@@ -2655,7 +2655,7 @@ MimmoObject::setUnsyncAll(){
  *\return the list of bitpit::PatchKernel ids of involved vertices.
  */
 livector1D MimmoObject::getVertexFromCellList(const livector1D &cellList){
-    if(isEmpty() || getType() == 3)   return livector1D(0);
+    if(getType() == 3)   return livector1D(0);
 
     livector1D result;
     std::unordered_set<long int> ordV;
@@ -2683,7 +2683,7 @@ livector1D MimmoObject::getVertexFromCellList(const livector1D &cellList){
  *\param[in] all extract all interfaces af listed cells. Otherwise (if false) extract only the interfaces shared by the listed cells.
  */
 livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList, bool all){
-	if(isEmpty() || getType() == 3)   return livector1D(0);
+	if(getType() == 3)   return livector1D(0);
 
 	updateInterfaces();
 	livector1D result;
@@ -2711,7 +2711,7 @@ livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList, boo
 		for(const auto & interf : getInterfaces()){
 			long idowner = interf.getOwner();
 			long idneigh = interf.getNeigh();
-			if (targetCells.count(idowner) && (targetCells.count(idneigh) || idneigh<0)){
+			if (targetCells.count(idowner) && (targetCells.count(idneigh) || idneigh == bitpit::Element::NULL_ID)){
 				ordV.insert(interf.getId());
 			}
 		}
@@ -2731,7 +2731,7 @@ livector1D MimmoObject::getInterfaceFromCellList(const livector1D &cellList, boo
  * \return list of bitpit::PatchKernel IDs of involved 1-Ring cells.
  */
 livector1D MimmoObject::getCellFromVertexList(const livector1D & vertexList, bool strict){
-	if(isEmpty() || getType() == 3)   return livector1D(0);
+	if(getType() == 3)   return livector1D(0);
 
 	livector1D result;
 	std::unordered_set<long int> ordV, ordC;
@@ -2761,15 +2761,20 @@ livector1D MimmoObject::getCellFromVertexList(const livector1D & vertexList, boo
  * Extract interfaces list from an ensamble of geometry vertices.
  * Ids of all those interfaces whose vertices are defined inside the
  * selection will be returned. Interfaces are automatically built, if the mesh has none.
+   "strict" boolean, if true, controls that interfaces have all connectivity points inside the vertex list,
+    if false insert all interfaces having at least one point inside such list.
+    "border" boolean, if true, limits the search to interface lying on the mesh border. Please, be aware,
+    in case of MPI distributed mesh, all borders of partition are considered, physical and rank borders.
  * \param[in] vertexList list of bitpit::PatchKernel IDs identifying vertices.
  * \param[in] strict boolean true to restrict search for cells having all vertices in the list,
                      false to include all cells having at least 1 vertex in the list.
  * \param[in] border boolean true to restrict the search to border interfaces, false to include all interfaces
+
  * \return list of bitpit::PatchKernel IDs of involved interfaces
  */
 
 livector1D MimmoObject::getInterfaceFromVertexList(const livector1D & vertexList, bool strict, bool border){
-	if(isEmpty() || getType() == 3)   return livector1D(0);
+	if(getType() == 3)   return livector1D(0);
 
 	updateInterfaces();
 
@@ -2801,165 +2806,416 @@ livector1D MimmoObject::getInterfaceFromVertexList(const livector1D & vertexList
 
 
 /*!
- * Extract vertices at the mesh boundaries, if any. The method is meant for connected mesh only,
- * return empty list otherwise.
- * \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
- * \return list of vertex unique-ids.
+ * Extract cells  who have one face at the mesh boundaries at least, if any.
+ * Return the list of the local faces per cell, which lie exactly on the boundary.
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * In MPI versions, if mesh is distributed and ghost search is activated, returns
+   all cells (internal and ghost) that have a face properly lying on a physical boundary: faces
+   lying on a rank border are excluded through an internal communication.
+ *  \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
+ * \return map of boundary cell unique-ids, with local boundary faces list.
  */
-livector1D 	MimmoObject::extractBoundaryVertexID(bool ghost){
+std::unordered_map<long, std::set<int> >
+MimmoObject::extractBoundaryFaceCellID(bool ghost){
 
-	std::unordered_map<long, std::set<int> > cellmap = extractBoundaryFaceCellID(ghost);
-	if(cellmap.empty()) return livector1D(0);
+	std::unordered_map<long, std::set<int> > result;
+	if(m_type ==3)   return result;
 
-	std::unordered_set<long> container;
-	container.reserve(getPatch()->getVertexCount());
+#if MIMMO_ENABLE_MPI == 0 //serial part only
+    BITPIT_UNUSED(ghost);
+    if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)  updateAdjacencies(); //forcing adjacencies in serial
+#endif
+    update();
 
-	for (const auto & val : cellmap){
-		bitpit::Cell & cell = getPatch()->getCell(val.first);
-		for(const auto face : val.second){
-			bitpit::ConstProxyVector<long> list = cell.getFaceVertexIds(face);
-			for(const auto & index : list ){
-				container.insert(index);
-			}
-		}// end loop on face
-	}
+    //loop on internal cells
+    int size;
+    for (bitpit::PatchKernel::CellIterator it = getPatch()->internalCellBegin(); it != getPatch()->internalCellEnd(); ++it){
+        size= it->getFaceCount();
+        for(int face=0; face<size; ++face){
+            if(it->isFaceBorder(face)){
+                result[it.getId()].insert(face);
+            }//endif
+        }// end loop on face
+    }
 
-	livector1D result;
-	result.reserve(container.size());
-	result.insert(result.end(), container.begin(), container.end());
+#if MIMMO_ENABLE_MPI
+    //here, if you want ghost face physical borders, you need to do a communication
+    // from local rank to neighbour ranks: send borderfaces of local rank internal sources,
+    //and recover border faces on local ghosts from other ranks.
 
-	return result;
+    if(ghost){
+
+        size_t dataSize = sizeof(int);
+        std::unique_ptr<bitpit::DataCommunicator> dataCommunicator(new bitpit::DataCommunicator(getCommunicator()));
+
+        // Set and start the sends
+        for (const auto & entry : getPatch()->getGhostCellExchangeSources()) {
+            const int rank = entry.first;
+            auto &list = entry.second;
+            // Recover number of vertices
+            int dataCount(0);
+            for (long cellId : list){
+                if(result.count(cellId) > 0) {
+                    dataCount += int(result[cellId].size());
+                }
+            }
+
+            dataCommunicator->setSend(rank, ( dataCount * dataSize + int(list.size()) * dataSize ) );
+            bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+            // Fill the buffer with borderfaces information on sources.
+            for (long cellId : list){
+                if(result.count(cellId) > 0){
+                    buffer<<int(result[cellId].size());
+                    for(int face : result[cellId]){
+                        buffer<<face;
+                    }
+                }else{
+                    buffer<<int(0);
+                }
+            }
+            dataCommunicator->startSend(rank);
+        }
+
+        // Discover & start all the receives
+        dataCommunicator->discoverRecvs();
+        dataCommunicator->startAllRecvs();
+
+        // Receive ghosts data from owners on other ranks
+        int nCompletedRecvs = 0;
+
+        while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+            int rank = dataCommunicator->waitAnyRecv();
+            const auto &list = getPatch()->getGhostCellExchangeTargets(rank);
+            bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+            // visit the list, all cellId in the list is a ghost for my local rank.
+            //Collect all face information they had.
+            int nface, face;
+            for (long cellId : list){
+                buffer >> nface;
+                for(int i=0; i<nface; ++i){
+                    buffer >> face;
+                    result[cellId].insert(face);
+                }
+            }
+            ++nCompletedRecvs;
+        }
+        // Wait for the sends to finish
+        dataCommunicator->waitAllSends();
+
+    } //end of if ghost
+
+    //all ghost face borders are already appended to result
+#endif
+
+    return result;
+};
+
+
+/*!
+ * Extract boundary cells who have one face at the mesh boundaries at least, if any.
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * \param[in] map of border faces previously calculated with extractBoundaryFaceCellID
+ * \return list of cell ids.
+ */
+livector1D
+MimmoObject::extractBoundaryCellID(std::unordered_map<long, std::set<int> > & map){
+    livector1D result;
+    result.reserve(map.size());
+    for(auto & touple: map){
+        result.push_back(touple.first);
+    }
+    return result;
 };
 
 /*!
  * Extract cells who have one face at the mesh boundaries at least, if any.
  * The method is meant for connected mesh only, return empty list otherwise.
  * \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
- * \return list of cell unique-ids.
+ * \return list of cell ids.
  */
-livector1D  MimmoObject::extractBoundaryCellID(bool ghost){
-
-	if(isEmpty() || m_type==3)   return livector1D(0);
-	updateAdjacencies();
-
-	std::unordered_set<long> container;
-	container.reserve(getPatch()->getCellCount());
-	auto itBegin = getPatch()->internalCellBegin();
-	auto itEnd = getPatch()->internalCellEnd();
-#if MIMMO_ENABLE_MPI
-	if(ghost){
-		itEnd = getPatch()->ghostCellEnd();
-	}
-#else
-	BITPIT_UNUSED(ghost);
-#endif
-	for (auto it=itBegin; it!=itEnd; ++it){
-		int size = it->getFaceCount();
-		for(int face=0; face<size; ++face){
-			if(it->isFaceBorder(face)){
-				container.insert(it.getId());
-			}//endif
-		}// end loop on face
-	}
-	livector1D result;
-	result.reserve(container.size());
-	result.insert(result.end(), container.begin(), container.end());
-
-	return result;
+livector1D
+MimmoObject::extractBoundaryCellID(bool ghost){
+    std::unordered_map<long, std::set<int> > map = extractBoundaryFaceCellID(ghost);
+    return extractBoundaryCellID(map);
 };
 
 /*!
- * Extract cells  who have one face at the mesh boundaries at least, if any.
- * Return the list of the local faces per cell, which lie exactly on the boundary.
+ * Extract vertices at the mesh boundaries.
  * The method is meant for connected mesh only, return empty list otherwise.
- *  \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
- * \return map of boundary cell unique-ids, with local boundary faces list.
+ * \param[in] map of border faces previously calculated with extractBoundaryFaceCellID
+ * \return list of vertex ids.
  */
-std::unordered_map<long, std::set<int> >  MimmoObject::extractBoundaryFaceCellID(bool ghost){
+livector1D
+MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::set<int> > &map){
 
-	std::unordered_map<long, std::set<int> > result;
-	if(isEmpty() || m_type ==3)   return result;
-	updateAdjacencies();
+    std::unordered_set<long> container;
+    container.reserve(getPatch()->getVertexCount());
 
-	auto itBegin = getPatch()->internalCellBegin();
-	auto itEnd = getPatch()->internalCellEnd();
-#if MIMMO_ENABLE_MPI
-	if(ghost){
-		itEnd = getPatch()->ghostCellEnd();
-	}
-#else
-	BITPIT_UNUSED(ghost);
-#endif
-	for (auto it=itBegin; it!=itEnd; ++it){
-		int size = it->getFaceCount();
-		for(int face=0; face<size; ++face){
-			if(it->isFaceBorder(face)){
-				result[it.getId()].insert(face);
-			}//endif
-		}// end loop on face
-	}
-	return result;
+    for (auto & touple : map){
+        bitpit::Cell & cell = getPatch()->getCell(touple.first);
+        for(int face : touple.second){
+            bitpit::ConstProxyVector<long> list = cell.getFaceVertexIds(face);
+            for(long id : list ){
+                container.insert(id);
+            }
+        }// end loop on face
+    }
+
+    livector1D result;
+    result.reserve(container.size());
+    result.insert(result.end(), container.begin(), container.end());
+
+    return result;
 };
 
 /*!
- * Extract vertices at the mesh boundaries, provided the map of the cell faces at boundaries.
- * The method is meant for connected mesh only, return empty list otherwise.
- * \param[in] cellmap map of border faces of the mesh written as cell-ID vs local cell face index.
- * \return list of vertex unique-ids.
+ * Extract vertices at the mesh boundaries, if any. The method is meant for connected mesh only,
+ * return empty list otherwise.
+ * \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
+ * \return list of vertex ids.
  */
-livector1D  MimmoObject::extractBoundaryVertexID(std::unordered_map<long, std::set<int> > &cellmap){
+livector1D
+MimmoObject::extractBoundaryVertexID(bool ghost){
+    std::unordered_map<long, std::set<int> > map = extractBoundaryFaceCellID(ghost);
+    return extractBoundaryVertexID(map);
+};
 
-	if(cellmap.empty()) return livector1D(0);
+/*!
+ * Extract interfaces who lies on the mesh boundaries.
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * \param[in] map of border faces previously calculated with extractBoundaryFaceCellID
+ * \return list of interface ids.
+ */
+livector1D
+MimmoObject::extractBoundaryInterfaceID(std::unordered_map<long, std::set<int> > &map){
 
-	std::unordered_set<long> container;
-	container.reserve(getPatch()->getVertexCount());
+    updateInterfaces();
 
-	for (const auto & val : cellmap){
-		bitpit::Cell & cell = getPatch()->getCell(val.first);
-		for(const auto face : val.second){
-			bitpit::ConstProxyVector<long> list = cell.getFaceVertexIds(face);
-			for(const auto & index : list ){
-				container.insert(index);
-			}
-		}// end loop on face
-	}
+    std::unordered_set<long> container;
+    container.reserve(getPatch()->getInterfaceCount());
 
-	livector1D result;
-	result.reserve(container.size());
-	result.insert(result.end(), container.begin(), container.end());
+    for(auto & tuple : map){
+        long * interfCellList  = getPatch()->getCell(tuple.first).getInterfaces();
+        for(int face : tuple.second){
+            container.insert(interfCellList[face]);
+        }
+    }
 
-	return result;
+    livector1D result;
+    result.reserve(container.size());
+    result.insert(result.end(), container.begin(), container.end());
+
+    return result;
 };
 
 /*!
  * Extract interfaces who lies on the mesh boundaries.
  * The method is meant for connected mesh only, return empty list otherwise.
  * \param[in] ghost true if the ghost interfaces must be accounted into the search, false otherwise
- * \return list of cell unique-ids.
+ * \return list of interface ids.
  */
-livector1D  MimmoObject::extractBoundaryInterfaceID(bool ghost){
-
-	if(isEmpty() || m_type==3)   return livector1D(0);
-	updateInterfaces();
-
-	std::unordered_set<long> container;
-	container.reserve(getPatch()->getInterfaceCount());
-	std::unordered_map<long, std::set<int> > facemap = extractBoundaryFaceCellID(ghost);
-
-	for(auto & tuple : facemap){
-		long * interfCellList  = getPatch()->getCell(tuple.first).getInterfaces();
-		for(auto & val : tuple.second){
-			if(interfCellList[val] < 0) continue;
-			container.insert(interfCellList[val]);
-		}
-	}
-
-	livector1D result;
-	result.reserve(container.size());
-	result.insert(result.end(), container.begin(), container.end());
-
-	return result;
+livector1D
+MimmoObject::extractBoundaryInterfaceID(bool ghost){
+    std::unordered_map<long, std::set<int> > map = extractBoundaryFaceCellID(ghost);
+    return extractBoundaryInterfaceID(map);
 };
+
+/*!
+ * Extract boundary mesh if the current MimmoObject mesh.
+   Boundaries will be stored in an indipendent MimmoObject container, whose topology is:
+   - Surface Mesh (type 1 ) if the starting mesh is a Volume(2);
+   - 3DCurve Mesh (type 4 ) if the starting mesh is a Surface(1);
+   - Point Cloud  (type 3)  if the starting mesh is a 3DCurve(4);
+   Bulk interfaces are used to create boundary tessellations.
+   Bulk PIDs will be inherited into the boundary mesh.
+   In MPI versions, boundaries will inherit the distributed status of the original mesh
+ */
+MimmoSharedPointer<MimmoObject>
+MimmoObject::extractBoundaryMesh(){
+
+    bool destroyBulkInterface = (getInterfacesSyncStatus() == SyncStatus::NONE);
+    updateInterfaces();
+
+    livector1D boundaryInterfaces, boundaryVertices;
+    {
+        std::unordered_map<long, std::set<int>> map = extractBoundaryFaceCellID(true);
+
+        boundaryVertices = extractBoundaryVertexID(map);
+        boundaryInterfaces = extractBoundaryInterfaceID(map);
+    }
+
+    //fill new boundary
+    //instantiate mesh
+    int type = int(getType() == 2) + 4*int(getType() == 1) + 3*int(getType() == 4);
+    MimmoSharedPointer<MimmoObject> boundary(new MimmoObject(type));
+
+    //get intefaces from current mesh
+    bitpit::PiercedVector<bitpit::Interface> & bulkInterf = getInterfaces();
+
+    //fill vertices
+    for(const auto & idV: boundaryVertices){
+        boundary->addVertex(getVertexCoords(idV),idV);
+    }
+
+    int rank;
+    long PID;
+    long * conn = nullptr;
+    bitpit::ElementType eltype;
+    for(long idI: boundaryInterfaces){
+        bitpit::Interface & bInt = bulkInterf[idI];
+        rank = -1;
+        conn = bInt.getConnect();
+
+#if MIMMO_ENABLE_MPI
+        rank = getPatch()->getCellRank(bInt.getOwner());
+#endif
+        PID = getPatch()->getCell(bInt.getOwner()).getPID();
+        boundary->addConnectedCell(livector1D(conn, conn+bInt.getConnectSize()), bInt.getType(), PID, idI, rank);
+    }
+
+    //check and release bulk Interfaces
+    if(destroyBulkInterface) {
+        destroyInterfaces();
+    }
+
+
+
+    //get a self consistent distributed representation of boundary
+    // some ghost interfaces may result isolated check and clean it
+#if MIMMO_ENABLE_MPI
+    boundary->deleteOrphanGhostCells();
+#endif
+
+    if(boundary->getPatch()->countOrphanVertices() > 0){
+        boundary->getPatch()->deleteOrphanVertices();
+    }
+
+    boundary->getPatch()->squeezeVertices();
+    boundary->getPatch()->squeezeCells();
+
+    boundary->update();
+
+    return boundary;
+}
+
+
+/*!
+  Return all cells faces at the mesh border. The method is meant for connected mesh only,
+  return empty list otherwise.
+  In MPI versions, differently from extractBoundaryFaceCellID, the method return all faces,
+  those belonging to rank borders, plus those on physical borders, in non-collective way
+  (operations on local rank, no communications)
+  In serial version the method is equivalent to extractBoundaryFaceCellID.
+   \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
+  \return map of boundary cell unique-ids, with local boundary faces list.
+ */
+std::unordered_map<long, std::set<int> >
+MimmoObject::getBorderFaceCells(){
+
+	std::unordered_map<long, std::set<int> > result;
+	if(m_type ==3)   return result;
+
+    updateAdjacencies();
+    //loop on internal cells
+    int size;
+    for (bitpit::PatchKernel::CellIterator it = getPatch()->cellBegin(); it != getPatch()->cellEnd(); ++it){
+        size= it->getFaceCount();
+        for(int face=0; face<size; ++face){
+            if(it->isFaceBorder(face)){
+                result[it.getId()].insert(face);
+            }//endif
+        }// end loop on face
+    }
+
+    return result;
+};
+
+
+/*!
+ * Get all border cells who have one face at the mesh boundaries  at least(physical or rank border).
+   In MPI versions, differently from extractBoundaryCellID, the method return all cells having border faces,
+   those belonging to rank borders, plus those on physical borders, in non-collective way
+   (operations on local rank, no communications).
+   In serial version only is equivalent to method extractBoundaryCellID
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * \param[in] map of border faces previously calculated with getBorderFaceCells()
+ * \return list of cell ids.
+ */
+livector1D
+MimmoObject::getBorderCells(std::unordered_map<long, std::set<int> > & map){
+    livector1D result;
+    result.reserve(map.size());
+    for(auto & touple: map){
+        result.push_back(touple.first);
+    }
+    return result;
+};
+
+/*!
+ * Get all border cells who have one face at the mesh boundaries  at least(physical or rank border).
+   In MPI versions, differently from extractBoundaryCellID, the method return all cells having border faces,
+   those belonging to rank borders, plus those on physical borders, in non-collective way
+   (operations on local rank, no communications).
+   In serial version only is equivalent to method extractBoundaryCellID
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * \param[in] map of border faces previously calculated with getBorderFaceCells()
+ * \return list of cell ids.
+ */
+livector1D
+MimmoObject::getBorderCells(){
+    std::unordered_map<long, std::set<int> > map = getBorderFaceCells();
+    return getBorderCells(map);
+};
+
+/*!
+ * Get all border vertices belonging to border face at the mesh boundaries (physical or rank border).
+   In MPI versions, differently from extractBoundaryVertexID, the method return all vertices belonging to border faces,
+   those belonging to rank borders, plus those on physical borders, in non-collective way
+   (operations on local rank, no communications).
+   In serial version only is equivalent to method extractBoundaryVertexID
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * \param[in] map of border faces previously calculated with getBorderFaceCells()
+ * \return list of vertex ids.
+ */
+livector1D
+MimmoObject::getBorderVertices(std::unordered_map<long, std::set<int> > &map){
+
+    std::unordered_set<long> container;
+    container.reserve(getPatch()->getVertexCount());
+
+    for (auto & touple : map){
+        bitpit::Cell & cell = getPatch()->getCell(touple.first);
+        for(int face : touple.second){
+            bitpit::ConstProxyVector<long> list = cell.getFaceVertexIds(face);
+            for(long id : list ){
+                container.insert(id);
+            }
+        }// end loop on face
+    }
+
+    livector1D result;
+    result.reserve(container.size());
+    result.insert(result.end(), container.begin(), container.end());
+
+    return result;
+};
+
+/*!
+ * Get all border vertices belonging to border face at the mesh boundaries (physical or rank border).
+   In MPI versions, differently from extractBoundaryVertexID, the method return all vertices belonging to border faces,
+   those belonging to rank borders, plus those on physical borders, in non-collective way
+   (operations on local rank, no communications).
+   In serial version only is equivalent to method extractBoundaryVertexID
+ * The method is meant for connected mesh only, return empty list otherwise.
+ * \param[in] map of border faces previously calculated with getBorderFaceCells()
+ * \return list of vertex ids.
+ */
+livector1D
+MimmoObject::getBorderVertices(){
+    std::unordered_map<long, std::set<int> > map = getBorderFaceCells();
+    return getBorderVertices(map);
+};
+
 
 /*!
  * Extract all cells marked with a target PID flag.
@@ -3937,6 +4193,8 @@ MimmoObject::getCellsNarrowBandToExtSurface(MimmoObject & surface, const double 
 bitpit::PiercedVector<double>
 MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
 
+    //TODO this propagation does not work properly in parallel. Please review it
+    //using propagated distance on ghost.
     surface.updateAdjacencies();
 
     if (m_skdTreeSync != SyncStatus::SYNC)
@@ -3954,33 +4212,29 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
 
     //First step check seed list and precalculate distance. If dist >= maxdist
     //the seed candidate is out.
-    int npoints;
+    int npoints(0);
     darray3E point;
     dvecarr3E points;
     dvector1D distances;
     livector1D surface_ids;
-    livector1D * candidates;
+    livector1D candidates;
     double distance, maxdistance(maxdist);
     long id;
 
 
-    livector1D effectiveSeedList;
-    //check if seedlist contains valid cell ids for the current mesh/local rank partition.
+
     if(seedlist){
-        effectiveSeedList.reserve(seedlist->size());
+        //check if seedlist contains valid cell ids for the current mesh/local rank partition.
+        candidates.reserve(seedlist->size());
         bitpit::PiercedVector<bitpit::Cell> & cells = getCells();
         for(long id : *seedlist){
-            if(cells.exists(id))    effectiveSeedList.push_back(id);
+            if(cells.exists(id))    candidates.push_back(id);
         }
-    }
-
-    if(!effectiveSeedList.empty()){
-
+        candidates.shrink_to_fit();
         // Fill points array with seed list
-        npoints = effectiveSeedList.size();
+        npoints = candidates.size();
         points.reserve(npoints);
-        candidates = &effectiveSeedList;
-        for(long idseed : effectiveSeedList){
+        for(long idseed : candidates){
             points.emplace_back(getPatch()->evalCellCentroid(idseed));
         }
 
@@ -3992,20 +4246,19 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
         // Then check if the candidate cells are closer than maxdistance,
         // in this case insert in result as seeds
 
-        // Create candidates with new (delete when not more needed outside the scope!)
-        candidates = new livector1D;
+
 #if MIMMO_ENABLE_MPI
         if (surface.isParallel()){
-            *candidates = skdTreeUtils::selectByGlobalPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
+            candidates = skdTreeUtils::selectByGlobalPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
         } else
 #endif
         {
-            *candidates = skdTreeUtils::selectByPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
+            candidates = skdTreeUtils::selectByPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
         }
 
-        npoints = candidates->size();
+        npoints = candidates.size();
         points.reserve(npoints);
-        for(long idseed : *candidates){
+        for(long idseed : candidates){
             points.emplace_back(getPatch()->evalCellCentroid(idseed));
         }
 
@@ -4029,15 +4282,10 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
     // Fill seeds (directly in result) if distance < maxdistance
     for (int ipoint = 0; ipoint < npoints; ipoint++){
         distance = distances[ipoint];
-        id = candidates->at(ipoint);
+        id = candidates[ipoint];
         if(distance < maxdist){
             result.insert(id, distance);
         }
-    }
-
-    if(effectiveSeedList.empty()){
-        // Delete candidates
-        delete candidates;
     }
 
 	// create the stack of neighbours with the seed i have.
@@ -4154,6 +4402,9 @@ MimmoObject::getVerticesNarrowBandToExtSurface(MimmoObject & surface, const doub
 bitpit::PiercedVector<double>
 MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const double & maxdist, livector1D * seedlist){
 
+    //TODO this propagation does not work properly in parallel. Please review it
+    //using propagated distance on ghost.
+
     bitpit::PiercedVector<double> result;
     if(surface.getType() != 1) return result;
 
@@ -4173,32 +4424,28 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
 
     //First step check seed list and precalculate distance. If dist >= maxdist
     //the seed candidate is out.
-    int npoints;
+    int npoints(0);
     darray3E point;
     dvecarr3E points;
     dvector1D distances;
     livector1D surface_ids;
-    livector1D * candidates;
+    livector1D candidates;
     double distance, maxdistance(maxdist);
     long id;
 
-    livector1D effectiveSeedList;
-    //check if seedlist contains valid vertex ids for the current mesh/local rank partition.
+    // Fill points candidates with seedlist or found candidates
     if(seedlist){
-        effectiveSeedList.reserve(seedlist->size());
+        //check if seedlist contains valid vertex ids for the current mesh/local rank partition.
+        candidates.reserve(seedlist->size());
         bitpit::PiercedVector<bitpit::Vertex> & verts = getVertices();
         for(long id : *seedlist){
-            if(verts.exists(id))    effectiveSeedList.push_back(id);
+            if(verts.exists(id))    candidates.push_back(id);
         }
-    }
-
-    // Fill points candidates with seedlist or found candidates
-    if(!effectiveSeedList.empty()){
+        candidates.shrink_to_fit();
         // Fill points array with seed list
-        npoints = effectiveSeedList.size();
+        npoints = candidates.size();
         points.reserve(npoints);
-        candidates = &effectiveSeedList;
-        for(long idseed : effectiveSeedList){
+        for(long idseed : candidates){
             points.emplace_back(getVertexCoords(idseed));
         }
 
@@ -4209,9 +4456,6 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
         // by using the surface input patch as selection patch.
         // Then check if the candidate cells are closer than maxdistance,
         // in this case insert in result as seeds
-
-        // Create points candidates with new (delete when not more needed outside the scope!)
-        candidates = new livector1D;
 
         // Create cell candidates structure
         livector1D cell_candidates;
@@ -4224,9 +4468,9 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
             cell_candidates = skdTreeUtils::selectByPatch(surface.getSkdTree(), getSkdTree(), maxdistance);
         }
 
-        livector1D vvset = getVertexFromCellList(cell_candidates);
+        livector1D candidates = getVertexFromCellList(cell_candidates);
         // Fill points candidates with all the vertices of the found cells
-        for(long idseed : vvset){
+        for(long idseed : candidates){
             points.emplace_back(getVertexCoords(idseed));
         }
 
@@ -4248,15 +4492,10 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
     // Fill seed points (directly in result) if distance < maxdistance
     for (int ipoint = 0; ipoint < npoints; ipoint++){
         distance = distances[ipoint];
-        id = candidates->at(ipoint);
+        id = candidates[ipoint];
         if(distance < maxdist){
             result.insert(id, distance);
         }
-    }
-
-    if(effectiveSeedList.empty()){
-        // Delete candidates
-        delete candidates;
     }
 
     // create the stack of neighbours with the seed i have.

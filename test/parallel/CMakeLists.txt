@@ -33,6 +33,7 @@ set(TESTS "")
 list(APPEND TESTS "test_parallel_00000:2")
 list(APPEND TESTS "test_parallel_00001:2")
 list(APPEND TESTS "test_parallel_00002:2")
+list(APPEND TESTS "test_parallel_00003:3")
 
 # Test extra libraries
 set(TEST_EXTRA_LIBRARIES "")
