@@ -282,11 +282,20 @@ public:
     livector1D  getInterfaceFromCellList(const livector1D &cellList, bool all = true);
     livector1D  getInterfaceFromVertexList(const livector1D &vertList, bool strict, bool border);
 
-    livector1D                               extractBoundaryCellID(bool ghost = false);
     std::unordered_map<long, std::set<int> > extractBoundaryFaceCellID(bool ghost = false);
-    livector1D                               extractBoundaryInterfaceID(bool ghost= false);
-    livector1D                               extractBoundaryVertexID(bool ghost = false);
+    livector1D                               extractBoundaryCellID(bool ghost = false);
+    livector1D                               extractBoundaryCellID(std::unordered_map<long, std::set<int> > & map);
     livector1D                               extractBoundaryVertexID(std::unordered_map<long, std::set<int> > & map);
+    livector1D                               extractBoundaryVertexID(bool ghost = false);
+    livector1D                               extractBoundaryInterfaceID(std::unordered_map<long, std::set<int> > & map);
+    livector1D                               extractBoundaryInterfaceID(bool ghost= false);
+    MimmoSharedPointer<MimmoObject>          extractBoundaryMesh();
+
+    std::unordered_map<long, std::set<int> > getBorderFaceCells();
+    livector1D                               getBorderCells(std::unordered_map<long, std::set<int> > & map);
+    livector1D                               getBorderCells();
+    livector1D                               getBorderVertices(std::unordered_map<long, std::set<int> > & map);
+    livector1D                               getBorderVertices();
 
     livector1D  extractPIDCells(long, bool squeeze = true);
     livector1D  extractPIDCells(livector1D, bool squeeze = true);
@@ -362,6 +371,7 @@ public:
     void						triangulate();
 
     void                        degradeDegenerateElements(bitpit::PiercedVector<bitpit::Cell>* degradedDeletedCells = nullptr, bitpit::PiercedVector<bitpit::Vertex>* collapsedVertices = nullptr);
+
 
 protected:
     void    initializeLogger();
