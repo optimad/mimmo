@@ -488,8 +488,11 @@ SpecularPoints::execute(){
         if(distance > margin || m_force){
 
             m_cobj->addVertex( (vert - 2.0*distance*sig*norm), offsetVertLabel);
+#if MIMMO_ENABLE_MPI
             m_cobj->addConnectedCell(std::vector<long>(1, offsetVertLabel), type, 0, offsetCellLabel, m_rank);
-
+#else
+            m_cobj->addConnectedCell(std::vector<long>(1, offsetVertLabel), type, 0, offsetCellLabel);
+#endif
             m_scalarMirrored.insert(offsetVertLabel, m_scalarMirrored[id] );
             m_vectorMirrored.insert(offsetVertLabel, (m_vectorMirrored[id] -2.0*dotProduct(m_vectorMirrored[id], sig*norm)*sig*norm) );
 

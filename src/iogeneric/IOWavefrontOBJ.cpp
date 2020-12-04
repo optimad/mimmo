@@ -1746,11 +1746,19 @@ void IOWavefrontOBJ::read(const std::string & filename){
     m_intData->normals->update();
 
     // Nullify empty structures (textures or normals)
-    if (m_intData->textures->getNGlobalVertices() == 0){
+    long ntvertices, nnvertices;
+#if MIMMO_ENABLE_MPI
+    ntvertices = m_intData->textures->getNGlobalVertices();
+    nnvertices = m_intData->normals->getNGlobalVertices();
+#else
+    ntvertices = m_intData->textures->getNVertices();
+    nnvertices = m_intData->normals->getNVertices();
+#endif
+    if (ntvertices == 0){
         m_intData->textures.reset();
         m_intData->textures = nullptr;
     }
-    if (m_intData->normals->getNGlobalVertices() == 0){
+    if (nnvertices == 0){
         m_intData->normals.reset();
         m_intData->normals = nullptr;
     }

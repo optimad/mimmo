@@ -171,6 +171,7 @@ int test00001() {
     bdirMesh->updateInterfaces();
     bdirMesh->update();
 
+std::chrono::time_point<Clock> t1,t2;
 
 #if MIMMO_ENABLE_MPI
 	/* Instantiation of a Partition object with default patition method space filling curve.
@@ -181,11 +182,11 @@ int test00001() {
 	partition->setGeometry(mesh);
 	partition->setBoundaryGeometry(bdirMesh);
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
-	auto t1 = Clock::now();
+	t1 = Clock::now();
 	if (rank ==0)
 		std::cout << "Start Partition mesh " << std::endl;
 	partition->exec();
-	auto t2 = Clock::now();
+	t2 = Clock::now();
 	if (rank ==0)
 	{
 		std::cout << "Partition mesh execution time: "

@@ -954,10 +954,10 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
     if(geometry->getPointConnectivitySyncStatus() != mimmo::SyncStatus::SYNC)
         geometry->buildPointConnectivity();
 
+#if MIMMO_ENABLE_MPI
+
     if(geometry->getPointGhostExchangeInfoSyncStatus() != mimmo::SyncStatus::SYNC)
         geometry->updatePointGhostExchangeInfo();
-
-#if MIMMO_ENABLE_MPI
 
     // Instantiate new coordinates container used only for communications
     MimmoPiercedVector<std::array<double,3>> newCoordinatesCommunicated;

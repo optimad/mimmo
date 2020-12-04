@@ -190,12 +190,12 @@ void VTUFlushStreamerASCII::flushData(std::fstream &stream, const std::string &n
 				bitpit::genericIO::flushASCII(stream, vertexId);
 			}
 		}
+#if MIMMO_ENABLE_MPI==1
     } else if (name == "cellGlobalIndex") {
         bitpit::PatchNumberingInfo numberingInfo(m_patch);
         for (const bitpit::Cell &cell : m_patch->getVTKCellWriteRange()) {
             bitpit::genericIO::flushASCII(stream, numberingInfo.getCellGlobalId(cell.getId()));
         }
-#if MIMMO_ENABLE_MPI==1
 	} else if (name == "cellRank") {
 		for (const bitpit::Cell &cell : m_patch->getVTKCellWriteRange()) {
 			bitpit::genericIO::flushASCII(stream, m_patch->getCellRank(cell.getId()));
