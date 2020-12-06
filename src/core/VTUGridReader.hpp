@@ -90,7 +90,7 @@ public:
  * \class VTUGridReader
  * \brief Custom reader of unstructured grids from external files *.vtu
  * \ingroup core
- 
+
  * Reader of unstructured grids from external files *.vtu. if successfull reading,
  * store the mesh fields in target bitpit::Patchkernel data structure.
  * Need in construction to specify a streamer of type VTUAbsorbStreamer.
@@ -100,7 +100,7 @@ class VTUGridReader: protected bitpit::VTKUnstructuredGrid
 
 public:
     VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer,
-                   bitpit::PatchKernel & patch, bitpit::VTKElementType eltype= bitpit::VTKElementType::UNDEFINED);
+                   bitpit::PatchKernel & patch, bool masterRankOnly = true, bitpit::VTKElementType eltype= bitpit::VTKElementType::UNDEFINED);
     ~VTUGridReader();
 
     void read();
@@ -108,6 +108,9 @@ public:
 private:
     bitpit::PatchKernel& m_patch;   /**< reference to patch kernel data structure to fill*/
     VTUAbsorbStreamer & m_streamer; /**< reference to streamer which knows how to read data from file */
+#if MIMMO_ENABLE_MPI
+    bool m_masterRankOnly; /**< control reading on master rank only **/
+#endif
 };
 
 

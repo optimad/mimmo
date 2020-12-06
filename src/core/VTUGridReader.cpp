@@ -1536,8 +1536,11 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
  * \param[in] patch reference to empty container for storing mesh data.
  * \param[in] streamer streaming class to absorb VTK data.
  * \param[in] eltype [optional] force the elementtype of the grid.
+ * \param[in] masterRankOnly [optional, for MPI version only] if true skip default searching
+              for parallel *.pvtu format and search for regular file *vtu to be retained on
+              master rank only (0 rank processor). Transparent for serial versions.
  */
-VTUGridReader::VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer, bitpit::PatchKernel & patch, bitpit::VTKElementType eltype) :
+VTUGridReader::VTUGridReader( std::string dir, std::string name, VTUAbsorbStreamer & streamer, bitpit::PatchKernel & patch, bool masterRankOnly, bitpit::VTKElementType eltype) :
                               VTKUnstructuredGrid(dir, name, eltype), m_patch(patch), m_streamer(streamer)
 {
     for(auto & field : m_geometry){
@@ -1551,9 +1554,13 @@ VTUGridReader::VTUGridReader( std::string dir, std::string name, VTUAbsorbStream
     addData<int>("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, &streamer);
 
 #if MIMMO_ENABLE_MPI
-    if (m_patch.getProcessorCount() > 1) {
+    m_masterRankOnly = true;
+    if (m_patch.getProcessorCount() > 1 && !masterRankOnly) {
         setParallel(m_patch.getProcessorCount(), m_patch.getRank());
+        m_masterRankOnly = false;
     }
+#else
+    BITPIT_UNUSED(masterRankOnly);
 #endif
 
 }
@@ -1567,11 +1574,25 @@ VTUGridReader::~VTUGridReader(){}
  * Read the file. Reimplemented from bitpit::VTKUnstructuredGrid::read().
  */
 void VTUGridReader::read(){
-
-    VTKUnstructuredGrid::read();
-     //clear target data
+    //clear target data
     m_patch.reset();
+
+#if MIMMO_ENABLE_MPI
+    //MPI version, check if master rank only reading is forced.
+    if (!m_masterRankOnly){ //all ranks do the calls
+        VTKUnstructuredGrid::read();
+        m_streamer.decodeRawData(m_patch);
+    }else{
+        if(m_patch.getRank() == 0){ //do it with 0 rank only
+            VTKUnstructuredGrid::read();
+            m_streamer.decodeRawData(m_patch);
+        }
+    }
+#else
+    //normal serial working
+    VTKUnstructuredGrid::read();
     m_streamer.decodeRawData(m_patch);
+#endif
 }
 
 }
