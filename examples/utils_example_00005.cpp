@@ -117,10 +117,24 @@ void test00005() {
 
     log<<"curve projected on bunny"<<std::endl;
 
+    mimmo::MimmoGeometry * mimmo3 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
+
+    mimmo3->setReadDir(".");
+    mimmo3->setReadFileType(FileType::CURVEVTU);
+    mimmo3->setReadFilename("utils_example_00005_projectedCurve");
+
+    mimmo3->setWriteDir(".");
+    mimmo3->setWriteFileType(FileType::CURVEVTU);
+    mimmo3->setWriteFilename("utils_mesh_00005_projectedCurveREREAD");
+    mimmo3->execute();
+
+    log<<"test IO read and write on the newly projected curve done"<<std::endl;
+
     /* Clean up & exit;
      */
     delete mimmo0;
     delete mimmo1;
+    delete mimmo3;
 #if MIMMO_ENABLE_MPI
     delete part0;
     delete part1;
