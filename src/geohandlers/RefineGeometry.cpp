@@ -198,9 +198,9 @@ RefineGeometry::execute(){
 			redgreenRefine();
 	}
 
-	if (m_steps>0)
+	if (m_steps>0){
 		smoothing();
-
+    }
 }
 
 /*!
@@ -1003,8 +1003,9 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 			double weight, sumweights;
 			newcoordinates.reserve(geometry->getNVertices());
 			//compute new coordinates
-			for (long id : geometry->getVertices().getIds()){
-
+//			for (long id : geometry->getVertices().getIds()){
+            for (const bitpit::Vertex & vert : geometry->getVertices()){
+                long id = vert.getId();
 			    // If ghost vertex do nothing
 			    if (geometry->isPointInterior(id)){
 
@@ -1065,7 +1066,9 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 #endif
 
 			//Set new coordinates
-			for (long id : geometry->getVertices().getIds()){
+//			for (long id : geometry->getVertices().getIds()){
+            for (const bitpit::Vertex & vert : geometry->getVertices()){
+                long id = vert.getId();
 				geometry->modifyVertex(newcoordinates[id], id);
 			}
 
@@ -1082,8 +1085,9 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 			double weight, sumweights;
 			newcoordinates.reserve(geometry->getNVertices());
 			//compute new coordinates
-			for (long id : geometry->getVertices().getIds()){
-
+//			for (long id : geometry->getVertices().getIds()){
+            for (const bitpit::Vertex & vert : geometry->getVertices()){
+                long id = vert.getId();
 				oldcoords = geometry->getVertexCoords(id);
 				newcoords = std::array<double,3>{{0.,0.,0.}};
 
@@ -1138,7 +1142,9 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 #endif
 
 			//Set new coordinates
-			for (long id : geometry->getVertices().getIds()){
+//			for (long id : geometry->getVertices().getIds()){
+            for (const bitpit::Vertex & vert : geometry->getVertices()){
+                long id = vert.getId();
 				geometry->modifyVertex(newcoordinates[id], id);
 			}
 
