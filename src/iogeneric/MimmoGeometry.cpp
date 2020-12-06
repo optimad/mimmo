@@ -673,14 +673,12 @@ MimmoGeometry::read(){
 #if MIMMO_ENABLE_MPI
         if (getRank() == 0) {
 #endif
-        	{
-        		std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".stl");
-        		bool check = infile.good();
-        		name = m_rinfo.fdir+"/"+m_rinfo.fname+".stl";
+            {
+                name = m_rinfo.fdir+"/"+m_rinfo.fname+".stl";
+        		bool check = fileExist(name);
         		if (!check){
-        			infile.open(m_rinfo.fdir+m_rinfo.fname+".STL");
-        			check = infile.good();
-        			name = m_rinfo.fdir+"/"+m_rinfo.fname+".STL";
+                    name = m_rinfo.fdir+"/"+m_rinfo.fname+".STL";
+        			check = fileExist(name);
         			if (!check) return false;
         		}
         	}
@@ -717,17 +715,26 @@ MimmoGeometry::read(){
         //Import Surface VTU meshes
     {
         setGeometry(1);
+        bool masterRankOnly = true;
+        std::string name = m_rinfo.fdir+"/"+m_rinfo.fname;
         std::string extension = ".vtu";
 #if MIMMO_ENABLE_MPI
-        if (getGeometry()->getProcessorCount() > 1)
+        if (getGeometry()->getProcessorCount() > 1){
+            //check for pvtu
             extension = ".pvtu";
+            if(fileExist(name+extension)){
+                masterRankOnly = false;
+            }else{
+                //fallback to normal vtu.
+                extension = ".vtu";
+            }
+        }
 #endif
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname + extension);
-        bool check = infile.good();
-        if (!check) return false;
+
+        if (!fileExist(name+extension)) return false;
 
         VTUGridStreamer vtustreamer;
-        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()), masterRankOnly);
 
         input.read() ;
 
@@ -739,17 +746,27 @@ MimmoGeometry::read(){
         //Import Volume VTU meshes
     {
         setGeometry(2);
+        bool masterRankOnly = true;
+        std::string name = m_rinfo.fdir+"/"+m_rinfo.fname;
         std::string extension = ".vtu";
 #if MIMMO_ENABLE_MPI
-        if (getGeometry()->getProcessorCount() > 1)
+        if (getGeometry()->getProcessorCount() > 1){
+            //check for pvtu
             extension = ".pvtu";
+            if(fileExist(name+extension)){
+                masterRankOnly = false;
+            }else{
+                //fallback to normal vtu.
+                extension = ".vtu";
+            }
+        }
 #endif
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+extension);
-        bool check = infile.good();
-        if (!check) return false;
+
+        if (!fileExist(name+extension)) return false;
 
         VTUGridStreamer vtustreamer;
-        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()), masterRankOnly);
+
         input.read() ;
 
         getGeometry()->resyncPID();
@@ -763,10 +780,8 @@ MimmoGeometry::read(){
 #if MIMMO_ENABLE_MPI
     	if (getRank() == 0) {
 #endif
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+".nas");
-        bool check = infile.good();
+        bool check = fileExist(m_rinfo.fdir+"/"+m_rinfo.fname+".nas");
         if (!check) return false;
-        infile.close();
 
         dvecarr3E    Ipoints ;
         livector2D    Iconnectivity ;
@@ -816,18 +831,29 @@ MimmoGeometry::read(){
     case FileType::PCVTU :
     {
         setGeometry(3);
+        bool masterRankOnly = true;
+        std::string name = m_rinfo.fdir+"/"+m_rinfo.fname;
         std::string extension = ".vtu";
 #if MIMMO_ENABLE_MPI
-        if (getGeometry()->getProcessorCount() > 1)
+        if (getGeometry()->getProcessorCount() > 1){
+            //check for pvtu
             extension = ".pvtu";
+            if(fileExist(name+extension)){
+                masterRankOnly = false;
+            }else{
+                //fallback to normal vtu.
+                extension = ".vtu";
+            }
+        }
 #endif
-        std::ifstream infile(m_rinfo.fdir+"/"+m_rinfo.fname+extension);
-        bool check = infile.good();
-        if (!check) return false;
+
+        if (!fileExist(name+extension)) return false;
 
         VTUGridStreamer vtustreamer;
-        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()), masterRankOnly);
+
         input.read() ;
+        getGeometry()->resyncPID();
     }
     break;
 
@@ -835,17 +861,27 @@ MimmoGeometry::read(){
         //Import 3D Curve VTU
     {
         setGeometry(4);
+        bool masterRankOnly = true;
+        std::string name = m_rinfo.fdir+"/"+m_rinfo.fname;
         std::string extension = ".vtu";
 #if MIMMO_ENABLE_MPI
-        if (getGeometry()->getProcessorCount() > 1)
+        if (getGeometry()->getProcessorCount() > 1){
+            //check for pvtu
             extension = ".pvtu";
+            if(fileExist(name+extension)){
+                masterRankOnly = false;
+            }else{
+                //fallback to normal vtu.
+                extension = ".vtu";
+            }
+        }
 #endif
-        std::ifstream infile; //(m_rinfo.fdir+"/"+m_rinfo.fname + extension);
-        bool check = infile.good();
-        if (!check) return false;
+
+        if (!fileExist(name+extension)) return false;
 
         VTUGridStreamer vtustreamer;
-        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()));
+        VTUGridReader  input(m_rinfo.fdir, m_rinfo.fname, vtustreamer, *(getGeometry()->getPatch()), masterRankOnly);
+
         input.read() ;
 
         getGeometry()->resyncPID();
@@ -895,6 +931,18 @@ MimmoGeometry::read(){
 
     return true;
 };
+
+/*!
+    Return true if a file exists on the filesystem and it is readable
+    (check successfull opening with ifstream)
+    \param[in] filename full path to file to be checked
+    \ return true/false if the file does/does-not exist.
+*/
+bool
+MimmoGeometry::fileExist(const std::string & filename){
+    std::ifstream tryfile(filename);
+    return  tryfile.good();
+}
 
 /*!Execution command.
  * It reads the geometry if the condition m_read is true.

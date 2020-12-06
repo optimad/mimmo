@@ -235,7 +235,7 @@ protected:
     void    setDefaults();
     void    _setRead(bool read = true);
     void    _setWrite(bool write = true);
-
+    bool   fileExist(const std::string & filename);
 
 };
 
