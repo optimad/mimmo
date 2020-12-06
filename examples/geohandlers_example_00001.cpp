@@ -106,12 +106,11 @@ void test00001() {
     mimmo::pin::addPin(mimmo0, partition, M_GEOM, M_GEOM);
     mimmo::pin::addPin(partition, boxSel, M_GEOM, M_GEOM);
     mimmo::pin::addPin(partition, sphSel, M_GEOM, M_GEOM);
-    mimmo::pin::addPin(boxSel, refine, M_GEOM, M_GEOM);
 #else
-    mimmo::pin::addPin(mimmo0, refine, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, boxSel, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, sphSel, M_GEOM, M_GEOM);
 #endif
+    mimmo::pin::addPin(boxSel, refine, M_GEOM, M_GEOM);
     mimmo::pin::addPin(refine, mimmo1, M_GEOM, M_GEOM);
     mimmo::pin::addPin(sphSel, mimmo2, M_GEOM, M_GEOM);
 
