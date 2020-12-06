@@ -47,7 +47,7 @@ void test00005() {
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
     mimmo0->setReadFileType(FileType::PCVTU);
-    mimmo0->setReadFilename("spherepc");
+    mimmo0->setReadFilename("spherepc_binary");
     mimmo0->setBuildSkdTree(true);
     mimmo0->setWriteDir("./");
     mimmo0->setWriteFileType(FileType::PCVTU);
