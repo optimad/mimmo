@@ -168,7 +168,7 @@ if(BUILD_EXAMPLES)
     )
     add_custom_command(
         TARGET "manipulators_example_00005" PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/spherepc.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/spherepc.vtu"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/spherepc_binary.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/spherepc_binary.vtu"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/manipulators_input_00005.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/manipulators_input_00005.txt"
     )
 
