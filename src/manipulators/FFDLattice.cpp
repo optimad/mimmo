@@ -1435,13 +1435,14 @@ FFDLattice::plotOptionalResults(){
 
 #if MIMMO_ENABLE_MPI
     // Only master rank writes the lattice mesh
-    if (getRank() == 0){
+    if (getRank() == 0)
+#endif
+    {
         plotGrid(dir, nameGrid, getId(), true, false );
         //    plotCloud(dir, nameCloud, getClassCounter(), true, false );
         plotGrid(dir, nameGridD, getId(), true, true );
         //    plotCloud(dir, nameCloudD, getClassCounter(), true, true );
     }
-#endif
 }
 
 /*! Recover full displacements vector from DOF.
