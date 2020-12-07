@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- xml interface to replicate .cpp example : manipulators_example_00005.cpp -->
+<!-- xml interface: deformation with RBF cloud -->
 <mimmoXML version="1">
     <Blocks>
         <Geom0>
@@ -42,7 +42,7 @@
         <Applier>
             <ClassName>mimmo.Apply</ClassName>
         </Applier>
-    </Blocks>    
+    </Blocks>
 	<Connections>
 		<c0>
 			<sender>Geom0</sender>
@@ -81,4 +81,4 @@
 			<receiverPort>M_GEOM</receiverPort>
 		</c5>
 	</Connections>
-</mimmoXML>	
+</mimmoXML>

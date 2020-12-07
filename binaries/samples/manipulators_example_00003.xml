@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- xml interface to replicate .cpp example : manipulators_example_00003.cpp -->
+<!-- xml interface: deformation with FFD lattice cylinder -->
 <mimmoXML version="1">
     <Blocks>
         <Geom0>
