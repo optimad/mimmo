@@ -304,10 +304,7 @@ void read_Dictionary(std::map<std::string, std::unique_ptr<mimmo::BaseManipulati
 //core of xml handler
 
 void mimmocore(const InfoMimmoPP & info) {
-        //set the logger and the verbosity of the output messages in execution
-        std::string log = "mimmo";
-        mimmo::setLogger(log);
-        auto mimmo_log = &bitpit::log::cout(log);
+        //set the logger verbosity of the output messages in execution
         switch(int(info.vconsole)){
             case 1 :
                 bitpit::log::setConsoleVerbosity((*mimmo_log), bitpit::log::Verbosity::NORMAL);
@@ -411,11 +408,18 @@ int main( int argc, char *argv[] ) {
 
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);
-
+    // Initialize mpi
+    int nprocs;
+    int    rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    bitpit::log::manager().initialize(bitpit::log::Mode::COMBINED, "mimmo", true, ".", nprocs, rank);
+#else
+    bitpit::log::manager().initialize(bitpit::log::Mode::COMBINED, "mimmo", true, ".");
+#endif
     {
-        #endif
-    	//Instantiate of global logger
-    	mimmo_log = &bitpit::log::cout("mimmo");
+        //Instantiate of global logger
+        mimmo_log = &bitpit::log::cout("mimmo");
 
         //sanitize argv
         std::vector<std::string> s_argv;
@@ -428,7 +432,6 @@ int main( int argc, char *argv[] ) {
             free(sstr);
         }
 
-
         try{
             InfoMimmoPP info = readArguments(s_argv);
             mimmocore(info);
@@ -437,12 +440,10 @@ int main( int argc, char *argv[] ) {
         	(*mimmo_log)<<"mimmo++ exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
-
-#if MIMMO_ENABLE_MPI
     }
-
+#if MIMMO_ENABLE_MPI
     MPI_Finalize();
-    #endif
+#endif
 
     return 0;
 }
