@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- xml interface to replicate .cpp example : manipulators_example_00002.cpp -->
+<!-- xml interface: deformation with FFD lattice box -->
 <mimmoXML version="1">
     <Blocks>
         <Geom0>
@@ -70,4 +70,4 @@
 			<receiverPort>M_GEOM</receiverPort>
 		</c4>
 	</Connections>
-</mimmoXML>	
+</mimmoXML>

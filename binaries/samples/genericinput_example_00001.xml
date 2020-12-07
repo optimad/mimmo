@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- xml interface to replicate .cpp example : genericinput_example_00001.cpp -->
+<!-- xml interface testng simple io with generic input -->
 <mimmoXML version="1">
     <Blocks>
         <InputNode>
@@ -23,4 +23,4 @@
 			<receiverPort>M_COORDS</receiverPort>
 		</c0>
 	</Connections>
-</mimmoXML>	
+</mimmoXML>
