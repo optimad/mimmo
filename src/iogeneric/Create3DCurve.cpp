@@ -354,7 +354,7 @@ Create3DCurve::execute(){
 
     //create a brand new 3DCurve container
     {
-        MimmoSharedPointer<MimmoObject> dum(new MimmoObject(3));
+        MimmoSharedPointer<MimmoObject> dum(new MimmoObject(4));
         m_geometry = dum;
     }
 
