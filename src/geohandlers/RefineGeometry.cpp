@@ -186,18 +186,25 @@ RefineGeometry::execute(){
 		throw std::runtime_error (m_name + " : data structure type different from Surface");
 	}
 
+    if(m_type == RefineType::REDGREEN){
+        bool check = checkTriangulation();
+        if(!check){
+            (*m_log)<<m_name + " : detected not regular triangulated surface, no redgreen refinement can be performed. Returning. "<<std::endl;
+            return;
+        }
+    }
+
 	// Initialize active cells with all geometry cells
-    m_activecells = getGeometry()->getCellsIds();
+    for (int i=0; i<m_refinements; i++){
+        m_activecells = getGeometry()->getCellsIds();
 
-	if (m_type == RefineType::TERNARY){
-		for (int i=0; i<m_refinements; i++)
-			ternaryRefine();
-	}
-	else if (m_type == RefineType::REDGREEN){
-		for (int i=0; i<m_refinements; i++)
-			redgreenRefine();
-	}
-
+    	if (m_type == RefineType::TERNARY){
+    			ternaryRefine();
+    	}
+    	else if (m_type == RefineType::REDGREEN){
+    			redgreenRefine();
+    	}
+    }
 	if (m_steps>0){
 		smoothing();
     }
@@ -245,17 +252,6 @@ void RefineGeometry::absorbSectionXML(const bitpit::Config::Section & slotXML, s
 			ss >> value;
 		}
 		setSmoothingSteps(value);
-	}
-
-	if(slotXML.hasOption("RefineSteps")){
-		std::string input = slotXML.get("RefineSteps");
-		input = bitpit::utils::string::trim(input);
-		int value = 0;
-		if(!input.empty()){
-			std::stringstream ss(input);
-			ss >> value;
-		}
-		setRefineSteps(value);
 	}
 
 	BaseManipulation::absorbSectionXML(slotXML, name);
@@ -311,21 +307,19 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 
 	for(const long cellId : m_activecells){
 
-		// Recover cell
-		const bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
-
 		// Eval centroid
 		std::array<double,3> centroid = getGeometry()->evalCellCentroid(cellId);
 
 		// Build perimeter structure with the vertices of the cell and then a triangulation refinement
 		// will be performed by placing the centroid as new vertex
 		std::vector<bitpit::Vertex> perimeter;
-		for (const long & id : cell.getVertexIds()){
+		for (const long & id : getGeometry()->getPatch()->getCell(cellId).getVertexIds()){
 			perimeter.emplace_back(getGeometry()->getPatch()->getVertex(id));
 		}
 
 		// Refine cell
 		std::vector<long> generatedCells = ternaryRefineCell(cellId, perimeter, centroid);
+
 
         if (!generatedCells.empty()){
 
@@ -335,7 +329,7 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
             // Add vertices and cell to coarse patch
             if (coarsepatch != nullptr)
             {
-                bitpit::Cell cell = getGeometry()->getPatch()->getCell(cellId);
+                bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
                 coarsepatch->addCell(cell, cellId);
                 for (long vertexId : cell.getVertexIds()){
                     bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
@@ -354,17 +348,25 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 
 	} // end loop on cells
 
+
+
 	//Delete cells and clean geometries
 	{
-		for (const long & cellId : toDelete){
-			getGeometry()->getPatch()->deleteCell(cellId);
-		}
+		getGeometry()->getPatch()->deleteCells(livector1D(toDelete.begin(), toDelete.end()));
+        getGeometry()->setUnsyncAll();
 
-		// Force build adjacencies and update
+#if MIMMO_ENABLE_MPI
+        // Update adjacencies
         getGeometry()->updateAdjacencies();
+
+        // Delete orphan ghosts
+        getGeometry()->deleteOrphanGhostCells();
+        getGeometry()->getPatch()->deleteOrphanVertices();
+#endif
+
+		// Update coarse patch
         getGeometry()->update();
 		if (coarsepatch != nullptr){
-            coarsepatch->updateAdjacencies();
             coarsepatch->update();
 		}
 	}
@@ -375,12 +377,21 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 			bitpit::Cell & cell = getGeometry()->getPatch()->getCell(newcellId);
 			refinepatch->addCell(cell, newcellId);
 			for (long vertexId : cell.getVertexIds()){
-				bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
+				const bitpit::Vertex & vertex = getGeometry()->getPatch()->getVertex(vertexId);
 				refinepatch->addVertex(vertex, vertexId);
 			}
 		}
-		// Force build adjacencies and update refine patch
-        refinepatch->updateAdjacencies();
+
+#if MIMMO_ENABLE_MPI
+        // update adjacencies refine patch
+        refinepatch->update();
+
+        // Delete orphan ghosts
+        refinepatch->deleteOrphanGhostCells();
+        refinepatch->getPatch()->deleteOrphanVertices();
+#endif
+
+        // update refine patch
         refinepatch->update();
 	}
 
@@ -389,6 +400,13 @@ RefineGeometry::ternaryRefine(std::unordered_map<long,long> * mapping, mimmo::Mi
 
 /*!
  * It refines the target cell with perimeter defined by vertices and center point.
+ * \param[in] cellId cell id of the cell to be refined
+ * \param[in] vertices perimeter vertices of the cell
+ * \param[in] center center point of the cell
+ * \return Cell ids of the new refined cells insert in the geometry
+ *
+ * Note: the old refined cell is not deleted from the geometry in this function.
+ *
  */
 std::vector<long>
 RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit::Vertex> & vertices, const std::array<double,3> & center)
@@ -402,8 +420,11 @@ RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit:
 	bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
 	livector1D connTriangle(3);
 
-	eletype = getGeometry()->getPatch()->getCell(cellId).getType();
-	long pid = getGeometry()->getPatch()->getCell(cellId).getPID();
+    // Take a cell copy, after the emplace back of the refined cells the reference can be changed
+    const bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
+
+	eletype = cell.getType();
+	long pid = cell.getPID();
     int rank = -1;
 
 	//Number of new triangles is the number of the perimetral vertices
@@ -433,29 +454,16 @@ RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit:
  * Refinement by redgreen method. The starting elements must be all triangles.
  * All the triangle edges are splitted for every cell in case of red refinement (bulk cells),
  * only one edge is splitted in case of green refinement (boundary cells).
+ * \param[out] mapping pointer to mapping container (new child cell id -> parent cell id)
+ * \param[out] coarsepatch pointer to geometry containing the original parent cells
+ * \param[out] refinepatch pointer to geometry containing the new children refined cells
+ *
  */
 void
 RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::MimmoSharedPointer<MimmoObject> coarsepatch, mimmo::MimmoSharedPointer<MimmoObject> refinepatch)
 {
+
 	//REDGREEN REFINEMENT
-
-	// Redgreen refinement needs the geometry to be a triangulation.
-    // If none active cells are present fill the container with all cells
-    if (m_activecells.empty()){
-        m_activecells.reserve(getGeometry()->getNCells());
-        for (bitpit::Cell & cell : getGeometry()->getPatch()->getCells()){
-            m_activecells.emplace_back(cell.getId());
-        }
-    }
-    // Check active cells
-    for (long cellId : m_activecells){
-        bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
-		if (cell.getType() != bitpit::ElementType::TRIANGLE){
-			(*m_log)<< "WARNING " <<m_name <<" : found a non-triangle element. Red-Green refinement allowed only for triangles. Skip block execution."<<std::endl;
-			return;
-		}
-	}
-
     // It works in parallel, supposing the cell refined in the same manner
     // if local or ghost on the owner process or on the near process.
     // The ids are not maintained unique between all the processes
@@ -486,10 +494,8 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 	std::unordered_map<long,int> greenSplitFaceIndex;
 
     {
-        // Build adjacencies
-        geometry->destroyAdjacencies();
+	    // Build adjacencies and interfaces if not built
         geometry->updateAdjacencies();
-        geometry->destroyInterfaces();
         geometry->updateInterfaces();
 
         // Set active cells as reds and initialize new reds stack
@@ -513,7 +519,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
         MimmoPiercedVector<int> greenSplitFaceIndexCommunicated;
 
         // Fill initial sources and targets values
-        for (auto source_tuple : geometry->getPatch()->getGhostCellExchangeSources()){
+        for (auto & source_tuple : geometry->getPatch()->getGhostCellExchangeSources()){
             int rank = source_tuple.first;
             for (long id : source_tuple.second){
                 if (!refinementTagCommunicated.exists(id)){
@@ -522,7 +528,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                 }
             }
         }
-        for (auto target_tuple : geometry->getPatch()->getGhostCellExchangeTargets()){
+        for (auto & target_tuple : geometry->getPatch()->getGhostCellExchangeTargets()){
             int rank = target_tuple.first;
             for (long id : target_tuple.second){
                 // Initialize targets (ghosts) to -1
@@ -574,8 +580,12 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                         if (!redCell.isFaceBorder(iface)){
 
                             // Find face neighbours (only one in conform case)
-                            std::vector<long> neighs = geometry->getPatch()->findCellFaceNeighs(redId, iface);
-                            for (long neighId : neighs){
+                            int neighscount = redCell.getAdjacencyCount(iface);
+                            const long * neighs = redCell.getAdjacencies(iface);
+
+                            for (int ineigh = 0; ineigh < neighscount; ineigh++){
+
+                                long neighId = neighs[ineigh];
 
                                 // Increase tag (at the end the red elements have a tag >=2)
                                 refinementTag[neighId]++;
@@ -645,7 +655,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                 // Update ghost refinement tags
                 // The if needed insert new edges and put new reds in stack
                 // Fill with sources and targets values
-                for (auto source_tuple : geometry->getPatch()->getGhostCellExchangeSources()){
+                for (auto & source_tuple : geometry->getPatch()->getGhostCellExchangeSources()){
                     int rank = source_tuple.first;
                     for (long id : source_tuple.second){
                         refinementTagCommunicated.at(id) = refinementTag.at(id);
@@ -657,7 +667,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                         }
                     }
                 }
-                for (auto target_tuple : geometry->getPatch()->getGhostCellExchangeTargets()){
+                for (auto & target_tuple : geometry->getPatch()->getGhostCellExchangeTargets()){
                     int rank = target_tuple.first;
                     for (long id : target_tuple.second){
                         // Initialize targets (ghosts) to -1
@@ -719,11 +729,10 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 	}
 
 	// Refine red and green cells
-	for (auto tupletag : refinementTag){
+	for (auto & tupletag : refinementTag){
 
 		long cellId = tupletag.first;
 		int tag = std::min(2, tupletag.second);
-		bitpit::Cell & cell = geometry->getPatch()->getCell(cellId);
 
 		if (tag <= 0)
 			continue;
@@ -732,6 +741,10 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 		std::vector<long> generatedCells;
 
 		if (tag == 2){
+
+		    // Take reference to cell before refinement
+            bitpit::Cell & cell = geometry->getPatch()->getCell(cellId);
+
 	        // Red refinement
 			// Recover new vertices
 			std::vector<long> newCellVertexIds(cell.getFaceCount());
@@ -741,10 +754,13 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 			}
 			// Cell refinement
 			generatedCells = redRefineCell(cellId, newCellVertexIds);
-
 		}
 		else if (tag == 1){
-			// Green refinement
+
+            // Take reference to cell before refinement
+            bitpit::Cell & cell = geometry->getPatch()->getCell(cellId);
+
+            // Green refinement
 			// Recover new vertex and splitted face index
 			int splitFaceIndex = greenSplitFaceIndex.at(cellId);
 			long interfaceId = cell.getInterface(splitFaceIndex);
@@ -761,17 +777,23 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 		    // Add vertices and cell to coarse patch
 		    if (coarsepatch != nullptr)
 		    {
-		        coarsepatch->addCell(cell, cellId);
+	            // Take reference to cell after refinement
+	            // The original cell is still inside the cells structure but the new cells
+	            // are already insert, so the reference has to be locally taken.
+	            bitpit::Cell & cell = geometry->getPatch()->getCell(cellId);
+
+	            coarsepatch->addCell(cell, cellId);
 		        for (long vertexId : cell.getVertexIds()){
-		            bitpit::Vertex vertex = geometry->getPatch()->getVertex(vertexId);
+		            bitpit::Vertex & vertex = geometry->getPatch()->getVertex(vertexId);
 		            coarsepatch->addVertex(vertex, vertexId);
 		        }
 		    }
 
 		    // Add entry to refine-coarse mapping and newCells structure
 		    for (long newCellId : generatedCells){
-		        if (mapping != nullptr)
+		        if (mapping != nullptr){
 		            mapping->insert({newCellId, cellId});
+		        }
 		        newCells.insert(newCellId);
 		    }
 
@@ -779,12 +801,16 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 
 	} // end loop on refinement tag
 
-
 	//Delete cells and clean geometries
 	{
-	    for (const long cellId : toDelete){
-	        getGeometry()->getPatch()->deleteCell(cellId);
-	    }
+	    // Destroy interfaces
+	    getGeometry()->destroyInterfaces();
+
+	    // Delete original cells
+        getGeometry()->getPatch()->deleteCells(livector1D(toDelete.begin(), toDelete.end()));
+
+        // Set all sync status of mimmo to unsync/none
+        getGeometry()->setUnsyncAll();
 
 	    // Add vertices and cells to refine patch
 	    if (refinepatch != nullptr){
@@ -792,7 +818,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 	            bitpit::Cell & cell = getGeometry()->getPatch()->getCell(newcellId);
 	            refinepatch->addCell(cell, newcellId);
 	            for (long vertexId : cell.getVertexIds()){
-	                bitpit::Vertex vertex = getGeometry()->getPatch()->getVertex(vertexId);
+	                bitpit::Vertex & vertex = getGeometry()->getPatch()->getVertex(vertexId);
 	                refinepatch->addVertex(vertex, vertexId);
 	            }
 	        }
@@ -815,6 +841,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 #if MIMMO_ENABLE_MPI
 	        // Delete orphan ghosts
 	        refinepatch->deleteOrphanGhostCells();
+            refinepatch->getPatch()->deleteOrphanVertices();
 #endif
 	        // Update refine patch
 	        refinepatch->update();
@@ -840,7 +867,9 @@ RefineGeometry::redRefineCell(const long & cellId, const std::vector<long> & new
 	bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
 	livector1D connTriangle(3);
 
-	bitpit::Cell cell = getGeometry()->getPatch()->getCell(cellId);
+    // Take a cell copy, after the emplace back of the refined cells the reference can be changed
+    bitpit::Cell cell = getGeometry()->getPatch()->getCell(cellId);
+
 	eletype = cell.getType();
 	//Only for triangles
 	if (eletype != eletri){
@@ -896,7 +925,9 @@ RefineGeometry::greenRefineCell(const long & cellId, const long newVertexId, int
 	bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
 	livector1D connTriangle(3);
 
-	const bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
+	// Take a cell copy, after the emplace back of the refined cells the reference can be changed
+	bitpit::Cell cell = getGeometry()->getPatch()->getCell(cellId);
+
 	eletype = cell.getType();
 	//Only for triangles
 	if (eletype != eletri){
@@ -1156,6 +1187,24 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 
 	} // end step iteration
 
+}
+
+/*!
+    Check if the target geometry of the class is a regular triangulation
+    \return true if a regular triangulation.
+*/
+bool
+RefineGeometry::checkTriangulation(){
+    // Check if the m_geometry is a regular triangulation
+    bool check = true;
+    for (const bitpit::Cell & cell : getGeometry()->getCells()){
+        check = check && (cell.getType() == bitpit::ElementType::TRIANGLE);
+    }
+#if MIMMO_ENABLE_MPI
+        MPI_Allreduce(MPI_IN_PLACE, &check, 1, MPI_C_BOOL, MPI_LAND, m_communicator);
+#endif
+
+    return check;
 }
 
 }
