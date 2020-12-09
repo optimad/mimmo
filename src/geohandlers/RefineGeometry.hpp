@@ -130,6 +130,7 @@ protected:
     std::vector<long> redRefineCell(const long & cellId, const std::vector<long> & newVertexIds);
     std::vector<long> greenRefineCell(const long & cellId, const long newVertexId, int iface);
     void smoothing(std::set<long> * constrainedVertices = nullptr);
+    bool checkTriangulation();
 };
 
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_, __REFINEGEOMETRY_HPP__)
