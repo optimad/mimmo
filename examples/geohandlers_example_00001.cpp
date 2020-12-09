@@ -97,7 +97,7 @@ void test00001() {
      */
 	mimmo::RefineGeometry * refine = new mimmo::RefineGeometry();
     refine->setRefineType(mimmo::RefineType::REDGREEN);
-    refine->setRefineSteps(1);
+    refine->setRefineSteps(2);
     refine->setSmoothingSteps(1);
 
     /* Setup pin connections.
