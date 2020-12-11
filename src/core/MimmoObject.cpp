@@ -3330,15 +3330,13 @@ bool MimmoObject::isClosedLoop(){
 
 	auto itp = getCells().cbegin();
 	auto itend = getCells().cend();
-	std::vector<long> neighs;
 	while(itp != itend && check){
 
 		if (itp->isInterior()){
 			int faces = itp->getFaceCount();
 			for(int face=0; face<faces; ++face){
-				neighs.clear();
-				getPatch()->findCellFaceNeighs(itp->getId(), face, &neighs);
-				check = check && (!neighs.empty());
+				// Check if it is a border face
+				check = check && (!itp->isFaceBorder(face));
 			}
 			itp++;
 		}
@@ -3391,18 +3389,23 @@ livector2D MimmoObject::decomposeLoop(){
 			save.push_back(target);
 
 			//get the number of faces.
-			int facecount = getPatch()->getCells().at(target).getFaceCount();
+			const bitpit::Cell & cell = getPatch()->getCells().at(target);
+			int facecount = cell.getFaceCount();
 			for(int i=0; i<facecount; ++i){
-				livector1D neighs = getPatch()->findCellFaceNeighs(target,i);
+
+			    // Find face neighbours
+                int neighscount = cell.getAdjacencyCount(i);
+                const long * neighs = cell.getAdjacencies(i);
 				bool found = false;
-				auto it = neighs.begin();
-				while(!found && it!=neighs.end()){
-					if(checked.count(*it) == 0){
-						stack.push_back(*it);
-						checked.insert(*it);
+				int ineigh = 0;
+				while(!found && ineigh < neighscount){
+				    long neighId = neighs[ineigh];
+					if(checked.count(neighId) == 0){
+						stack.push_back(neighId);
+						checked.insert(neighId);
 						found = true;
 					}
-					++it;
+					++ineigh;
 				}
 			}
 		}
