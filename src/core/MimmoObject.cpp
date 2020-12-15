@@ -2572,8 +2572,8 @@ MimmoObject::extractBoundaryFaceCellID(bool ghost){
 
 #if MIMMO_ENABLE_MPI == 0 //serial part only
     BITPIT_UNUSED(ghost);
-    if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)  updateAdjacencies(); //forcing adjacencies in serial
 #endif
+    if(getAdjacenciesSyncStatus() != SyncStatus::SYNC)  updateAdjacencies(); //forcing adjacencies building
     update();
 
     //loop on internal cells
