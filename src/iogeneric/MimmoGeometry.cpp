@@ -941,7 +941,9 @@ MimmoGeometry::read(){
 bool
 MimmoGeometry::fileExist(const std::string & filename){
     std::ifstream tryfile(filename);
-    return  tryfile.good();
+    bool check = tryfile.good();
+    tryfile.close();
+    return  check;
 }
 
 /*!Execution command.
