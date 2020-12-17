@@ -362,20 +362,22 @@ list(APPEND MIMMO_MODULEDISABLED_LIST "utils")
 #------------------------------------------------------------------------------------#
 set(CORE_DEPS "common")
 set(IOCGNS_DEPS "core;common")
-set(IOGENERIC_DEPS "core;common")
 set(MANIPULATORS_DEPS "core;common")
 if(ENABLE_MPI)
     set(PARALLEL_DEPS "common;core")
-    set(GEOHANDLERS_DEPS "core;common;iogeneric;parallel")
+    set(IOGENERIC_DEPS "core;common;parallel")
     set(PROPAGATORS_DEPS "common;core;parallel")
-    set(UTILS_DEPS "core;common;iogeneric;parallel")
     set(IOOFOAM_DEPS "core;common;parallel")
+    set(GEOHANDLERS_DEPS "core;common;parallel;iogeneric")
+    set(UTILS_DEPS "core;common;parallel;iogeneric")
 else()
-    set(GEOHANDLERS_DEPS "core;common;iogeneric")
+    set(IOGENERIC_DEPS "core;common")
     set(PROPAGATORS_DEPS "common;core")
-    set(UTILS_DEPS "core;common;iogeneric")
     set(IOOFOAM_DEPS "core;common")
+    set(GEOHANDLERS_DEPS "core;common;iogeneric")
+    set(UTILS_DEPS "core;common;iogeneric")
 endif()
+
 
 
 #------------------------------------------------------------------------------------#
@@ -437,7 +439,7 @@ if(ENABLE_MPI)
 else()
     getModuleEnableName("parallel" PARALLEL_MODULE_ENABLED)
     unset(${PARALLEL_MODULE_ENABLED} CACHE)
-    set(${PARALLEL_MODULE_ENABLED} 0 CACHE INTERNAL "Unneeded building parallel module" FORCE)    
+    set(${PARALLEL_MODULE_ENABLED} 0 CACHE INTERNAL "Unneeded building parallel module" FORCE)
 endif()
 
 # disabling ioofoam module in Windows-MIngw compilation.
