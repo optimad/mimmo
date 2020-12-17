@@ -40,7 +40,8 @@ MRBF::MRBF(MRBFSol mode){
     m_isCompact = false;
     m_rbfgeometry = nullptr;
     m_rbfdispl = nullptr;
-    m_diagonalFactor = 1.;
+    m_diagonalFactor = 1.0;
+    m_rbfSupportRadii = nullptr;
 };
 
 /*!
@@ -59,7 +60,8 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
     m_isCompact = false;
     m_rbfgeometry = nullptr;
     m_rbfdispl = nullptr;
-    m_diagonalFactor = 1.;
+    m_diagonalFactor = 1.0;
+    m_rbfSupportRadii = nullptr;
 
     setMode(MRBFSol::NONE);
 
