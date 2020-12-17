@@ -36,6 +36,7 @@ list(APPEND TESTS "test_iogeneric_00003")
 list(APPEND TESTS "test_iogeneric_00004")
 if (ENABLE_MPI)
  	list(APPEND TESTS "test_iogeneric_parallel_00000:2") ##:x number of procs
+    list(APPEND TESTS "test_iogeneric_parallel_00001:2")
  endif ()
 
 # Test extra libraries
@@ -73,6 +74,11 @@ if (ENABLE_MPI)
         TARGET "test_iogeneric_parallel_00000" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../input/rawpoints.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/rawpoints.csv"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../input/rawfield.csv" "${CMAKE_CURRENT_BINARY_DIR}/input/rawfield.csv"
+    )
+
+    add_custom_command(
+        TARGET "test_iogeneric_parallel_00001" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../../geodata/curve.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/curve.vtu"
     )
 
 endif()
