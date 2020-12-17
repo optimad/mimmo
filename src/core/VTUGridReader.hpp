@@ -48,7 +48,6 @@ public:
     VTUAbsorbStreamer(const VTUAbsorbStreamer&) = default;
 
     virtual void absorbData(std::fstream &stream, const std::string & name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
-    virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     /*! Decode read raw data and fill a bitpit::PatchKernel structure with them */
     virtual void decodeRawData(bitpit::PatchKernel &) = 0;
 };
@@ -68,12 +67,16 @@ protected:
     livector1D connectivitylist;                 /**< one dimensional list of all vertex indices composing connectivity */
     livector1D pointsID;                         /**< labels of mesh nodes, if any*/
     livector1D cellsID;                          /**< labels of mesh cells, if any*/
-    ivector1D cellsRank;                         /**< ranks of mesh cells, if any*/
     livector1D pids;                              /**< cell pid, if any */
     livector1D offsets;                           /**< offset list for decoding connectivity list */
     std::vector<bitpit::ElementType> types;      /**< list of cell types */
     livector1D faces;                             /**< list of face vertex connectivity - for 3D volume polyhedral support */
     livector1D faceoffsets;                       /**< list of offsets to read face vertex connectivity - for 3D volume polyhedral support */
+#if MIMMO_ENABLE_MPI
+    livector1D cellsRank;                         /**< ranks of mesh cells, if any*/
+    livector1D verticesRank;                       /**< ranks of mesh vertices, if any*/
+    livector1D cellsGlobalIndex;                   /**< global index of mesh cells, if any*/
+#endif
 
 public:
     VTUGridStreamer();
@@ -82,8 +85,9 @@ public:
     VTUGridStreamer(const VTUGridStreamer&) = default;
 
     virtual void absorbData(std::fstream &stream, const std::string &name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
-    virtual void absorbData(std::fstream &stream, std::string name, bitpit::VTKFormat format, uint64_t entries, uint8_t components, bitpit::VTKDataType datatype);
     void decodeRawData(bitpit::PatchKernel & patch);
+    void readIntegerPod(std::fstream & stream, bitpit::VTKFormat& format, bitpit::VTKDataType& datatype, long &target);
+    void readDoublePod(std::fstream & stream, bitpit::VTKFormat& format, bitpit::VTKDataType& datatype, double&target);
 };
 
 /*!
