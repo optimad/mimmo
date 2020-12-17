@@ -115,7 +115,7 @@ if(BUILD_EXAMPLES)
     if (MODULE_IOOFOAM_ENABLED)
         list(APPEND EXAMPLE_LIST "ioofoam_example_00001")
         if (MODULE_PARALLEL_ENABLED)
-            list(APPEND EXAMPLE_LIST "ioofoam_example_00002")        
+            list(APPEND EXAMPLE_LIST "ioofoam_example_00002")
         endif ()
     endif ()
 
@@ -345,6 +345,15 @@ if(BUILD_EXAMPLES)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/StaticMixer.cgns" "${CMAKE_CURRENT_BINARY_DIR}/geodata/StaticMixer.cgns"
         )
     endif()
+
+    list(FIND EXAMPLE_LIST "ioofoam_example_00002" _index)
+    if ( ${_index} GREATER -1)
+        add_custom_command(
+            TARGET "ioofoam_example_00002" PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/ofoam.00002" "${CMAKE_CURRENT_BINARY_DIR}/geodata/ofoam.00002"
+        )
+    endif()
+
 
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../input" DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../geodata" DESTINATION doc/${CMAKE_PROJECT_NAME}-${MIMMO_VERSION}/examples)

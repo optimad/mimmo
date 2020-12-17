@@ -1,0 +1,143 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                |
+| \      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+|  \    /   O peration     | Version:  2.3.1
+|   \  /    A nd           | Web:      www.OpenFOAM.org
+|    \/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    Phi
+    {
+        solver                    GAMG;
+        tolerance                 1e-6;
+        relTol                    0.05;
+        smoother                  symGaussSeidel;
+        nPreSweeps                0;
+        nPostSweeps               2;
+        postSweepsLevelMultiplier 1;
+        maxPostSweeps             4;
+        nFinestSweeps             2;
+        interpolateCorrection     no;
+        cacheAgglomeration        true;
+        nCellsInCoarsestLevel     10;
+        agglomerator              algebraicPair;
+        mergeLevels               1;
+    }
+
+    p
+    {
+        solver          GAMG;
+        tolerance       1e-07;
+        relTol          0.05;
+        smoother        GaussSeidel;
+        nPreSweeps      0;
+        nPostSweeps     2;
+        cacheAgglomeration on;
+        agglomerator    faceAreaPair;
+        nCellsInCoarsestLevel 10;
+        mergeLevels     1;
+    }
+    U
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        tolerance       1e-08;
+        relTol          0.1;
+        nSweeps         1;
+    }
+    k
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        tolerance       1e-08;
+        relTol          0.1;
+        nSweeps         1;
+    }
+    epsilon
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        tolerance       1e-08;
+        relTol          0.1;
+        nSweeps         1;
+    }
+    omega
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        tolerance       1e-08;
+        relTol          0.1;
+        nSweeps         1;
+    }
+    nuTilda
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        tolerance       1e-08;
+        relTol          0.1;
+        nSweeps         1;
+    }
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors      10;
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors      0;
+    pRefCell                      0;
+    pRefValue                     0;
+}
+
+PISO
+{
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 1;
+}
+
+PIMPLE
+{
+    nOuterCorrectors              1;
+    nCorrectors                   2;
+    nNonOrthogonalCorrectors      1;
+    pRefCell                      0;
+    pRefValue                     0;
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p               0.5;
+    }
+    equations
+    {
+        U               0.5;
+        k               0.5;
+        epsilon         0.5;
+        omega           0.5;
+        nuTilda         0.5;
+    }
+}
+
+cache
+{
+    grad(U);
+}
+
+// ************************************************************************* //
