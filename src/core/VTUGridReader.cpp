@@ -262,7 +262,9 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
         checkCellsID = ( checkSet.size() == nCells);
         checkFaceOffset = ( (faceoffsets.size() == nCells) && (faces.size()>= nCells) );
         checkPID = (pids.size() == nCells);
+#if MIMMO_ENABLE_MPI
         checkRank = (cellsRank.size() == nCells);
+#endif
     }
     //insert points;
     counter = 0;
@@ -279,7 +281,9 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
         rank = -1;
         if(checkCellsID)  {idC= cellsID[counter];}
         if(checkPID)      {PID = pids[counter];}
+#if MIMMO_ENABLE_MPI
         if(checkRank)      {rank = cellsRank[counter];}
+#endif
         eltype = types[counter];
 
         if(eltype == bitpit::ElementType::POLYHEDRON){
