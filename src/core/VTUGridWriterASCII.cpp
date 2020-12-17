@@ -190,6 +190,8 @@ void VTUFlushStreamerASCII::flushData(std::fstream &stream, const std::string &n
 				bitpit::genericIO::flushASCII(stream, vertexId);
 			}
 		}
+
+
 #if MIMMO_ENABLE_MPI==1
     } else if (name == "cellGlobalIndex") {
         bitpit::PatchNumberingInfo numberingInfo(m_patch);
@@ -200,8 +202,17 @@ void VTUFlushStreamerASCII::flushData(std::fstream &stream, const std::string &n
 		for (const bitpit::Cell &cell : m_patch->getVTKCellWriteRange()) {
 			bitpit::genericIO::flushASCII(stream, m_patch->getCellRank(cell.getId()));
 		}
+    } else if (name == "vertexRank") {
+        for (bitpit::PatchKernel::VertexConstIterator itr = m_patch->vertexConstBegin(); itr != m_patch->vertexConstEnd(); ++itr) {
+            std::size_t vertexRawId = itr.getRawIndex();
+            long vertexVTKId = m_vtkVertexMap->rawAt(vertexRawId);
+            if (vertexVTKId != bitpit::Vertex::NULL_ID) {
+                bitpit::genericIO::flushASCII(stream, m_patch->getVertexRank(itr.getId()));
+            }
+        }
 #endif
 	}
+
 }
 
 
@@ -223,9 +234,10 @@ VTUGridWriterASCII::VTUGridWriterASCII( VTUFlushStreamerASCII & streamer, bitpit
     addData<long>("vertexIndex", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, &streamer);
     addData<long>("cellIndex", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, &streamer);
     addData<int>("PID", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, &streamer);
-    addData<long>("cellGlobalIndex", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, &streamer);
 #if MIMMO_ENABLE_MPI==1
+    addData<long>("cellGlobalIndex", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, &streamer);
     addData<int>("cellRank", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::CELL, &streamer);
+    addData<int>("vertexRank", bitpit::VTKFieldType::SCALAR, bitpit::VTKLocation::POINT, &streamer);
 #endif
 
     // Get VTK cell count
