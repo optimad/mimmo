@@ -69,6 +69,13 @@ enum WFORMAT{
  * to write a distributed mesh in a Nastran format, the user has to serialize it before to pass the MimmoObject
  * to the MimmoGeometry block.
  *
+ * When MPI is enabled a read geometry in mimmo dumping can be distributed among the processes (parallel)
+ * or repeated serially among the processes (not parallel).
+ * The different behavior can be controlled by a set method (setParallelRestore).
+ * Note that the parallel/not parallel property set on block
+ * has to be coherent with the restored geometry, i.e. it has to be known a-priori by the user.
+ * Default value of the feature is true (parallel) in case of MPI enabled when reading a mimmo dumping format geometry.
+ *
  *  \n
  *  It can be used in three modes reader/writer/converter. To set the mode it uses an enum
  *  IOMode list:
@@ -134,6 +141,7 @@ enum WFORMAT{
  * - <B>Tolerance</B>:value of the geometric tolerance to be used;
  * - <B>Clean</B>: clean the geometry after read true 1/false 0;
  * - <B>FormatNAS</B>: 0-singlePrecision 1-doubleprecision for writing nas files;
+ * - <B>ParallelRestore</B>: set if the read geometry is parallel true 1/false 0;
 
  *
  * In case of writing mode Geometry has to be mandatorily passed through port.
@@ -158,7 +166,9 @@ protected:
     bool        m_multiSolidSTL;            /**< activate or not MultiSolid STL writing if STL writing Filetype is selected */
 
     double		m_tolerance;				/**<Geometric tolerance of the related geometry. */
-    bool		m_clean;					/**<Set if the geometry has to cleaned after reading. */
+    bool        m_clean;                    /**<Set if the geometry has to cleaned after reading. */
+
+    bool        m_parallelRestore;               /**<Set if the geometry to read is parallel. */
 
 public:
     /*!
@@ -200,7 +210,8 @@ public:
     void        setMultiSolidSTL(bool multi = true);
 
     void 		setTolerance(double tol);
-    void 		setClean(bool clean = true);
+    void        setClean(bool clean = true);
+    void        setParallelRestore(bool parallelRestore = MIMMO_ENABLE_MPI);
 
     using BaseManipulation::setGeometry;
     void        setGeometry(int type=1);

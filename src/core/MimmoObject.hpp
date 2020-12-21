@@ -49,6 +49,12 @@ public:
     MimmoSurfUnstructured(int patch_dim);
     MimmoSurfUnstructured(int id, int patch_dim);
     MimmoSurfUnstructured(std::istream &stream);
+#if MIMMO_ENABLE_MPI
+    MimmoSurfUnstructured(MPI_Comm communicator);
+    MimmoSurfUnstructured(int patch_dim, MPI_Comm communicator);
+    MimmoSurfUnstructured(int id, int patch_dim, MPI_Comm communicator);
+    MimmoSurfUnstructured(std::istream &stream, MPI_Comm communicator);
+#endif
     virtual ~MimmoSurfUnstructured();
     // Clone
     std::unique_ptr<bitpit::PatchKernel> clone() const override;
@@ -66,8 +72,14 @@ protected:
 class MimmoVolUnstructured: public bitpit::VolUnstructured{
 public:
     // Constructors
+    MimmoVolUnstructured();
     MimmoVolUnstructured(int dimension);
     MimmoVolUnstructured(int id, int dimension);
+#if MIMMO_ENABLE_MPI
+    MimmoVolUnstructured(MPI_Comm communicator);
+    MimmoVolUnstructured(int dimension, MPI_Comm communicator);
+    MimmoVolUnstructured(int id, int dimension, MPI_Comm communicator);
+#endif
     virtual ~MimmoVolUnstructured();
     // Clone
     std::unique_ptr<bitpit::PatchKernel> clone() const override;
@@ -87,6 +99,10 @@ public:
     // Constructors
     MimmoPointCloud();
     MimmoPointCloud(int id);
+#if MIMMO_ENABLE_MPI
+    MimmoPointCloud(MPI_Comm communicator);
+    MimmoPointCloud(int id, MPI_Comm communicator);
+#endif
     virtual ~MimmoPointCloud();
     // Clone
     std::unique_ptr<bitpit::PatchKernel> clone() const override;
@@ -144,6 +160,7 @@ protected:
     SyncStatus                                              m_IntSync;      /**< Synchronization status of interfaces  along with geometry modifications */
     bitpit::Logger*                                         m_log;          /**< Pointer to logger.*/
 
+    bool                        m_isParallel;                               /**< True if the geometry is parallel. */
     int							m_nprocs;									/**< Total number of processors.*/
     int							m_rank;										/**< Current rank number.*/
 
@@ -166,8 +183,8 @@ protected:
     SyncStatus                     						m_pointConnectivitySync;	/**< Track correct building of points connectivity along with geometry modifications */
 
 public:
-    MimmoObject(int type = 1);
-    MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = nullptr);
+    MimmoObject(int type = 1, bool isParallel = MIMMO_ENABLE_MPI);
+    MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity = nullptr, bool isParallel = MIMMO_ENABLE_MPI);
     MimmoObject(int type, bitpit::PatchKernel* geometry);
     MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geometry);
     ~MimmoObject();
@@ -229,7 +246,6 @@ public:
     bool isPointInterior(long id);
 #if MIMMO_ENABLE_MPI
 	const MPI_Comm & getCommunicator() const;
-    bool isParallel();
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeSources() const;
     const std::unordered_map<int, std::vector<long>> & getPointGhostExchangeTargets() const;
     SyncStatus getPointGhostExchangeInfoSyncStatus();
@@ -247,6 +263,7 @@ public:
     bool isDistributed();
     void deleteOrphanGhostCells();
 #endif
+    bool isParallel();
 
     void 		setTolerance(double tol);
 
@@ -370,13 +387,13 @@ public:
 
 protected:
     void    initializeLogger();
-    void    reset(int type);
+    void    reset(int type, bool isParallel = MIMMO_ENABLE_MPI);
 
     std::unordered_set<int> elementsMap(bitpit::PatchKernel & obj);
 
 #if MIMMO_ENABLE_MPI
     void    initializeMPI();
-    void    initializeParallel();
+    void    initializeCommunicator(bool isParallel = true);
 #endif
 
 private:

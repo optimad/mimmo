@@ -36,30 +36,81 @@ namespace mimmo{
 /*!
  * MimmoSurfUnstructured default constructor
  */
-MimmoSurfUnstructured::MimmoSurfUnstructured():bitpit::SurfUnstructured(){}
+MimmoSurfUnstructured::MimmoSurfUnstructured():
+#if MIMMO_ENABLE_MPI
+            bitpit::SurfUnstructured(MPI_COMM_NULL){}
+#else
+            bitpit::SurfUnstructured(){}
+#endif
 
 /*!
  * MimmoSurfUnstructured custom constructor
- * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
+ * \param[in] dimension dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
  */
-MimmoSurfUnstructured::MimmoSurfUnstructured(int patch_dim):
-                    						   bitpit::SurfUnstructured(int(patch_dim),int(3)){}
+MimmoSurfUnstructured::MimmoSurfUnstructured(int dimension):
+#if MIMMO_ENABLE_MPI
+                MimmoSurfUnstructured(dimension, MPI_COMM_NULL){}
+#else
+                bitpit::SurfUnstructured(dimension, 3){}
+#endif
 
 /*!
  * MimmoSurfUnstructured custom constructor
  * \param[in] id custom identification label of the mesh
- * \param[in] patch_dim dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
+ * \param[in] dimension dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
  */
-MimmoSurfUnstructured::MimmoSurfUnstructured(int id, int patch_dim):
-                    						   bitpit::SurfUnstructured(int(id), int(patch_dim), int(3)){}
+MimmoSurfUnstructured::MimmoSurfUnstructured(int id, int dimension):
+#if MIMMO_ENABLE_MPI
+                MimmoSurfUnstructured(id, dimension, MPI_COMM_NULL){}
+#else
+                bitpit::SurfUnstructured(id, dimension, 3){}
+#endif
 
 /*!
  * MimmoSurfUnstructured custom constructor
  * \param[in] stream input stream where reading from
  */
 MimmoSurfUnstructured::MimmoSurfUnstructured(std::istream & stream):
-                    						   bitpit::SurfUnstructured(stream){}
+#if MIMMO_ENABLE_MPI
+                MimmoSurfUnstructured(stream, MPI_COMM_NULL){}
+#else
+                bitpit::SurfUnstructured(stream){}
+#endif
 
+#if MIMMO_ENABLE_MPI
+/*!
+ * MimmoSurfUnstructured default constructor
+ * \param communicator MPI communicator assigned to the patch
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured(MPI_Comm communicator):
+        bitpit::SurfUnstructured(communicator){}
+
+/*!
+ * MimmoSurfUnstructured custom constructor
+ * \param[in] dimension dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
+ * \param communicator MPI communicator assigned to the patch
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured(int dimension, MPI_Comm communicator):
+            bitpit::SurfUnstructured(dimension, 3, communicator){}
+
+/*!
+ * MimmoSurfUnstructured custom constructor
+ * \param[in] id custom identification label of the mesh
+ * \param[in] dimension dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
+ * \param communicator MPI communicator assigned to the patch
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured(int id, int dimension, MPI_Comm communicator):
+            bitpit::SurfUnstructured(id, dimension, 3, communicator){}
+
+/*!
+ * MimmoSurfUnstructured custom constructor
+ * \param[in] stream input stream where reading from
+ * \param communicator MPI communicator assigned to the patch
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured(std::istream & stream, MPI_Comm communicator):
+            bitpit::SurfUnstructured(stream, communicator){}
+
+#endif
 
 /*!
  * Basic Destructor
@@ -80,7 +131,11 @@ MimmoSurfUnstructured::clone() const{
  * \param[in] dimension dimensionality of elements (3- 3D tetrahedra/hexahedra ..., 2- 2D triangles/quads/polygons)
  */
 MimmoVolUnstructured::MimmoVolUnstructured(int dimension):
-						bitpit::VolUnstructured(int(dimension)){}
+#if MIMMO_ENABLE_MPI
+                MimmoVolUnstructured(dimension, MPI_COMM_NULL){}
+#else
+				bitpit::VolUnstructured(dimension){}
+#endif
 
 /*!
  * MimmoVolUnstructured custom constructor
@@ -88,7 +143,32 @@ MimmoVolUnstructured::MimmoVolUnstructured(int dimension):
  * \param[in] dimension dimensionality of elements (3- 3D tetrahedra/hexahedra ..., 2- 2D triangles/quads/polygons)
  */
 MimmoVolUnstructured::MimmoVolUnstructured(int id, int dimension):
-						bitpit::VolUnstructured(int(id), int(dimension)){}
+#if MIMMO_ENABLE_MPI
+                MimmoVolUnstructured(id, dimension, MPI_COMM_NULL){}
+#else
+                bitpit::VolUnstructured(id, dimension){}
+#endif
+
+#if MIMMO_ENABLE_MPI
+
+/*!
+ * MimmoVolUnstructured custom constructor
+ * \param[in] dimension dimensionality of elements (3- 3D tetrahedra/hexahedra ..., 2- 2D triangles/quads/polygons)
+ * \param communicator MPI communicator assigned to the patch
+ */
+MimmoVolUnstructured::MimmoVolUnstructured(int dimension, MPI_Comm communicator):
+            bitpit::VolUnstructured(dimension, communicator){}
+
+/*!
+ * MimmoVolUnstructured custom constructor
+ * \param[in] id custom identification label of the mesh
+ * \param[in] dimension dimensionality of elements (3- 3D tetrahedra/hexahedra ..., 2- 2D triangles/quads/polygons)
+ * \param communicator MPI communicator assigned to the patch
+ */
+MimmoVolUnstructured::MimmoVolUnstructured(int id, int dimension, MPI_Comm communicator):
+            bitpit::VolUnstructured(id, dimension, communicator){}
+
+#endif
 
 /*!
  * Basic Destructor
@@ -108,14 +188,40 @@ MimmoVolUnstructured::clone() const{
  * MimmoPointCloud basic constructor
  */
 MimmoPointCloud::MimmoPointCloud():
-						bitpit::SurfUnstructured(int(2),int(3)){}
+#if MIMMO_ENABLE_MPI
+                MimmoPointCloud(MPI_COMM_NULL){}
+#else
+                bitpit::SurfUnstructured(2, 3){}
+#endif
 
 /*!
  * MimmoPointCloud custom constructor
  * \param[in] id custom identification label of the mesh
  */
 MimmoPointCloud::MimmoPointCloud(int id):
-						bitpit::SurfUnstructured(int(id), int(2), int(3)){}
+#if MIMMO_ENABLE_MPI
+                MimmoPointCloud(id, MPI_COMM_NULL){}
+#else
+                bitpit::SurfUnstructured(id, 2, 3){}
+#endif
+
+#if MIMMO_ENABLE_MPI
+/*!
+ * MimmoPointCloud default constructor
+ * \param communicator MPI communicator assigned to the patch
+ */
+MimmoPointCloud::MimmoPointCloud(MPI_Comm communicator):
+        bitpit::SurfUnstructured(2, 3, communicator){}
+
+/*!
+ * MimmoPointCloud custom constructor
+ * \param[in] id custom identification label of the mesh
+ * \param communicator MPI communicator assigned to the patch
+ */
+MimmoPointCloud::MimmoPointCloud(int id, MPI_Comm communicator):
+            bitpit::SurfUnstructured(id, 2, 3, communicator){}
+
+#endif
 
 /*!
  * Basic Destructor
@@ -141,27 +247,55 @@ MimmoPointCloud::clone() const{
  *  - 3D tessellated Curve      = 4
  *
  * \param[in] type type of mesh
+ * \param[in] isParallel if true construct a parallel MimmoObject (if MPI not enabled forced to false)
  */
-MimmoObject::MimmoObject(int type){
+MimmoObject::MimmoObject(int type, bool isParallel):m_patch(nullptr),m_extpatch(nullptr){
+
+    // Initialize parallel data
+    m_isParallel = isParallel && MIMMO_ENABLE_MPI;
+#if MIMMO_ENABLE_MPI
+    initializeMPI();
+    MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
+    initializeCommunicator(m_isParallel);
+#else
+    m_rank = 0;
+    m_nprocs = 1;
+#endif
 
 	m_type = std::max(type,1);
 	switch(m_type){
 	case 1:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2)));
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2, getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2)));
+#endif
 		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(m_patch.get()))));
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	case 2:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoVolUnstructured(3)));
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoVolUnstructured(3, getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoVolUnstructured(3)));
+#endif
 		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::VolumeSkdTree(dynamic_cast<bitpit::VolumeKernel*>(m_patch.get()))));
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	case 3:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoPointCloud()));
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoPointCloud(getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoPointCloud()));
+#endif
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	case 4:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(1)));
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(1, getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(1)));
+#endif
 		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(m_patch.get()))));
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
@@ -172,14 +306,6 @@ MimmoObject::MimmoObject(int type){
 	}
 
 	m_internalPatch = true;
-	m_extpatch = nullptr;
-
-#if MIMMO_ENABLE_MPI
-    initializeParallel();
-#else
-    m_rank = 0;
-    m_nprocs = 1;
-#endif
 
     initializeLogger();
 
@@ -236,27 +362,54 @@ MimmoObject::MimmoObject(int type){
  * \param[in] type type of meshes.
  * \param[in] vertex Coordinates of geometry vertices.
  * \param[in] connectivity pointer to mesh connectivity list (optional).
+ * \param[in] isParallel if true construct a parallel MimmoObject (if MPI not enabled forced to false)
  */
-MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity){
+MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity, bool isParallel):m_patch(nullptr),m_extpatch(nullptr){
+
+    // Initialize parallel data
+    m_isParallel = isParallel && MIMMO_ENABLE_MPI;
+#if MIMMO_ENABLE_MPI
+    initializeMPI();
+    initializeCommunicator(m_isParallel);
+#else
+    m_rank = 0;
+    m_nprocs = 1;
+#endif
 
 	m_type = std::max(type,1);
 	switch(m_type){
 	case 1:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2)));
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2, getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2)));
+#endif
 		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(m_patch.get()))));
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	case 2:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoVolUnstructured(3)));
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoVolUnstructured(3, getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoVolUnstructured(3)));
+#endif
 		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::VolumeSkdTree(dynamic_cast<bitpit::VolumeKernel*>(m_patch.get()))));
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	case 3:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoPointCloud()));
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoPointCloud(getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoPointCloud()));
+#endif
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	case 4:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(1)));
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(1, getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(1)));
+#endif
 		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(m_patch.get()))));
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
@@ -267,14 +420,6 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 	}
 
 	m_internalPatch = true;
-	m_extpatch = nullptr;
-
-#if MIMMO_ENABLE_MPI
-    initializeParallel();
-#else
-    m_rank = 0;
-    m_nprocs = 1;
-#endif
 
     initializeLogger();
 
@@ -337,7 +482,7 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
  * \param[in] type type of mesh
  * \param[in] geometry pointer to a geometry of class PatchKernel to be linked.
  */
-MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
+MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry):m_patch(nullptr),m_extpatch(nullptr){
 
     m_type = std::max(type,1);
     if (m_type > 4 || geometry == nullptr){
@@ -345,10 +490,14 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
     }
 
     m_internalPatch = false;
-	m_extpatch = geometry;
+    m_extpatch = geometry;
 
+    // Initialize parallel data
+    m_isParallel = false;
 #if MIMMO_ENABLE_MPI
-    initializeParallel();
+    m_isParallel = geometry->getCommunicator() != MPI_COMM_NULL;
+    initializeMPI();
+    initializeCommunicator(m_isParallel);
 #else
     m_rank = 0;
     m_nprocs = 1;
@@ -489,15 +638,29 @@ MimmoObject::MimmoObject(int type, bitpit::PatchKernel* geometry){
  * \param[in] type type of mesh
  * \param[in] geometry unique pointer to a geometry of class PatchKernel to be linked.
  */
-MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geometry){
+MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geometry):m_patch(nullptr),m_extpatch(nullptr){
 
 	if (!geometry){
 		throw std::runtime_error ("MimmoObject : nullptr argument in class construction");
 	}
 
+    m_internalPatch = true;
+    m_patch = std::move(geometry);
+
+    // Initialize parallel data
+    m_isParallel = false;
+#if MIMMO_ENABLE_MPI
+    m_isParallel = getPatch()->getCommunicator() != MPI_COMM_NULL;
+    initializeMPI();
+    initializeCommunicator(m_isParallel);
+#else
+    m_rank = 0;
+    m_nprocs = 1;
+#endif
+
 	//check among elements if they are coherent with the type currently hold by the linked mesh.
     m_type = std::max(type,1);
-	std::unordered_set<int> mapEle = elementsMap(*(geometry.get()));
+	std::unordered_set<int> mapEle = elementsMap(*(getPatch()));
 	switch(m_type){
 	case 1:
 		if(mapEle.count((int)bitpit::ElementType::VERTEX) > 0      ||
@@ -513,7 +676,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 			(*m_log)<<"Error MimmoObject: unsupported Elements for required type in linked mesh."<<std::endl;
 			throw std::runtime_error ("MimmoObject :unsupported Elements for required type in linked mesh.");
 		}
-		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(geometry.get()))));
+		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(getPatch()))));
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	case 2:
@@ -528,7 +691,7 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 			(*m_log)<<"Error MimmoObject: unsupported Elements for required type in linked mesh."<<std::endl;
 			throw std::runtime_error ("MimmoObject :unsupported Elements for required type in linked mesh.");
 		}
-		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::VolumeSkdTree(dynamic_cast<bitpit::VolumeKernel*>(geometry.get()))));
+		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::VolumeSkdTree(dynamic_cast<bitpit::VolumeKernel*>(getPatch()))));
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	case 3:
@@ -566,24 +729,13 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 			(*m_log)<<"Error MimmoObject: unsupported elements for required type in linked mesh."<<std::endl;
 			throw std::runtime_error ("MimmoObject :unsupported elements for required type in linked mesh.");
 		}
-		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(geometry.get()))));
+		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(getPatch()))));
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	default:
         throw std::runtime_error ("MimmoObject : unrecognized mesh type in class construction");
 		break;
 	}
-
-	m_internalPatch = true;
-	m_extpatch = nullptr;
-	m_patch = std::move(geometry);
-
-#if MIMMO_ENABLE_MPI
-    initializeParallel();
-#else
-    m_rank = 0;
-    m_nprocs = 1;
-#endif
 
     initializeLogger();
 
@@ -620,12 +772,6 @@ MimmoObject::MimmoObject(int type, std::unique_ptr<bitpit::PatchKernel> & geomet
 		m_pidsTypeWNames.insert(std::make_pair( (long)PID , "") );
 	}
 
-#if MIMMO_ENABLE_MPI
-	initializeParallel();
-#else
-	m_rank = 0;
-	m_nprocs = 1;
-#endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_patchInfo.update();
 	m_infoSync = SyncStatus::SYNC;
@@ -651,6 +797,8 @@ MimmoObject::~MimmoObject(){};
 MimmoObject::MimmoObject(const MimmoObject & other){
 
 	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+
+	m_isParallel = other.m_isParallel;
 
 	m_extpatch = other.m_extpatch;
 	if(other.m_internalPatch){
@@ -730,7 +878,7 @@ MimmoObject & MimmoObject::operator=(MimmoObject other){
  */
 void MimmoObject::swap(MimmoObject & x) noexcept
 {
-	std::swap(m_patch, x.m_patch);
+    std::swap(m_patch, x.m_patch);
 	std::swap(m_extpatch, x.m_extpatch);
 	std::swap(m_internalPatch, x.m_internalPatch);
 	std::swap(m_type, x.m_type);
@@ -749,7 +897,12 @@ void MimmoObject::swap(MimmoObject & x) noexcept
 	m_infoSync = SyncStatus::SYNC;
 
 #if MIMMO_ENABLE_MPI
-	std::swap(m_communicator, x.m_communicator);
+    std::swap(m_isParallel, x.m_isParallel);
+    MPI_Comm dummy_communicator = MPI_COMM_NULL;
+    MPI_Comm_dup(m_communicator, &dummy_communicator);
+    MPI_Comm_dup(x.m_communicator, &m_communicator);
+    MPI_Comm_dup(dummy_communicator, &x.m_communicator);
+    MPI_Comm_free(&dummy_communicator);
 	std::swap(m_rank, x.m_rank);
 	std::swap(m_nprocs, x.m_nprocs);
 	std::swap(m_nglobalvertices, x.m_nglobalvertices);
@@ -786,38 +939,48 @@ MimmoObject::initializeLogger(){
 
 #if MIMMO_ENABLE_MPI
 /*!
- * Initialize MPI structures for the class.
+ * Initialize MPI if not already initialized.
  */
 void
-MimmoObject::initializeParallel(){
+MimmoObject::initializeMPI(){
 
 	int initialized;
 	MPI_Initialized(&initialized);
 	if (!initialized)
 		MPI_Init(nullptr, nullptr);
 
-	// Recover communicator or partition patch
-	if (m_internalPatch){
-		if (m_patch->isPartitioned()){
-			MPI_Comm_dup(m_patch->getCommunicator(), &m_communicator);
-		}
-		else{
-			MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
-			m_patch->partition(m_communicator, false);
-		}
-	}
-	else{
-		if (m_extpatch->isPartitioned()){
-			MPI_Comm_dup(m_extpatch->getCommunicator(), &m_communicator);
-		}
-		else{
-			MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
-			m_extpatch->partition(m_communicator, false);
-		}
-	}
+}
 
-	MPI_Comm_rank(m_communicator, &m_rank);
-	MPI_Comm_size(m_communicator, &m_nprocs);
+/*!
+ * Initialize communicator.
+ * \param[in] isParallel if true/false MPI communicator is set to MPI_COMM_WORLD/MPI_COMM_NULL
+ */
+void
+MimmoObject::initializeCommunicator(bool isParallel){
+
+    // If patch not yet set initialize the communicator with MPI_COMM_WORLD
+    // This will be used to initialize an internal patch
+    // Otherwise use a duplicate of the communicator of the patch
+    if (!getPatch()){
+
+        if (isParallel){
+            MPI_Comm_dup(MPI_COMM_WORLD, &m_communicator);
+            MPI_Comm_rank(m_communicator, &m_rank);
+            MPI_Comm_size(m_communicator, &m_nprocs);
+        }else{
+            m_communicator = MPI_COMM_NULL;
+            m_rank = 0;
+            m_nprocs = 1;
+        }
+
+    }else{
+
+        // Recover communicator of the patch (always defined as parallel if I'm here)
+        MPI_Comm_dup(getPatch()->getCommunicator(), &m_communicator);
+        m_rank = getPatch()->getRank();
+        m_nprocs = getPatch()->getProcessorCount();
+
+    }
 
 	m_pointGhostExchangeInfoSync = SyncStatus::NONE;
 
@@ -1546,20 +1709,6 @@ const MPI_Comm & MimmoObject::getCommunicator() const
 }
 
 /*!
- * Give if the patch is a parallel patch, i.e. it has a communicator set and it can
- * be distributed over the processes (see isDistributed() method).
- */
-bool
-MimmoObject::isParallel()
-{
-    if (getPatch() == nullptr){
-        return false;
-    }
-
-    return getPatch()->isPartitioned();
-}
-
-/*!
 	Gets a constant reference to the ghost targets needed for point data exchange.
 
 	\return a constant reference to the ghost targets needed for point data
@@ -1943,6 +2092,20 @@ void MimmoObject::deleteOrphanGhostCells(){
 }
 
 #endif
+
+/*!
+ * Give if the patch is a parallel patch, i.e. it has a communicator set and it can
+ * be distributed over the processes (see isDistributed() method).
+ */
+bool
+MimmoObject::isParallel()
+{
+    if (getPatch() == nullptr){
+        return false;
+    }
+
+    return m_isParallel;
+}
 
 /*!
  * Set geometric tolerance used to perform geometric operations on the patch.
@@ -2329,10 +2492,13 @@ MimmoSharedPointer<MimmoObject> MimmoObject::clone() const {
 		result->setPIDName(touple.first, touple.second);
 	}
 
+//	result->update();
+
 	// 2) check if trees are built here locally and force build to result eventually;
 	if(m_kdTreeSync == SyncStatus::SYNC)    result->buildKdTree();
 	if(m_skdTreeSync == SyncStatus::SYNC)   result->buildSkdTree();
 
+//
 #if MIMMO_ENABLE_MPI
 	//rank, nprocs and communicator managed inside initializeParallel call  of the MimmoObject constructor
 	//3) check if PointGhost are synchronized, if they are, update point ghost of result
@@ -2796,7 +2962,7 @@ MimmoObject::extractBoundaryMesh(){
     //fill new boundary
     //instantiate mesh
     int type = int(getType() == 2) + 4*int(getType() == 1) + 3*int(getType() == 4);
-    MimmoSharedPointer<MimmoObject> boundary(new MimmoObject(type));
+    MimmoSharedPointer<MimmoObject> boundary(new MimmoObject(type, isParallel()));
 
     //get intefaces from current mesh
     bitpit::PiercedVector<bitpit::Interface> & bulkInterf = getInterfaces();
@@ -3570,9 +3736,28 @@ bitpit::ElementType	MimmoObject::desumeElement(const livector1D & locConn){
 /*!
  * Reset class to default constructor set-up.
  * \param[in] type type of mesh from 1 to 4; See default constructor.
+ * \param[in] isParallel if true reset to parallel MimmoObject (if MPI not enabled forced to false)
  */
-void MimmoObject::reset(int type){
-	m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+void MimmoObject::reset(int type, bool isParallel){
+
+    m_log = &bitpit::log::cout(MIMMO_LOG_FILE);
+
+    // Reset patch
+    resetPatch();
+
+    m_patch = nullptr;
+    m_extpatch = nullptr;
+
+    // Initialize parallel data
+    m_isParallel = isParallel && MIMMO_ENABLE_MPI;
+#if MIMMO_ENABLE_MPI
+    initializeMPI();
+    initializeCommunicator(m_isParallel);
+#else
+    m_rank = 0;
+    m_nprocs = 1;
+#endif
+
 	m_type = std::max(0, type);
 	if (m_type > 4){
 		m_type = 1;
@@ -3580,31 +3765,46 @@ void MimmoObject::reset(int type){
 
 	switch(m_type){
 	case 1:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2)));
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2, getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(2)));
+#endif
 		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(m_patch.get()))));
 		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
 		break;
 	case 2:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoVolUnstructured(3)));
-		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::VolumeSkdTree(dynamic_cast<bitpit::VolumeKernel*>(m_patch.get()))));
-		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
-		break;
-	case 3:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoPointCloud()));
-		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
-		break;
-	case 4:
-		m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(1)));
-		m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(m_patch.get()))));
-		m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
-		break;
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoVolUnstructured(3, getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoVolUnstructured(3)));
+#endif
+        m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::VolumeSkdTree(dynamic_cast<bitpit::VolumeKernel*>(m_patch.get()))));
+        m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
+        break;
+    case 3:
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoPointCloud(getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoPointCloud()));
+#endif
+        m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
+        break;
+    case 4:
+#if MIMMO_ENABLE_MPI
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(1, getCommunicator())));
+#else
+        m_patch = std::move(std::unique_ptr<bitpit::PatchKernel>(new MimmoSurfUnstructured(1)));
+#endif
+        m_skdTree = std::move(std::unique_ptr<bitpit::PatchSkdTree>(new bitpit::SurfaceSkdTree(dynamic_cast<bitpit::SurfaceKernel*>(m_patch.get()))));
+        m_kdTree  = std::move(std::unique_ptr<bitpit::KdTree<3,bitpit::Vertex,long> >(new bitpit::KdTree<3,bitpit::Vertex, long>()));
+        break;
 	default:
 		//never been reached
 		break;
 	}
 
 	m_internalPatch = true;
-	m_extpatch = nullptr;
 
     // Set skdTreeSync and kdTreeSync to none
     m_skdTreeSync = SyncStatus::NONE;
@@ -3619,9 +3819,6 @@ void MimmoObject::reset(int type){
     m_AdjSync = SyncStatus::NONE;
     m_IntSync = SyncStatus::NONE;
 
-#if MIMMO_ENABLE_MPI
-	initializeParallel();
-#endif
 	m_patchInfo.setPatch(m_patch.get());
 	m_infoSync = SyncStatus::NONE;
     m_boundingBoxSync = SyncStatus::NONE;
@@ -3687,7 +3884,12 @@ void MimmoObject::restore(std::istream & stream){
 #endif
 
 	//clean up and reset current object to ist virgin state
-	reset(type);
+	// Reset to a parallel geometry if communicator is different from MPI_COMM_NULL
+	bool isparallel = false;
+#if MIMMO_ENABLE_MPI
+	isparallel = m_communicator != MPI_COMM_NULL;
+#endif
+	reset(type, isparallel);
 	//absorb the other data
 	std::vector<long> pid;
 	std::vector<std::string> sspid;

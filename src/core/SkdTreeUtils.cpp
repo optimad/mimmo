@@ -790,7 +790,7 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
         }
     }
 
-    if (nProcessors > 1 && spatch.isCommunicatorSet()){
+    if (nProcessors > 1 && spatch.isPartitioned()){
         if (shared){
 
             // If all points are shared between processes all reduce on normal by minimum operation
@@ -1453,7 +1453,7 @@ long findSharedPointClosestGlobalCell(int nPoints, const std::array<double, 3> *
 
     // Get MPI communicator
     // Patch is partitioned call the parallel method
-    if (!tree->getPatch().isCommunicatorSet()){
+    if (!tree->getPatch().isPartitioned()){
         throw std::runtime_error ("There is no communicator set for the patch.");
     }
 
@@ -1684,7 +1684,7 @@ long findPointClosestGlobalCell(int nPoints, const std::array<double, 3> *points
 
     // Get MPI communicator
     // Patch is partitioned call the parallel method
-    if (!tree->getPatch().isCommunicatorSet()){
+    if (!tree->getPatch().isPartitioned()){
         throw std::runtime_error ("There is no communicator set for the patch.");
     }
 
