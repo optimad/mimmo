@@ -772,8 +772,9 @@ void   ManipulateWFOBJData::execute(){
     computeNormals();
     extractPinnedLists();
 
-    getGeometry()->update();
-
+    //getGeometry() return always a nullptr. There are no direct connections to geometry
+    // for the current class (set/getGeometry are overridden).
+    //All data needed are in WavefrontOBJData member m_extdata. 
 }
 
 /*!
