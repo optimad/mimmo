@@ -108,6 +108,9 @@ public:
     void squeezeOutExcept(const std::vector<long int> & list, bool keepOrder = false);
     void squeezeOutExcept(const std::unordered_set<long int> & list, bool keepOrder = false);
 
+#if MIMMO_ENABLE_MPI
+    void communicateData();
+#endif
 
 private:
     livector1D getGeometryIds(bool ordered=false);

@@ -927,5 +927,103 @@ MimmoPiercedVector<mpv_t>::squeezeOutExcept(const std::unordered_set<long int> &
     }
 }
 
+#if MIMMO_ENABLE_MPI
+/*!
+ * Communicate the data contained in the structures from ghost sources to targets.
+ * The communications take place on ghost points or cells in case of data location is
+ * MPVLocation::POINT or MPVLocation::CELL. If data are located on MPVLocation::INTERFACE
+ * no communications are performed.
+ * If data on ghost sources/targets points/cells are not defined, the constructor default
+ * data value is used and insert in the vector with the missing ids.
+ * The linked geometry has to be previously updated before call this function.
+ *
+*/
+template<typename mpv_t>
+void
+MimmoPiercedVector<mpv_t>::communicateData(){
+
+    // If geometry not linked return
+    if (getGeometry() == nullptr){
+        return;
+    }
+
+    // Recover geometry
+    MimmoSharedPointer<MimmoObject> geometry = getGeometry();
+
+    // If geometry not distributed return
+    if (!geometry->isDistributed()){
+        return;
+    }
+
+    // The linked geometry has to be updated before to call the communication method
+
+    // Instantiate data communicator
+    std::unique_ptr<bitpit::DataCommunicator> dataCommunicator(new bitpit::DataCommunicator(geometry->getCommunicator()));
+
+    // Set sources and targets lists
+    MPVLocation location = getDataLocation();
+    std::unordered_map<int, std::vector<long>> sources, targets;
+    switch (location){
+    case MPVLocation::POINT :
+        sources = getGeometry()->getPatch()->getGhostVertexExchangeSources();
+        targets = getGeometry()->getPatch()->getGhostVertexExchangeTargets();
+        break;
+    case MPVLocation::CELL :
+        sources = getGeometry()->getPatch()->getGhostCellExchangeSources();
+        targets = getGeometry()->getPatch()->getGhostCellExchangeTargets();
+        break;
+    default :
+        break;
+    }
+
+    // Recover data size
+    size_t exchangeDataSize = sizeof(mpv_t);
+
+    // Set and start the sends
+    for (const auto entry : sources) {
+        const int rank = entry.first;
+        auto &list = entry.second;
+        dataCommunicator->setSend(rank, list.size() * exchangeDataSize);
+        bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(rank);
+        for (long id : list) {
+            if (this->count(id)){
+                buffer << this->at(id);
+            }else{
+                // If data id doesn't exist use default constructor value
+                buffer << mpv_t();
+            }
+        }
+        dataCommunicator->startSend(rank);
+    }
+
+    // Discover & start all the receives
+    dataCommunicator->discoverRecvs();
+    dataCommunicator->startAllRecvs();
+
+    // Receive the data of the ghosts
+    mpv_t value;
+    int nCompletedRecvs = 0;
+    while (nCompletedRecvs < dataCommunicator->getRecvCount()) {
+        int rank = dataCommunicator->waitAnyRecv();
+        const auto &list = targets.at(rank);
+        bitpit::RecvBuffer &buffer = dataCommunicator->getRecvBuffer(rank);
+        for (long id : list) {
+            buffer >> value;
+            if (this->count(id)){
+                this->at(id) = value;
+            }
+            else{
+                // If element id doesn't exist create it
+                this->insert(id, value);
+            }
+        }
+        ++nCompletedRecvs;
+    }
+
+    // Wait for the sends to finish
+    dataCommunicator->waitAllSends();
+    dataCommunicator->finalize();
+}
+#endif
 
 }

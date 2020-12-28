@@ -87,31 +87,6 @@ protected:
 
     using BaseManipulation::m_geometry;
 
-    // TODO AVOID DUPLICATED CODE !!!
-    // MPI
-#if MIMMO_ENABLE_MPI
-    // Vector field cell communication
-    std::unordered_map<MimmoObject *, std::unique_ptr<GhostCommunicator> > m_ghostCommunicators;    /**<List of Cell Ghost communicator objects, for each one of ref. geometry */
-    std::unordered_map<MimmoObject *, int> m_ghostTags;/**< List of Tags of cell communicator objects, one for each ref geometry*/
-    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoDataBufferStreamer<std::array<double, 3>>> > m_ghostStreamers; /**<list of Point Data streamer, one for each ref geometry */
-
-    // Scalar field cell communication
-    std::unordered_map<MimmoObject *, std::unique_ptr<GhostCommunicator> > m_scalarGhostCommunicators;    /**<List of Cell Ghost communicator objects, for each one of ref. geometry */
-    std::unordered_map<MimmoObject *, int> m_scalarGhostTags;/**< List of Tags of cell communicator objects, one for each ref geometry*/
-    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoDataBufferStreamer<double>> > m_scalarGhostStreamers; /**<list of Point Data streamer, one for each ref geometry */
-
-    // Vector field point communication
-    std::unordered_map<MimmoObject *, std::unique_ptr<PointGhostCommunicator> > m_pointGhostCommunicators;    /**<List of Point Ghost communicator objects, for each one of ref. geometry */
-    std::unordered_map<MimmoObject *, int> m_pointGhostTags;/**< List of Tags of point communicator objects, one for each ref geometry*/
-    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoPointDataBufferStreamer<std::array<double, 3>>> > m_pointGhostStreamers; /**<list of Point Data streamer, one for each ref geometry */
-
-    // Scalar field point communication
-    std::unordered_map<MimmoObject *, std::unique_ptr<PointGhostCommunicator> > m_scalarPointGhostCommunicators;    /**<List of Scalar Field Point Ghost communicator objects, for each one of ref. geometry */
-    std::unordered_map<MimmoObject *, int> m_scalarPointGhostTags;/**< List of Scalar Field Tags of point communicator objects, one for each ref geometry*/
-    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoPointDataBufferStreamer<double>> > m_scalarPointGhostStreamers; /**<list of Scalar Field Point Data streamer, one for each ref geometry */
-
-#endif
-
 public:
     IOOFOAM_Kernel(bool writemode = false);
     IOOFOAM_Kernel(MimmoSharedPointer<MimmoObject> bulk, MimmoSharedPointer<MimmoObject> boundary, bool writemode);
@@ -143,17 +118,6 @@ protected:
     /*! reading execution*/
     virtual bool    read() = 0;
 
-#if MIMMO_ENABLE_MPI
-    int createGhostCommunicator(MimmoObject * refgeo, bool continuous);
-    int createScalarGhostCommunicator(MimmoObject * refgeo, bool continuous);
-    int createPointGhostCommunicator(MimmoObject * refgeo, bool continuous);
-    int createScalarPointGhostCommunicator(MimmoObject * refgeo, bool continuous);
-
-    void communicateGhostData(MimmoPiercedVector<std::array<double,3>> *data);
-    void communicateScalarGhostData(MimmoPiercedVector<double> *data);
-    void communicatePointGhostData(MimmoPiercedVector<std::array<double,3>> *data);
-    void communicateScalarPointGhostData(MimmoPiercedVector<double> *data);
-#endif
 };
 
 

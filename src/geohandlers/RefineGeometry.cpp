@@ -539,14 +539,6 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
             }
         }
 
-        // Initialize communication structures for tags and split face index
-        GhostCommunicator ghostCommunicator(geometry->getPatch());
-        ghostCommunicator.setRecvsContinuous(true);
-        ListBufferStreamer<MimmoPiercedVector<int>,int> tagGhostStreamer(&refinementTagCommunicated);
-        ListBufferStreamer<MimmoPiercedVector<int>,int> splitGhostStreamer(&greenSplitFaceIndexCommunicated);
-        ghostCommunicator.addData(&tagGhostStreamer);
-        ghostCommunicator.addData(&splitGhostStreamer);
-
 #endif
 
 		// If active cells are all the cells, propagate red-green refinement
@@ -676,10 +668,9 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                     }
                 }
 
-                // Send data
-                ghostCommunicator.startAllExchanges();
-                // Receive data
-                ghostCommunicator.completeAllExchanges();
+                // Communicate tag and face index
+                refinementTagCommunicated.communicateData();
+                greenSplitFaceIndexCommunicated.communicateData();
 
                 // Update refinement tags if different from communicated
                 for (auto ghostIt = geometry->getPatch()->ghostCellConstBegin(); ghostIt != geometry->getPatch()->ghostCellConstEnd(); ghostIt++){
@@ -991,7 +982,7 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
         geometry->updatePointGhostExchangeInfo();
 
     // Instantiate new coordinates container used only for communications
-    MimmoPiercedVector<std::array<double,3>> newCoordinatesCommunicated;
+    MimmoPiercedVector<std::array<double,3>> newCoordinatesCommunicated(geometry, MPVLocation::POINT);
 
     // Fill initial sources and targets values
     for (auto source_tuple : geometry->getPointGhostExchangeSources()){
@@ -1010,13 +1001,6 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
             }
         }
     }
-
-    // Initialize communication structures for new coordinates
-    PointGhostCommunicator pointGhostCommunicator(geometry.get());
-    pointGhostCommunicator.resetExchangeLists();
-    pointGhostCommunicator.setRecvsContinuous(true);
-    MimmoPointDataBufferStreamer<std::array<double,3>> coordsGhostStreamer(&newCoordinatesCommunicated);
-    pointGhostCommunicator.addData(&coordsGhostStreamer);
 
 #endif
 
@@ -1069,7 +1053,6 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
             if (geometry->isParallel()){
 
                 // Update ghost new coordinates
-                // The if needed insert new edges and put new reds in stack
 
                 // Fill with sources and targets values
                 for (auto source_tuple : geometry->getPointGhostExchangeSources()){
@@ -1079,11 +1062,8 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
                     }
                 }
 
-                // Send data
-                pointGhostCommunicator.startAllExchanges();
-
-                // Receive data
-                pointGhostCommunicator.completeAllExchanges();
+                // Communicate new coordinates
+                newCoordinatesCommunicated.communicateData();
 
                 // Update coordinates of ghost vertices with communicated ones
                 for (auto target_tuple : geometry->getPointGhostExchangeTargets()){
@@ -1156,11 +1136,8 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
                     }
                 }
 
-                // Send data
-                pointGhostCommunicator.startAllExchanges();
-
-                // Receive data
-                pointGhostCommunicator.completeAllExchanges();
+                // Communicate new coordinates
+                newCoordinatesCommunicated.communicateData();
 
                 // Update coordinates of ghost vertices with communicated ones
                 for (auto target_tuple : geometry->getPointGhostExchangeTargets()){

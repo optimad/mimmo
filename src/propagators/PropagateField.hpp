@@ -149,25 +149,6 @@ protected:
     std::unordered_set<MimmoSharedPointer<MimmoObject> >  m_bandSurfaces;   /**<list of MimmoObject boundary patches pointers to identify target baundaries for Narrow Band definition.*/
     MimmoSharedPointer<MimmoObject> m_bandUniSurface; /**< INTERNAL use. Final narrow band reference surface.*/
 
-    // MPI
-#if MIMMO_ENABLE_MPI
-    // Main field cell communication
-    std::unordered_map<MimmoObject *, std::unique_ptr<GhostCommunicator> > m_ghostCommunicators;    /**<List of Cell Ghost communicator objects, for each one of ref. geometry */
-    std::unordered_map<MimmoObject *, int> m_ghostTags;/**< List of Tags of cell communicator objects, one for each ref geometry*/
-    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoDataBufferStreamer<std::array<double, NCOMP>>> > m_ghostStreamers; /**<list of Point Data streamer, one for each ref geometry */
-
-    // Main field point communication
-    std::unordered_map<MimmoObject *, std::unique_ptr<PointGhostCommunicator> > m_pointGhostCommunicators;    /**<List of Point Ghost communicator objects, for each one of ref. geometry */
-    std::unordered_map<MimmoObject *, int> m_pointGhostTags;/**< List of Tags of point communicator objects, one for each ref geometry*/
-    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoPointDataBufferStreamer<std::array<double, NCOMP>>> > m_pointGhostStreamers; /**<list of Point Data streamer, one for each ref geometry */
-
-    // Scalar field point communication
-    std::unordered_map<MimmoObject *, std::unique_ptr<PointGhostCommunicator> > m_scalarPointGhostCommunicators;    /**<List of Scalar Field Point Ghost communicator objects, for each one of ref. geometry */
-    std::unordered_map<MimmoObject *, int> m_scalarPointGhostTags;/**< List of Scalar Field Tags of point communicator objects, one for each ref geometry*/
-    std::unordered_map<MimmoObject *, std::unique_ptr<MimmoPointDataBufferStreamer<double>> > m_scalarPointGhostStreamers; /**<list of Scalar Field Point Data streamer, one for each ref geometry */
-
-#endif
-
 public:
 
     PropagateField();
@@ -229,20 +210,6 @@ protected:
     // Reconstruct final result field
     virtual void reconstructResults(const dvector2D & results, const lilimap & mapglobals,  livector1D * markedcells = nullptr);
 
-#if MIMMO_ENABLE_MPI
-    int createGhostCommunicator(MimmoObject * refgeo, bool continuous);
-    int createPointGhostCommunicator(MimmoObject * refgeo, bool continuous);
-    int createScalarPointGhostCommunicator(MimmoObject * refgeo, bool continuous);
-
-    template<class mpvt>
-    void communicateGhostData(MimmoPiercedVector<mpvt> *data);
-
-    template<class mpvt>
-    void communicatePointGhostData(MimmoPiercedVector<mpvt> *data);
-
-    template<class mpvt>
-    void communicateScalarPointGhostData(MimmoPiercedVector<mpvt> *data);
-#endif
 };
 
 /*!

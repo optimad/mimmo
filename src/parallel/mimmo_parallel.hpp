@@ -33,8 +33,6 @@
 #define __MIMMO_MODULE_PARALLEL_HPP__
 
 #include "mimmo_core.hpp"
-#include "communications.hpp"
-#include "mimmo_streamers.hpp"
 #include "Partition.hpp"
 
 #endif

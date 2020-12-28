@@ -855,7 +855,7 @@ PropagateField<NCOMP>::dampingCellToPoint(MimmoPiercedVector<double> & dampingOn
     dampingOnPoints = m_damping.cellDataToPointData(1.5);
 
 #if MIMMO_ENABLE_MPI
-    communicateScalarPointGhostData(&dampingOnPoints);
+    dampingOnPoints.communicateData();
 #endif
 
 }
@@ -1211,8 +1211,8 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const lilim
     }
 
 #if MIMMO_ENABLE_MPI
-    //communicate ghosts
-    communicatePointGhostData(mpvres.get());
+    //communicate ghosts data
+    mpvres->communicateData();
 #endif
 
     //mark point with solution norm above m_thres
@@ -1232,190 +1232,6 @@ PropagateField<NCOMP>::reconstructResults(const dvector2D & results, const lilim
     // store all in m_field.
     m_field.swap(*(mpvres.get()));
 }
-
-//******************
-//EXCLUSIVE MPI METHODS
-//******************
-//TODO USE BITPIT DATA COMMUNICATORS, STREAMERS AND TAGS WHEN READY
-#if MIMMO_ENABLE_MPI
-/*!
-    Creates a new ghost communicator and return its tag. if already exists, do nothing
-    and return its current tag.
-
-    \param[in] refGeo pointer to reference partitioned MimmoObject
-    \param[in] continuous defines if the communicator will be set in continuous mode
-    \return The tag associated to the newly created/or already existent communicator.
- */
-template<std::size_t NCOMP>
-int
-PropagateField<NCOMP>::createGhostCommunicator(MimmoObject* refGeo, bool continuous){
-
-    if(m_ghostCommunicators.count(refGeo) == 0){
-        // Create communicator
-        m_ghostCommunicators[refGeo] = std::unique_ptr<GhostCommunicator>(new GhostCommunicator(refGeo->getPatch()));
-        m_ghostCommunicators[refGeo]->resetExchangeLists();
-        m_ghostCommunicators[refGeo]->setRecvsContinuous(continuous);
-    }
-    // Return Communicator tag
-    return int(m_ghostCommunicators[refGeo]->getTag());
-}
-
-/*!
-    Creates a new point ghost communicator.
-
-    \param[in] refGeo pointer to reference partitioned MimmoObject
-    \param[in] continuous defines if the communicator will be set in continuous mode
-    \return The tag associated to the newly created communicator.
- */
-template<std::size_t NCOMP>
-int
-PropagateField<NCOMP>::createPointGhostCommunicator(MimmoObject* refGeo, bool continuous){
-    if(m_pointGhostCommunicators.count(refGeo) == 0){
-        // Create communicator
-        m_pointGhostCommunicators[refGeo] = std::unique_ptr<PointGhostCommunicator>(new PointGhostCommunicator(refGeo));
-        m_pointGhostCommunicators[refGeo]->resetExchangeLists();
-        m_pointGhostCommunicators[refGeo]->setRecvsContinuous(continuous);
-    }
-    // Return Communicator tag
-    return int(m_pointGhostCommunicators[refGeo]->getTag());
-}
-
-/*!
-    Creates a new scalar point ghost communicator.
-
-    \param[in] refGeo pointer to reference partitioned MimmoObject
-    \param[in] continuous defines if the communicator will be set in continuous mode
-    \return The tag associated to the newly created communicator.
- */
-template<std::size_t NCOMP>
-int
-PropagateField<NCOMP>::createScalarPointGhostCommunicator(MimmoObject* refGeo, bool continuous){
-    if(m_scalarPointGhostCommunicators.count(refGeo) == 0){
-        // Create communicator
-        m_scalarPointGhostCommunicators[refGeo] = std::unique_ptr<PointGhostCommunicator>(new PointGhostCommunicator(refGeo));
-        m_scalarPointGhostCommunicators[refGeo]->resetExchangeLists();
-        m_scalarPointGhostCommunicators[refGeo]->setRecvsContinuous(continuous);
-    }
-    // Return Communicator tag
-    return int(m_scalarPointGhostCommunicators[refGeo]->getTag());
-}
-
-/*!
-    Communicate MPV data on ghost cells on the reference geometry linked by data itself.
-    The method creates a new communicator and streamer if not already allocated.
-    Otherwise the pointer of the communicator to the data is updated with the input argument.
-    \param[in] data Pointer to field with data to communicate
- */
-template<std::size_t NCOMP>
-template<class mpvt>
-void
-PropagateField<NCOMP>::communicateGhostData(MimmoPiercedVector<mpvt> *data){
-    // Creating cell ghost communications for exchanging interpolated values
-    MimmoObject * geo = data->getGeometry().get();
-    if(!geo){
-        throw std::runtime_error("Propagate Class ::communicateGhostData no ref Geometry in mpv data!");
-    }
-    //if geo is not partitioned you have nothing to communicate.
-    if (!geo->isDistributed()) return;
-
-    //check for communicator on geometry, if not exists create it
-    m_ghostTags[geo] = createGhostCommunicator(geo, true);
-    //after this call a communicator dedicated to geo surely exists
-    //check if streamer for data type exists
-    if(m_ghostStreamers.count(geo) > 0){
-        //set data to the streamer. If you created the streamer
-        //you have already add it to its comunicator.
-        m_ghostStreamers[geo]->setData(data);
-    }else{
-        //you need to create it brand new. Attach data directly.
-        m_ghostStreamers[geo] = std::unique_ptr<MimmoDataBufferStreamer<mpvt>>(new MimmoDataBufferStreamer<mpvt>(data));
-        m_ghostCommunicators[geo]->addData(m_ghostStreamers[geo].get());
-    }
-
-    // Send data
-    m_ghostCommunicators[geo]->startAllExchanges();
-    // Receive data
-    m_ghostCommunicators[geo]->completeAllExchanges();
-}
-
-/*!
-    Communicate MPV data on ghost nodes on the reference geometry linked by data itself.
-    The method creates a new communicator and streamer if not already allocated.
-    Otherwise the pointer of the communicator to the data is updated with the input argument.
-    \param[in] data Pointer to field with data to communicate
- */
-template<std::size_t NCOMP>
-template<class mpvt>
-void
-PropagateField<NCOMP>::communicatePointGhostData(MimmoPiercedVector<mpvt> *data){
-    // Creating cell ghost communications for exchanging interpolated values
-    MimmoObject * geo = data->getGeometry().get();
-    if(!geo){
-        throw std::runtime_error("Propagate Class ::communicatePointGhostData no ref Geometry in mpv data!");
-    }
-    //if geo is not partitioned you have nothing to communicate.
-    if (!geo->isDistributed()) return;
-
-    //check for communicator on geometry, if not exists create it
-    m_pointGhostTags[geo] = createPointGhostCommunicator(geo, true);
-    //after this call a communicator dedicated to geo surely exists
-    //check if streamer for data type exists
-    if(m_pointGhostStreamers.count(geo) > 0){
-        //set data to the streamer. If you created the streamer
-        //you have already add it to its comunicator.
-        m_pointGhostStreamers[geo]->setData(data);
-    }else{
-        //you need to create it brand new. Attach data directly.
-        m_pointGhostStreamers[geo] = std::unique_ptr<MimmoPointDataBufferStreamer<mpvt>>(new MimmoPointDataBufferStreamer<mpvt>(data));
-        m_pointGhostCommunicators[geo]->addData(m_pointGhostStreamers[geo].get());
-    }
-
-    // Send data
-    m_pointGhostCommunicators[geo]->startAllExchanges();
-    // Receive data
-    m_pointGhostCommunicators[geo]->completeAllExchanges();
-}
-
-
-/*!
-    Communicate MPV scalar field on ghost nodes on the reference geometry linked by data itself.
-    The method creates a new communicator and streamer if not already allocated.
-    Otherwise the pointer of the communicator to the data is updated with the input argument.
-    \param[in] data Pointer to scalar field with data to communicate
- */
-template<std::size_t NCOMP>
-template<class mpvt>
-void
-PropagateField<NCOMP>::communicateScalarPointGhostData(MimmoPiercedVector<mpvt> *data){
-    // Creating cell ghost communications for exchanging interpolated values
-    MimmoObject * geo = data->getGeometry().get();
-    if(!geo){
-        throw std::runtime_error("Propagate Class ::communicatePointGhostData no ref Geometry in mpv data!");
-    }
-    //if geo is not partitioned you have nothing to communicate.
-    if (!geo->isDistributed()) return;
-
-    //check for communicator on geometry, if not exists create it
-    m_scalarPointGhostTags[geo] = createScalarPointGhostCommunicator(geo, true);
-    //after this call a communicator dedicated to geo surely exists
-    //check if streamer for data type exists
-    if(m_scalarPointGhostStreamers.count(geo) > 0){
-        //set data to the streamer. If you created the streamer
-        //you have already add it to its comunicator.
-        m_scalarPointGhostStreamers[geo]->setData(data);
-    }else{
-        //you need to create it brand new. Attach data directly.
-        m_scalarPointGhostStreamers[geo] = std::unique_ptr<MimmoPointDataBufferStreamer<mpvt>>(new MimmoPointDataBufferStreamer<mpvt>(data));
-        m_scalarPointGhostCommunicators[geo]->addData(m_scalarPointGhostStreamers[geo].get());
-    }
-
-    // Send data
-    m_scalarPointGhostCommunicators[geo]->startAllExchanges();
-    // Receive data
-    m_scalarPointGhostCommunicators[geo]->completeAllExchanges();
-}
-
-#endif
 
 
 } //end of mimmo namespace
