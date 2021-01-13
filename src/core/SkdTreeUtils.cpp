@@ -773,6 +773,17 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
 
     int nProcessors = spatch.getProcessorCount();
 
+    if (nProcessors == 1 && shared){
+        for (int ip = 0; ip < nP; ip++){
+            const long & cellId = ids[ip];
+            double & distance = distances[ip];
+            double & s = signs[ip];
+            if(cellId != bitpit::Cell::NULL_ID){
+                distance *= s;
+            }
+        }
+    }
+
     if (nProcessors > 1 && spatch.isCommunicatorSet()){
         if (shared){
 
