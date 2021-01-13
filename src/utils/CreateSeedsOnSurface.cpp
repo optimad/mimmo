@@ -605,7 +605,6 @@ CreateSeedsOnSurface::solveGrid(bool debug){
     //project centroids on surface. For MPI use shared list algorithm
     dvecarr3E projCentroids(centroids.size());
     dvector1D projSensitivity(centroids.size(), 1.0);
-    int currentRank = 0;
     {
         livector1D ids(centroids.size());
 #if MIMMO_ENABLE_MPI
