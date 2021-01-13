@@ -40,8 +40,10 @@ MRBF::MRBF(MRBFSol mode){
     m_isCompact = false;
     m_rbfgeometry = nullptr;
     m_rbfdispl = nullptr;
-    m_diagonalFactor = 1.0;
+    m_rbfScalarDispl = nullptr;
     m_rbfSupportRadii = nullptr;
+    m_diagonalFactor = 1.0;
+    m_areScalarResults = false;
 };
 
 /*!
@@ -60,8 +62,10 @@ MRBF::MRBF(const bitpit::Config::Section & rootXML){
     m_isCompact = false;
     m_rbfgeometry = nullptr;
     m_rbfdispl = nullptr;
-    m_diagonalFactor = 1.0;
+    m_rbfScalarDispl = nullptr;
     m_rbfSupportRadii = nullptr;
+    m_diagonalFactor = 1.0;
+    m_areScalarResults = false;
 
     setMode(MRBFSol::NONE);
 
@@ -99,6 +103,9 @@ MRBF::MRBF(const MRBF & other):BaseManipulation(other), bitpit::RBF(other){
 	if(m_bfilter)    m_filter = other.m_filter;
     m_rbfgeometry = other.m_rbfgeometry;
     m_rbfdispl = other.m_rbfdispl;
+    m_rbfScalarDispl = other.m_rbfScalarDispl;
+    m_rbfSupportRadii = other.m_rbfSupportRadii;
+    m_diagonalFactor = other.m_diagonalFactor;
     m_diagonalFactor = other.m_diagonalFactor;
 };
 
@@ -126,10 +133,14 @@ void MRBF::swap(MRBF & x) noexcept
     std::swap(m_functype, x.m_functype);
     std::swap(m_isCompact, x.m_isCompact);
 	m_displ.swap(x.m_displ);
+    m_scalarDispl.swap(x.m_scalarDispl);
     std::swap(m_effectiveSR, x.m_effectiveSR);
     std::swap(m_rbfgeometry, x.m_rbfgeometry);
     std::swap(m_rbfdispl, x.m_rbfdispl);
+    std::swap(m_rbfScalarDispl, x.m_rbfScalarDispl);
+    std::swap(m_rbfSupportRadii, x.m_rbfSupportRadii);
     std::swap(m_diagonalFactor, x.m_diagonalFactor);
+    std::swap(m_areScalarResults, x.m_areScalarResults);
 
     RBF::swap(x);
 
@@ -144,13 +155,16 @@ MRBF::buildPorts(){
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, MRBF>(&m_geometry, M_GEOM, true));
     built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setNode, M_COORDS));
     built = (built && createPortIn<dvecarr3E, MRBF>(this, &mimmo::MRBF::setDisplacements, M_DISPLS));
+    built = (built && createPortIn<std::vector<double>, MRBF>(this, &mimmo::MRBF::setScalarDisplacements, M_DATAFIELD));
+    built = (built && createPortIn<std::vector<double>, MRBF>(this, &mimmo::MRBF::setVariableSupportRadii, M_DATAFIELD2));
 	built = (built && createPortIn<dmpvector1D*, MRBF>(this, &mimmo::MRBF::setFilter, M_FILTER));
-    built = (built && createPortIn<std::vector<double>, MRBF>(this, &mimmo::MRBF::setVariableSupportRadii, M_DATAFIELD));
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, MRBF>(this, &mimmo::MRBF::setNode, M_GEOM2));
     built = (built && createPortIn<dmpvecarr3E*, MRBF>(this, &mimmo::MRBF::setDisplacements, M_VECTORFIELD));
-    built = (built && createPortIn<dmpvector1D*, MRBF>(this, &mimmo::MRBF::setVariableSupportRadii, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvector1D*, MRBF>(this, &mimmo::MRBF::setScalarDisplacements, M_SCALARFIELD));
+    built = (built && createPortIn<dmpvector1D*, MRBF>(this, &mimmo::MRBF::setVariableSupportRadii, M_SCALARFIELD2));
 
 	built = (built && createPortOut<dmpvecarr3E*, MRBF>(this, &mimmo::MRBF::getDisplacements, M_GDISPLS));
+    built = (built && createPortOut<dmpvector1D*, MRBF>(this, &mimmo::MRBF::getScalarDisplacements, M_SCALARFIELD));
 	built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, MRBF>(this, &BaseManipulation::getGeometry, M_GEOM));
 	m_arePortsBuilt = built;
 };
@@ -234,14 +248,49 @@ MRBF::getFunctionType(){
     }
 }
 
+
 /*!
- * Return actual computed displacements field (if any) for the geometry linked.
+ * Return actual computed vector displacements field (if any) for the geometry linked.
+   BEWARE if class is working with scalar DOFs a scalar displacement field is expected.
+   For vector DOFs a vector field is expected.
+   If the class is in "scalar mode" (areResultsInScalarMode() is true) this method will return
+   nullptr.Use getScalarDisplacements instead.
  * \return     The computed deformation field on the vertices of the linked geometry
  */
 dmpvecarr3E*
 MRBF::getDisplacements(){
-	return &m_displ;
+    if(m_areScalarResults)  return nullptr;
+	else                    return &m_displ;
 };
+
+/*!
+ * Return actual computed scalar displacements field (if any) for the geometry linked.
+  BEWARE if class is working with scalar DOFs a scalar displacement field is expected.
+  For vector DOFs a vector field is expected.
+  If the class is NOT in "scalar mode" (areResultsInScalarMode() is false) this method will return
+  nullptr. Use getDisplacements instead.
+ * \return     The computed deformation field on the vertices of the linked geometry
+ */
+dmpvector1D*
+MRBF::getScalarDisplacements(){
+    if(m_areScalarResults)  return &m_scalarDispl ;
+	else                    return nullptr;
+};
+
+
+/*!
+ * Return true if the the class is in Scalar mode, false otherwise.
+  Scalar mode means that a set of Scalar DOFs displacements for RBFs nodes are feeded in input
+  so that the final expected displacement field on the geometry is scalar.
+  Otherwise, dofs are 3component vectors that produce a final 3-comp vector displacement
+  field.
+ * \return boolean true/false
+ */
+bool
+MRBF::areResultsInScalarMode(){
+    return m_areScalarResults;
+}
+
 
 /*!
  * Return true if the rbf has to be evaluated on a compact support defined by the support radius.
@@ -455,6 +504,8 @@ MRBF::setTol(double tol){
  * or interpolate displacements to get the best fit weights in other modes MRBFSol::GREEDY/WHOLE
  * Displacements size may not match the actual number of RBF nodes stored in the class.
  * To ensure consistency call fitDataToNodes() method inherited from RBF class.
+  BEWARE: calling this method implicitly set the class to work with 3Comp vector DOFs and
+  to retrieve a 3 comp vector geometry displacement field.(Scalar mode off).
  *
  * \param[in] displ list of nodal displacements
  */
@@ -473,6 +524,7 @@ MRBF::setDisplacements(dvecarr3E displ){
 	}
 
     m_rbfdispl = nullptr;
+    m_areScalarResults = false;
 }
 
 /*!
@@ -481,6 +533,8 @@ MRBF::setDisplacements(dvecarr3E displ){
  * or interpolate displacements to get the best fit weights in other modes MRBFSol::GREEDY/WHOLE
  * Displacements size may not match the actual number of RBF nodes stored in the class.
  * To ensure consistency call fitDataToNodes() method inherited from RBF class.
+   BEWARE: calling this method implicitly set the class to work with 3Comp vector DOFs and
+   to retrieve a 3 comp vector geometry displacement field.(Scalar mode off).
  *
  * \param[in] displ pointer to mimmo pierced vector of nodal displacements
  */
@@ -488,6 +542,46 @@ void
 MRBF::setDisplacements(dmpvecarr3E* displ){
     if (!displ) return;
     m_rbfdispl = displ;
+    m_areScalarResults = false;
+}
+
+
+/*!
+ * Set a field  of "Scalar" displacements (1 component) on your RBF Nodes. According to MRBFSol mode
+ * active in the class set: displacements as direct RBF weights coefficients in MRBFSol::NONE mode,
+ * or interpolate displacements to get the best fit weights in other modes MRBFSol::GREEDY/WHOLE
+ * Displacements size may not match the actual number of RBF nodes stored in the class.
+ * To ensure consistency call fitDataToNodes() method inherited from RBF class.
+   BEWARE: calling this method implicitly set the class to work with scalar DOFs and
+   to retrieve a scalar geometry displacement field.(Scalar mode on).
+ *
+ * \param[in] displ list of nodal displacements
+ */
+void
+MRBF::setScalarDisplacements(dvector1D displ){
+	removeAllData();
+	addData(displ);
+
+    m_rbfScalarDispl = nullptr;
+    m_areScalarResults = true;
+
+}
+
+/*!
+ * Set a field  of "Scalar" displacements on your RBF Nodes. According to MRBFSol mode
+ * active in the class set: displacements as direct RBF weights coefficients in MRBFSol::NONE mode,
+ * or interpolate displacements to get the best fit weights in other modes MRBFSol::GREEDY/WHOLE
+ * Displacements size may not match the actual number of RBF nodes stored in the class.
+ * To ensure consistency call fitDataToNodes() method inherited from RBF class.
+   BEWARE: calling this method implicitly set the class to work with scalar DOFs and
+   to retrieve a scalar geometry displacement field.(Scalar mode on).
+
+ * \param[in] displ pointer to mimmo pierced vector of nodal displacements
+ */
+void
+MRBF::setScalarDisplacements(dmpvector1D* displ){
+    if (!displ) return;
+    m_rbfScalarDispl = displ;
 }
 
 /*!
@@ -600,12 +694,18 @@ MRBF::execute(){
         }
     }
 
-    //prepare m_displs;
+    //prepare m_displ or m_scalarDispl according to m_areScalarResults;
     m_displ.clear();
-	m_displ.setDataLocation(mimmo::MPVLocation::POINT);
-	m_displ.reserve(getGeometry()->getNVertices());
-	m_displ.setGeometry(getGeometry());
-
+    m_scalarDispl.clear();
+    if(m_areScalarResults){
+        m_scalarDispl.setDataLocation(mimmo::MPVLocation::POINT);
+        m_scalarDispl.reserve(getGeometry()->getNVertices());
+        m_scalarDispl.setGeometry(getGeometry());
+    }else{
+        m_displ.setDataLocation(mimmo::MPVLocation::POINT);
+        m_displ.reserve(getGeometry()->getNVertices());
+        m_displ.setGeometry(getGeometry());
+    }
 
     //resize displacements.
 	int size = 0;
@@ -677,21 +777,39 @@ MRBF::execute(){
 	}
 
 	// get deformation using own class evalRBF.
-	for(const long &id: activeMeshVertices){
+    std::array<double,3> tempValue;
+    std::vector<double>  resultValue;
+    for(const long &id: activeMeshVertices){
 	    bitpit::Vertex & vertex = container->getPatch()->getVertex(id);
-	    m_displ.insert(id, evalRBF(vertex.getCoords()));
+        resultValue =evalRBF(vertex.getCoords());
+	    if(m_areScalarResults) {
+            m_scalarDispl.insert(id, resultValue[0]);
+        }else{
+            std::copy_n(resultValue.begin(), 3,tempValue.begin());
+            m_displ.insert(id, tempValue);
+        }
 	}
 
 	//apply m_filter if it's active;
 	if(m_bfilter){
 	    checkFilter();
-	    for (auto it=m_displ.begin(); it!=m_displ.end(); ++it){
-	        (*it) *= m_filter.at(it.getId());
-	    }
+        if(m_areScalarResults){
+            for (auto it=m_scalarDispl.begin(); it!=m_scalarDispl.end(); ++it){
+                (*it) *= m_filter.at(it.getId());
+            }
+        }else{
+            for (auto it=m_displ.begin(); it!=m_displ.end(); ++it){
+                (*it) *= m_filter.at(it.getId());
+            }
+        }
 	}
 
-	m_displ.completeMissingData({{0.0,0.0,0.0}});
 
+    if(m_areScalarResults){
+        m_scalarDispl.completeMissingData(0.0);
+    }else{
+        m_displ.completeMissingData({{0.0,0.0,0.0}});
+    }
 };
 
 /*!
@@ -699,8 +817,43 @@ MRBF::execute(){
  */
 void
 MRBF::apply(){
+    if(m_geometry == nullptr) return;
+
+    if(m_areScalarResults){
+
+        //I can directly apply the "scalar" displacement field only in case of surface meshes.
+        // check it out if targeted geometry is a surface.
+        if(m_geometry->getType() != 1){
+            (*m_log)<<"WARNING "<<m_name<<" : while in SCALAR mode, the class can apply a displacement field only in case of surface geometry (MimmoObject type 1). Skip apply(). "<<std::endl;
+            return;
+        }
+        m_geometry->updateAdjacencies();
+        //retrieve local normals and recover 3D comp m_displ
+        // multiplying them for the scalar field input vertex by vertex.
+        bitpit::SurfaceKernel* skernel = static_cast<bitpit::SurfaceKernel*>(m_geometry->getPatch());
+        m_displ.clear();
+        m_displ.reserve(m_geometry->getNVertices());
+        bitpit::ConstProxyVector<long> verts;
+        std::size_t size;
+        long idN;
+        for(const bitpit::Cell & cell: m_geometry->getCells()){
+            verts = cell.getVertexIds();
+            size = verts.size();
+            for(std::size_t i=0; i<size; ++i){
+                idN = verts[i];
+                if(!m_displ.exists(idN)){
+                    m_displ.insert(idN, skernel->evalVertexNormal(cell.getId(), i));
+                    m_displ[idN] *= m_scalarDispl[idN];
+                }
+            }
+        }
+    }//endif m_areScalarResults;
+
     _apply(m_displ); //base manipulation utility method.
+
+    if(m_areScalarResults)  m_displ.clear();
 }
+
 
 /*!
  * It sets infos reading from a XML bitpit::Config::section.
@@ -914,18 +1067,22 @@ MRBF::setWeight(dvector2D value){
 void
 MRBF::plotCloud(std::string directory, std::string filename, int counterFile, bool binary, bool deformed){
 
+    if(deformed && m_areScalarResults){
+        (*m_log)<<"WARNING "<<m_name<<": plotCloud skipping print of deformed RBF cloud, while the class is in Scalar mode"<<std::endl;
+        return;
+    }
+
 	int nnodes = getTotalNodesCount();
-	nnodes = std::min(nnodes, int(m_displ.size()));
 	dvecarr3E* nodes_ = getNodes();
 	dvecarr3E nodes(nnodes);
-	dvecarr3E data(nnodes);
-	for(int i=0; i<nnodes; ++i){
-		for(int j=0; j<3; ++j){
-			if(m_solver == MRBFSol::NONE)   data[i][j] = m_weight[j][i];
-			else                            data[i][j] = m_value[j][i];
-		}
-	}
-	if(deformed){
+    if(deformed){
+        dvecarr3E data(nnodes);
+    	for(int i=0; i<nnodes; ++i){
+    		for(int j=0; j<3; ++j){
+    			if(m_solver == MRBFSol::NONE)   data[i][j] = m_weight[j][i];
+    			else                            data[i][j] = m_value[j][i];
+    		}
+    	}
 		for(int i=0; i<nnodes; ++i){
 			nodes[i] = (*nodes_)[i] + data[i];
 		}
@@ -1047,11 +1204,11 @@ MRBF::computeEffectiveSupportRadiusList(){
  * \return array containing interpolated/parameterized values of displacements.
  *
  */
-std::array<double,3>
+std::vector<double>
 MRBF::evalRBF( const std::array<double,3> &point){
 
-    std::array<double,3> values;
-    values.fill(0.0);
+    int datasize = getDataCount();
+    std::vector<double> values(datasize, 0.0);
     int                 i, j;
     double              dist, basis;
 
@@ -1061,7 +1218,7 @@ MRBF::evalRBF( const std::array<double,3> &point){
             dist = norm2(point - m_node[i]) / m_effectiveSR[i];
             basis = evalBasis( dist );
 
-            for( j=0; j<3; ++j) {
+            for( j=0; j<datasize; ++j) {
                 values[j] += basis * m_weight[j][i];
             }
         }
@@ -1089,15 +1246,28 @@ MRBF::setMode(MRBFSol solver){
 bool
 MRBF::initRBFwGeometry(){
 
-    // If rbf displ is null skip check on linked geometry
-    if (m_rbfdispl){
+    // If rbf displ is null and Scalar mode if off skip check on linked geometry
+    if(m_rbfdispl != nullptr && !m_areScalarResults){
         // If displacementes have unlinked geometry skip
         if (!m_rbfdispl->getGeometry()){
-            (*m_log)<<m_name + " : null RBF geometry linked by displacements vector. Skip object."<<std::endl;
+            (*m_log)<<m_name + " : null RBF geometry linked by displacements DOF vectors. Skip object."<<std::endl;
             return false;
         }
         else if (m_rbfdispl->getGeometry() != m_rbfgeometry){
-            (*m_log)<<m_name + " : RBF displacements not linked to RBF geometry. Skip object."<<std::endl;
+            (*m_log)<<m_name + " : RBF DOF vector displacements not linked to RBF geometry. Skip object."<<std::endl;
+            return false;
+        }
+    }
+
+    // If rbfScalarDispl is null and Scalar mode is on skip check on linked geometry
+    if(m_rbfScalarDispl != nullptr && m_areScalarResults){
+        // If displacementes have unlinked geometry skip
+        if (!m_rbfScalarDispl->getGeometry()){
+            (*m_log)<<m_name + " : null RBF geometry linked by displacements DOF scalars. Skip object."<<std::endl;
+            return false;
+        }
+        else if (m_rbfScalarDispl->getGeometry() != m_rbfgeometry){
+            (*m_log)<<m_name + " : RBF DOF scalar displacements not linked to RBF geometry. Skip object."<<std::endl;
             return false;
         }
     }
@@ -1118,14 +1288,22 @@ MRBF::initRBFwGeometry(){
     removeAllNodes();
     removeAllData();
 
-    //fill data locally from m_rbfgeometry, m_rbfdispl and m_rbfSupportRadii
+    //fill data locally from m_rbfgeometry, m_rbfdispl/m_rbfScalarDispl and m_rbfSupportRadii
     std::map<long, std::array<double,3> > nodes, displs;
     std::map<long, double> radii;
     for(const bitpit::Vertex & vert : m_rbfgeometry->getVertices()){
         long id = vert.getId();
         nodes[id] = vert.getCoords();
-        if(m_rbfdispl && m_rbfdispl->exists(id)){
-            displs[id] = m_rbfdispl->at(id);
+
+        if(m_areScalarResults){
+            if(m_rbfScalarDispl && m_rbfScalarDispl->exists(id)){
+                displs[id].fill(0.0);
+                displs[id][0] = m_rbfScalarDispl->at(id);
+            }
+        }else{
+            if(m_rbfdispl && m_rbfdispl->exists(id)){
+                displs[id] = m_rbfdispl->at(id);
+            }
         }
         if (m_rbfSupportRadii && m_rbfSupportRadii->exists(id)){
             radii[id] = m_rbfSupportRadii->at(id);
@@ -1250,7 +1428,8 @@ MRBF::initRBFwGeometry(){
     }
 
     RBF::addNode(nodeRawList);
-    for(int loc=0; loc<3; ++loc){
+    int numberOfData = 1 + int(!m_areScalarResults)*2;
+    for(int loc=0; loc<numberOfData; ++loc){
         addData(displList[loc]);
     }
 

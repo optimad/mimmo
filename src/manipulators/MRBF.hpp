@@ -63,6 +63,13 @@ enum class MRBFSol{
  * It evaluates the result of RBF functions built over a set of control point
    given externally or stored in a MimmoObject container.
    Displacements (DOFs) for RBF nodes are provided externally.
+   They can be expressed as:
+   -a) 3-component vector
+   -b) 1-component scalar (as in the case of DOF representing displacements normal to surface).
+   In that case the output geometry "displacement" field will be returned as a 3-component vector field (case a) )
+   or a scalar field  (case b)).
+   The options are mutually exclusive (picking one exclude the other)
+
    Default solver in execution is MRBFSol::NONE for direct parameterization.
    Use MRBFSol::GREEDY or MRBFSol::WHOLE to activate interpolation features.
  * See bitpit::RBF docs for further information.
@@ -87,19 +94,22 @@ enum class MRBFSol{
      |Port Input | | |
      |-|-|-|
      | <B>PortType</B>   | <B>variable/function</B>  |<B>DataType</B> |
-     | M_COORDS   | setNode                | (MC_VECARR3, MD_FLOAT)      |
-     | M_DISPLS   | setDisplacements       | (MC_VECARR3, MD_FLOAT)      |
-     | M_FILTER   | setFilter              | (MC_SCALAR, MD_MPVECFLOAT_) |
-     | M_DATAFIELD| setVariableSupportRadii| (MC_VECTOR, MD_FLOAT)       |
-     | M_GEOM     | setGeometry            | (MC_SCALAR, MD_MIMMO_)      |
-     | M_GEOM2    | setNode                | (MC_SCALAR, MD_MIMMO_)      |
+     | M_COORDS    | setNode                | (MC_VECARR3, MD_FLOAT)      |
+     | M_DISPLS    | setDisplacements       | (MC_VECARR3, MD_FLOAT)      |
+     | M_DATAFIELD | setScalarDisplacements       | (MC_VECTOR, MD_FLOAT)       |
+     | M_DATAFIELD2| setVariableSupportRadii| (MC_VECTOR, MD_FLOAT)       |
+     | M_FILTER    | setFilter              | (MC_SCALAR, MD_MPVECFLOAT_) |
+     | M_GEOM      | setGeometry            | (MC_SCALAR, MD_MIMMO_)      |
+     | M_GEOM2     | setNode                | (MC_SCALAR, MD_MIMMO_)      |
      | M_VECTORFIELD    | setDisplacements | (MC_SCALAR, MD_MPVECARR3FLOAT_)      |
-     | M_SCALARFIELD   | setVariableSupportRadii | (MC_SCALAR, MD_MPVECAFLOAT_)  |
+     | M_SCALARFIELD    | setScalarDisplacements | (MC_SCALAR, MD_MPVECFLOAT_)      |
+     | M_SCALARFIELD2   | setVariableSupportRadii | (MC_SCALAR, MD_MPVECFLOAT_)  |
 
      |Port Output | | |
      |-|-|-|
      | <B>PortType</B> | <B>variable/function</B> |<B>DataType</B>|
-     | M_GDISPLS       | getDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_)             |
+     | M_GDISPLS       | getDisplacements  | (MC_SCALAR, MD_MPVECARR3FLOAT_)       |
+     | M_SCALARFIELD   | getScalarDisplacements  | (MC_SCALAR, MD_MPVECFLOAT_)      |
      | M_GEOM          | getGeometry       | (MC_SCALAR, MD_MIMMO_) |
 
  *    =========================================================
@@ -147,14 +157,17 @@ protected:
                                      the whole geometry instead of filtering by a kdtree binary search is :
                                      maximum value of <support radii values> > m_diagonalFactor*<diagonal of boundix box of geometry> */
     int          m_functype;     /**< Function type handler. If -1 refer to RBF getFunctionType method */
-    dmpvecarr3E  m_displ;        /**<Resulting displacements of geometry vertex.*/
+    dmpvecarr3E  m_displ;        /**<Resulting vector displacements of geometry vertex.*/
+    dmpvector1D  m_scalarDispl;  /**<Resulting "scalar" displacements of geometry vertex.*/
 
     dvector1D    m_effectiveSR; /**< INTERNAL USE list of support radii effectively used for each RBF */
     bool         m_isCompact;   /**< If true the basis function is used with compact support, i.e. it is supposed different from 0 and evaluated only inside the support radius.*/
 
     MimmoSharedPointer<MimmoObject> m_rbfgeometry; /**< RBF geometry. The vertices of this object are used as RBF nodes.*/
-    dmpvecarr3E* m_rbfdispl;    /**<RBF nodes displacements related to RBF geometry vertex.*/
+    dmpvecarr3E* m_rbfdispl;         /**<RBF nodes displacements as vectors, when a RBF point cloud MimmoObject is linked.*/
+    dmpvector1D* m_rbfScalarDispl;  /**< RBF nodes displacements as scalars, when a RBF point cloud MimmoObject is linked.*/
     dmpvector1D* m_rbfSupportRadii;  /**< list of variable supportRadii for each RBF node as pointer to MImmoPiercedVector.*/
+    bool         m_areScalarResults;  /**< true the class working with scalar "displacements", otherwise is working with 3comp vector fields.*/
 
 public:
     MRBF(MRBFSol mode = MRBFSol::NONE);
@@ -180,8 +193,10 @@ public:
 
     int             getFunctionType();
     dmpvecarr3E*    getDisplacements();
+    dmpvector1D*    getScalarDisplacements();
 
     bool            isCompact();
+    bool            areResultsInScalarMode();
 
     int             addNode(darray3E);
     ivector1D       addNode(dvecarr3E);
@@ -206,6 +221,8 @@ BITPIT_DEPRECATED(
     void            setTol(double tol);
     void            setDisplacements(dvecarr3E displ);
     void            setDisplacements(dmpvecarr3E* displ);
+    void            setScalarDisplacements(dvector1D displ);
+    void            setScalarDisplacements(dmpvector1D* displ);
 
     void            setFunction(const MRBFBasisFunction & funct, bool isCompact = false);
     void            setFunction(const bitpit::RBFBasisFunction & funct, bool isCompact = false);
@@ -233,7 +250,7 @@ protected:
 
     //reimplemented from RBFKernel
     void            setMode(MRBFSol solver);
-    std::array<double,3> evalRBF(const std::array<double,3> & val);
+    std::vector<double> evalRBF(const std::array<double,3> & val);
 
 private:
 
@@ -267,12 +284,15 @@ double  dsigmoid( double dist );
 
 REGISTER_PORT(M_COORDS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
 REGISTER_PORT(M_DISPLS, MC_VECARR3, MD_FLOAT ,__MRBF_HPP__)
+REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT, __MRBF_HPP_)
+REGISTER_PORT(M_DATAFIELD2, MC_VECTOR, MD_FLOAT, __MRBF_HPP_)
 REGISTER_PORT(M_FILTER, MC_SCALAR, MD_MPVECFLOAT_ ,__MRBF_HPP__)
 REGISTER_PORT(M_GEOM, MC_SCALAR, MD_MIMMO_ ,__MRBF_HPP__)
-REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_ ,__MRBF_HPP__)
-REGISTER_PORT(M_DATAFIELD, MC_VECTOR, MD_FLOAT, __MRBF_HPP_)
 REGISTER_PORT(M_GEOM2, MC_SCALAR, MD_MIMMO_ ,__MRBF_HPP_)
 REGISTER_PORT(M_VECTORFIELD, MC_SCALAR, MD_MPVECARR3FLOAT_ ,__MRBF_HPP_)
+REGISTER_PORT(M_SCALARFIELD, MC_SCALAR, MD_MPVECFLOAT_ ,__MRBF_HPP_)
+REGISTER_PORT(M_SCALARFIELD2, MC_SCALAR, MD_MPVECFLOAT_ ,__MRBF_HPP_)
+REGISTER_PORT(M_GDISPLS, MC_SCALAR, MD_MPVECARR3FLOAT_ ,__MRBF_HPP__)
 
 REGISTER(BaseManipulation, MRBF, "mimmo.MRBF")
 
