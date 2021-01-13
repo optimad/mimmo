@@ -148,7 +148,7 @@ void test00007() {
     mimmo::pin::addPin(input, pointcloud, M_DISPLS, M_DISPLS);
     mimmo::pin::addPin(inputSR, pointcloud, M_DATAFIELD, M_DATAFIELD);
     mimmo::pin::addPin(pointcloud, proj, M_GEOM, M_GEOM2);
-    mimmo::pin::addPin(pointcloud, mrbf, M_SCALARFIELD, M_SCALARFIELD);
+    mimmo::pin::addPin(pointcloud, mrbf, M_SCALARFIELD, M_SCALARFIELD2);
     mimmo::pin::addPin(pointcloud, mrbf, M_VECTORFIELD, M_VECTORFIELD);
     mimmo::pin::addPin(proj, mrbf, M_GEOM, M_GEOM2);
     mimmo::pin::addPin(mrbf, applier, M_GDISPLS, M_GDISPLS);
