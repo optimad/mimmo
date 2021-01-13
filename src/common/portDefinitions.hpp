@@ -50,6 +50,7 @@
 #define M_FILTER          "M_FILTER"            /**< Port dedicated to communication of a scalar field used as a filter function [ POINTER to MimmoPiercedVector < double > ] */
 #define M_FILTER2         "M_FILTER2"            /**< Port dedicated to communication of a scalar field used as a filter function [ POINTER to MimmoPiercedVector < double > ] */
 #define M_DATAFIELD       "M_DATAFIELD"         /**< Port dedicated to communication of a generic scalar field [ std::vector<double>] */
+#define M_DATAFIELD2      "M_DATAFIELD2"         /**< Port dedicated to communication of a generic scalar field [ std::vector<double>] */
 #define M_VECTORSI        "M_VECTORSI"          /**< Port dedicated to communication of a generic list of short integers [ vector < short int > ] */
 #define M_VECTORLI        "M_VECTORLI"          /**< Port dedicated to communication of a generic list of long integers [ vector < long int > ] */
 #define M_VECTORLI2       "M_VECTORLI2"         /**< Port dedicated to communication of a generic list of long integers [ vector < long int > ] */
