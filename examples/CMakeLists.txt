@@ -97,6 +97,7 @@ if(BUILD_EXAMPLES)
         list(APPEND EXAMPLE_LIST "utils_example_00002")
         list(APPEND EXAMPLE_LIST "utils_example_00004")
         list(APPEND EXAMPLE_LIST "utils_example_00005")
+        list(APPEND EXAMPLE_LIST "manipulators_example_00008")
         if(MODULE_GEOHANDLERS_ENABLED)
             list(APPEND EXAMPLE_LIST "utils_example_00003")
         endif()
@@ -173,6 +174,11 @@ if(BUILD_EXAMPLES)
         TARGET "manipulators_example_00005" PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/spherepc_binary.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/spherepc_binary.vtu"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/manipulators_input_00005.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/manipulators_input_00005.txt"
+    )
+    add_custom_command(
+        TARGET "manipulators_example_00008" PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../geodata/pipeSample.vtu" "${CMAKE_CURRENT_BINARY_DIR}/geodata/pipeSample.vtu"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/../input/manipulators_input_00008.txt" "${CMAKE_CURRENT_BINARY_DIR}/input/manipulators_input_00008.txt"
     )
 
     list(FIND EXAMPLE_LIST "manipulators_example_00006" _index)
