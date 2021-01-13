@@ -397,6 +397,7 @@ Apply::checkInput(){
 		check = check && m_scalarinput.getGeometry() == m_geometry;
 		check = check && m_scalarinput.completeMissingData(0.0);
 		if (check){
+            m_geometry->updateAdjacencies();
 			bitpit::SurfaceKernel* skernel = static_cast<bitpit::SurfaceKernel*>(m_geometry->getPatch());
 			bitpit::PiercedVector<darray3E> vNormals;
 			bitpit::ConstProxyVector<long> verts;
