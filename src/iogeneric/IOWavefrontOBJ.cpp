@@ -1769,7 +1769,7 @@ void IOWavefrontOBJ::read(const std::string & filename){
     m_intData->refGeometry = getGeometry();
 
     //original mesh cleaning stuffs
-    m_geometry->getPatch()->setTol(m_tol);
+    m_geometry->setTolerance(m_tol);
     // delete orphan vertices not in the tessellation.
     m_geometry->getPatch()->deleteOrphanVertices();
     //force cleaning of double vertices part.
