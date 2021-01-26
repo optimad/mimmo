@@ -256,10 +256,11 @@ std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSk
     int count = 0;
     for (int i=0; i<nnodess; i++){
         if (selection->getNode(i).isLeaf()){
-            if (bitpit::CGElem::intersectBoxBox(selection->getNode(i).getBoxMin()-tol,
-                    selection->getNode(i).getBoxMax()+tol,
+            if (bitpit::CGElem::intersectBoxBox(selection->getNode(i).getBoxMin(),
+                    selection->getNode(i).getBoxMax(),
                     target->getNode(0).getBoxMin(),
-                    target->getNode(0).getBoxMax() ) ){
+                    target->getNode(0).getBoxMax(),
+                    tol ) ){
                 leafSelection[count] = &(selection->getNode(i));
                 count++;
 
@@ -301,10 +302,11 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit:
 
     std::vector<const bitpit::SkdNode*> tocheck;
     for (int i=0; i<(int)leafSelection.size(); i++){
-        if (bitpit::CGElem::intersectBoxBox(leafSelection[i]->getBoxMin()-tol,
-                                            leafSelection[i]->getBoxMax()+tol,
+        if (bitpit::CGElem::intersectBoxBox(leafSelection[i]->getBoxMin(),
+                                            leafSelection[i]->getBoxMax(),
                                             target->getNode(rootId).getBoxMin(),
-                                            target->getNode(rootId).getBoxMax() ) )
+                                            target->getNode(rootId).getBoxMax(),
+                                            tol ) )
         {
             tocheck.push_back(leafSelection[i]);
         }
@@ -326,10 +328,11 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit:
                 isLeaf = false;
                 tocheck.clear();
                 for (int i=0; i<(int)touple.second.size(); i++){
-                    if (bitpit::CGElem::intersectBoxBox(touple.second[i]->getBoxMin()-tol,
-                                                        touple.second[i]->getBoxMax()+tol,
+                    if (bitpit::CGElem::intersectBoxBox(touple.second[i]->getBoxMin(),
+                                                        touple.second[i]->getBoxMax(),
                                                         target->getNode(childId).getBoxMin(),
-                                                        target->getNode(childId).getBoxMax() ) )
+                                                        target->getNode(childId).getBoxMax(),
+                                                        tol ) )
                     {
                         tocheck.push_back(touple.second[i]);
                     }
@@ -475,15 +478,15 @@ long locatePointOnPatch(const std::array<double, 3> &point, const bitpit::PatchS
 
     switch(eltype){
     case bitpit::ElementType::LINE:
-        checkBelong = mimmoCGUtils::isPointInsideSegment(point, vertCoords[0], vertCoords[1]);
+        checkBelong = mimmoCGUtils::isPointInsideSegment(point, vertCoords[0], vertCoords[1], tree->getPatch().getTol());
         break;
     case bitpit::ElementType::TRIANGLE:
-        checkBelong = mimmoCGUtils::isPointInsideTriangle(point, vertCoords[0], vertCoords[1], vertCoords[2]);
+        checkBelong = mimmoCGUtils::isPointInsideTriangle(point, vertCoords[0], vertCoords[1], vertCoords[2], tree->getPatch().getTol());
         break;
     case bitpit::ElementType::PIXEL:
     case bitpit::ElementType::QUAD:
     case bitpit::ElementType::POLYGON:
-        checkBelong = mimmoCGUtils::isPointInsidePolygon(point, vertCoords);
+        checkBelong = mimmoCGUtils::isPointInsidePolygon(point, vertCoords, tree->getPatch().getTol());
         break;
     default:
         throw std::runtime_error("Not supported cell type");
@@ -595,15 +598,15 @@ checkPointBelongsToCell(const std::array<double, 3> &point, const bitpit::SurfUn
 
     switch(eltype){
     case bitpit::ElementType::LINE:
-        checkBelong = mimmoCGUtils::isPointInsideSegment(point, vertCoords[0], vertCoords[1]);
+        checkBelong = mimmoCGUtils::isPointInsideSegment(point, vertCoords[0], vertCoords[1], surface_mesh->getTol());
         break;
     case bitpit::ElementType::TRIANGLE:
-        checkBelong = mimmoCGUtils::isPointInsideTriangle(point, vertCoords[0], vertCoords[1], vertCoords[2]);
+        checkBelong = mimmoCGUtils::isPointInsideTriangle(point, vertCoords[0], vertCoords[1], vertCoords[2], surface_mesh->getTol());
         break;
     case bitpit::ElementType::PIXEL:
     case bitpit::ElementType::QUAD:
     case bitpit::ElementType::POLYGON:
-        checkBelong = mimmoCGUtils::isPointInsidePolygon(point, vertCoords);
+        checkBelong = mimmoCGUtils::isPointInsidePolygon(point, vertCoords, surface_mesh->getTol());
         break;
     default:
         throw std::runtime_error("Not supported cell type");
@@ -1202,10 +1205,11 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
         int count = 0;
         for (int i=0; i<nnodess; i++){
             if (selection->getNode(i).isLeaf()){
-                if (bitpit::CGElem::intersectBoxBox(selection->getNode(i).getBoxMin()-tol,
-                        selection->getNode(i).getBoxMax()+tol,
+                if (bitpit::CGElem::intersectBoxBox(selection->getNode(i).getBoxMin(),
+                        selection->getNode(i).getBoxMax(),
                         target->getPartitionBox(irank).getBoxMin(),
-                        target->getPartitionBox(irank).getBoxMax() ) ){
+                        target->getPartitionBox(irank).getBoxMax(),
+                        tol ) ){
                     leafSelection[count] = &(selection->getNode(i));
                     count++;
                 }
@@ -1347,8 +1351,8 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
                 long childId = node.getChildId(childLocation);
                 if (childId != bitpit::SkdNode::NULL_ID) {
                     isLeaf = false;
-                    if (bitpit::CGElem::intersectBoxBox(selectionBox.getBoxMin()-tol, selectionBox.getBoxMax()+tol,
-                                target->getNode(childId).getBoxMin(), target->getNode(childId).getBoxMax())){
+                    if (bitpit::CGElem::intersectBoxBox(selectionBox.getBoxMin(), selectionBox.getBoxMax(),
+                                target->getNode(childId).getBoxMin(), target->getNode(childId).getBoxMax(), tol)){
                         nodeStack.push(childId);
                     }
                 }
