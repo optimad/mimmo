@@ -599,91 +599,40 @@ endif ()
 
 # module further dependency
 if (MODULE_ENABLED_IOCGNS)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cgns/cmake")
 
-    # ---- CGNS forced ---
-    set(CGNS_LIB_DIR " " CACHE PATH "path to CGNS libraries installation (libcgns.so) ")
-    set(CGNS_INCLUDE_DIR " " CACHE PATH "path to CGNS include installation")
-    #set(HDF5_LIB " " CACHE PATH "path to HDF5 libraries installation")
-    # set(HDF5_BUILD_TYPE "parallel" CACHE STRING
-    #     "Choose the type of HDF5 build, options are: parallel serial.")
-    # # Set the possible values of HDF5 build type for the GUI
-    # set_property(CACHE HDF5_BUILD_TYPE PROPERTY STRINGS "parallel" "serial")
+    find_package(CGNS REQUIRED)
 
-    ## you can bind libs to this current mimmo installation
-    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${CGNS_INCLUDE_DIR}")
-    if(MINGW)
-        addImportedLibrary("cgnsdll" "${CGNS_LIB_DIR}" ON CGNS_LIB)
-    else()
-        addImportedLibrary("cgns" "${CGNS_LIB_DIR}" ON CGNS_LIB)
-    endif()
-    list(APPEND OTHER_EXTERNAL_LIBRARIES ${CGNS_LIB})
+    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "CGNS")
+    list (APPEND MIMMO_EXTERNAL_LIBRARIES "${CGNS_LIBRARIES}")
+    list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${CGNS_INCLUDE_DIRS}")
 
-    # addImportedLibrary("hdf5" "${HDF5_LIB}" ON)
-    # list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5")
-
-    # if("${HDF5_BUILD_TYPE}" STREQUAL "serial")
-    #     addImportedLibrary("hdf5_cpp"       "${HDF5_DIR}/lib" ON)
-    #     addImportedLibrary("hdf5_fortran"   "${HDF5_DIR}/lib" ON)
-    #     addImportedLibrary("hdf5_hl"        "${HDF5_DIR}/lib" ON)
-    #     addImportedLibrary("hdf5_hl_cpp"    "${HDF5_DIR}/lib" ON)
-    #     addImportedLibrary("hdf5_hl_fortran" "${HDF5_DIR}/lib" ON)
-    #
-    #     list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_cpp")
-    #     list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_fortran")
-    #     list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl")
-    #     list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl_cpp")
-    #     list(APPEND OTHER_EXTERNAL_LIBRARIES "hdf5_hl_fortran")
-    # endif()
-    #      ----
 else()
-    unset(CGNS_LIB_DIR CACHE)
-    unset(CGNS_INCLUDE_DIR CACHE)
+    unset(CGNS_DIR CACHE)
+    unset(CGNS_DIR_FOUND CACHE)
     unset(CGNS_LIB CACHE)
+    unset(CGNS_INCDIR CACHE)
 endif ()
 
 # parallel module dependencies
 if (MODULE_ENABLED_PARALLEL)
-    # ---- parmetis/metis search ---
-    set(PARMETIS_INCLUDE_DIR " " CACHE PATH "path to parMETIS includes directory")
-    set(METIS_INCLUDE_DIR    " " CACHE PATH "path to METIS include directory")
+     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/parmetis/cmake")
 
-    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${METIS_INCLUDE}")
-    list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${PARMETIS_INCLUDE}")
+     find_package(PARMETIS REQUIRED)
 
-    # ---- parmetis/metis search ---
-    set(PARMETIS_LIB_DIR " " CACHE PATH "path to parMETIS library directory")
-    set(METIS_LIB_DIR    " " CACHE PATH "path to METIS library directory")
-
-    if(MINGW)
-        find_library(METISLIB NAMES "libmetis.dll.a" "libmetis.a" HINTS "${METIS_LIB_DIR}")
-    else()
-        find_library(METISLIB NAMES "libmetis.so" "libmetis.a" HINTS "${METIS_LIB_DIR}")
-    endif()
-    if(NOT METISLIB)
-        unset(METISLIB CACHE)
-        message(FATAL_ERROR "Cannot found any METIS library in current METIS_LIB_DIR")
-    endif()
-    list(APPEND OTHER_EXTERNAL_LIBRARIES ${METISLIB})
-    unset(METISLIB CACHE)
-
-    if(MINGW)
-        find_library(PARMETISLIB NAMES "libparmetis.dll.a" "libparmetis.a" HINTS "${PARMETIS_LIB_DIR}")
-    else()
-        find_library(PARMETISLIB NAMES "libparmetis.so" "libparmetis.a" HINTS "${PARMETIS_LIB_DIR}")
-    endif()
-    if(NOT PARMETISLIB)
-        unset(PARMETISLIB CACHE)
-        message(FATAL_ERROR "Cannot found any parMETIS library in PARMETIS_LIB_DIR")
-    endif()
-    list(APPEND OTHER_EXTERNAL_LIBRARIES ${PARMETISLIB})
-    unset(PARMETISLIB CACHE)
+     list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "PARMETIS")
+     list (APPEND MIMMO_EXTERNAL_LIBRARIES "${PARMETIS_LIBRARIES}")
+     list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${PARMETIS_INCLUDE_DIRS}")
 
 else()
-    UNSET(METIS_INCLUDE_DIR CACHE)
-    UNSET(PARMETIS_INCLUDE_DIR CACHE)
-    UNSET(METIS_LIB_DIR CACHE)
-    UNSET(PARMETIS_LIB_DIR CACHE)
-
+    unset(METIS_DIR CACHE)
+    unset(METIS_DIR_FOUND CACHE)
+    unset(METIS_LIB CACHE)
+    unset(METIS_INCDIR CACHE)
+    unset(PARMETIS_DIR CACHE)
+    unset(PARMETIS_DIR_FOUND CACHE)
+    unset(PARMETIS_LIB CACHE)
+    unset(PARMETIS_INCDIR CACHE)
 endif ()
 
 
