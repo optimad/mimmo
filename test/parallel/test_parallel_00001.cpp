@@ -123,8 +123,6 @@ int test1() {
     int rank;
     MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    log::manager().initialize(log::COMBINED, true, nProcs, rank);
-    log::cout().setVisibility(log::MASTER);
 
     /* Create target test mesh */
     MimmoSharedPointer<MimmoObject> target(new MimmoObject());
@@ -136,6 +134,10 @@ int test1() {
      * Plot Optional results during execution active for Partition block.
      */
     mimmo::Partition* partitionTarget = new mimmo::Partition();
+
+    bitpit::Logger &log = partitionTarget->getLog();
+    log.setPriority(bitpit::log::Priority::NORMAL);
+
     partitionTarget->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partitionTarget->setPlotInExecution(true);
     partitionTarget->setGeometry(target);
@@ -174,37 +176,28 @@ int test1() {
 
     std::cout << " --- Selected cells --- " << std::endl;
     std::cout << "#" << rank << " selected cell size : " << selectedCells.size() << std::endl;
+    std::set<long> setSelectedCells;
     for (long cell : selectedCells){
         std::cout << "#" << rank << " selected cell id : " << cell << std::endl;
+        setSelectedCells.insert(cell);
     }
-    std::cout << std::endl;
+    // Test size of cells selected into every rank (it is supposed to run at 2)
+    std::size_t selectedSizeRank = 8;
+    if(rank == 0)    selectedSizeRank = 16;
+    bool check = (selectedCells.size() == selectedSizeRank) ;
 
-    bool check = true;
-    std::set<long> result;
-    result.insert(20);
-    result.insert(21);
-    result.insert(22);
-    result.insert(23);
-    result.insert(28);
-    result.insert(29);
-    result.insert(30);
-    result.insert(31);
-    result.insert(36);
-    result.insert(37);
-    result.insert(38);
-    result.insert(39);
-    result.insert(44);
-    result.insert(45);
-    result.insert(46);
-    result.insert(47);
-    for (long cell : selectedCells){
-        check = check && (result.count(cell));
+    MPI_Allreduce(MPI_IN_PLACE, &check, 1, MPI_C_BOOL, MPI_LAND, MPI_COMM_WORLD);
+    if (check){
+        log << " test passed " << std::endl;
+    }else{
+        log << " test failed " << std::endl;
     }
-
-    if (check)
-        bitpit::log::cout() << " test passed " << std::endl;
+    delete partitionTarget;
+    delete partitionSelection;
 
     return int(!check);
+
+
 }
 
 // =================================================================================== //
