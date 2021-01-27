@@ -385,6 +385,8 @@ MimmoGeometry::setClean(bool clean){
 
 /*!
  * Set if the geometry to read is parallel or not.
+ * In case of reading a geometry dumped in mimmo (*.geomimmo) format
+ * this function has to be called in order to restore correctly a parallel patch.
  * param[in] parallelRestore is parallel flag
  */
 void
