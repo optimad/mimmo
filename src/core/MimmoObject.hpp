@@ -45,15 +45,16 @@ namespace mimmo{
 class MimmoSurfUnstructured: public bitpit::SurfUnstructured{
 public:
     // Constructors
-    MimmoSurfUnstructured();
-    MimmoSurfUnstructured(int patch_dim);
-    MimmoSurfUnstructured(int id, int patch_dim);
-    MimmoSurfUnstructured(std::istream &stream);
 #if MIMMO_ENABLE_MPI
     MimmoSurfUnstructured(MPI_Comm communicator);
     MimmoSurfUnstructured(int patch_dim, MPI_Comm communicator);
     MimmoSurfUnstructured(int id, int patch_dim, MPI_Comm communicator);
     MimmoSurfUnstructured(std::istream &stream, MPI_Comm communicator);
+#else
+    MimmoSurfUnstructured();
+    MimmoSurfUnstructured(int patch_dim);
+    MimmoSurfUnstructured(int id, int patch_dim);
+    MimmoSurfUnstructured(std::istream &stream);
 #endif
     virtual ~MimmoSurfUnstructured();
     // Clone
@@ -72,13 +73,14 @@ protected:
 class MimmoVolUnstructured: public bitpit::VolUnstructured{
 public:
     // Constructors
-    MimmoVolUnstructured();
-    MimmoVolUnstructured(int dimension);
-    MimmoVolUnstructured(int id, int dimension);
 #if MIMMO_ENABLE_MPI
     MimmoVolUnstructured(MPI_Comm communicator);
     MimmoVolUnstructured(int dimension, MPI_Comm communicator);
     MimmoVolUnstructured(int id, int dimension, MPI_Comm communicator);
+#else
+    MimmoVolUnstructured();
+    MimmoVolUnstructured(int dimension);
+    MimmoVolUnstructured(int id, int dimension);
 #endif
     virtual ~MimmoVolUnstructured();
     // Clone
@@ -97,11 +99,12 @@ protected:
 class MimmoPointCloud: public bitpit::SurfUnstructured{
 public:
     // Constructors
-    MimmoPointCloud();
-    MimmoPointCloud(int id);
 #if MIMMO_ENABLE_MPI
     MimmoPointCloud(MPI_Comm communicator);
     MimmoPointCloud(int id, MPI_Comm communicator);
+#else
+    MimmoPointCloud();
+    MimmoPointCloud(int id);
 #endif
     virtual ~MimmoPointCloud();
     // Clone

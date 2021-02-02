@@ -33,50 +33,6 @@
 
 namespace mimmo{
 
-/*!
- * MimmoSurfUnstructured default constructor
- */
-MimmoSurfUnstructured::MimmoSurfUnstructured():
-#if MIMMO_ENABLE_MPI
-            bitpit::SurfUnstructured(MPI_COMM_NULL){}
-#else
-            bitpit::SurfUnstructured(){}
-#endif
-
-/*!
- * MimmoSurfUnstructured custom constructor
- * \param[in] dimension dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
- */
-MimmoSurfUnstructured::MimmoSurfUnstructured(int dimension):
-#if MIMMO_ENABLE_MPI
-                MimmoSurfUnstructured(dimension, MPI_COMM_NULL){}
-#else
-                bitpit::SurfUnstructured(dimension, 3){}
-#endif
-
-/*!
- * MimmoSurfUnstructured custom constructor
- * \param[in] id custom identification label of the mesh
- * \param[in] dimension dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
- */
-MimmoSurfUnstructured::MimmoSurfUnstructured(int id, int dimension):
-#if MIMMO_ENABLE_MPI
-                MimmoSurfUnstructured(id, dimension, MPI_COMM_NULL){}
-#else
-                bitpit::SurfUnstructured(id, dimension, 3){}
-#endif
-
-/*!
- * MimmoSurfUnstructured custom constructor
- * \param[in] stream input stream where reading from
- */
-MimmoSurfUnstructured::MimmoSurfUnstructured(std::istream & stream):
-#if MIMMO_ENABLE_MPI
-                MimmoSurfUnstructured(stream, MPI_COMM_NULL){}
-#else
-                bitpit::SurfUnstructured(stream){}
-#endif
-
 #if MIMMO_ENABLE_MPI
 /*!
  * MimmoSurfUnstructured default constructor
@@ -110,6 +66,35 @@ MimmoSurfUnstructured::MimmoSurfUnstructured(int id, int dimension, MPI_Comm com
 MimmoSurfUnstructured::MimmoSurfUnstructured(std::istream & stream, MPI_Comm communicator):
             bitpit::SurfUnstructured(stream, communicator){}
 
+#else
+/*!
+ * MimmoSurfUnstructured default constructor
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured():
+            bitpit::SurfUnstructured(){}
+
+/*!
+ * MimmoSurfUnstructured custom constructor
+ * \param[in] dimension dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured(int dimension):
+                bitpit::SurfUnstructured(dimension, 3){}
+
+/*!
+ * MimmoSurfUnstructured custom constructor
+ * \param[in] id custom identification label of the mesh
+ * \param[in] dimension dimensionality of elements (2D-triangles/quads/polygons, 1D-lines)
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured(int id, int dimension):
+                bitpit::SurfUnstructured(id, dimension, 3){}
+
+/*!
+ * MimmoSurfUnstructured custom constructor
+ * \param[in] stream input stream where reading from
+ */
+MimmoSurfUnstructured::MimmoSurfUnstructured(std::istream & stream):
+                bitpit::SurfUnstructured(stream){}
+
 #endif
 
 /*!
@@ -126,30 +111,15 @@ MimmoSurfUnstructured::clone() const{
 	return bitpit::SurfUnstructured::clone();
 }
 
-/*!
- * MimmoVolUnstructured default constructor
- * \param[in] dimension dimensionality of elements (3- 3D tetrahedra/hexahedra ..., 2- 2D triangles/quads/polygons)
- */
-MimmoVolUnstructured::MimmoVolUnstructured(int dimension):
-#if MIMMO_ENABLE_MPI
-                MimmoVolUnstructured(dimension, MPI_COMM_NULL){}
-#else
-				bitpit::VolUnstructured(dimension){}
-#endif
-
-/*!
- * MimmoVolUnstructured custom constructor
- * \param[in] id custom identification label of the mesh
- * \param[in] dimension dimensionality of elements (3- 3D tetrahedra/hexahedra ..., 2- 2D triangles/quads/polygons)
- */
-MimmoVolUnstructured::MimmoVolUnstructured(int id, int dimension):
-#if MIMMO_ENABLE_MPI
-                MimmoVolUnstructured(id, dimension, MPI_COMM_NULL){}
-#else
-                bitpit::VolUnstructured(id, dimension){}
-#endif
 
 #if MIMMO_ENABLE_MPI
+
+/*!
+ * MimmoVolUnstructured default constructor. BUild patch always with dimensionality 3.
+ * \param communicator MPI communicator assigned to the patch
+ */
+MimmoVolUnstructured::MimmoVolUnstructured(MPI_Comm communicator):
+            bitpit::VolUnstructured(3, communicator){}
 
 /*!
  * MimmoVolUnstructured custom constructor
@@ -168,6 +138,28 @@ MimmoVolUnstructured::MimmoVolUnstructured(int dimension, MPI_Comm communicator)
 MimmoVolUnstructured::MimmoVolUnstructured(int id, int dimension, MPI_Comm communicator):
             bitpit::VolUnstructured(id, dimension, communicator){}
 
+#else
+
+/*!
+ * MimmoVolUnstructured default constructor. Build patch always with dimensionality 3
+ */
+MimmoVolUnstructured::MimmoVolUnstructured():
+				bitpit::VolUnstructured(3){}
+
+/*!
+ * MimmoVolUnstructured custom constructor
+ * \param[in] dimension dimensionality of elements (3- 3D tetrahedra/hexahedra ..., 2- 2D triangles/quads/polygons)
+ */
+MimmoVolUnstructured::MimmoVolUnstructured(int dimension):
+				bitpit::VolUnstructured(dimension){}
+
+/*!
+ * MimmoVolUnstructured custom constructor
+ * \param[in] id custom identification label of the mesh
+ * \param[in] dimension dimensionality of elements (3- 3D tetrahedra/hexahedra ..., 2- 2D triangles/quads/polygons)
+ */
+MimmoVolUnstructured::MimmoVolUnstructured(int id, int dimension):
+                bitpit::VolUnstructured(id, dimension){}
 #endif
 
 /*!
@@ -184,26 +176,6 @@ MimmoVolUnstructured::clone() const{
 	return bitpit::VolUnstructured::clone();
 }
 
-/*!
- * MimmoPointCloud basic constructor
- */
-MimmoPointCloud::MimmoPointCloud():
-#if MIMMO_ENABLE_MPI
-                MimmoPointCloud(MPI_COMM_NULL){}
-#else
-                bitpit::SurfUnstructured(2, 3){}
-#endif
-
-/*!
- * MimmoPointCloud custom constructor
- * \param[in] id custom identification label of the mesh
- */
-MimmoPointCloud::MimmoPointCloud(int id):
-#if MIMMO_ENABLE_MPI
-                MimmoPointCloud(id, MPI_COMM_NULL){}
-#else
-                bitpit::SurfUnstructured(id, 2, 3){}
-#endif
 
 #if MIMMO_ENABLE_MPI
 /*!
@@ -221,6 +193,17 @@ MimmoPointCloud::MimmoPointCloud(MPI_Comm communicator):
 MimmoPointCloud::MimmoPointCloud(int id, MPI_Comm communicator):
             bitpit::SurfUnstructured(id, 2, 3, communicator){}
 
+#else
+/*!
+ * MimmoPointCloud basic constructor
+ */
+MimmoPointCloud::MimmoPointCloud():bitpit::SurfUnstructured(2, 3){}
+
+/*!
+ * MimmoPointCloud custom constructor
+ * \param[in] id custom identification label of the mesh
+ */
+MimmoPointCloud::MimmoPointCloud(int id):bitpit::SurfUnstructured(id, 2, 3){}
 #endif
 
 /*!
