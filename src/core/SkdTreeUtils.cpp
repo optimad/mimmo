@@ -260,6 +260,7 @@ std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSk
                     selection->getNode(i).getBoxMax(),
                     target->getNode(0).getBoxMin(),
                     target->getNode(0).getBoxMax(),
+                    3,
                     tol ) ){
                 leafSelection[count] = &(selection->getNode(i));
                 count++;
@@ -306,6 +307,7 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit:
                                             leafSelection[i]->getBoxMax(),
                                             target->getNode(rootId).getBoxMin(),
                                             target->getNode(rootId).getBoxMax(),
+                                            3,
                                             tol ) )
         {
             tocheck.push_back(leafSelection[i]);
@@ -332,6 +334,7 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit:
                                                         touple.second[i]->getBoxMax(),
                                                         target->getNode(childId).getBoxMin(),
                                                         target->getNode(childId).getBoxMax(),
+                                                        3,
                                                         tol ) )
                     {
                         tocheck.push_back(touple.second[i]);
@@ -1209,6 +1212,7 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
                         selection->getNode(i).getBoxMax(),
                         target->getPartitionBox(irank).getBoxMin(),
                         target->getPartitionBox(irank).getBoxMax(),
+                        3,
                         tol ) ){
                     leafSelection[count] = &(selection->getNode(i));
                     count++;
@@ -1352,7 +1356,7 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
                 if (childId != bitpit::SkdNode::NULL_ID) {
                     isLeaf = false;
                     if (bitpit::CGElem::intersectBoxBox(selectionBox.getBoxMin(), selectionBox.getBoxMax(),
-                                target->getNode(childId).getBoxMin(), target->getNode(childId).getBoxMax(), tol)){
+                                target->getNode(childId).getBoxMin(), target->getNode(childId).getBoxMax(),3, tol)){
                         nodeStack.push(childId);
                     }
                 }
