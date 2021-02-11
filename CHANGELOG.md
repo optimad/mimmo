@@ -23,6 +23,8 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - added MPI parallel support for the library (I/O not completely supported in parallel)
 - added synchronization status to info and structures stored in mimmo object
 - added update method in mimmo object
+- added a block to define a primitive shape
+
 
 ### Changed
 - update MimmoGeometry to export geometry object in a unique STL file during parallel processes
