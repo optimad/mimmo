@@ -24,6 +24,7 @@ This library _tries_ to adhere to [Semantic Versioning](http://semver.org/).
 - added synchronization status to info and structures stored in mimmo object
 - added update method in mimmo object
 - added a block to define a primitive shape
+- added definition of port to communicate a pointer to a BaseManipulation object
 
 
 ### Changed
