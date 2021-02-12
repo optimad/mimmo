@@ -1,22 +1,19 @@
 # mimmo installation
 
-mimmo currently runs on Linux platforms. Compatibility on Windows and MacOSX is currently being tested by developers.
+mimmo currently runs on Linux platforms. Compatibility on Windows is enabled via MSYS2/MinGW and relative instructions can be found in README_WINDOWS.md.
+Full compliance with MacOS systems is currently under investigation by developers.
 
 ## Dependencies
 mimmo depends on
 * c++ compiler supporting `-std=c++11`. It has been tested with g++ = 4.8.5
-* cmake. Tested with cmake = 3.13.2
-* bitpit library. It has been tested with bitpit 1.6.0. Visit www.optimad.it/products/bitpit/ for further information.
-* (optionally) vtk. It has been tested with vtk = 8.1.2
-* (optionally) cgns. It has been tested with cgns = 3.3.1.
-* (optionally) hdf5. It has been tested with hdf5 = 1.10.4.
-* (optionally) OpenFoam. It has been tested with OpenFoam Foundation 2.x,3.x,4.x,5.x versions and ESI v1606+ and v1806+ versions.
-
-
-<!--- * (optionally) PETSc library. It has been tested with PETSc 3.10.3. -->
-<!--- * lapacke/lapack libraries. It has been tested with Lapack v3.5.0, v3.8.0 -->
-<!--- * xml2 libraries. (should be provided by default on Linux system). Tested with LibXml2 >= 2.9.1 -->
-<!--- * (optionally) MPI implementation. It has been tested with OpenMPI >= 4.0.0. -->
+* cmake. Tested with cmake >= 3.13.2
+* bitpit library. It has been tested with bitpit 1.7.0. Visit www.optimad.it/products/bitpit/ for further information.
+* (optionally) cgns. It has been tested with cgns = 3.3.1, with sub-dependency hdf5 = 1.10.4.
+* (optionally) OpenFoam. It has been tested with OpenFoam Foundation 7 and ESI-OpenCFD v1906+ versions.
+   Retro-compatibility with older versions has be not been verified yet and may be not guaranteed.
+   Anyway, share with us your own experience, will be glad to integrate this current guide.
+* (optionally) MPI implementation. It has been tested with OpenMPI >= 4.0.0. 
+* (optionally) Metis/parMetis. Needed by MPI version, it has been tested with Metis = 5.1.0, parMetis = 4.0.3         
 
 
 ## Configuring mimmo
@@ -41,12 +38,15 @@ The `CMAKE_BUILD_TYPE` variable has to be used to set the type of build. The pos
 
 In addition the `ENABLE_PROFILING` variable can be set to `ON` in order to add profiling flag `-pg` during the compilation.
 
-<!-- The `ENABLE_MPI` variable can be used to compile the parallel implementation of the mimmo packages and to allow the dependency on MPI libraries. -->
+The `ENABLE_MPI` variable can be used to compile the parallel implementation of the mimmo packages and to allow the dependency on MPI libraries.
 
 The `BUILD_EXAMPLES` can be used to compile examples sources in `mimmo/examples`. Note that the tests sources in `mimmo/test`are necessarily compiled and successively available at `mimmo/build/test/` as well as the compiled examples are available at `mimmo/build/examples/`.
 
-The module variables  can be used to compile each module singularly by setting the related varible `ON/OFF`. Some modules are always compiled (as for core, manipulators), while for `MIMMO_MODULE_GEOHANDLERS`, `MIMMO_MODULE_IOCGNS`, `MIMMO_MODULE_IOOFOAM`, `MIMMO_MODULE_IOVTK`, `MIMMO_MODULE_PROPAGATORS` and `MIMMO_MODULE_UTILS` the compilation can be toggled. Possible dependencies between mimmo modules are automatically resolved.
+The module variables  can be used to compile each module singularly by setting the related varible `ON/OFF`. Some modules are always compiled (as for core, manipulators), while for `MIMMO_MODULE_GEOHANDLERS`, `MIMMO_MODULE_IOCGNS`, `MIMMO_MODULE_IOOFOAM`, `MIMMO_MODULE_PROPAGATORS` and `MIMMO_MODULE_UTILS` the compilation can be toggled. Possible dependencies between mimmo modules are automatically resolved.
 When possible, dependencies on external libraries are automatically resolved. Otherwise cmake will ask to specify the installation info of the missing packages.
+In particular:
+1) `MIMMO_MODULE_IOCGNS` will require cgns libraries and will expose a variable `CGNS_DIR` to specify manually the path to to cgns installation in case of missing or non-compliant package. If the package is regularly found, a `CGNS_DIR_FOUND` variable will be filled accordingly.
+2) `MPI versions` (ENABLE_MPI on) will require `MIMMO_MODULE_PARALLEL` to be active and Metis and parMetis libraries to be available on your system. Two variables `METIS_DIR` and `PARMETIS_DIR` will be exposed  to specify manually the path to to the two installations, in case of missing or non-compliant packages. If packages are regularly found, a `METIS_DIR_FOUND` and `PARMETIS_DIR_FOUND` variables will be filled accordingly.
 
 The `BUILD_XMLTUI` variable defines if the XML mimmo interpreter has to be compiled. The compiled executable `mimmo++` is available at `mimmo/build/binaries/`.
 
