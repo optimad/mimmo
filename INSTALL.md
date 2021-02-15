@@ -47,6 +47,8 @@ When possible, dependencies on external libraries are automatically resolved. Ot
 In particular:
 1) `MIMMO_MODULE_IOCGNS` will require cgns libraries and will expose a variable `CGNS_DIR` to specify manually the path to to cgns installation in case of missing or non-compliant package. If the package is regularly found, a `CGNS_DIR_FOUND` variable will be filled accordingly.
 2) `MPI versions` (ENABLE_MPI on) will require `MIMMO_MODULE_PARALLEL` to be active and Metis and parMetis libraries to be available on your system. Two variables `METIS_DIR` and `PARMETIS_DIR` will be exposed  to specify manually the path to to the two installations, in case of missing or non-compliant packages. If packages are regularly found, a `METIS_DIR_FOUND` and `PARMETIS_DIR_FOUND` variables will be filled accordingly.
+3) `MIMMO_MODULE_OPENFOAM` will require one of OpenFOAM distributions of OpenFOAM Foundation or ESI-OpenCFD  regularly installed on your system (and environment variables loaded too), with devel libraries and include directories available for the User. An internal search function will expose a variable `OPENFOAM_DISTRO` just to let the User specify its distribution type, if an OpenFoam Foundation or ESIOpenCFD one. All other needed information are automatically retrieved. If the package is regularly found a `OPENFOAM_DIR` and `OPENFOAM_API` variable will be filled accordingly.  
+
 
 The `BUILD_XMLTUI` variable defines if the XML mimmo interpreter has to be compiled. The compiled executable `mimmo++` is available at `mimmo/build/binaries/`.
 
