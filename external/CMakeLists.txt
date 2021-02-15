@@ -6,3 +6,6 @@ add_subdirectory(cgns)
 
 #  PARMETIS + METIS
 add_subdirectory(parmetis)
+
+# OpenFOAM
+add_subdirectory(openfoam)
