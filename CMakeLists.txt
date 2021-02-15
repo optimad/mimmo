@@ -494,98 +494,15 @@ if (ENABLE_MPI)
 endif()
 
 if (MODULE_ENABLED_IOOFOAM)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/openfoam/cmake")
+    include(openFOAMSearch)
+    openFOAMSearch(OFOAM_INCLUDES OFOAM_LIBS OFOAM_DEFINITIONS)
 
-    # ---- OpenFOAM forced ---
-    if(NOT OPENFOAM_PREC)
-        # Set default OpenFOAM precision: double
-        set(OPENFOAM_PREC "WM_$ENV{WM_PRECISION_OPTION}" CACHE STRING
-            "Get OpenFOAM scalar precision, typical options are: WM_SP for Single precision or WM_DP for Double precision."
-            FORCE)
-        MARK_AS_ADVANCED(OPENFOAM_PREC)
-    endif()
-    if(NOT OPENFOAM_LABEL)
-           # Set default OpenFOAM label-size: int32
-        set(OPENFOAM_LABEL "WM_LABEL_SIZE=$ENV{WM_LABEL_SIZE}" CACHE STRING
-            "Get the OpenFOAM label-size, typical options are: WM_LABEL_SIZE=32, WM_LABEL_SIZE=64 or None(for version older than 2.x)"
-            FORCE)
-        MARK_AS_ADVANCED(OPENFOAM_LABEL)
-    endif()
-    if(NOT OPENFOAM_ARCH)
-        # Set OpenFOAM WM_ARCH_OPTION
-        set(OPENFOAM_ARCH "WM_ARCH_OPTION=$ENV{WM_ARCH_OPTION}" CACHE STRING
-            "Get OpenFOAM arch-options, typical option are WM_ARCH_OPTION=64 for 64bit systems, WM_ARCH_OPTION=32 for 32bit systems"
-            FORCE)
-        MARK_AS_ADVANCED(OPENFOAM_ARCH)
-    endif()
-    if(NOT OPENFOAM_DISTRO)
-        # Set OpenFOAM distro: can be Foundation releases or ESI-OpenFOAM-Plus releases
-        set(OPENFOAM_DISTRO "ESI-OpenCFD" CACHE STRING  "Choose between OpenFOAM-Foundation release or ESI-OpenCFD OpenFOAM distros")
-    	set_property(CACHE OPENFOAM_DISTRO PROPERTY STRINGS "OpenFOAM-Foundation" "ESI-OpenCFD")
-    endif()
+    list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "OPENFOAM")
+    list (APPEND MIMMO_EXTERNAL_LIBRARIES "${OFOAM_LIBS}")
+    list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${OFOAM_INCLUDES}")
 
-    ## set dir and needed include and libs
-    set(OFOAM_INCLUDES finiteVolume meshTools fvOptions sampling OpenFOAM OSspecific/POSIX)
-    set(OFOAM_LIBS finiteVolume fileFormats surfMesh meshTools OpenFOAM )
-    set(OFOAM_DUMMYLIBS Pstream)
-
-    ## get the version string for the api
-    set(WOFAPI "$ENV{FOAM_API}")
-    if(NOT WOFAPI)
-        if(OPENFOAM_DISTRO MATCHES "ESI-OpenCFD")
-            string(REGEX REPLACE "^v([0-9][0-9][0-9][0-9]).*" "\\1" WOFAPI "$ENV{WM_PROJECT_VERSION}")
-        else()
-            string(REGEX REPLACE "^([0-9]).*" "\\1" WOFAPI "$ENV{WM_PROJECT_VERSION}")
-        endif()
-    endif()
-    set(OPENFOAM_DIR "$ENV{WM_PROJECT_DIR}" CACHE PATH "path to OpenFOAM Project Dir" FORCE)
-    set(OPENFOAM_API "${WOFAPI}" CACHE STRING "OpenFOAM API Version Major" FORCE)
-
-    ## add other needed libs according to version
-    set(OPENFOAM_OLDVER "0")
-    if(OPENFOAM_DISTRO MATCHES "ESI-OpenCFD" AND "${OPENFOAM_API}" LESS 1706)
-        set(OFOAM_LIBS ${OFOAM_LIBS} triSurface)
-        set(OPENFOAM_OLDVER "1" BOOL)
-    endif()
-
-    if(OPENFOAM_DISTRO MATCHES "OpenFOAM-Foundation")
-        set(OFOAM_LIBS ${OFOAM_LIBS} triSurface)
-        if("${OPENFOAM_API}" LESS 5)
-            set(OPENFOAM_OLDVER "1")
-        endif()
-    endif()
-
-    ## you can bind libraries to this current mimmo installation
-    foreach(OFCOMP IN LISTS OFOAM_INCLUDES)
-        list(APPEND OTHER_EXTERNAL_INCLUDE_DIRS "$ENV{FOAM_SRC}/${OFCOMP}/lnInclude")
-    endforeach()
-
-    foreach(OFLIBS IN LISTS OFOAM_LIBS)
-        find_library(OFTEMPL NAMES ${OFLIBS} HINTS ENV FOAM_LIBBIN)
-        list(APPEND OTHER_EXTERNAL_LIBRARIES "${OFTEMPL}")
-        if(NOT OFTEMPL)
-            message(FATAL_ERROR "Cannot found ${OFLIBS} in current OpenFOAM distribution")
-        endif()
-        unset(OFTEMPL CACHE)
-    endforeach()
-
-    foreach(OFDUMMYLIBS IN LISTS OFOAM_DUMMYLIBS)
-        set(DUMMYLIBBIN $ENV{FOAM_LIBBIN})
-        find_library(OFTEMPL NAMES ${OFDUMMYLIBS} HINTS "${DUMMYLIBBIN}/dummy")
-        list(APPEND OTHER_EXTERNAL_LIBRARIES "${OFTEMPL}")
-        if(NOT OFTEMPL)
-            message(FATAL_ERROR "Cannot found dummy ${OFLIBS} in current OpenFOAM distribution")
-        endif()
-        unset(OFTEMPL CACHE)
-    endforeach()
-    #      ----
-
-    # append data to public definitions.
-   list (APPEND MIMMO_DEFINITIONS_PUBLIC "${OPENFOAM_ARCH}" "${OPENFOAM_PREC}" "${OPENFOAM_LABEL}" "NoRepository")
-   if(OPENFOAM_OLDVER)
-        list (APPEND MIMMO_DEFINITIONS_PUBLIC "OPENFOAM_OLDVER=1")
-    else()
-        list (APPEND MIMMO_DEFINITIONS_PUBLIC "OPENFOAM_OLDVER=0")
-    endif()
+    list (APPEND MIMMO_DEFINITIONS_PUBLIC "${OFOAM_DEFINITIONS}")
 
 else()
     UNSET(OPENFOAM_DIR CACHE)
