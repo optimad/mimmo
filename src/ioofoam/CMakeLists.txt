@@ -2,7 +2,7 @@
 #
 #  mimmo
 #
-#  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+#  Copyright (C) 2015-2021 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
@@ -24,6 +24,7 @@
 
 # CMake settings
 cmake_minimum_required(VERSION 2.8)
+initialize_lto_property()
 
 # Name of the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
@@ -40,7 +41,9 @@ set(IOOFOAM_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of ioofoam module"
 unset(HEADER_FILES)
 
 if (NOT "${IOOFOAM_SOURCES}" STREQUAL "")
+    set(IOOFOAM_TARGET_OBJECT "IOOFOAM_TARGET_OBJECT")
     add_library(IOOFOAM_TARGET_OBJECT OBJECT ${IOOFOAM_SOURCES})
+    set_lto_property(${IOOFOAM_TARGET_OBJECT})
 endif ()
 
 install(FILES ${IOOFOAM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})

@@ -2,7 +2,7 @@
 #
 #  mimmo
 #
-#  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+#  Copyright (C) 2015-2021 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
@@ -21,6 +21,14 @@
 #  along with mimmo. If not, see <http://www.gnu.org/licenses/>.
 #
 #---------------------------------------------------------------------------*/
+
+# NOTE use make <options> mimmo to build the library only
+#      use make clean-mimmo to clear the library compiling
+#------------------------------------------------------------------------------------#
+# Cmake properties
+#------------------------------------------------------------------------------------#
+cmake_minimum_required(VERSION 2.8)
+initialize_lto_property()
 
 #------------------------------------------------------------------------------------#
 # Library properties
@@ -68,6 +76,8 @@ set(MIMMO_LIBRARY ${CMAKE_PROJECT_NAME} CACHE INTERNAL "mimmo Base Library" FORC
 
 add_library(${MIMMO_LIBRARY} ${LIBRARY_TYPE} ${MODULE_SOURCES})
 
+set_lto_property(${MIMMO_LIBRARY})
+
 if (ENABLE_MPI)
 	set_target_properties(${MIMMO_LIBRARY} PROPERTIES DEBUG_POSTFIX "_MPI_D")
 	set_target_properties(${MIMMO_LIBRARY} PROPERTIES RELWITHDEBINFO_POSTFIX "_MPI_D")
@@ -95,9 +105,10 @@ else()
  	install(TARGETS ${MIMMO_LIBRARY} DESTINATION lib)
 endif()
 
-# Definitions
-set(MIMMO_DEFINITIONS ${MODULE_DEFINITIONS} CACHE INTERNAL "Pre-processor definitions needed by the Base Library" FORCE)
+# append module's own definitions to public slot MIMMO_PUBLIC_DEFINITIONS
+# Note for Devs: this is unused at the moment since the modules still do not fill this defs string
+#                it is left here in any case.
+addPublicDefinitions("${MODULE_DEFINITIONS}")
 
 # Targets
-add_custom_target(library DEPENDS ${BASE_LIBRARY})
-add_custom_target(clean-library COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+add_custom_target(clean-mimmo COMMAND ${CMAKE_MAKE_PROGRAM} clean WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

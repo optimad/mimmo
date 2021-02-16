@@ -2,7 +2,7 @@
 #
 #  mimmo
 #
-#  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+#  Copyright (C) 2015-2021 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
@@ -24,6 +24,7 @@
 
 # CMake settings
 cmake_minimum_required(VERSION 2.8)
+initialize_lto_property()
 
 # Name of the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
@@ -40,7 +41,9 @@ set(IOCGNS_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of iocgns module" F
 unset(HEADER_FILES)
 
 if (NOT "${IOCGNS_SOURCES}" STREQUAL "")
+    set(IOCGNS_TARGET_OBJECT "IOCGNS_TARGET_OBJECT")
     add_library(IOCGNS_TARGET_OBJECT OBJECT ${IOCGNS_SOURCES})
+    set_lto_property(${IOCGNS_TARGET_OBJECT})
 endif ()
 
 install(FILES ${IOCGNS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})

@@ -2,7 +2,7 @@
 #
 #  mimmo
 #
-#  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+#  Copyright (C) 2015-2021 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
@@ -24,6 +24,7 @@
 
 # CMake settings
 cmake_minimum_required(VERSION 2.8)
+initialize_lto_property()
 
 # Name of the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
@@ -40,7 +41,9 @@ set(CORE_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of core module" FORCE
 unset(HEADER_FILES)
 
 if (NOT "${CORE_SOURCES}" STREQUAL "")
+    set(CORE_TARGET_OBJECT "CORE_TARGET_OBJECT")
     add_library(CORE_TARGET_OBJECT OBJECT ${CORE_SOURCES})
+    set_lto_property(${CORE_TARGET_OBJECT})
 endif ()
 
 install(FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})

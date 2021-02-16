@@ -2,7 +2,7 @@
 #
 #  mimmo
 #
-#  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+#  Copyright (C) 2015-2021 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
@@ -24,6 +24,7 @@
 
 # CMake settings
 cmake_minimum_required(VERSION 2.8)
+initialize_lto_property()
 
 # Name of the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
@@ -50,6 +51,9 @@ unset(MIMMO_HEADER)
 unset(INCLUDE_LIST)
 
 # Add common files to targets
+
+# the function will add current directory to include paths +
+# will search for its dependent modules and their path to include too. 
 addModuleIncludeDirectories(${MODULE_NAME})
 
 file(GLOB SOURCE_FILES "*.cpp")
@@ -62,7 +66,9 @@ unset(HEADER_FILES)
 set(COMMON_HEADERS "${HEADERS}" CACHE INTERNAL "Common headers" FORCE)
 
 if (NOT "${COMMON_SOURCES}" STREQUAL "")
-	add_library(COMMON_TARGET_OBJECT OBJECT ${COMMON_SOURCES})
+    set(COMMON_TARGET_OBJECT "COMMON_TARGET_OBJECT")
+    add_library(COMMON_TARGET_OBJECT OBJECT ${COMMON_SOURCES})
+    set_lto_property(${COMMON_TARGET_OBJECT})
 endif ()
 
 install(FILES ${COMMON_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
