@@ -174,18 +174,18 @@ int test1() {
     std::vector<long> selectedCells;
     selectedCells = skdTreeUtils::selectByGlobalPatch(treeSelection, treeTarget, 2.0e-02);
 
-    std::cout << " --- Selected cells --- " << std::endl;
-    std::cout << "#" << rank << " selected cell size : " << selectedCells.size() << std::endl;
+//    std::cout << " --- Selected cells --- " << std::endl;
+//    std::cout << "#" << rank << " selected cell size : " << selectedCells.size() << std::endl;
     std::set<long> setSelectedCells;
     for (long cell : selectedCells){
-        std::cout << "#" << rank << " selected cell id : " << cell << std::endl;
+        //std::cout << "#" << rank << " selected cell id : " << cell << std::endl;
         setSelectedCells.insert(cell);
     }
     // Test size of cells selected into every rank (it is supposed to run at 2)
-    std::size_t selectedSizeRank = 8;
-    if(rank == 0)    selectedSizeRank = 16;
-    bool check = (selectedCells.size() == selectedSizeRank) ;
-
+    std::unordered_set<std::size_t> selectedSizeRank;
+    selectedSizeRank.insert(8);
+    selectedSizeRank.insert(16);
+    bool check = (selectedSizeRank.count(selectedCells.size()) > 0);
     MPI_Allreduce(MPI_IN_PLACE, &check, 1, MPI_C_BOOL, MPI_LAND, MPI_COMM_WORLD);
     if (check){
         log << " test passed " << std::endl;
