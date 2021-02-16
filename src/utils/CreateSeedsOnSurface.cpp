@@ -460,13 +460,13 @@ CreateSeedsOnSurface::solveLSet(bool debug){
 
     //understand if the class is a pure triangulation or not
     MimmoSharedPointer<MimmoObject> workgeo;
-    dmpvector1D worksensitivity;
+    dmpvector1D * worksensitivity = nullptr;
     if(!checkTriangulation()){
         workgeo = createTriangulation();
-        worksensitivity = m_sensitivity_triangulated;
+        worksensitivity = &m_sensitivity_triangulated;
     }else{
         workgeo   = getGeometry();
-        worksensitivity = m_sensitivity;
+        worksensitivity = &m_sensitivity;
     }
 
     workgeo->updateAdjacencies();
@@ -513,8 +513,8 @@ CreateSeedsOnSurface::solveLSet(bool debug){
         solveEikonal(1.0,1.0, *(workgeo->getPatch()), invConn, field);
 
         //modulate field with current working sensitivity field
-        auto itSE=worksensitivity.end();
-        for(auto itSX =worksensitivity.begin(); itSX != itSE; ++itSX){
+        auto itSE=worksensitivity->end();
+        for(auto itSX =worksensitivity->begin(); itSX != itSE; ++itSX){
             field[itSX.getId()] *= *itSX;
         }
 
@@ -541,7 +541,7 @@ CreateSeedsOnSurface::solveLSet(bool debug){
     m_final_sensitivity.reserve(deadSize);
     for(const auto & val: m_deads){
         m_points.push_back(tri->getVertexCoords(val));
-        m_final_sensitivity.push_back(worksensitivity[val]);
+        m_final_sensitivity.push_back(worksensitivity->at(val));
     }
 
     m_minDist = std::numeric_limits<double>::max();
