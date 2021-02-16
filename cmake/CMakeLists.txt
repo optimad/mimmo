@@ -2,7 +2,7 @@
  #
  #  mimmo
  #
- #  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ #  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  #
  #  -------------------------------------------------------------------------
  #  License
@@ -89,3 +89,4 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/MIMMOConfigVersion.cmake" DESTINATION
 install(FILES "FindMIMMO.cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")
 install(FILES "UseMIMMO.cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")
 install(FILES "LibFindMacros.cmake" DESTINATION "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")
+install(DIRECTORY "project" DESTINATION "${CMAKE_INSTALL_PREFIX}/${MIMMO_INSTALL_CMAKE_DIR}")

@@ -32,9 +32,18 @@ SET(MIMMO_CMAKE_DIR "@MIMMO_CONFIG_CMAKE_DIR@")
 SET(MIMMO_USE_FILE "${MIMMO_CMAKE_DIR}/UseMIMMO.cmake")
 
 # Include macros for finding packages
-list(APPEND CMAKE_MODULE_PATH ${MIMMO_CMAKE_DIR})
+list(APPEND CMAKE_MODULE_PATH ${MIMMO_CMAKE_DIR} "${MIMMO_CMAKE_DIR}/project")
 include(LibFindMacros)
 include(FindPackageHandleStandardArgs)
+
+if(MIMMO_RECONFIGURE)
+    include(cacheVarCleaners)
+    # this will clean all cache entries of external mimmo dependencies except for BITPIT
+    cleanMultiCacheVariables("@MIMMO_EXTERNAL_POSSIBLE_DEPS@")
+    # for bitpit set the cmake directory the User provided to install mimmo.
+    set(BITPIT_DIR "@BITPIT_DIR@" CACHE PATH "READONLY - cmake path to bitpit installation compliant with the current mimmo" FORCE)
+endif()
+
 
 #-----------------------------------------------------------------------------
 # Find mimmo libraries and headers
@@ -177,8 +186,14 @@ foreach(_DEPENDENCY @MIMMO_EXTERNAL_DEPENDENCIES@)
     endif()
 endforeach()
 
-# Add other external libraries binded by mimmo installation
-list(APPEND MIMMO_LIBRARIES @OTHER_EXTERNAL_LIBRARIES@)
+#-----------------------------------------------------------------------------
+# Set programming languages
+#-----------------------------------------------------------------------------
+set(MIMMO_LANGUAGES "@MIMMO_LANGUAGES@")
 
+
+# NO_LONGER MANTAINED.
+# Add other external libraries binded by mimmo installation
+#list(APPEND MIMMO_LIBRARIES @OTHER_EXTERNAL_LIBRARIES@)
 # Add other external include dirs binded by mimmo installation
-list(APPEND MIMMO_INCLUDE_DIRS @OTHER_EXTERNAL_INCLUDE_DIRS@)
+#list(APPEND MIMMO_INCLUDE_DIRS @OTHER_EXTERNAL_INCLUDE_DIRS@)

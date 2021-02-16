@@ -13,6 +13,8 @@ set(MIMMO_USE_FILE_INCLUDED 1)
 
 # Update CMAKE_MODULE_PATH so includes work.
 list(APPEND CMAKE_MODULE_PATH ${MIMMO_CMAKE_DIR})
+# this allow the project embedding mimmo to reuse macro and functions employed inside the mimmo project
+list(APPEND CMAKE_MODULE_PATH "${MIMMO_CMAKE_DIR}/project")
 
 # Add compiler flags needed to use MIMMO.
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MIMMO_REQUIRED_C_FLAGS}")
