@@ -2,7 +2,7 @@
 #
 #  mimmo
 #
-#  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+#  Copyright (C) 2015-2021 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
@@ -38,18 +38,9 @@ list(APPEND TESTS "test_core_00004")
 list(APPEND TESTS "test_core_00005")
 list(APPEND TESTS "test_core_00006")
 
-# if (ENABLE_MPI)
-# 	list(APPEND TESTS "test_core_parallel_00001:3") ##:x number of procs
-# endif ()
-
 # Test extra libraries
 set(TEST_EXTRA_LIBRARIES "")
 
-# Add tests
-addModuleTests(${MODULE_NAME} "${TESTS}" "${TEST_EXTRA_LIBRARIES}")
+# Add tests : addModuleTests is included in testHandleFunctions.cmake->see parent directory.
+addModuleTests(${MODULE_NAME} "${TESTS}" "${MIMMO_LIBRARY}" "${MIMMO_EXTERNAL_LIBRARIES}" "${TEST_EXTRA_LIBRARIES}" ${ENABLE_MPI})
 unset(TESTS)
-
-# add_custom_command(
-#     TARGET "name test in the list" PRE_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/data/xxx" "${CMAKE_CURRENT_BINARY_DIR}/data/xxx"
-#     )

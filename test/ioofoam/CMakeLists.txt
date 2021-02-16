@@ -2,7 +2,7 @@
 #
 #  mimmo
 #
-#  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+#  Copyright (C) 2015-2021 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
@@ -31,15 +31,13 @@ get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 # List of tests
 set(TESTS "")
 list(APPEND TESTS "test_ioofoam_00001")
-# if (ENABLE_MPI)
-# 	list(APPEND TESTS "test_ioofoam_parallel_00001:3") ##:x number of procs
-# endif ()
 
 # Test extra libraries
 set(TEST_EXTRA_LIBRARIES "")
 
-# Add tests
-addModuleTests(${MODULE_NAME} "${TESTS}" "${TEST_EXTRA_LIBRARIES}")
+# Add tests : addModuleTests is included in testHandleFunctions.cmake->see parent directory.
+addModuleTests(${MODULE_NAME} "${TESTS}" "${MIMMO_LIBRARY}" "${MIMMO_EXTERNAL_LIBRARIES}" "${TEST_EXTRA_LIBRARIES}" ${ENABLE_MPI})
+
 unset(TESTS)
 
 add_custom_command(
