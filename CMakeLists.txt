@@ -2,7 +2,7 @@
 #
 #  mimmo
 #
-#  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+#  Copyright (C) 2015-2021 OPTIMAD engineering Srl
 #
 #  -------------------------------------------------------------------------
 #  License
@@ -28,309 +28,77 @@
 cmake_minimum_required(VERSION 2.8)
 
 project("mimmo")
+
 #------------------------------------------------------------------------------------#
 # Variables visible to the user
 #------------------------------------------------------------------------------------#
 set(ENABLE_MPI 0 CACHE BOOL "If set, the program is compiled with MPI support")
-# Force disable MPI support
-#set(ENABLE_MPI 0)
 set(VERBOSE_MAKE 0 CACHE BOOL "Set appropriate compiler and cmake flags to enable verbose output from compilation")
 set(BUILD_SHARED_LIBS 0 CACHE BOOL "Build Shared Libraries")
 
-#------------------------------------------------------------------------------------#
-# Functions
-#------------------------------------------------------------------------------------#
-function(getModuleEnableName MODULE_NAME FLAG_NAME)
-	string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
-	set(${FLAG_NAME} "MIMMO_MODULE_${UPPER_MODULE_NAME}" PARENT_SCOPE)
-endfunction()
-
-function(isModuleEnabled MODULE_NAME ENABLED)
-	getModuleEnableName(${MODULE_NAME} ENABLED_VARIABLE)
-	if (DEFINED ${ENABLED_VARIABLE})
-		set(${ENABLED} ${${ENABLED_VARIABLE}} PARENT_SCOPE)
-	else ()
-		set(${ENABLED} "FALSE" PARENT_SCOPE)
-	endif ()
-endfunction()
-
-function(areModulesEnabled MODULE_LIST ENABLED)
-	foreach (MODULE_NAME IN LISTS MODULE_LIST)
-		isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
-		if (NOT MODULE_ENABLED)
-			set(${ENABLED} "FALSE" PARENT_SCOPE)
-			return()
-		endif()
-	endforeach ()
-
-	set(${ENABLED} "TRUE" PARENT_SCOPE)
-endfunction()
-
-function(enableModule MODULE_NAME ENABLED)
-	set (EXTRA_ARGUMENTS ${ARGN})
-	list(LENGTH EXTRA_ARGUMENTS EXTRA_ARGUMENT_COUNT)
-	if (${EXTRA_ARGUMENT_COUNT} GREATER 0)
-		list(GET EXTRA_ARGUMENTS 0 FORCED)
-		if (FORCED)
-			set(FORCE_FLAG "FORCE")
-		endif()
-	endif ()
-
-	if (NOT DEFINED FORCE_FLAG)
-		set(FORCE_FLAG "")
-	endif ()
-
-	getModuleEnableName(${MODULE_NAME} MODULE_ENABLE_FLAG)
-	set(${MODULE_ENABLE_FLAG} ${ENABLED} CACHE BOOL "Request building ${MODULE_NAME} module" ${FORCE_FLAG})
-#	mark_as_advanced(${MODULE_ENABLE_FLAG})
-endfunction()
-
-function(hideModule MODULE_NAME)
-	getModuleEnableName(${MODULE_NAME} MODULE_ENABLE_FLAG)
-	if (DEFINED ${MODULE_ENABLE_FLAG})
-		unset(${MODULE_ENABLE_FLAG} CACHE)
-	endif ()
-endfunction()
-
-function(addModuleIncludeDirectories MODULE_NAME)
-    set (EXTRA_ARGUMENTS ${ARGN})
-    list(LENGTH EXTRA_ARGUMENTS EXTRA_ARGUMENT_COUNT)
-    if (${EXTRA_ARGUMENT_COUNT} GREATER 0)
-        list(GET EXTRA_ARGUMENTS 0 INCLUDE_EXTERNAL)
-    else ()
-        set(INCLUDE_EXTERNAL "TRUE")
-    endif ()
-
-    # External includes
-    if (INCLUDE_EXTERNAL)
-        if(MIMMO_EXTERNAL_INCLUDE_DIRS)
-            include_directories("${MIMMO_EXTERNAL_INCLUDE_DIRS}")
-        endif()
-    endif ()
-
-    # Add dependiecies
-    string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
-    foreach (DEPENDENCY_NAME IN LISTS ${UPPER_MODULE_NAME}_DEPS)
-        addModuleIncludeDirectories(${DEPENDENCY_NAME} "FALSE")
-    endforeach()
-    unset(UPPER_MODULE_NAME)
-
-    # Add module directory
-    include_directories("${PROJECT_SOURCE_DIR}/src/${MODULE_NAME}")
-endfunction()
-
-#works only in linux systems ->suitable for libraries who does not own a find_package
-function(addImportedLibrary NAMELIB HINTS_DIR SHAREDV SAVED_LIBRARY)
-    if(DEFINED SHAREDV AND SHAREDV)
-        if(MINGW)
-            SET(TAG ".dll.a")
-        else()
-            set(TAG ".so")
-        endif()
-    else()
-        SET(TAG ".a")
-    endif()
-    find_library(NAMEPATH "lib${NAMELIB}${TAG}" HINTS "${HINTS_DIR}")
-    add_library(${NAMELIB} UNKNOWN IMPORTED)
-    set_property(TARGET ${NAMELIB} PROPERTY IMPORTED_LOCATION ${NAMEPATH})
-    set_property(TARGET ${NAMELIB} PROPERTY IMPORTED_IMPLIB ${NAMEPATH})
-    if (NAMEPATH)
-        set (${SAVED_LIBRARY} ${NAMEPATH} PARENT_SCOPE)
-    endif()
-    unset(NAMEPATH CACHE)
-endfunction()
-
-#------------------------------------------------------------------------------------#
-# MPI
-#------------------------------------------------------------------------------------#
-if (ENABLE_MPI)
-    find_package(MPI)
-
-    include_directories("${MPI_INCLUDE_PATH}")
-
-    if(MPI_C_COMPILE_FLAGS)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MPI_C_COMPILE_FLAGS}")
-    endif()
-
-    if(MPI_CXX_COMPILE_FLAGS)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
-    endif()
-
-    if(MPI_CXX_LINK_FLAGS)
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_CXX_LINK_FLAGS}")
-    endif()
-endif()
-
-#------------------------------------------------------------------------------------#
-# Compiler settings
-#------------------------------------------------------------------------------------#
-set (MIMMO_DEFINITIONS_PRIVATE "")
-set (MIMMO_DEFINITIONS_PUBLIC "")
-
-string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
-
-set (ENABLE_WARNINGS ${VERBOSE_MAKE})
-if (VERBOSE_MAKE)
-	set(CMAKE_VERBOSE_MAKEFILE ON)
-endif()
-
-if (ENABLE_MPI)
-	list (APPEND MIMMO_DEFINITIONS_PUBLIC "MIMMO_ENABLE_MPI=1")
-    list (APPEND MIMMO_DEFINITIONS_PUBLIC "MIMMO_MPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}")
-else ()
-	list (APPEND MIMMO_DEFINITIONS_PUBLIC "MIMMO_ENABLE_MPI=0")
-endif()
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
-set(CMAKE_C_FLAGS_RELEASE "-O2")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-
-if (ENABLE_WARNINGS)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-endif()
-
-if (NOT ("${CMAKE_VERSION}" VERSION_LESS "2.8.12"))
-	add_compile_options("-std=c++11")
-else ()
-	add_definitions("-std=c++11")
-endif ()
-
-# Define a preprocessor macro to recognize debug builds
-IF(CMAKE_BUILD_TYPE_LOWER MATCHES "debug" OR CMAKE_BUILD_TYPE_LOWER MATCHES "debinfo")
-	list (APPEND MIMMO_DEFINITIONS_PRIVATE "ENABLE_DEBUG=1")
-else ()
-	list (APPEND MIMMO_DEFINITIONS_PRIVATE "ENABLE_DEBUG=0")
-endif ()
-
-IF(NOT CMAKE_BUILD_TYPE_LOWER MATCHES "debug")
-	list (APPEND MIMMO_DEFINITIONS_PRIVATE "NDEBUG")
-endif ()
-
-# Define an alias for building with scalasca
-if (ENABLE_MPI)
-	SET(C_FLAGS_INSTRUMENT   "-instrument mpicxx")
-	SET(CXX_FLAGS_INSTRUMENT "-instrument mpic")
-else ()
-	SET(C_FLAGS_INSTRUMENT   "")
-	SET(CXX_FLAGS_INSTRUMENT "")
-endif ()
-
-if (CMAKE_BUILD_TYPE_LOWER MATCHES "scalasca")
-	file(WRITE scalasca_c_compiler
-"#!/bin/bash
-scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
-"
-	)
-
-	file(WRITE scalasca_cxx_compiler
-"#!/bin/bash
-scalasca ${C_FLAGS_INSTRUMENT} \"$@\"
-"
-	)
-
-	file(INSTALL scalasca_cxx_compiler DESTINATION ${PROJECT_BINARY_DIR} PERMISSIONS OWNER_READ OWNER_EXECUTE )
-	file(INSTALL scalasca_c_compiler   DESTINATION ${PROJECT_BINARY_DIR} PERMISSIONS OWNER_READ OWNER_EXECUTE )
-	file(REMOVE  scalasca_cxx_compiler)
-	file(REMOVE  scalasca_c_compiler)
-
-	set(CMAKE_CXX_COMPILER "${PROJECT_BINARY_DIR}/scalasca_cxx_compiler")
-	set(CMAKE_C_COMPILER   "${PROJECT_BINARY_DIR}/scalasca_c_compiler")
-endif ()
-
-#------------------------------------------------------------------------------------#
-# Customized build types
-#------------------------------------------------------------------------------------#
-
-# GNU Profiling
-SET(CMAKE_CXX_FLAGS_GNUPROFILING "-pg" CACHE STRING
-    "Flags used by the C++ compiler during GNU profiling builds." FORCE)
-MARK_AS_ADVANCED(CMAKE_CXX_FLAGS_GNUPROFILING)
-
-SET(CMAKE_C_FLAGS_GNUPROFILING "-pg" CACHE STRING
-    "Flags used by the C compiler during GNU profiling builds." FORCE)
-MARK_AS_ADVANCED(CMAKE_C_FLAGS_GNUPROFILING)
-
-SET(CMAKE_EXE_LINKER_FLAGS_GNUPROFILING "-pg" CACHE STRING
-    "Flags used for linking binaries during GNU profiling builds." FORCE)
-MARK_AS_ADVANCED(CMAKE_EXE_LINKER_FLAGS_GNUPROFILING)
-
-SET(CMAKE_SHARED_LINKER_FLAGS_GNUPROFILING "-pg" CACHE STRING
-    "Flags used by the shared libraries linker during GNU profiling builds." FORCE)
-MARK_AS_ADVANCED(CMAKE_SHARED_LINKER_FLAGS_GNUPROFILING)
-
-# Scalasca Profiling
-SET(CMAKE_CXX_FLAGS_SCALASCAPROFILING "-O2" CACHE STRING
-    "Flags used by the C++ compiler during Scalasca profiling builds." FORCE)
-MARK_AS_ADVANCED(CMAKE_CXX_FLAGS_SCALASCAPROFILING)
-
-SET(CMAKE_C_FLAGS_SCALASCAPROFILING "-O2" CACHE STRING
-    "Flags used by the C compiler during Scalasca builds." FORCE)
-MARK_AS_ADVANCED(CMAKE_C_FLAGS_SCALASCAPROFILING)
-
-SET(CMAKE_EXE_LINKER_FLAGS_SCALASCAPROFILING "" CACHE STRING
-    "Flags used for linking binaries during Scalasca builds." FORCE)
-MARK_AS_ADVANCED(CMAKE_EXE_LINKER_FLAGS_SCALASCAPROFILING)
-
-SET(CMAKE_SHARED_LINKER_FLAGS_SCALASCAPROFILING "" CACHE STRING
-    "Flags used by the shared libraries linker during Scalasca builds." FORCE)
-MARK_AS_ADVANCED(CMAKE_SHARED_LINKER_FLAGS_SCALASCAPROFILING)
-
-# Set build type variable
+# Create the build type variable
 if(NOT CMAKE_BUILD_TYPE)
-	# Set default build type to Debug
-	set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
-		"Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel GNUProfiling ScalascaProfiling."
-		FORCE)
+    # Set default build type to Debug
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
+        "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel GNUProfiling ScalascaProfiling."
+        FORCE)
 
-	# Set the possible values of build type for the GUI
-	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
-	"MinSizeRel" "RelWithDebInfo" "GNUProfiling" "ScalascaProfiling")
+    # Set the possible values of build type for the GUI
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+    "MinSizeRel" "RelWithDebInfo" "GNUProfiling" "ScalascaProfiling")
+endif()
+
+# Create the LTO_STRATEGY variable to set up if possible a Link Time Optimization for shared libs
+if(${CMAKE_VERSION} VERSION_EQUAL "3.9.0" OR ${CMAKE_VERSION} VERSION_GREATER "3.9.0")
+    set(LTO_STRATEGY "Auto" CACHE STRING "Choose the Link Time Optimization (LTO) strategy, options are: Auto (i.e., optimiziation is enabled only in release build) Enabled Disabled.")
+    set_property(CACHE LTO_STRATEGY PROPERTY STRINGS "Auto" "Enabled" "Disabled")
+endif()
+
+if(MINGW AND NOT ${LTO_STRATEGY} STREQUAL "Disabled")
+    message(WARNING "LTO strategy under MinGW is still not available. Forcing to Disabled state")
+    set(LTO_STRATEGY "Disabled" CACHE STRING "Choose the Link Time Optimization (LTO) strategy, options are: Auto (i.e., optimization is enabled only in release build) Enabled Disabled." FORCE)
 endif()
 
 #------------------------------------------------------------------------------------#
-# Library version
+# Set up
 #------------------------------------------------------------------------------------#
+#let cmake knows the location of custom functions needed by mimmo project.
+LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/project")
+
+#include preprocessor definitions functions and
+#initialize MIMMO_DEFINITIONS_PUBLIC variable.
+include(preprocDefinitionsFunctions)
+initializePublicDefinitions()
+
+#include Link Time Optimization (LTO) functions and
+#check if the Link Time Optimization is usable in this context
+include(LTOFunctions)
+if(DEFINED LTO_STRATEGY)
+    checkLTOStrategy(${LTO_STRATEGY} ENABLE_LTO ${BUILD_SHARED_LIBS})
+else()
+    set(ENABLE_LTO FALSE)
+endif()
+
+#include macro to get version of mimmo library and use
+# library version -> search in the library header file and retrieve
+# MIMMO_VERSION, MIMMO_VERSION_MAJOR, MIMMO_VERSION_MINOR, MIMMO_VERSION_PATCH and
+# MIMMO_VERSION_TAG
+include(libraryMacro)
 set (VERSION_HEADER_FILENAME "${PROJECT_SOURCE_DIR}/src/common/${CMAKE_PROJECT_NAME}_version.hpp")
-string(TOUPPER "${CMAKE_PROJECT_NAME}_VERSION" VERSION_DEFINE_NAME)
+libraryVersion(${VERSION_HEADER_FILENAME})
 
-file(READ "${VERSION_HEADER_FILENAME}" header)
-
-string(REGEX REPLACE ".*#[ \t]*define[ \t]*${VERSION_DEFINE_NAME}[ \t]*\"([^\n]*)\".*" "\\1" match "${header}")
-set(MIMMO_VERSION "${match}")
-
-STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
-set(MIMMO_MAJOR_VERSION "${match}")
-
-STRING(REGEX REPLACE "^[0-9]+\\.([0-9])+\\.[0-9]+(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
-set(MIMMO_MINOR_VERSION "${match}")
-
-STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+)(-[0-9A-Za-z-]+)?" "\\1" match "${MIMMO_VERSION}")
-set(MIMMO_PATCH_VERSION "${match}")
-
-STRING(REGEX MATCH "^[0-9]+\\.[0-9]+\\.[0-9]+-([0-9A-Za-z-]+)" match "${MIMMO_VERSION}")
-if (NOT match STREQUAL "")
-	STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.[0-9]+-([0-9A-Za-z-]+)" "\\1" match "${MIMMO_VERSION}")
-	set(MIMMO_TAG_VERSION "${match}")
-else ()
-	set(MIMMO_TAG_VERSION "")
-endif ()
+#include compilerSettings functions and customize compilers for mimmo object
+include(compilerSettings)
+# the method will require CMAKE_BUILD_TYPE, VERBOSE_MAKE and ENABLE_MPI to be defined.
+setCompilers()
 
 #------------------------------------------------------------------------------------#
-# List of all avilable modules
+# List of mimmo modules
 #------------------------------------------------------------------------------------#
+# list of all availables
 set(MIMMO_MODULE_LIST "")
 list(APPEND MIMMO_MODULE_LIST "common")
 list(APPEND MIMMO_MODULE_LIST "core")
-if(ENABLE_MPI)
-    list(APPEND MIMMO_MODULE_LIST "parallel")
-endif()
 list(APPEND MIMMO_MODULE_LIST "iogeneric")
 list(APPEND MIMMO_MODULE_LIST "iocgns")
 list(APPEND MIMMO_MODULE_LIST "ioofoam")
@@ -338,51 +106,112 @@ list(APPEND MIMMO_MODULE_LIST "geohandlers")
 list(APPEND MIMMO_MODULE_LIST "manipulators")
 list(APPEND MIMMO_MODULE_LIST "utils")
 list(APPEND MIMMO_MODULE_LIST "propagators")
+list(APPEND MIMMO_MODULE_LIST "parallel")
 
-set(MIMMO_MODULEENABLED_LIST "")
-list(APPEND MIMMO_MODULEENABLED_LIST "common")
-list(APPEND MIMMO_MODULEENABLED_LIST "core")
-list(APPEND MIMMO_MODULEENABLED_LIST "iogeneric")
-list(APPEND MIMMO_MODULEENABLED_LIST "geohandlers")
-list(APPEND MIMMO_MODULEENABLED_LIST "manipulators")
-list(APPEND MIMMO_MODULEENABLED_LIST "utils")
+
+#------------------------------------------------------------------------------------#
+# Modules inter-dependencies
+#------------------------------------------------------------------------------------#
+set(COMMON_DEPS "")
+set(CORE_DEPS "common")
 if(ENABLE_MPI)
-    list(APPEND MIMMO_MODULEENABLED_LIST "parallel")
+    set(PARALLEL_DEPS "core")
+    set(IOGENERIC_DEPS "parallel")
+    set(PROPAGATORS_DEPS "parallel")
+    set(IOOFOAM_DEPS "parallel")
+    set(IOCGNS_DEPS "parallel")
+    set(MANIPULATORS_DEPS "parallel")
+else()
+    set(IOGENERIC_DEPS "core")
+    set(PROPAGATORS_DEPS "core")
+    set(IOOFOAM_DEPS "core")
+    set(IOCGNS_DEPS "core")
+    set(MANIPULATORS_DEPS "core")
+endif()
+set(GEOHANDLERS_DEPS "iogeneric")
+set(UTILS_DEPS "iogeneric")
+
+#------------------------------------------------------------------------------------#
+# Modules optional external dependencies (BITPIT is the core dep and has a special treatment)
+#------------------------------------------------------------------------------------#
+set(COMMON_EXTERNAL_DEPS "")
+set(CORE_EXTERNAL_DEPS "")
+set(PARALLEL_EXTERNAL_DEPS "METIS;PARMETIS")
+set(MANIPULATORS_EXTERNAL_DEPS "")
+set(IOGENERIC_EXTERNAL_DEPS "")
+set(PROPAGATORS_EXTERNAL_DEPS "")
+set(GEOHANDLERS_EXTERNAL_DEPS "")
+set(UTILS_EXTERNAL_DEPS "")
+set(IOCGNS_EXTERNAL_DEPS "CGNS")
+set(IOOFOAM_EXTERNAL_DEPS "OPENFOAM")
+
+## create a list of all possible deps in the project - this will be used
+## inside MIMMOConfig.cmake to build an automatic cleaning of unused cache variables.
+list(APPEND MIMMO_EXTERNAL_POSSIBLE_DEPS)
+foreach(MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
+    string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
+    list(APPEND MIMMO_EXTERNAL_POSSIBLE_DEPS ${${UPPER_MODULE_NAME}_EXTERNAL_DEPS})
+endforeach()
+
+#------------------------------------------------------------------------------------#
+# Experimental/deprecated features
+#------------------------------------------------------------------------------------#
+include(expFeatureFunctions)
+#
+# to be assessed and used in the next feature
+#
+
+
+
+#------------------------------------------------------------------------------------#
+# Check of inter-module dependencies
+#------------------------------------------------------------------------------------#
+#include module handle functions
+include(moduleHandleFunctions)
+
+#------------------------------------------------------------------------------------#
+# Force enabling of the basic modules
+#------------------------------------------------------------------------------------#
+# The modules 'common', 'core', 'iogeneric' and 'manipulators' have to be always built
+getModuleEnableName("common" COMMON_MODULE_ENABLED)
+unset(${COMMON_MODULE_ENABLED} CACHE)
+set(${COMMON_MODULE_ENABLED} 1 CACHE INTERNAL "Request building common module" FORCE)
+
+getModuleEnableName("core" CORE_MODULE_ENABLED)
+unset(${CORE_MODULE_ENABLED} CACHE)
+set(${CORE_MODULE_ENABLED} 1 CACHE INTERNAL "Request building core module" FORCE)
+
+getModuleEnableName("iogeneric" IOGENERIC_MODULE_ENABLED)
+unset(${IOGENERIC_MODULE_ENABLED} CACHE)
+set(${IOGENERIC_MODULE_ENABLED} 1 CACHE INTERNAL "Request building iogeneric module" FORCE)
+
+getModuleEnableName("manipulators" MANIPULATORS_MODULE_ENABLED)
+unset(${MANIPULATORS_MODULE_ENABLED} CACHE)
+set(${MANIPULATORS_MODULE_ENABLED} 1 CACHE INTERNAL "Request building manipulators module" FORCE)
+
+# The modules 'parallel' has to be always built if MPI enabled
+getModuleEnableName("parallel" PARALLEL_MODULE_ENABLED)
+unset(${PARALLEL_MODULE_ENABLED} CACHE)
+if(ENABLE_MPI)
+    set(${PARALLEL_MODULE_ENABLED} 1 CACHE INTERNAL "Request building parallel module" FORCE)
+else()
+    set(${PARALLEL_MODULE_ENABLED} 0 CACHE INTERNAL "Unneeded building parallel module" FORCE)
 endif()
 
+##OTHER MODULES TO BE OPTIONAL SET ACTIVE OR UNACTIVE
 
+# list of all enabled by default
+set(MIMMO_MODULEENABLED_LIST "")
+list(APPEND MIMMO_MODULEENABLED_LIST "geohandlers")
+list(APPEND MIMMO_MODULEENABLED_LIST "utils")
+
+# list of all disabled by default
 set(MIMMO_MODULEDISABLED_LIST "")
 list(APPEND MIMMO_MODULEDISABLED_LIST "propagators")
 list(APPEND MIMMO_MODULEDISABLED_LIST "iocgns")
 list(APPEND MIMMO_MODULEDISABLED_LIST "ioofoam")
 list(APPEND MIMMO_MODULEDISABLED_LIST "utils")
 
-#------------------------------------------------------------------------------------#
-# Modules dependecies
-#------------------------------------------------------------------------------------#
-set(CORE_DEPS "common")
-set(IOCGNS_DEPS "core;common")
-set(MANIPULATORS_DEPS "core;common")
-if(ENABLE_MPI)
-    set(PARALLEL_DEPS "common;core")
-    set(IOGENERIC_DEPS "core;common;parallel")
-    set(PROPAGATORS_DEPS "common;core;parallel")
-    set(IOOFOAM_DEPS "core;common;parallel")
-    set(GEOHANDLERS_DEPS "core;common;parallel;iogeneric")
-    set(UTILS_DEPS "core;common;parallel;iogeneric")
-else()
-    set(IOGENERIC_DEPS "core;common")
-    set(PROPAGATORS_DEPS "common;core")
-    set(IOOFOAM_DEPS "core;common")
-    set(GEOHANDLERS_DEPS "core;common;iogeneric")
-    set(UTILS_DEPS "core;common;iogeneric")
-endif()
-
-
-
-#------------------------------------------------------------------------------------#
-# Check of the dependencies
-#------------------------------------------------------------------------------------#
 
 # Initialize module state
 foreach (MODULE_NAME IN LISTS MIMMO_MODULEENABLED_LIST)
@@ -414,35 +243,8 @@ while (${CHECK_DEPS} EQUAL 1)
 endwhile()
 unset(CHECK_DEPS)
 
-# The modules 'common', 'core', 'iogeneric' and 'manipulators' have to be always built
-getModuleEnableName("common" COMMON_MODULE_ENABLED)
-unset(${COMMON_MODULE_ENABLED} CACHE)
-set(${COMMON_MODULE_ENABLED} 1 CACHE INTERNAL "Request building common module" FORCE)
 
-getModuleEnableName("core" CORE_MODULE_ENABLED)
-unset(${CORE_MODULE_ENABLED} CACHE)
-set(${CORE_MODULE_ENABLED} 1 CACHE INTERNAL "Request building core module" FORCE)
-
-getModuleEnableName("iogeneric" IOGENERIC_MODULE_ENABLED)
-unset(${IOGENERIC_MODULE_ENABLED} CACHE)
-set(${IOGENERIC_MODULE_ENABLED} 1 CACHE INTERNAL "Request building iogeneric module" FORCE)
-
-getModuleEnableName("manipulators" MANIPULATORS_MODULE_ENABLED)
-unset(${MANIPULATORS_MODULE_ENABLED} CACHE)
-set(${MANIPULATORS_MODULE_ENABLED} 1 CACHE INTERNAL "Request building manipulators module" FORCE)
-
-# The modules 'parallel' has to be always built if MPI enpabled
-if(ENABLE_MPI)
-    getModuleEnableName("parallel" PARALLEL_MODULE_ENABLED)
-    unset(${PARALLEL_MODULE_ENABLED} CACHE)
-    set(${PARALLEL_MODULE_ENABLED} 1 CACHE INTERNAL "Request building parallel module" FORCE)
-else()
-    getModuleEnableName("parallel" PARALLEL_MODULE_ENABLED)
-    unset(${PARALLEL_MODULE_ENABLED} CACHE)
-    set(${PARALLEL_MODULE_ENABLED} 0 CACHE INTERNAL "Unneeded building parallel module" FORCE)
-endif()
-
-# disabling ioofoam module in Windows-MIngw compilation.
+# disabling ioofoam module in Windows-Mingw compilation.
 if(MINGW)
     getModuleEnableName("ioofoam" IOOFOAM_MODULE_ENABLED)
     unset(${IOOFOAM_MODULE_ENABLED} CACHE)
@@ -452,23 +254,27 @@ endif()
 
 
 #------------------------------------------------------------------------------------#
-# External modules dependecies
+# External modules dependencies
 #------------------------------------------------------------------------------------#
-set(MIMMO_EXTERNAL_DEPENDENCIES "") ## put here the name of package you need to refind with main FindMimmo
+set(MIMMO_EXTERNAL_DEPENDENCIES "")  ## put here the name of the DEPS you need to refind with findPackage now.
 set(MIMMO_EXTERNAL_LIBRARIES "") ## put here the xxx_LIBRARIES you need now.
 set(MIMMO_EXTERNAL_INCLUDE_DIRS "") ## put here the xxx_INCLUDE_DIRS you need now.
 
-set(OTHER_EXTERNAL_LIBRARIES "") ## put here libraries you need now and that you don't want to refind after or cannot be found with a regular FIND package cmake
-set(OTHER_EXTERNAL_INCLUDE_DIRS "") ## put here include_dirs you need now and that you don't want to refind after or cannot be found with a regular FIND package cmake
+##list now the really needed deps required by the ACTIVE modules
+set(EXTERNAL_ACTIVE_DEPS "")
+foreach(MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
+    isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
+    string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
+    if(MODULE_ENABLED)
+        list(APPEND EXTERNAL_ACTIVE_DEPS ${${UPPER_MODULE_NAME}_EXTERNAL_DEPS})
+    endif()
+endforeach()
 
-## search optional modules if activated
-isModuleEnabled("utils"  MODULE_ENABLED_UTILS)
-isModuleEnabled("propagators"  MODULE_ENABLED_PROPAGATORS)
-isModuleEnabled("ioofoam" MODULE_ENABLED_IOOFOAM)
-isModuleEnabled("iocgns" MODULE_ENABLED_IOCGNS)
-isModuleEnabled("parallel" MODULE_ENABLED_PARALLEL)
+#include utilities for cached variables cleaners
+include(cacheVarCleaners)
 
-###     BITPIT      ###############################################
+###     BITPIT      ############################################################
+#fill the bitpit module list required by mimmo.
 set(BITPIT_QUERYPACKAGES "levelset" "surfunstructured" "volunstructured" "RBF" "CG")
 if(MODULE_ENABLED_PROPAGATORS)
     list (APPEND BITPIT_QUERYPACKAGES "discretization")
@@ -481,19 +287,33 @@ list (APPEND MIMMO_EXTERNAL_DEPENDENCIES "BITPIT")
 list (APPEND MIMMO_EXTERNAL_LIBRARIES "${BITPIT_LIBRARIES}")
 # include dirs are managed with BITPIT_USE_FILE.
 
-###     MPI      #################################################
-if (ENABLE_MPI)
-    #Check if BITPIT IS COMPILED IN MPI, otherwise is impossible to go on.
-    list (FIND BITPIT_DEFINITIONS "BITPIT_ENABLE_MPI=0" _index)
-    if (${_index} GREATER -1)
-        message(FATAL_ERROR "BITPIT distro is not MPI compiled. Impossible to compile MIMMO in MPI!")
+#see if BITPIT has MPI enabled
+list (FIND BITPIT_DEFINITIONS "BITPIT_ENABLE_MPI=1" _index_DEF)
+if (${_index_DEF} GREATER -1)
+    if(ENABLE_MPI)
+        ## mimmo and bitpit both in mpi. Bitpit already found a MPI distribution in the system.
+        ## pass mpi compile flags to compiler
+        if(MPI_CXX_COMPILE_FLAGS)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
+        endif()
+        if(MPI_CXX_LINK_FLAGS)
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MPI_CXX_LINK_FLAGS}")
+        endif()
+    else()
+         message( WARNING "FOUND BITPIT_MPI version, but mimmo is required to be compiled SERIAL. Proceeding anyway")
     endif()
-    #NO NEED TO BE REFOUND - bind them to this mimmo installation
-    list (APPEND OTHER_EXTERNAL_LIBRARIES "${MPI_CXX_LIBRARIES}")
-    list (APPEND OTHER_EXTERNAL_INCLUDE_DIRS "${MPI_CXX_INCLUDE_DIRS}" )
+else()
+    if(ENABLE_MPI)
+        ## mimmo required mpi but bitpit is Serial. That's not allowed.
+        message( FATAL_ERROR "FOUND BITPIT_SERIAL version, but mimmo is required to be compiled MPI. Cannot continue")
+    endif()
 endif()
+unset(_index_DEF)
+################################################################################
 
-if (MODULE_ENABLED_IOOFOAM)
+### OPENFOAM ###################################################################
+list(FIND EXTERNAL_ACTIVE_DEPS "OPENFOAM" _OPENFOAM_index)
+if (${_OPENFOAM_index} GREATER -1)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/openfoam/cmake")
     include(openFOAMSearch)
     openFOAMSearch(OFOAM_INCLUDES OFOAM_LIBS OFOAM_DEFINITIONS)
@@ -502,20 +322,18 @@ if (MODULE_ENABLED_IOOFOAM)
     list (APPEND MIMMO_EXTERNAL_LIBRARIES "${OFOAM_LIBS}")
     list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${OFOAM_INCLUDES}")
 
-    list (APPEND MIMMO_DEFINITIONS_PUBLIC "${OFOAM_DEFINITIONS}")
+    addPublicDefinitions("${OFOAM_DEFINITIONS}")
 
 else()
-    UNSET(OPENFOAM_DIR CACHE)
-    UNSET(OPENFOAM_ARCH CACHE)
-    UNSET(OPENFOAM_PREC CACHE)
-    UNSET(OPENFOAM_LABEL CACHE)
-    UNSET(OPENFOAM_DISTRO CACHE)
-    UNSET(OPENFOAM_API CACHE)
+    cleanSingleCacheVariables("OPENFOAM")
 endif ()
 
+unset(_OPENFOAM_index)
+################################################################################
 
-# module further dependency
-if (MODULE_ENABLED_IOCGNS)
+### CGNS #######################################################################
+list(FIND EXTERNAL_ACTIVE_DEPS "CGNS" _CGNS_index)
+if (${_CGNS_index} GREATER -1)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cgns/cmake")
 
     find_package(CGNS REQUIRED)
@@ -525,14 +343,15 @@ if (MODULE_ENABLED_IOCGNS)
     list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${CGNS_INCLUDE_DIRS}")
 
 else()
-    unset(CGNS_DIR CACHE)
-    unset(CGNS_DIR_FOUND CACHE)
-    unset(CGNS_LIB CACHE)
-    unset(CGNS_INCDIR CACHE)
+    cleanSingleCacheVariables("CGNS")
 endif ()
 
-# parallel module dependencies
-if (MODULE_ENABLED_PARALLEL)
+unset(_CGNS_index)
+################################################################################
+
+### METIS & PARMETIS ###########################################################
+list(FIND EXTERNAL_ACTIVE_DEPS "PARMETIS" _PARMETIS_index)
+if (${_PARMETIS_index} GREATER -1)
      list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/parmetis/cmake")
 
      find_package(PARMETIS REQUIRED)
@@ -542,48 +361,43 @@ if (MODULE_ENABLED_PARALLEL)
      list (APPEND MIMMO_EXTERNAL_INCLUDE_DIRS "${PARMETIS_INCLUDE_DIRS}")
 
 else()
-    unset(METIS_DIR CACHE)
-    unset(METIS_DIR_FOUND CACHE)
-    unset(METIS_LIB CACHE)
-    unset(METIS_INCDIR CACHE)
-    unset(PARMETIS_DIR CACHE)
-    unset(PARMETIS_DIR_FOUND CACHE)
-    unset(PARMETIS_LIB CACHE)
-    unset(PARMETIS_INCDIR CACHE)
+    cleanMultiCacheVariables("METIS;PARMETIS")
 endif ()
 
+unset(_PARMETIS_index)
+################################################################################
 
-## Put together External libraries and include directories
-list(APPEND MIMMO_EXTERNAL_LIBRARIES ${OTHER_EXTERNAL_LIBRARIES})
-list(APPEND MIMMO_EXTERNAL_INCLUDE_DIRS ${OTHER_EXTERNAL_INCLUDE_DIRS})
 
 ## pass now MIMMO_EXTERNAL_INCLUDE_DIRS to the include_directories
 include_directories(${MIMMO_EXTERNAL_INCLUDE_DIRS})
 
-##PASS THE PROPERTY DEFINITIONS
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PRIVATE})
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${MIMMO_DEFINITIONS_PUBLIC})
+
+#------------------------------------------------------------------------------------#
+# Set programming languages
+#------------------------------------------------------------------------------------#
+get_property(MIMMO_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
+
 #------------------------------------------------------------------------------------#
 # Subdirectories
 #------------------------------------------------------------------------------------#
 # Main library
 add_subdirectory(src)
 
-# xml text unit interface binaries
-add_subdirectory(binaries)
+# Docs
+add_subdirectory(doc)
 
 # CMake
 add_subdirectory(cmake)
 
-# Examples
-add_subdirectory(examples)
-
 # External
 add_subdirectory(external)
+
+# xml text unit interface binaries
+add_subdirectory(binaries)
+
+# Examples
+add_subdirectory(examples)
 
 # Tests
 enable_testing()
 add_subdirectory(test)
-
-# Docs
-add_subdirectory(doc)

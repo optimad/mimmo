@@ -44,11 +44,6 @@ Main executable blocks are:
 
 - <B>mimmo::IOCGNS</B> input/output block for CGNS meshes
 
-## iovtk
-<B>iovtk</B> collects all interfaces to volume mesh VTK format input/output.
-
-- <B>mimmo::IOVTKScalar</B> input/output block for VTK surface meshes with scalar field
-
 ## ioofoam
 <B>ioofoam</B> collects all interfaces to volume mesh OpenFoam format input/output.
 
