@@ -112,3 +112,88 @@ function(addModuleIncludeDirectories MODULE_NAME)
     # Add module directory
     include_directories("${PROJECT_SOURCE_DIR}/src/${MODULE_NAME}" "${PROJECT_BINARY_DIR}/src/${MODULE_NAME}")
 endfunction()
+
+# Add a module to the project
+#
+# A module (marked by input module_name) will be added to the project as a library built
+#  from the source files (*.cpp) available in the local directory where the function
+# is called.
+#
+# All local configurable header files (*.hpp.in) and files with configurable template
+# implementations (*.tpp.in) will be automatically configured and copied into
+# the build directory.
+#
+# All header files (*.hpp) and files with template implementations (*.tpp) in
+# the current directory and in the build directory will be installed inside
+# the directory "include/${PROJECT_NAME}". Only files automatically generated
+# by this function (e.g., configurable header files) or files created before
+# calling this function will be installed.
+#
+# A optional list of LIBRARIES can be provided to directly be linked to the module
+# in exam with target_link_libraries command.
+#
+# <module name upper>_TARGET_OBJECT variable, is automatically exposed for
+# external linking of libraries and properties to the current module target.
+#
+# Extra boolean TRUE to block and prevent the installation of header files (or FALSE to grant it)
+# can be passed in queue to function arguments. If not expressed the default behaviour is FALSE.
+#
+# BEWARE: The function makes use of LTO INTERPROCEDURAL_OPTIMIZATION. To make it active/disabled into
+# this context it is sufficient to set a variable into your main project
+# called ENABLE_LTO set to true or false. Please be aware that LTO is devoted to
+# creation of PIC "object" for shared library purposes only.
+#
+function(configureModule MODULE_NAME MODULE_LIBRARIES)
+    set (EXTRA_ARGUMENTS ${ARGN})
+    list(LENGTH EXTRA_ARGUMENTS EXTRA_ARGUMENT_COUNT)
+    if (${EXTRA_ARGUMENT_COUNT} GREATER 0)
+        list(GET EXTRA_ARGUMENTS 0 ACTIVATED)
+        if (ACTIVATED)
+            set(BLOCK_INSTALL TRUE)
+        endif()
+    endif ()
+
+    string(TOUPPER ${MODULE_NAME} UPPER_MODULE_NAME)
+
+    # Configure compilation
+    addModuleIncludeDirectories(${MODULE_NAME})
+
+    # Configure headers
+    file(GLOB CONFIGURABLE_HEADER_FILES "*.hpp.in" "*.tpp.in")
+    foreach(CONFIGURABLE_HEADER_FILE IN LISTS CONFIGURABLE_HEADER_FILES)
+        get_filename_component(FILENAME ${CONFIGURABLE_HEADER_FILE} NAME)
+        string(REGEX REPLACE "\\.[^.]*$" "" CONFIGURED_HEADER_FILE ${FILENAME})
+        set(CONFIGURED_HEADER_FILE "${PROJECT_BINARY_DIR}/src/${MODULE_NAME}/${CONFIGURED_HEADER_FILE}")
+        configure_file("${CONFIGURABLE_HEADER_FILE}" "${CONFIGURED_HEADER_FILE}")
+    endforeach()
+
+    # Configure targets
+    file(GLOB SOURCE_FILES "*.cpp")
+    set(${UPPER_MODULE_NAME}_SOURCES "${SOURCE_FILES}" CACHE INTERNAL "Sources of ${MODULE_NAME} module" FORCE)
+    unset(SOURCE_FILES)
+
+    ##include package of LTO handlers from file LTOFunction.cmake.
+    include(LTOFunctions)
+
+    if (NOT "${${UPPER_MODULE_NAME}_SOURCES}" STREQUAL "")
+        initialize_lto_property()
+        set(${UPPER_MODULE_NAME}_TARGET_OBJECT "${UPPER_MODULE_NAME}_TARGET_OBJECT")
+        add_library(${${UPPER_MODULE_NAME}_TARGET_OBJECT} OBJECT ${${UPPER_MODULE_NAME}_SOURCES})
+
+        target_link_libraries(${${UPPER_MODULE_NAME}_TARGET_OBJECT} ${MODULE_LIBRARIES})
+
+        set_lto_property(${${UPPER_MODULE_NAME}_TARGET_OBJECT})
+    endif ()
+
+    # Configure installation
+    file(GLOB HEADER_FILES "*.hpp" "*.tpp")
+    file(GLOB CONFIGURED_HEADER_FILES "${PROJECT_BINARY_DIR}/src/${MODULE_NAME}/*.hpp" "${PROJECT_BINARY_DIR}/src/${MODULE_NAME}/*.tpp")
+    set(${UPPER_MODULE_NAME}_HEADERS "${HEADER_FILES}" "${CONFIGURED_HEADER_FILES}" CACHE INTERNAL "Headers of ${MODULE_NAME} module" FORCE)
+    unset(HEADER_FILES)
+    unset(CONFIGURED_HEADER_FILES)
+
+    if (NOT "${${UPPER_MODULE_NAME}_HEADERS}" STREQUAL "" AND NOT DEFINED BLOCK_INSTALL)
+        install(FILES ${${UPPER_MODULE_NAME}_HEADERS} DESTINATION include/${PROJECT_NAME})
+    endif ()
+
+endfunction()
