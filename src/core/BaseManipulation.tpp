@@ -219,7 +219,7 @@ BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, MimmoPiercedVe
  * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
  * \param[in] geometry MimmoObject shared pointer to target geometry
  * \param[in] data MimmoPiercedVector with data fields to write
- * \param[in] ... MimmoPiercedVector series with data fields to write (template variadic function)
+ * \param[in] args other data field series to write (template variadic function)
  */
 template<typename mpv_t, typename... Args>
 void
@@ -290,7 +290,7 @@ BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, MimmoPiercedVe
  * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
  * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
  * \param[in] geometry MimmoObject shared pointer to target geometry
- * \param[in] data vector of MimmoPiercedVectors with data fields to write
+ * \param[in] vdata vector of MimmoPiercedVectors with data fields to write
  */
 template<typename mpv_t>
 void
@@ -367,14 +367,17 @@ BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<Mi
 }
 
 /*!
- * Write an input geometry given as MimmoObject pointer with a series of vectors of input data fields (template variadic function).
- * Input geometry and the geometry linked in the MimmoPiercedVectors of data have to be consistent, otherwise the data
- * that doesn't satisfy the coherence is skipped.
- * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
- * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
+ * Write an input geometry given as MimmoObject pointer with a series of vectors
+   of input data fields (template variadic function).
+ * Input geometry and the geometry linked in the MimmoPiercedVectors of data have
+ *  to be consistent, otherwise the data that doesn't satisfy the coherence is skipped.
+ * It writes into the m_output directory with m_name+m_counter. It adds the input
+   data fields by deducing the type.
+ * Allowed types are : all scalars that verify is_floating_point or is_integral
+   functions; mimmo vector types, i.e. std::array<double,3>.
  * \param[in] geometry MimmoObject shared pointer to target geometry
- * \param[in] data vector of MimmoPiercedVector with data fields to write
- * \param[in] ... MimmoPiercedVector series with vector of data fields to write (template variadic function)
+ * \param[in] vdata vector of MimmoPiercedVector with data fields to write
+ * \param[in] args  other data fields series to write (template variadic function)
  */
 template<typename mpv_t, typename... Args>
 void
@@ -460,7 +463,7 @@ BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<Mi
  * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
  * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
  * \param[in] geometry MimmoObject shared pointer to target geometry
- * \param[in] data vector of pointer to MimmoPiercedVectors with data fields to write
+ * \param[in] vdata vector of MimmoPiercedVector pointers with data fields to write
  */
 template<typename mpv_t>
 void
@@ -543,8 +546,8 @@ BaseManipulation::write(MimmoSharedPointer<MimmoObject> geometry, std::vector<Mi
  * It writes into the m_output directory with m_name+m_counter. It adds the input data fields by deducing the type.
  * Allowed types are : all scalars that verify is_floating_point or is_integral functions; mimmo vector types, i.e. std::array<double,3>.
  * \param[in] geometry MimmoObject shared pointer to target geometry
- * \param[in] data vector of Pointer of MimmoPiercedVector with data fields to write
- * \param[in] ... Pointer to MimmoPiercedVector series with vector of data fields to write (template variadic function)
+ * \param[in] vdata vector of MimmoPiercedVector pointers with data fields to write
+ * \param[in] args other data field series to write (template variadic function)
  */
 template<typename mpv_t, typename... Args>
 void

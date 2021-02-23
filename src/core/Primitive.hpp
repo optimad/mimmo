@@ -107,6 +107,12 @@ public:
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name = "");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name= "");
 
+
+protected:
+    void            swap(Primitive & ) noexcept;
+
+
+private:
     darray3E                getSpacing() = delete;
     iarray3E                getDimension() = delete;
     darray3E                getLocalCCell(int) = delete;
@@ -142,11 +148,6 @@ public:
     void        plotGrid(std::string &, std::string , int, bool, const ivector1D & labels, dvecarr3E * extPoints=nullptr) = delete;
     void        plotGridScalar(std::string, std::string , int, bool, dvector1D & data) = delete;
     bool        isBuilt() = delete;
-
-protected:
-    void            swap(Primitive & ) noexcept;
-//    virtual void    plotOptionalResults();
-
     void        resizeMesh() = delete;
     void        destroyNodalStructure() = delete;
     void        reshapeNodalStructure() = delete;

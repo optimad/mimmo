@@ -137,10 +137,10 @@ public:
     const    fileListWithType &   getConstraintFiles() const;
 
     void    setDefField(dmpvecarr3E *field);
-    void    setGeometry(MimmoSharedPointer<MimmoObject> geo);
+    void    setGeometry(MimmoSharedPointer<MimmoObject> target);
     void    setTolerance(double tol);
 
-    void    addConstraint(MimmoSharedPointer<MimmoObject> geo);
+    void    addConstraint(MimmoSharedPointer<MimmoObject> constraint);
 
     void    setConstraintFiles(fileListWithType list );
     void    addConstraintFile(std::string file, int format);

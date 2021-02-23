@@ -389,11 +389,11 @@ darray3E projectPoint(const std::array<double,3> *point, const bitpit::PatchSkdT
  * until at least one element is found.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
- * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
- * \param[out] ids Labels of the elements found as minimum distance element into the points are projected.
+ * \param[in] tree Pointer to geometry Skdtree.
+ * \param[out] projected_points Coordinates of projected points.
+ * \param[out] ids Labels of cells found as minimum distance element support for projected points.
  * \param[in] r Initial length of the sphere radius used to search. (The algorithm checks
  * every element encountered inside the sphere).
- * \param[out] Coordinates of the projected points.
  */
 void projectPoint(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double r )
 {
@@ -411,10 +411,10 @@ void projectPoint(int nP, const std::array<double,3> *points, const bitpit::Patc
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
  * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
+ * \param[out] projected_points Coordinates of the projected points.
  * \param[out] ids Labels of the elements found as minimum distance element into the points are projected.
- * \param[in] r Initial length of the sphere radius used to search for each input point. (The algorithm checks
- * every element encountered inside the sphere).
- * \param[out] Coordinates of the projected points.
+ * \param[in] r pointer to a list of initial search sphere radii. (The algorithm checks
+ * for every point i every element encountered inside the sphere of i-th radius).
  */
 void projectPoint(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, double *r )
 {
@@ -506,10 +506,12 @@ long locatePointOnPatch(const std::array<double, 3> &point, const bitpit::PatchS
  * It computes the pseudo-normal of a cell of a surface mesh from an input point,
  * i.e. the unit vector with direction (P-xP), where P is the input point and
  * xP is the projection on the cell.
- * \param[in] point point coordinates
+ * \param[in] point coordinates of the point
  * \param[in] surface_mesh pointer to surface mesh
  * \param[in] id cell id belong to the input surface mesh
- * \param[out] pseudo-normal components
+ * \param[out] pseudo_normal 3-components array representing the pseudo-normal.
+   \return +/- 1.0 to identify if the pseudo normal is pointing in the same direction
+    of the local surface normal or in the opposite side.
  */
 double
 computePseudoNormal(const std::array<double, 3> &point, const bitpit::SurfUnstructured *surface_mesh, long id, std::array<double, 3> &pseudo_normal)
@@ -897,12 +899,13 @@ void signedGlobalDistance(int nP, const std::array<double,3> *points, const bitp
  * object. Analogous of serial function skdTreeUtils::projectPoint.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
- * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
+ * \param[in] tree Pointer to target geometry SkdTree
+ * \param[out] projected_points Coordinates of the projected points.
  * \param[out] ids Labels of the elements found as minimum distance element into the points are projected.
  * \param[out] ranks Ranks of the process owner of the elements into the points are projected.
  * \param[in] r Initial length of the sphere radius used to search. (The algorithm checks
  * every element encountered inside the sphere).
- * \param[out] Coordinates of the projected points.
+   \param[in] shared true/false if the list of points is shared among the processes or retained locally.
  */
 void projectPointGlobal(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double r, bool shared )
 {
@@ -915,12 +918,14 @@ void projectPointGlobal(int nP, const std::array<double,3> *points, const bitpit
  * object. Analogous of serial function skdTreeUtils::projectPoint.
  * \param[in] nP Number of input points.
  * \param[in] points Pointer to coordinates of input points.
- * \param[in] tree Pointer to Boundary Volume Hierarchy tree that stores the geometry.
+ * \param[in] tree Pointer to target geometry SkdTree
+ * \param[out] projected_points Coordinates of the projected points.
  * \param[out] ids Labels of the elements found as minimum distance element into the points are projected.
  * \param[out] ranks Ranks of the process owner of the elements into the points are projected.
- * \param[in] r Initial length of the sphere radius used to search for each input point. (The algorithm checks
+ * \param[in] r pointer to a list of initial search sphere radii. (The algorithm checks
+ * for every point i every element encountered inside the sphere of i-th radius).
  * every element encountered inside the sphere).
- * \param[out] Coordinates of the projected points.
+   \param[in] shared true/false if the list of points is shared among the processes or retained locally.
  */
 void projectPointGlobal(int nP, const std::array<double,3> *points, const bitpit::PatchSkdTree *tree, std::array<double,3> *projected_points, long *ids, int *ranks, double *r, bool shared )
 {
@@ -1316,7 +1321,7 @@ std::vector<long> selectByGlobalPatch(bitpit::PatchSkdTree *selection, bitpit::P
  * in a different skd-tree and passed as vector of bounding boxes.
  * It is a method used in skdTreeUtils::selectByGlobalPatch method.
  * \param[in] target Pointer to skd-tree that store the target geometry.
- * \param[in] leafSelection Vector of bounding boxes SkdBox of the leaf nodes currently interesting
+ * \param[in] leafSelectionBoxes Vector of bounding boxes SkdBox of the leaf nodes currently interesting
  * for the selection procedure.
  * \param[in,out] extracted of the label of all the elements of the target skd-tree,
  * currently found placed at a distance <= tol from the bounding boxes of the

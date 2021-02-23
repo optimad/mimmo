@@ -54,42 +54,43 @@ enum class MRBFSol{
 };
 
 /*!
- * \class MRBF
- * \ingroup manipulators
- * \brief Radial Basis Function evaluation from clouds of control points.
- *
- * This class is derived from BaseManipulation class of mimmo and from RBF class
- * of bitpit library.
- * It evaluates the result of RBF functions built over a set of control point
-   given externally or stored in a MimmoObject container.
-   Displacements (DOFs) for RBF nodes are provided externally.
-   They can be expressed as:
-   -a) 3-component vector
-   -b) 1-component scalar (as in the case of DOF representing displacements normal to surface).
-   In that case the output geometry "displacement" field will be returned as a 3-component vector field (case a) )
-   or a scalar field  (case b)).
-   The options are mutually exclusive (picking one exclude the other)
+ \class MRBF
+ \ingroup manipulators
+ \brief Radial Basis Function evaluation from clouds of control points.
 
-   Default solver in execution is MRBFSol::NONE for direct parameterization.
-   Use MRBFSol::GREEDY or MRBFSol::WHOLE to activate interpolation features.
- * See bitpit::RBF docs for further information.
+ This class is derived from BaseManipulation class of mimmo and from RBF class
+ of bitpit library.
+ It evaluates the result of RBF functions built over a set of control point
+ given externally or stored in a MimmoObject container.
+ Displacements (DOFs) for RBF nodes are provided externally.
+ They can be expressed as:
+ - a) 3-component vector
+ - b) 1-component scalar (as in the case of DOF representing displacements normal to surface).
+ In that case the output geometry "displacement" field will be returned as a 3-component vector field (case a) )
+ or a scalar field  (case b)).
 
-    Support radii of RBF Nodes can be set in 3 different ways:
-    - setting x as Local support radius : the effective support radius will be
-      calculated as x * bbox_diag, where the last is the diagonal of the RBF set
-      of nodes bounding box. This value will be equal for all RBF nodes.(setSupportRadiusLocal)
- * - setting x as Real support radius: the value of x will be used as effective support
-     radius, equal for all RBF nodes (setSupportRadiusReal)
-   - setting variable Support Radii: provide a list of support radius values, one for
-     each RBF node in the set. This option is available only in MRBFSol::NONE mode
-    (setVariableSupportRadii)
+ The options are mutually exclusive (picking one exclude the other).
 
-     In case all three methods are connected through ports, priority list will be:
-     setVariableSupportRadii, setSupportRadiusReal, setSupportRadiusLocal
- * \n
- * Ports available in MRBF Class :
- *
- *    =========================================================
+ Default solver in execution is MRBFSol::NONE for direct parameterization.
+ Use MRBFSol::GREEDY or MRBFSol::WHOLE to activate interpolation features.
+ See bitpit::RBF docs for further information.
+
+ Support radii of RBF Nodes can be set in 3 different ways:
+ - setting x as Local support radius : the effective support radius will be
+   calculated as x * bbox_diag, where the last is the diagonal of the RBF set
+   of nodes bounding box. This value will be equal for all RBF nodes.(setSupportRadiusLocal)
+ - setting x as Real support radius: the value of x will be used as effective support
+   radius, equal for all RBF nodes (setSupportRadiusReal)
+ - setting variable Support Radii: provide a list of support radius values, one for
+   each RBF node in the set. This option is available only in MRBFSol::NONE mode
+   setVariableSupportRadii)
+
+ In case all three methods are connected through ports, priority list will be:
+ setVariableSupportRadii, setSupportRadiusReal, setSupportRadiusLocal
+ \n
+ Ports available in MRBF Class :
+
+   =========================================================
 
      |Port Input | | |
      |-|-|-|
@@ -112,37 +113,36 @@ enum class MRBFSol{
      | M_SCALARFIELD   | getScalarDisplacements  | (MC_SCALAR, MD_MPVECFLOAT_)      |
      | M_GEOM          | getGeometry       | (MC_SCALAR, MD_MIMMO_) |
 
- *    =========================================================
- * \n
- *
- * The xml available parameters, sections and subsections are the following :
- *
- * Inherited from BaseManipulation:
- * - <B>ClassName</B>: name of the class as <tt>mimmo.MRBF</tt>;
- * - <B>Priority</B>: uint marking priority in multi-chain execution;
- * - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
- * - <B>PlotInExecution</B> : plot optional results in execution;
- * - <B>OutputPlot</B> : path to store optional results.
+     =========================================================
+  \n
 
- * Proper of the class:
- * - <B>Mode</B>: 0/1/2 mode of usage of the class see MRBFSol enum;
- * - <B>SupportRadiusLocal</B>: local homogeneous radius of RBF function for each nodes,
-                                expressed as ratio of local geometry bounding box;
-                                see setSupportRadiusLocal method documentation.
- * - <B>SupportRadiusReal</B>: homogeneous real radius of RBF function common to each RBF node;
-                                see setSupportRadiusReal method documentation.
- * - <B>RBFShape</B>: shape of RBF function see MRBFBasisFunction and bitpit::RBFBasisFunction enums;
- * - <B>Tolerance</B>: greedy engine tolerance (meaningful for Mode 2 only);
- * - <B>DiagonalFactor</B>: factor used to define a threshold to filter geometry vertices (default 1.0);
- *
-    if set, SupportRadiusReal parameter bypass SupportRadiusLocal one.
+  The xml available parameters, sections and subsections are the following :
 
- * Geometry, filter field, RBF nodes and displacements have to be mandatorily passed through port.
- * Please not if class is in MRBFSol::NONE mode and a port to setVariableSupportRadii is linked,
-   SupportRadiusLocal/Real parameters are bypassed.
- *
- */
-//TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
+  Inherited from BaseManipulation:
+  - <B>ClassName</B>: name of the class as <tt>mimmo.MRBF</tt>;
+  - <B>Priority</B>: uint marking priority in multi-chain execution;
+  - <B>Apply</B>: boolean 0/1 activate apply deformation result on target geometry directly in execution;
+  - <B>PlotInExecution</B> : plot optional results in execution;
+  - <B>OutputPlot</B> : path to store optional results.
+
+  Proper of the class:
+  - <B>Mode</B>: 0/1/2 mode of usage of the class see MRBFSol enum;
+  - <B>SupportRadiusLocal</B>: local homogeneous radius of RBF function for each nodes,
+                               expressed as ratio of local geometry bounding box;
+                               see setSupportRadiusLocal method documentation.
+  - <B>SupportRadiusReal</B>: homogeneous real radius of RBF function common to each RBF node;
+                              see setSupportRadiusReal method documentation.
+  - <B>RBFShape</B>: shape of RBF function see MRBFBasisFunction and bitpit::RBFBasisFunction enums;
+  - <B>Tolerance</B>: greedy engine tolerance (meaningful for Mode 2 only);
+  - <B>DiagonalFactor</B>: factor used to define a threshold to filter geometry vertices (default 1.0);
+
+   if set, SupportRadiusReal parameter bypass SupportRadiusLocal one.
+
+  Geometry, filter field, RBF nodes and displacements have to be mandatorily passed through port.
+  Please not if class is in MRBFSol::NONE mode and a port to setVariableSupportRadii is linked,
+  SupportRadiusLocal/Real parameters are bypassed.
+
+*/
 class MRBF: public BaseManipulation, public bitpit::RBF {
 
 protected:
@@ -155,7 +155,7 @@ protected:
     dvector1D    m_supportRadii; /**< list of variable supportRadii for each RBF node.*/
     double       m_diagonalFactor; /**< Factor used to define a threshold to filter geometry vertices to be deformed or not. The condition to use
                                      the whole geometry instead of filtering by a kdtree binary search is :
-                                     maximum value of <support radii values> > m_diagonalFactor*<diagonal of boundix box of geometry> */
+                                     maximum value of -support radii values- GREATER THAN m_diagonalFactor times diagonal of geometry AABB*/
     int          m_functype;     /**< Function type handler. If -1 refer to RBF getFunctionType method */
     dmpvecarr3E  m_displ;        /**<Resulting vector displacements of geometry vertex.*/
     dmpvector1D  m_scalarDispl;  /**<Resulting "scalar" displacements of geometry vertex.*/

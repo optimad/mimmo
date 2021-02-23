@@ -1809,10 +1809,10 @@ NastranInterface::convertVertex(std::string in){
     return in;
 }
 
-/*
+/*!
  * Append records of given length of an input line in a records structure
  * \param[in] sread input line given as string
- * \param[in] length length of single record string
+ * \param[in] recordlength length of single record string
  * \param[out] records vector of string records to be filled
  */
 void
@@ -1831,7 +1831,7 @@ NastranInterface::appendLineRecords(std::string & sread, std::size_t recordlengt
     }
 }
 
-/*
+/*!
  * Absorb rbe3 element from a records structure
  * \param[in] records vector of string records
  * \param[out] ID ID of the RBE3 element
@@ -1880,7 +1880,7 @@ NastranInterface::absorbRBE3(std::vector<std::string> & records, long & ID, long
     }
 }
 
-/*
+/*!
  * Absorb rbe2 element from a records structure
  * \param[in] records vector of string records
  * \param[out] ID ID of the RBE2 element
@@ -1906,7 +1906,7 @@ NastranInterface::absorbRBE2(std::vector<std::string> & records, long & ID, long
     }
 }
 
-/*
+/*!
  * Check if a string contains an integer
  * \param[in] str string to test
  * \return true if the string has only digits
@@ -1920,7 +1920,7 @@ NastranInterface::isInteger(std::string & str){
     return true;
 }
 
-/*
+/*!
  * Get if an element type is enbaled
  * \param[in] type element type
  * \return true if the element type is enbaled for the current read session
@@ -1934,7 +1934,7 @@ NastranInterface::isEnabled(NastranElementType type){
     return m_enabled[type];
 }
 
-/*
+/*!
  * Enable an element type for the current read session
  * \param[in] type element type
  */
@@ -1943,7 +1943,7 @@ NastranInterface::enable(NastranElementType type){
     m_enabled[type] = true;
 }
 
-/*
+/*!
  * Disable an element type for the current read session
  * \param[in] type element type
  */

@@ -26,6 +26,7 @@
 
 namespace mimmo{
 
+    //TODO study how to manipulate supportRadius of RBF to define a local/global smoothing of RBF
 
 /*! Default Constructor.*/
 MRBF::MRBF(MRBFSol mode){
@@ -482,7 +483,7 @@ MRBF::setVariableSupportRadii(dmpvector1D* sradii){
 /*!
  * Set the factor, applied to the diagonal length of the bounding box of the geometry, used
  * to define the threshold, compared to the support radii, to impose the kdtree filtering.
- * \parameter[in] diagonalFactor diagonal factor (value in [0.,1.])
+ * \param[in] diagonalFactor diagonal factor (value in [0.,1.])
  */
 void
 MRBF::setDiagonalFactor(double diagonalFactor){

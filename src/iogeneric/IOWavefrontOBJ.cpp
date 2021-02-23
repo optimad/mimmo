@@ -47,7 +47,7 @@ WavefrontOBJData::WavefrontOBJData(){
 
 /*!
     Swap operator. Swap content with a twin class.
-    \param[in] other WavefrontOBJData OBJect.
+    \param[in] x other WavefrontOBJData OBJect.
 */
 void
 WavefrontOBJData::swap(WavefrontOBJData & x) noexcept{
@@ -516,10 +516,11 @@ void    ManipulateWFOBJData::setMultipleAnnotationStrategy(ManipulateWFOBJData::
 void    ManipulateWFOBJData::setNormalsComputeStrategy(ManipulateWFOBJData::NormalsComputeMode mode){
     m_normalsMode = mode;
 };
+
 /*!
     Specify a list of material names to extract mesh cells owning those material properties.
     List will be available after class execution, through method getPinnedMaterialGroup().
-    \param[in] list of materials passed as their name(string)
+    \param[in] materialsList list of materials passed as their name(string)
 */
 void
 ManipulateWFOBJData::setPinMaterials(const std::vector<std::string> & materialsList){
@@ -536,7 +537,7 @@ ManipulateWFOBJData::setPinMaterials(const std::vector<std::string> & materialsL
 /*!
     Specify a list of cellgroup names to extract mesh cells belonging to these groups.
     List will be available after class execution, through method getPinnedCellGroup().
-    \param[in] list of cellgroups passed as their name(string)
+    \param[in] cellgroupsList list of cellgroups passed as their name(string)
 */
 void
 ManipulateWFOBJData::setPinCellGroups(const std::vector<std::string> & cellgroupsList){
@@ -552,7 +553,7 @@ ManipulateWFOBJData::setPinCellGroups(const std::vector<std::string> & cellgroup
 /*!
     Specify a list of smoothids entries to extract mesh cells belonging to these smooth groups.
     List will be available after class execution, through method getPinnedSmoothGroup().
-    \param[in] list of smoothids passed as their integer signature
+    \param[in] smoothidsList list of smoothids passed as their integer signature
 */
 void
 ManipulateWFOBJData::setPinSmoothIds(const std::vector<int> & smoothidsList){
@@ -563,7 +564,7 @@ ManipulateWFOBJData::setPinSmoothIds(const std::vector<int> & smoothidsList){
 /*!
     Specify a list of object/subparts names to extract mesh cells belonging to them.
     List will be available after class execution, through method getPinnedObjectGroup().
-    \param[in] list of subparts/objects passed as their name(string)
+    \param[in] objectsList list of subparts/objects passed as their name(string)
 */
 void
 ManipulateWFOBJData::setPinObjects(const std::vector<std::string> & objectsList){
@@ -774,7 +775,7 @@ void   ManipulateWFOBJData::execute(){
 
     //getGeometry() return always a nullptr. There are no direct connections to geometry
     // for the current class (set/getGeometry are overridden).
-    //All data needed are in WavefrontOBJData member m_extdata. 
+    //All data needed are in WavefrontOBJData member m_extdata.
 }
 
 /*!
@@ -1249,13 +1250,6 @@ void IOWavefrontOBJ::buildPorts(){
 
     built = (built && createPortIn<MimmoSharedPointer<MimmoObject>, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setGeometry, M_GEOM, mandatoryWrite));
     built = (built && createPortIn<WavefrontOBJData*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setData, M_WAVEFRONTDATA));
-    // built = (built && createPortIn<MimmoPiercedVector<std::string>*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setMaterials, M_STRINGFIELD, false, 2));
-    // built = (built && createPortIn<MimmoPiercedVector<long>*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setSmoothIds, M_LONGFIELD, false, 2));
-    // built = (built && createPortIn<MimmoPiercedVector<std::array<double,3>>*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::addNormals, M_VECTORFIELD, false, 3));
-    // built = (built && createPortIn<MimmoPiercedVector<std::array<double,3>>*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::addTexture, M_VECTORFIELD2, false,3));
-    // built = (built && createPortIn<std::vector<MimmoPiercedVector<std::array<double,3>>*>, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setAllNormals, M_VECVECTORFIELDS, false, 2));
-    // built = (built && createPortIn<std::vector<MimmoPiercedVector<std::array<double,3>>*>, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setAllTextures, M_VECVECTORFIELDS2, false, 2));
-    // built = (built && createPortIn<std::string, IOWavefrontOBJ>(this, &IOWavefrontOBJ::setMaterialFile, M_NAME, false, 2));
 
     built = (built && createPortOut<MimmoSharedPointer<MimmoObject>, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getGeometry, M_GEOM));
     built = (built && createPortOut<WavefrontOBJData*, IOWavefrontOBJ>(this, &IOWavefrontOBJ::getData, M_WAVEFRONTDATA));
@@ -1396,9 +1390,8 @@ void    IOWavefrontOBJ::setGeometry(MimmoSharedPointer<MimmoObject> geo){
     - texture and vnormals list if any
     - material file path.
     Meaningful only in write mode. Does nothing in read mode.
-    Beware any other data inserted manually (setMaterials, setMaterialFile,
-    setAlltextures/addTextures, etc...) are erased.
-    \param[in] data.
+    Beware any other data are erased.
+    \param[in] data pointer to a WavefrontObjData container.
 */
 void    IOWavefrontOBJ::setData(WavefrontOBJData* data){
     if(!data || whichModeInt()<2) return;
@@ -1406,31 +1399,11 @@ void    IOWavefrontOBJ::setData(WavefrontOBJData* data){
     m_intData = nullptr;
 };
 
-// /*!
-//     Set the material file linked to the object to be written.
-//     If setData is already used this method will set nothing.
-//     Meaningful only in write mode. Does nothing in read mode.
-//     \param[in] materialfile Name of the material file related to obj file
-//  */
-// void    IOWavefrontOBJ::setMaterialFile(std::string materialfile){
-//     if(whichModeInt()<2) return;
-//     // I can test extData pointer during port communications in an execution chain
-//     // because in the ports this method has a lower priority than setData (i.e. this port is executed after)
-//     if (m_extData != nullptr){
-//         *(m_log)<<m_name<<" : external data structure already linked before setMaterialFile calling. Using previously linked data structure."<<std::endl;
-//         return;
-//     }
-//     // Initialize internal data structure if not yet initialized
-//     if (!m_intData)
-//     	m_intData = std::unique_ptr<WavefrontOBJData>(new WavefrontOBJData());
-//     m_intData->materialfile = materialfile;
-// }
-
 
 /*!
     Set the directory where the read file is searched
     or the written file has to be placed.
-    \param[in] dir path to reference directory for I/O purposes
+    \param[in] pathdir path to reference directory for I/O purposes
 */
 void    IOWavefrontOBJ::setDir(const std::string & pathdir){
     m_dir= pathdir;
@@ -2176,8 +2149,8 @@ std::string IOWavefrontOBJ::searchMaterialFile(std::ifstream & in)
     \param[in] in reading obj file stream
     \param[in,out] mapPos map pid/streampos to be filled
     \param[in,out] mapNames map pid/names to be filled
-    \param[in,out] mapVCountObject map pid vs 3elements array containing number of v, vt,and vn for each sub-part.
-    \param[out] nVertTot total vertices in the obj file
+    \param[in,out] mapVCountObject list of 3elements array containing number of v, vt,and vn for each sub-part.
+    \param[out] mapVCountTotal 3elements array containing total number of v, vt,and vn in the obj file
     \param[out] nCellTot total cells in the obj file
 */
 void IOWavefrontOBJ::searchObjectPosition(std::ifstream & in,
@@ -2515,7 +2488,7 @@ void IOWavefrontOBJ::readObjectData(std::ifstream & in, const std::streampos &be
     \param[in] defaultGroup name of the current object part (save all empty cellgroups entry in defaultGroup).
     \param[in,out] activeGroup currently active cellgroup for the mesh
     \param[in,out] activeMaterial currently active material for the mesh
-    \param[in,out] activeSmoothIds currently active smoothids for the mesh
+    \param[in,out] activeSmoothId currently active smoothids for the mesh
 */
 void IOWavefrontOBJ::writeObjectData(WavefrontOBJData* objData, std::ofstream & out,
                                      const std::array<std::vector<long>,3> & vertexLists,

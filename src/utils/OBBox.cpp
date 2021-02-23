@@ -245,7 +245,7 @@ OBBox::setOBBStrategy(OBBStrategy strategy){
 
 /*!
  * Set class strategy to get the bounding box.See OBBStrategy enum.
- * \param[in] strategy  int chosen from OBBStrategy enum.
+ * \param[in] strategyflag  int chosen from OBBStrategy enum.
  */
 void
 OBBox::setOBBStrategyInt(int strategyflag){
@@ -408,7 +408,7 @@ OBBox::execute(){
 
 /*!
     Compute the oriented bounding box
-    \param[in] vectorlist_geo list of target geometries
+    \param[in] vector_listgeo list of target geometries
     \param[out] origin of the OBB
     \param[out] span of the OBB
     \param[out] axes of the OBB, as fundamental ref frame
@@ -479,7 +479,7 @@ OBBox::computeOBB(std::vector<MimmoSharedPointer<MimmoObject>> & vector_listgeo,
 
 /*!
     Compute the axis aligned bounding box
-    \param[in] vectorlist_geo list of target geometries
+    \param[in] vector_listgeo list of target geometries
     \param[out] origin of the AABB
     \param[out] span of the AABB
     \param[out] axes of the AABB, as fundamental ref frame

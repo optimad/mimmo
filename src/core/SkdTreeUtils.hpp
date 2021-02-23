@@ -50,6 +50,7 @@ namespace skdTreeUtils{
     long locatePointOnPatch(const std::array<double, 3> &point, const bitpit::PatchSkdTree *tree);
 
     double computePseudoNormal(const std::array<double,3> &point, const bitpit::SurfUnstructured *surface_mesh, long id, std::array<double, 3> & pseudo_normal);
+
     bool checkPointBelongsToCell(const std::array<double, 3> &point, const bitpit::SurfUnstructured *surface_mesh, long id);
 
 #if MIMMO_ENABLE_MPI
