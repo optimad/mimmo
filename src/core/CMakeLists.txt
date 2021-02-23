@@ -22,28 +22,12 @@
 #
 #----------------------------------------------------------------------------
 
-# CMake settings
 cmake_minimum_required(VERSION 2.8)
-initialize_lto_property()
-
+include(moduleHandleFunctions)
 # Name of the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+# list of libraries you need to absolutely link to the module
+set(MODULE_LIBS " ")
 
-# Add library to targets
-addModuleIncludeDirectories(${MODULE_NAME})
-
-file(GLOB SOURCE_FILES "*.cpp")
-set(CORE_SOURCES "${SOURCE_FILES}" CACHE INTERNAL "Sources of core module" FORCE)
-unset(SOURCE_FILES)
-
-file(GLOB HEADER_FILES "*.hpp" "*.tpp")
-set(CORE_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of core module" FORCE)
-unset(HEADER_FILES)
-
-if (NOT "${CORE_SOURCES}" STREQUAL "")
-    set(CORE_TARGET_OBJECT "CORE_TARGET_OBJECT")
-    add_library(CORE_TARGET_OBJECT OBJECT ${CORE_SOURCES})
-    set_lto_property(${CORE_TARGET_OBJECT})
-endif ()
-
-install(FILES ${CORE_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
+# call configureModule function of moduleHandleFunctions.cmake.
+configureModule(${MODULE_NAME} ${MODULE_LIBS})

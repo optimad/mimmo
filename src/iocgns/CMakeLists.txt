@@ -22,28 +22,12 @@
 #
 #---------------------------------------------------------------------------*/
 
-# CMake settings
 cmake_minimum_required(VERSION 2.8)
-initialize_lto_property()
-
+include(moduleHandleFunctions)
 # Name of the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+# list of libraries you need to absolutely link to the module
+set(MODULE_LIBS " ")
 
-# Add library to targets
-addModuleIncludeDirectories(${MODULE_NAME})
-
-file(GLOB SOURCE_FILES "*.cpp")
-set(IOCGNS_SOURCES "${SOURCE_FILES}" CACHE INTERNAL "Sources of iocgns module" FORCE)
-unset(SOURCE_FILES)
-
-file(GLOB HEADER_FILES "*.hpp" "*.tpp")
-set(IOCGNS_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of iocgns module" FORCE)
-unset(HEADER_FILES)
-
-if (NOT "${IOCGNS_SOURCES}" STREQUAL "")
-    set(IOCGNS_TARGET_OBJECT "IOCGNS_TARGET_OBJECT")
-    add_library(IOCGNS_TARGET_OBJECT OBJECT ${IOCGNS_SOURCES})
-    set_lto_property(${IOCGNS_TARGET_OBJECT})
-endif ()
-
-install(FILES ${IOCGNS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
+# call configureModule function of moduleHandleFunctions.cmake.
+configureModule(${MODULE_NAME} ${MODULE_LIBS})

@@ -22,28 +22,12 @@
 #
 #---------------------------------------------------------------------------*/
 
-# CMake settings
 cmake_minimum_required(VERSION 2.8)
-initialize_lto_property()
-
+include(moduleHandleFunctions)
 # Name of the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+# list of libraries you need to absolutely link to the module
+set(MODULE_LIBS " ")
 
-# Add library to targets
-addModuleIncludeDirectories(${MODULE_NAME})
-
-file(GLOB SOURCE_FILES "*.cpp")
-set(PROPAGATORS_SOURCES "${SOURCE_FILES}" CACHE INTERNAL "Sources of propagators module" FORCE)
-unset(SOURCE_FILES)
-
-file(GLOB HEADER_FILES "*.hpp" "*.tpp")
-set(PROPAGATORS_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of propagators module" FORCE)
-unset(HEADER_FILES)
-
-if (NOT "${PROPAGATORS_SOURCES}" STREQUAL "")
-    set(PROPAGATORS_TARGET_OBJECT "PROPAGATORS_TARGET_OBJECT")
-    add_library(PROPAGATORS_TARGET_OBJECT OBJECT ${PROPAGATORS_SOURCES})
-    set_lto_property(${PROPAGATORS_TARGET_OBJECT})
-endif ()
-
-install(FILES ${PROPAGATORS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
+# call configureModule function of moduleHandleFunctions.cmake.
+configureModule(${MODULE_NAME} ${MODULE_LIBS})

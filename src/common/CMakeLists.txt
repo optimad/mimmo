@@ -24,51 +24,24 @@
 
 # CMake settings
 cmake_minimum_required(VERSION 2.8)
-initialize_lto_property()
-
+include(moduleHandleFunctions)
 # Name of the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
-# Reset the variable
-set(HEADERS "")
-
 # Generate the mimmo header file
-set(INCLUDE_LIST "#include \"mimmo_common.hpp\"\n")
+set(INCLUDE_LIST "\n")
 foreach(MODULE_NAME IN LISTS MIMMO_MODULE_LIST)
-	isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
-	if (MODULE_ENABLED)
-		set(INCLUDE_LIST "${INCLUDE_LIST}#include \"mimmo_${MODULE_NAME}.hpp\"\n")
-	endif ()
+    isModuleEnabled(${MODULE_NAME} MODULE_ENABLED)
+    if (MODULE_ENABLED)
+        set(INCLUDE_LIST "${INCLUDE_LIST}#include \"mimmo_${MODULE_NAME}.hpp\"\n")
+    endif ()
 endforeach ()
 
-set(MIMMO_HEADER_TEMPLATE "mimmo_template.hpp.in")
-set(MIMMO_HEADER "mimmo.hpp")
-CONFIGURE_FILE("${MIMMO_HEADER_TEMPLATE}" "${MIMMO_HEADER}")
-list(APPEND HEADERS "${CMAKE_CURRENT_BINARY_DIR}/${MIMMO_HEADER}")
+# list of libraries you need to absolutely link to the module
+set(MODULE_LIBS " ")
 
-unset(MIMMO_HEADER_TEMPLATE)
-unset(MIMMO_HEADER)
+# call configureModule function of moduleHandleFunctions.cmake.
+configureModule(${MODULE_NAME} ${MODULE_LIBS})
+
+# Clean-up
 unset(INCLUDE_LIST)
-
-# Add common files to targets
-
-# the function will add current directory to include paths +
-# will search for its dependent modules and their path to include too. 
-addModuleIncludeDirectories(${MODULE_NAME})
-
-file(GLOB SOURCE_FILES "*.cpp")
-set(COMMON_SOURCES "${SOURCE_FILES}" CACHE INTERNAL "Common sources" FORCE)
-unset(SOURCE_FILES)
-
-file(GLOB HEADER_FILES "*.hpp" "*.tpp")
-list(APPEND HEADERS "${HEADER_FILES}")
-unset(HEADER_FILES)
-set(COMMON_HEADERS "${HEADERS}" CACHE INTERNAL "Common headers" FORCE)
-
-if (NOT "${COMMON_SOURCES}" STREQUAL "")
-    set(COMMON_TARGET_OBJECT "COMMON_TARGET_OBJECT")
-    add_library(COMMON_TARGET_OBJECT OBJECT ${COMMON_SOURCES})
-    set_lto_property(${COMMON_TARGET_OBJECT})
-endif ()
-
-install(FILES ${COMMON_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})

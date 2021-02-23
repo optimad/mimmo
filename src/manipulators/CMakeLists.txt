@@ -22,28 +22,12 @@
 #
 #---------------------------------------------------------------------------*/
 
-# CMake settings
 cmake_minimum_required(VERSION 2.8)
-initialize_lto_property()
-
+include(moduleHandleFunctions)
 # Name of the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+# list of libraries you need to absolutely link to the module
+set(MODULE_LIBS " ")
 
-# Add library to targets
-addModuleIncludeDirectories(${MODULE_NAME})
-
-file(GLOB SOURCE_FILES "*.cpp")
-set(MANIPULATORS_SOURCES "${SOURCE_FILES}" CACHE INTERNAL "Sources of manipulators module" FORCE)
-unset(SOURCE_FILES)
-
-file(GLOB HEADER_FILES "*.hpp" "*.tpp")
-set(MANIPULATORS_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of manipulators module" FORCE)
-unset(HEADER_FILES)
-
-if (NOT "${MANIPULATORS_SOURCES}" STREQUAL "")
-    set(MANIPULATORS_TARGET_OBJECT "MANIPULATORS_TARGET_OBJECT")
-    add_library(MANIPULATORS_TARGET_OBJECT OBJECT ${MANIPULATORS_SOURCES})
-    set_lto_property(${MANIPULATORS_TARGET_OBJECT})
-endif ()
-
-install(FILES ${MANIPULATORS_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
+# call configureModule function of moduleHandleFunctions.cmake.
+configureModule(${MODULE_NAME} ${MODULE_LIBS})

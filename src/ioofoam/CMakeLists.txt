@@ -22,28 +22,12 @@
 #
 #---------------------------------------------------------------------------*/
 
-# CMake settings
 cmake_minimum_required(VERSION 2.8)
-initialize_lto_property()
-
+include(moduleHandleFunctions)
 # Name of the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+# list of libraries you need to absolutely link to the module
+set(MODULE_LIBS " ")
 
-# Add library to targets
-addModuleIncludeDirectories(${MODULE_NAME})
-
-file(GLOB SOURCE_FILES "*.cpp")
-set(IOOFOAM_SOURCES "${SOURCE_FILES}" CACHE INTERNAL "Sources of ioofoam module" FORCE)
-unset(SOURCE_FILES)
-
-file(GLOB HEADER_FILES "*.hpp" "*.tpp")
-set(IOOFOAM_HEADERS "${HEADER_FILES}" CACHE INTERNAL "Headers of ioofoam module" FORCE)
-unset(HEADER_FILES)
-
-if (NOT "${IOOFOAM_SOURCES}" STREQUAL "")
-    set(IOOFOAM_TARGET_OBJECT "IOOFOAM_TARGET_OBJECT")
-    add_library(IOOFOAM_TARGET_OBJECT OBJECT ${IOOFOAM_SOURCES})
-    set_lto_property(${IOOFOAM_TARGET_OBJECT})
-endif ()
-
-install(FILES ${IOOFOAM_HEADERS} DESTINATION include/${CMAKE_PROJECT_NAME})
+# call configureModule function of moduleHandleFunctions.cmake.
+configureModule(${MODULE_NAME} ${MODULE_LIBS})
