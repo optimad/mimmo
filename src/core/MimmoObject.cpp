@@ -2110,8 +2110,8 @@ MimmoObject::setTolerance(double tol)
  * If the unique-id is already assigned, return with unsuccessful insertion.
  * Vertices of ghost cells have to be considered.
  *
- * \param[in] vertex vertex coordinates to be added
- * \param[in/out] idtag  unique id associated to the vertex
+ * \param[in] vertex coordinates of the vertex to be added
+ * \param[in] idtag  unique id associated to the vertex
  * \return id of the inserted vertex. return bitpit::Vertex::NULL_ID if failed.
  */
 long
@@ -3004,7 +3004,6 @@ MimmoObject::extractBoundaryMesh(){
   those belonging to rank borders, plus those on physical borders, in non-collective way
   (operations on local rank, no communications)
   In serial version the method is equivalent to extractBoundaryFaceCellID.
-   \param[in] ghost true if the ghosts must be accounted into the search, false otherwise
   \return map of boundary cell unique-ids, with local boundary faces list.
  */
 std::unordered_map<long, std::set<int> >
@@ -3056,7 +3055,6 @@ MimmoObject::getBorderCells(std::unordered_map<long, std::set<int> > & map){
    (operations on local rank, no communications).
    In serial version only is equivalent to method extractBoundaryCellID
  * The method is meant for connected mesh only, return empty list otherwise.
- * \param[in] map of border faces previously calculated with getBorderFaceCells()
  * \return list of cell ids.
  */
 livector1D
@@ -3105,7 +3103,6 @@ MimmoObject::getBorderVertices(std::unordered_map<long, std::set<int> > &map){
    (operations on local rank, no communications).
    In serial version only is equivalent to method extractBoundaryVertexID
  * The method is meant for connected mesh only, return empty list otherwise.
- * \param[in] map of border faces previously calculated with getBorderFaceCells()
  * \return list of vertex ids.
  */
 livector1D

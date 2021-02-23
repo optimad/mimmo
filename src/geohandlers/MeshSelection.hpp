@@ -786,10 +786,10 @@ public:
 
 protected:
 
-    std::vector<MimmoPiercedVector<long> *> m_annotatedcells;
-    std::vector<MimmoPiercedVector<long> *> m_annotatedvertices;
-    std::vector<std::vector<long>> m_rawcells;
-    std::vector<std::vector<long>> m_rawvertices;
+    std::vector<MimmoPiercedVector<long> *> m_annotatedcells; /**<vector of cell-ids lists through MimmoPiercedVector container pointers*/
+    std::vector<MimmoPiercedVector<long> *> m_annotatedvertices;  /**<vector of vertex-ids lists through MimmoPiercedVector container pointers*/
+    std::vector<std::vector<long>> m_rawcells;  /**<vector of cell-ids lists through simple vectors*/
+    std::vector<std::vector<long>> m_rawvertices;  /**<vector of vertex-ids lists through simple vectors*/
 
     livector1D extractSelection();
     void swap(SelectionByElementList &) noexcept;

@@ -28,24 +28,19 @@
 
 namespace mimmo{
 /*!
- *  \class ApplyFilterFilter
+ *  \class ApplyFilter
  *  \ingroup manipulators
- *  \brief ApplyFilterFilter is the class that applies a filter field to a deformation field defined on a geometry.
+ *  \brief ApplyFilter is a class that applies a filter field to a deformation field defined on a geometry.
  *
- *    ApplyFilterFilter is derived from ApplyFilter class. It uses an input deformation field defined
- *    on a linked geometry to apply to it an input filter field defined over the same geometry.
- *    The scalar filter field is applied by a simple modulation of the deformation field.
- *    The displacements can be isotropically scaled by setting a scaling factor.
- *    The displacements can be passed as scalar field. In this case the scalar field is used as magnitude
- *    of a displacements field with direction along the normal of the surface on each vertex.
- *    If a geoemtry is passed through the port the resulting deformation field will be linked to the input geometry,
- *    even if the input fields are not linked to it. If missing data are present, they are set to zero values.
- *    The ApplyFilterFilter block applies the filter to the
- *    displacements field without perform a geometry deformation.
- *    After the execution, an object ApplyFilterFilter provides as result the filtered deformation field.
+ *    ApplyFilter is custom derivation of Apply class, targeted to the manipulation/modulation
+ *    of a displacements field by means of a custom filter field, both externally provided,
+      both referring to a target geometry.
+      After the execution, ApplyFilter provides as result the filtered deformation field.
+      BEWARE: Differently from its base class, it does not apply the final displacement field to
+      the geometry.To achieve it, use an Apply block.
  *
  * \n
- * Ports available in ApplyFilterFilter Class :
+ * Ports available in ApplyFilter Class :
  *
  *    =========================================================
  *
@@ -90,17 +85,9 @@ public:
 
     using Apply::setScaling;
 
-    void setAnnotation(bool activate) = delete;
-    void setCellsAnnotationName(const std::string & label) = delete;
-    void setVerticesAnnotationName(const std::string & label) = delete;
-    void setAnnotationThreshold(double threshold) = delete;
-
     void execute();
 
     using Apply::getOutput;
-
-    MimmoPiercedVector<long> * getAnnotatedVertices() = delete;
-    MimmoPiercedVector<long> * getAnnotatedCells() = delete;
 
     virtual void absorbSectionXML(const bitpit::Config::Section & slotXML, std::string name="");
     virtual void flushSectionXML(bitpit::Config::Section & slotXML, std::string name="");
@@ -115,6 +102,14 @@ protected:
 
     void swap(ApplyFilter & x) noexcept;
     void    checkInput();
+
+private:
+    void setAnnotation(bool activate) = delete;
+    void setCellsAnnotationName(const std::string & label) = delete;
+    void setVerticesAnnotationName(const std::string & label) = delete;
+    void setAnnotationThreshold(double threshold) = delete;
+    MimmoPiercedVector<long> * getAnnotatedVertices() = delete;
+    MimmoPiercedVector<long> * getAnnotatedCells() = delete;
 
 };
 

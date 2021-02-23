@@ -279,7 +279,7 @@ GenericOutputMPVData::setInput(MimmoPiercedVector< T > * data){
  * For reading part only. Since we assume the 0 rank proc read from file,
  * we need to communicate data to all the other procs.
  * \param[in] locdata localdata to communicate
- * \param[in] dataTC collecting structure.
+ * \param[in] globdata collecting structure.
  */
 template<typename T>
 void

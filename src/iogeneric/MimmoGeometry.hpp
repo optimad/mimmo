@@ -261,7 +261,7 @@ public:
 
     WFORMAT    m_wformat; /**< member storing the file type format Short/Long */
 
-    std::map<NastranElementType, bool> m_enabled; /** element type enabled for the current session */
+    std::map<NastranElementType, bool> m_enabled; /**< element type enabled for the current session */
 
     NastranInterface();
 

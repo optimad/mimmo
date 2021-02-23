@@ -142,7 +142,7 @@ Ports available in ManipulateWFOBJData Class :
      Proper of the class:
      - <B>CheckNormalsMagnitude</B>: 0/1 boolean, if 1, check and force Wavefront Data to have normals magnitude equal to 1. If no normals are available in wavefront data it does nothing.
      - <B>MultipleAnnotationStrategy</B>: 0/1/2 choose strategy to deal with multiple annotations concurring into a target cell. see enum OverlapAnnotationMode. Default is 0 - FAWIN.
-     - <B>NormalsComputeStrategy<B>: 0/1/2 choose strategy to recompute normals on candidate cells, see NormalsComputeMode enum.
+     - <B>NormalsComputeStrategy</B>: 0/1/2 choose strategy to recompute normals on candidate cells, see NormalsComputeMode enum.
      - <B>PinObjects</B> list of objects/subparts names (blank separated) to pin mesh cells belonging to them.
                            Cells-ids will be available with method getPinnedObjectGroup method/M_VECTORLI4 port.
 
@@ -338,7 +338,7 @@ Ports available in IOWaveFrontOBJ Class :
 class IOWavefrontOBJ: public mimmo::BaseManipulation{
 
 public:
-    typedef std::map<long,std::map<long, std::vector<long>>> TreeGroups;
+    typedef std::map<long,std::map<long, std::vector<long>>> TreeGroups;/**<custom typedef for IOWavefrontOBJ class */
     /*!
         \ingroup iogeneric
         \brief Working mode for class IOWavefrontOBJ
@@ -370,7 +370,6 @@ public:
 
     void    setGeometry(MimmoSharedPointer<MimmoObject> geo);
     void    setData(WavefrontOBJData* data);
-    void    setMaterialFile(std::string materialfile);
     void    setDir(const std::string & pathdir);
     void    setFilename(const std::string & name);
     void    setGeometryTolerance(double tolerance);
