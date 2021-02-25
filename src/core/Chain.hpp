@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
