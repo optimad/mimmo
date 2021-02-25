@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -31,20 +31,22 @@
 /*!
 	\example utils_example_00002.cpp
 
-	\brief Example of calculating penetrations with ControlDeformExtSurface. The
-    Stanford Bunny fit the open box?
+	\brief Example of calculating collision penetrations with ControlDeformExtSurface. The
+    Stanford Bunny will fit the open box?
 
 	Using: MimmoGeometry, ControlDeformExtSurface
 
-	<b>To run</b>: ./utils_example_00002 \n
-    <b>To run</b>: mpirun -np x utils_example_00002 \n    
+	<b>To run</b>             : ./utils_example_00002 \n
+    <b>To run(MPI version)</b>: mpirun -np X utils_example_00002 \n
+
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
 
 void test00002() {
 
-    /* reading target stanford Bunny
+    /*
+        reading target stanford Bunny
      */
     mimmo::MimmoGeometry * bunny = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     bitpit::Logger & log = bunny->getLog();
@@ -54,10 +56,13 @@ void test00002() {
     bunny->setReadFilename("stanfordBunny2");
     bunny->exec();
 
+    //customize the logger output
     log.setPriority(bitpit::log::Priority::NORMAL);
     log<<"Target Bunny read"<<std::endl;
     log.setPriority(bitpit::log::Priority::DEBUG);
-    /* reading constraint inclinedPlane
+
+    /*
+        reading constraint inclinedPlane geometry
      */
     mimmo::MimmoGeometry * incplane = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
     incplane->setName("ReaderInclinedPlaneConstraint");
@@ -71,7 +76,9 @@ void test00002() {
     log.setPriority(bitpit::log::Priority::DEBUG);
 
 #if MIMMO_ENABLE_MPI
-     /* Partitioner of the bunny.
+
+     /*
+        Partitioner of the bunny -> distribute it among processes.
      */
      mimmo::Partition* partbunny = new mimmo::Partition();
      partbunny->setName("PartitionerBunny");
@@ -84,7 +91,8 @@ void test00002() {
      log<<"Target Bunny partitioned"<<std::endl;
      log.setPriority(bitpit::log::Priority::DEBUG);
 
-     /* Partitioner of the inclined plane.
+     /*
+        Partitioner of the inclined plane -> distribute it among processes.
      */
      mimmo::Partition* partincplane = new mimmo::Partition();
      partincplane->setName("PartitionerInclinedPlane");
@@ -99,8 +107,8 @@ void test00002() {
 
 #endif
 
-
-    /*Creation of violation/penetration field calculator
+    /*
+        Create a dummy deformation field for the target bunny mesh
      */
 #if MIMMO_ENABLE_MPI
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> target = partbunny->getGeometry();
@@ -113,6 +121,12 @@ void test00002() {
     mimmo::dmpvecarr3E def;
     def.initialize(target, mimmo::MPVLocation::POINT, {{0.0,0.0,0.0}});
 
+    /*
+        Creation of violation/penetration field calculator
+        Please note constraint meshes can be passed as MimmoObjects or
+        can be directly passed as file: in that case the class will parse them.
+        In case of MPI version the parsed result will be retained only on the master rank,. 
+     */
     mimmo::ControlDeformExtSurface * cdes = new mimmo::ControlDeformExtSurface();
     cdes->setGeometry(target);
     cdes->addConstraint(constraint);
@@ -152,11 +166,9 @@ int main(int argc, char *argv[]) {
     {
 #endif
 
-        /**<Change the name of mimmo logger file (default mimmo.log)
-         * before initialization of BaseManipulation objects*/
         mimmo::setLogger("mimmo");
 
-        /**<Calling mimmo Test routines*/
+        /**<Calling core function*/
         try{
             test00002() ;
         }

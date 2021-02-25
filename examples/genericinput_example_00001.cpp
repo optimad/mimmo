@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -29,9 +29,10 @@
  *
  * \brief Example of reading/writing a generic csv file of raw data.
 
- * Using: GenericInput, GenericOutput
+ * Using: GenericInput, GenericOutput, Chain
  *
- * <b>To run</b>: ./genericinput_example_00001 \n
+ * <b>To run</b>              : ./genericinput_example_00001 \n
+ * <b>To run (MPI Version)</b>: mpirun -np X genericinput_example_00001 \n
  *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -40,8 +41,9 @@
 
 void test00001() {
 
-    /* Creation of Generic output block to read a set of
-     * coordinates of cloud points as generic input in csv format.
+    /*
+        Creation of Generic output block to read a set of
+        point coordinates from point cloud as generic input in csv format.
      */
 	mimmo::GenericInput * read = new mimmo::GenericInput(true, true);
     read->setReadFromFile(true);
@@ -49,35 +51,39 @@ void test00001() {
     read->setFilename("generic_input_00001.csv");
     read->setCSV(true);
 
-    /* Creation of Generic output block to write a set of
-     * coordinates of cloud points as generic output in csv format.
+    /*
+        Creation of Generic output block to write a set of
+        point cloud coordinates as generic output in csv format.
      */
     mimmo::GenericOutput * write = new mimmo::GenericOutput();
     write->setFilename("generic_output_00001.csv");
     write->setCSV(true);
 
-    /* Setup pin connections.
+    /*
+        Define connection between read and write block, that is the list of point
+        coordinates.
      */
     mimmo::pin::addPin(read, write, M_COORDS, M_COORDS);
 
-    /* Setup execution chain.
+    /*
+        Define the execution chain and push the interested block into it.
      */
     mimmo::Chain ch0;
     ch0.addObject(read);
     ch0.addObject(write);
 
-    /* Execution of chain.
-     * Use debug flag true to print out the execution steps.
+    /*
+        Execute the chain.
+        Use debug flag true to print out log info on execution.
      */
     ch0.exec(true);
 
-    /* Clean up & exit;
+
+    /*
+        Clean up & exit;
      */
     delete read;
     delete write;
-
-    read = NULL;
-    write = NULL;
 
 }
 
@@ -91,7 +97,7 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);
 #endif
-        /**<Calling mimmo Test routines*/
+        /**<Calling core function*/
         try{
             test00001();
         }

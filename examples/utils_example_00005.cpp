@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -31,19 +31,22 @@
 /*!
 	\example utils_example_00005.cpp
 
-	\brief Project external curve on the Stanford Bunny surface.
+	\brief Project an external curve on the Stanford Bunny surface.
 
-	Using: MimmoGeometry, ProjPatchOnSurface
+	Using: MimmoGeometry, ProjPatchOnSurface, Partition(MPI version)
 
-	<b>To run</b>: ./utils_example_00005 \n
-    <b>To run</b>: mpirun -np x utils_example_00005 \n
+	<b>To run</b>              : ./utils_example_00005 \n
+    <b>To run(MPI version)</b> : mpirun -np X utils_example_00005 \n
+
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
 
 void test00005() {
 
-    /* Reading target surface (bunny)
+    /*
+        Reading target surface (bunny). Convert is used to rewrite it as-it-is
+        from reading in a new vtu format.
      */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     bitpit::Logger & log = mimmo0->getLog();
@@ -58,7 +61,8 @@ void test00005() {
     mimmo0->setWriteFilename("utils_mesh_00005_surface");
     mimmo0->execute();
 
-    /* Reading 3D Curve to be projected
+    /*
+        Reading 3D Curve to be projected. Convert mode is used to rewrite it as-it-is once read.
      */
 	mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
 
@@ -78,7 +82,7 @@ void test00005() {
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> targetSurf;
 
 #if MIMMO_ENABLE_MPI
-    //partition of bunny and 3D curve
+    //distribute bunny and curve geometries among processes
     mimmo::Partition * part0 = new mimmo::Partition();
     part0->setName("PartitionedBunny");
     part0->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
@@ -86,7 +90,6 @@ void test00005() {
     part0->setPlotInExecution(true);
     part0->exec();
 
-    //partition of bunny and 3D curve
     mimmo::Partition * part1 = new mimmo::Partition();
     part1->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     part1->setName("PartitionedCurve");
@@ -104,7 +107,7 @@ void test00005() {
     targetSurf = mimmo0->getGeometry();
 #endif
     /*
-        Project the curve onto target surface
+        Project the curve onto the bunny target surface
      */
     mimmo::ProjPatchOnSurface * proj = new mimmo::ProjPatchOnSurface();
     proj->setGeometry(targetSurf);
@@ -117,6 +120,7 @@ void test00005() {
 
     log<<"curve projected on bunny"<<std::endl;
 
+    //re-read and write again the resulting projected curve to test further the IO
     mimmo::MimmoGeometry * mimmo3 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
 
     mimmo3->setReadDir(".");
@@ -158,11 +162,9 @@ int main(int argc, char *argv[]) {
     {
 #endif
 
-        /**<Change the name of mimmo logger file (default mimmo.log)
-         * before initialization of BaseManipulation objects*/
         mimmo::setLogger("mimmo");
 
-        /**<Calling mimmo Test routines*/
+        /**<Calling core function*/
         try{
             test00005() ;
         }

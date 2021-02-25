@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -28,11 +28,13 @@
 /*!
  * \example genericinput_example_00003.cpp
  *
- * \brief Example of reading displacements related to a 3x2x2 lattice.
+ * \brief Example of reading displacements related to a 3x2x2 FFDLattice manipulator, and
+          applying deformation onto a target mesh.
 
- * Using: GenericDispls, FFDLattice
+ * Using: GenericDispls, FFDLattice, MimmoGeometry, Chain
  *
- * <b>To run</b>: ./genericinput_example_00003 \n
+ * <b>To run</b>              : ./genericinput_example_00003 \n
+ * <b>To run (MPI version)</b>: mpirun -np X genericinput_example_00003 \n
  *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -42,7 +44,8 @@
 
 void test00003() {
 
-    /* Reading plane
+    /*
+        Read and Write a STL geometry of a plane
      */
 	mimmo::MimmoGeometry * read = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     read->setReadDir("geodata");
@@ -52,8 +55,9 @@ void test00003() {
     read->setWriteFilename("./genericinput_output_00003.0001");
     read->setWriteFileType(FileType::SURFVTU);
 
-    /*!Creating Bezier FFD Lattice 3x2x2 around a box centered in 0,0,-0.5
-     with span 2,2,1
+    /*
+        Creating a FFDLattice manipulator of dimension 3x2x2 around a box centered in 0,0,-0.5
+        with span 2,2,1
     */
     mimmo::FFDLattice * latt = new mimmo::FFDLattice();
     latt->setName("genericinput_example_00003_Lattice");
@@ -64,21 +68,24 @@ void test00003() {
     latt->setDegrees(iarray3E{2,1,1});
     latt->build();
     latt->setPlotInExecution(true);
-    latt->setApply(true);
+    latt->setApply(true); // when chain executed, this will apply directly deformation onto the target mesh
 
-    /* Creation of GenericDispls block to read
-       displacement from file
+    /*
+        Create a reader for the displacement file associated to the lattice and
+        available from file
      */
     mimmo::GenericDispls * iodispls = new mimmo::GenericDispls(true);
     iodispls->setReadDir("input");
     iodispls->setReadFilename("generic_displ_00002.txt");
 
-    /* Setup pin connections.
+    /*
+        Define pin connections between blocks.
      */
     mimmo::pin::addPin(read, latt, M_GEOM, M_GEOM);
     mimmo::pin::addPin(iodispls, latt, M_DISPLS, M_DISPLS);
 
-    /* Setup execution chain.
+    /*
+        Define execution chain.
      */
     mimmo::Chain ch0;
     ch0.addObject(read);
@@ -86,13 +93,14 @@ void test00003() {
     ch0.addObject(iodispls);
 
 
-    /* Execution of chain.
-     * Use debug flag true to print out the execution steps.
+    /*
+        Execute the chain.
+        Use debug flag true to print out the execution steps.
      */
     ch0.exec(true);
 
     /*
-        print the deformed geometry
+        print out the file the deformed geometry
     */
     read->getGeometry()->getPatch()->write("./genericinput_output_00003.0002");
 
@@ -114,7 +122,7 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);
 #endif
-        /**<Calling mimmo Test routines*/
+        /**<Calling core function*/
         try{
             test00003();
         }

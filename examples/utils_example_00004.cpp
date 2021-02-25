@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -34,17 +34,21 @@
 
 	\brief Comparison of Oriented Bounding Boxes between a deformed and undeformed geometry.
 
-	Using: MimmoGeometry, OBBox, FFDLattice, TranslationPoint, RotationAxes
+	Using: MimmoGeometry, OBBox, TranslationPoint, RotationAxes,
+           FFDLattice, Chain, Partition(MPI version)
 
-	<b>To run</b>: ./utils_example_00004 \n
-    <b>To run</b>: mpirun -np x utils_example_00004 \n
+	<b>To run</b>              : ./utils_example_00004 \n
+    <b>To run (MPI version)</b>: mpirun -np X utils_example_00004 \n
+
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
 
 void test00004() {
 
-    /* Creation of mimmo containers for target StanfordBunny.
+    /*
+        Read a target bunny geometry from file. CONVERT option will let the block to write
+        the just read file in another file, immediately after the reading.
      */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setName("StanfordBunnyReader");
@@ -56,7 +60,7 @@ void test00004() {
     mimmo0->setWriteFilename("utils_mesh_00004.0000");
 
 #if MIMMO_ENABLE_MPI
-    /* Partitionate  StanfordBunny.
+    /* Distribute bunny among processes.
      */
 	mimmo::Partition * mimmo0part = new mimmo::Partition();
     mimmo0part->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
@@ -80,7 +84,8 @@ void test00004() {
     obb_deformed->setWriteInfo(true);
     obb_deformed->setPlotInExecution(true);
 
-    /* Translate point. This is meant as the new origin of the FFDLattice for deformation
+    /*
+        Translate point. This is meant as the new origin of the FFDLattice for deformation
      */
     mimmo::TranslationPoint * translp = new mimmo::TranslationPoint();
     translp->setName("TranslationOriginLattice");
@@ -88,7 +93,8 @@ void test00004() {
     translp->setDirection({{-0.714,0.0,1.0}});
     translp->setTranslation(0.9);
 
-    /* Rotate axes reference system. This is meant as the new sdr axes of the FFDLattice for deformation
+    /*
+        Rotate axes reference system. This is meant as the new sdr axes of the FFDLattice for deformation
      */
     mimmo::RotationAxes * rot_axes = new mimmo::RotationAxes();
     rot_axes->setName("SDRAxesLattice");
@@ -99,7 +105,7 @@ void test00004() {
     rot_axes->setAxesOrigin({{0.0,0.0,0.0}});
 
     /*
-        Create a cubic FFD Lattice to deform the head of the rabbit.
+        Create a box shaped FFD Lattice to deform the head of the rabbit.
         Axes and Origin of the cube are provided by rot_axes and translp
         through ports.
     */
@@ -148,7 +154,7 @@ void test00004() {
     ch1.addObject(latt);
     ch1.addObject(obb_deformed);
 
-    /* Execution of chain.
+    /* Execute the chain.
      * Use debug flag false to avoid to print out the execution steps on console.
      */
     ch0.exec(true);
@@ -186,7 +192,7 @@ int main(int argc, char *argv[]) {
     {
 #endif
 
-        /**<Calling mimmo Test routines*/
+        /**<Calling core function*/
         try{
             test00004() ;
         }

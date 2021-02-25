@@ -3,7 +3,7 @@
  *  mimmo
  *
  *  Optimad Engineering S.r.l. ("COMPANY") CONFIDENTIAL
- *  Copyright (c) 2015-2020 Optimad Engineering S.r.l., All Rights Reserved.
+ *  Copyright (c) 2015-2021 Optimad Engineering S.r.l., All Rights Reserved.
  *
  *  --------------------------------------------------------------------------
  *
@@ -41,14 +41,17 @@
 /*!
     \example genericinput_example_00005.cpp
 
-    \brief Example of usage of IOWavefrontOBJ and MRBF Style Object block
+    \brief Example of usage of IOWavefrontOBJ to parse an OBJ mesh and deform it
+           with a RBF manipulator
 
-    mimic core blocks used: Proj3DCurveOnSurface, MRBFStyleObj
-    mimmo main blocks used: IOWavefrontOBJ, Apply
+    Using: IOWavefrontOBJ, MRBF, Apply, Chain
 
-    <b>To run</b>: ./genericinput_example_00005 \n
+    <b>To run</b>              : ./genericinput_example_00005 \n
+    <b>To run (MPI version)</b>: mpirun -np X genericinput_example_00005 \n
 
+    <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
+
 
 int genericinput00005() {
 
@@ -57,44 +60,52 @@ int genericinput00005() {
      */
     mimmo::setExpertMode();
 
-    /* Creation of mimmo containers.
-     * Input and output MimmoGeometry are instantiated
-     * as two different objects (no loop in chain are permitted).
+    /*
+        Create a block to parse an OBJ mesh from file.
      */
     mimmo::IOWavefrontOBJ * mimmo0 = new mimmo::IOWavefrontOBJ(mimmo::IOWavefrontOBJ::IOMode::READ);
     mimmo0->setDir("geodata");
     mimmo0->setFilename("eyeball");
     mimmo0->printResumeFile(false);
 
+    /*
+        Create a block to write an OBJ mesh to file.
+     */
     mimmo::IOWavefrontOBJ * mimmo1 = new mimmo::IOWavefrontOBJ(mimmo::IOWavefrontOBJ::IOMode::WRITE);
     mimmo1->setFilename("iogeneric_output_00001.0001");
     mimmo1->printResumeFile(false);
     mimmo1->setTextureUVMode(true);
 
-    /* Instantiation of MRBF object.
-     * Set displacements.
-     * Plot Optional results during execution active for MRBF block.
+    /*
+        Define a single node position with its displacement to
+        build up the input needed by the RBF manipulator
      */
-    mimmo::MRBF * rbf = new mimmo::MRBF();
+    std::array<double,3>node({{0.0,0.0,2.0}});
     dvecarr3E displ(1);
     displ[0] = {{0.0,0.0,1.0}};
-    rbf->addNode(std::array<double,3>({{0.0,0.0,2.0}}));
+
+    /*
+        Create the RBF manipulator.
+     */
+    mimmo::MRBF * rbf = new mimmo::MRBF();
+    rbf->addNode(node);
     rbf->setDisplacements(displ);
     rbf->setFunction(bitpit::RBFBasisFunction::C0C2);
     rbf->setSupportRadiusReal(1.0);
     rbf->setPlotInExecution(true);
 
-    /* Create applier block.
-     * It applies the deformation displacements to the original input geometry.
+    /*
+       Create the applier block.
+     * It applies the deformation displacements from rbf block to the original input geometry.
      */
     mimmo::Apply * applier = new mimmo::Apply();
 
 
-    /* Setup pin connections.
+    /*
+        Define block pin connections.
      */
     mimmo::pin::addPin(mimmo0, mimmo1, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, mimmo1, M_WAVEFRONTDATA, M_WAVEFRONTDATA);
-
     mimmo::pin::addPin(mimmo0, rbf, M_GEOM, M_GEOM);
 
     mimmo::pin::addPin(rbf, applier, M_GDISPLS, M_GDISPLS);
@@ -102,7 +113,8 @@ int genericinput00005() {
 
     mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
-    /* Setup execution chain.
+    /*
+        Setup execution chain.
      */
     mimmo::Chain ch0;
     ch0.addObject(mimmo0);
@@ -110,7 +122,8 @@ int genericinput00005() {
     ch0.addObject(rbf);
     ch0.addObject(applier);
 
-    /* Execution of chain.
+    /*
+        Execute the chain.
      * Use debug flag true to to print out the execution steps.
      */
     ch0.exec(true);
@@ -135,12 +148,12 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);
 #endif
-        /**<Calling mimic core routines*/
+        /**<Calling core function*/
         int err = 1;
         try{
             err = genericinput00005() ;
         }catch(std::exception & e){
-            std::cout<<"core_example_00011 exited with an error of type : "<<e.what()<<std::endl;
+            std::cout<<"genericinput_example_00005 exited with an error of type : "<<e.what()<<std::endl;
             return 0;
         }
 #if MIMMO_ENABLE_MPI

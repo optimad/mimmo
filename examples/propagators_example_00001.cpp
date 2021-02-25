@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -34,16 +34,20 @@ typedef std::chrono::high_resolution_clock Clock;
 /*!
 	example propagators_example_00001.cpp
 
-	brief Example of usage of PropagateVectorField in propagators.
+	brief Example of usage of PropagateVectorField: propagate boundary field info into a bulk volume mesh.
 
-	<b>To run</b>: mpirun -np X propagators_example_00001 \n
+    <b>To run</b>               : ./propagators_example_00001 \n
+    <b>To run (MPI version)</b> : mpirun -np X propagators_example_00001 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
 
 // =================================================================================== //
-
+/*
+    Create a bulk volume mesh, and mark some boundary vertices for pidding purposes
+    (reported into bcdir1_vertlist bcdir2_vertlist
+*/
 mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
 
 	std::array<double,3> center({{0.0,0.0,0.0}});
@@ -121,7 +125,9 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std
 }
 
 // =================================================================================== //
-
+/*
+    Core function
+*/
 int test00001() {
 
 #if MIMMO_ENABLE_MPI
@@ -135,13 +141,17 @@ int test00001() {
 	int rank = 0;
 #endif
 
+    //create the volume mesh
     std::vector<long> bc1list, bc2list;
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
+
+    //calculate its boundary
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> boundary= mesh->extractBoundaryMesh();
-    //pidding the boundary
+
+    //pidding the portion of boundary using bc1list and bc2list
     livector1D pidlist1 = boundary->getCellFromVertexList(bc1list, true);
     livector1D pidlist2 = boundary->getCellFromVertexList(bc2list, true);
-    //pid the cells.
+
     for(long cellid : pidlist1){
         boundary->setPIDCell(cellid, long(1));
     }
@@ -149,7 +159,7 @@ int test00001() {
         boundary->setPIDCell(cellid, long(2));
     }
 
-    //create a subselection of the boundary
+    //create then a subpatch of the boundary using pidlist... and bc...list
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> bdirMesh(new mimmo::MimmoObject(boundary->getType()));
 
     if(rank == 0){   //create a subselection of the whole boundary
@@ -174,30 +184,19 @@ int test00001() {
 std::chrono::time_point<Clock> t1,t2;
 
 #if MIMMO_ENABLE_MPI
-	/* Instantiation of a Partition object with default patition method space filling curve.
-	 * Plot Optional results during execution active for Partition block.
+	/*
+        Distribute the volume mesh and bDirMesh on processes
 	 */
 	mimmo::Partition* partition = new mimmo::Partition();
 	partition->setPlotInExecution(true);
 	partition->setGeometry(mesh);
 	partition->setBoundaryGeometry(bdirMesh);
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
-	t1 = Clock::now();
-	if (rank ==0)
-		std::cout << "Start Partition mesh " << std::endl;
 	partition->exec();
-	t2 = Clock::now();
-	if (rank ==0)
-	{
-		std::cout << "Partition mesh execution time: "
-				<< std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
-				<< " seconds" << std::endl;
-	}
 #endif
 
-	// and the field of Dirichlet values on its nodes.
+	// create a field of Dirichlet values on bDirMesh points.
 	mimmo::MimmoPiercedVector<std::array<double,3>> bc_surf_field;
-	//MimmoPiercedVector<double> bc_surf_field;
 	bc_surf_field.setGeometry(bdirMesh);
 	bc_surf_field.setDataLocation(mimmo::MPVLocation::POINT);
 	bc_surf_field.reserve(bdirMesh->getNVertices());
@@ -217,10 +216,17 @@ std::chrono::time_point<Clock> t1,t2;
 		}
 	}
 
+    //update volume and dirichelet boundary mesh
     mesh->update();
     bdirMesh->update();
 
-	// Now create a PropagateScalarField and solve the laplacian.
+	/*
+       Define a propagator.
+       It will use dirichlet conditions in bc_surf_field defined on the dirichlet
+       patch bdirMesh, and propagate these info inside the bulk volume mesh.
+       Please see the doxygen documentation of PropagateVectorField for further information
+       on the tunable parameters of the class.
+    */
 	mimmo::PropagateVectorField * prop = new mimmo::PropagateVectorField();
 	prop->setGeometry(mesh);
 	prop->addDirichletBoundaryPatch(bdirMesh);
@@ -246,7 +252,9 @@ std::chrono::time_point<Clock> t1,t2;
     if (rank == 0){
         std::cout << "Start Propagator vector field " << std::endl;
     }
+
     prop->exec();
+
     t2 = Clock::now();
     if (rank ==0){
         std::cout << "Propagator vector field execution time: "
@@ -254,6 +262,7 @@ std::chrono::time_point<Clock> t1,t2;
                   << " seconds" << std::endl;
     }
 
+    //write the propagated field on file.
 	prop->getGeometry()->getPatch()->write("deformed");
 
 	bool error = false;
@@ -262,7 +271,8 @@ std::chrono::time_point<Clock> t1,t2;
 	delete partition;
 #endif
 	delete prop;
-	return error;
+    
+	return int(error);
 }
 
 // =================================================================================== //
@@ -274,16 +284,19 @@ int main( int argc, char *argv[] ) {
 
 #if MIMMO_ENABLE_MPI
 	MPI_Init(&argc, &argv);
-
-
 #endif
 	/**<Calling mimmo Test routines*/
-
-	int val = test00001() ;
+    int val = 1;
+    try{
+        /**<Calling core function*/
+        val = test00001() ;
+    }
+    catch(std::exception & e){
+        std::cout<<"propagators_example_00001 exited with an error of type : "<<e.what()<<std::endl;
+        return 1;
+    }
 
 #if MIMMO_ENABLE_MPI
-
-
 	MPI_Finalize();
 #endif
 

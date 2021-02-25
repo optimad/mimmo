@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -35,9 +35,10 @@
 
 	\brief Example of interpolating data over an unstructured non-homogeneous mesh.
 
-    Using: MimmoGeometry, MimmoPiercedVector
+    Using: MimmoGeometry, MimmoPiercedVector, Partition (MPI version)
 
-	<b>To run</b>: ./core_example_00001 \n
+	<b>To run</b>              : ./core_example_00001 \n
+    <b>To run (MPI version)</b>: mpirun -np X core_example_00001 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -45,7 +46,8 @@
 
 void test00001() {
 
-	/* Creation of mimmo containers.
+	/*
+        Reading a STL geometry from file.
 	 */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::READ);
 	mimmo0->setReadDir("geodata");
@@ -54,7 +56,8 @@ void test00001() {
 	mimmo0->execute();
 
 #if MIMMO_ENABLE_MPI
-    /* Execution of a Partition object with default partition method space filling curve.
+    /*
+        MPI version : distribute the read geometry over X ranks.
      */
     mimmo::Partition* partition= new mimmo::Partition();
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
@@ -62,27 +65,8 @@ void test00001() {
     partition->execute();
 #endif
 
-//    /* Setup pin connections.
-//     */
-//#if MIMMO_ENABLE_MPI
-//    mimmo::pin::addPin(mimmo0, partition, M_GEOM, M_GEOM);
-//#endif
-//
-//    /* Setup execution chain.
-//     */
-//    mimmo::Chain ch0;
-//    ch0.addObject(mimmo0);
-//#if MIMMO_ENABLE_MPI
-//    ch0.addObject(partition);
-//#endif
-//
-//    /* Execution of chain.
-//     * Use debug flag true to to print out the execution steps.
-//     */
-//    ch0.exec(true);
-
 	/*
-	 * Creation of a synthetic point field.
+	 * Creation of a synthetic float field on geometry mesh POINT location.
 	 */
 	mimmo::MimmoPiercedVector<double> pointField;
 	pointField.initialize(mimmo0->getGeometry(), mimmo::MPVLocation::POINT, 1.);
@@ -93,7 +77,10 @@ void test00001() {
 		pointField[vertex.getId()] = value;
 	}
 
-	{
+    /*
+	 * Write POINT field and geometry on file.
+	 */
+    {
 		std::vector<double> field(mimmo0->getGeometry()->getNVertices());
 		int count = 0;
 		for (bitpit::Vertex & vertex : mimmo0->getGeometry()->getPatch()->getVertices()){
@@ -106,10 +93,14 @@ void test00001() {
 	}
 
 	/*
-	 * Interpolation of synthetic point field on cells.
+	 * Interpolation of synthetic field from POINT to CELL location.
 	 */
 	double p = 5.;
 	mimmo::MimmoPiercedVector<double> cellField = pointField.pointDataToCellData(p);
+
+    /*
+	 * Write CELL field and geometry on file.
+	 */
 	{
 		std::vector<double> field(mimmo0->getGeometry()->getNCells());
 		int count = 0;
@@ -123,10 +114,14 @@ void test00001() {
 	}
 
 	/*
-	 * Back Interpolation of synthetic field on points.
+	 * Interpolate back CELL synthetic field again on points.
 	 */
 	p = 5.;
 	mimmo::MimmoPiercedVector<double> pointField2 = cellField.cellDataToPointData(p);
+
+    /*
+	 * Write new POINT field and geometry on file.
+	 */
 	{
 		std::vector<double> field(mimmo0->getGeometry()->getNVertices());
 		int count = 0;
@@ -140,12 +135,16 @@ void test00001() {
 	}
 
 	/*
-	 * Interpolation of synthetic point field on boundary interfaces.
+	 * Interpolate synthetic POINT field on boundary edges of the geometry mesh.
 	 */
 	mimmo0->getGeometry()->updateInterfaces();
 	p = 5.;
 	mimmo::MimmoPiercedVector<double> interfaceField = pointField.pointDataToBoundaryInterfaceData(p);
-	{
+
+    /*
+     * Write the boundary edge field on screen.
+     */
+    {
 		std::vector<double> field(mimmo0->getGeometry()->getPatch()->getInterfaceCount());
 		int count = 0;
 		for (bitpit::Interface & interface : mimmo0->getGeometry()->getPatch()->getInterfaces()){
@@ -159,14 +158,15 @@ void test00001() {
 		}
 	}
 
-	/* Clean up & exit;
+	/*
+        Clean up & exit;
 	 */
 	delete mimmo0;
 #if MIMMO_ENABLE_MPI
 	delete partition;
 #endif
-	return;
 
+	return;
 }
 
 
@@ -181,12 +181,12 @@ int main(int argc, char *argv[]) {
 	{
 #endif
 
-		/**<Calling mimmo Test routines*/
+		/**<calling core function*/
 		try{
 			test00001() ;
 		}
 		catch(std::exception & e){
-			std::cout<<"utils_example_00001 exited with an error of type : "<<e.what()<<std::endl;
+			std::cout<<"core_example_00001 exited with an error of type : "<<e.what()<<std::endl;
 			return 1;
 		}
 

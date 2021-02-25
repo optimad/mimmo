@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -29,9 +29,10 @@
  *
  * \brief Example of reading/writing a generic csv file of MimmoPiercedVector data.
 
- * Using: GenericInputMPVData, GenericOutputMPVData
+ * Using: GenericInputMPVData, GenericOutputMPVData, Chain
  *
- * <b>To run</b>: ./genericinput_example_00002 \n
+ * <b>To run</b>              : ./genericinput_example_00002 \n
+ * <b>To run (MPI version)</b>: mpirun -np X genericinput_example_00002 \n
  *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -41,16 +42,21 @@
 
 void test00002() {
 
-    /* Creation of Generic output block to read a set of
-     * coordinates of cloud points as generic input in csv format.
+    /*
+        Creation of input reading block to read a set of
+        point cloud coordinates. The file format is csv, but data structure
+        reported in it is suitable to be tranferred into a MimmoPiercedVector container.
+        Take a look to the sample file for info on such data structure.
      */
 	mimmo::GenericInputMPVData * read = new mimmo::GenericInputMPVData(true);
     read->setReadDir("input");
     read->setFilename("generic_inputMPVData_00002.csv");
     read->setBinary(false);
 
-    /* Creation of Generic output block to write a set of
-     * coordinates of cloud points as generic output in csv format.
+    /*
+        Creation of output writing block to write a set of
+        point cloud coordinates passed from a MimmoPiercedVector container.
+        Take a look to the final written file for info on how this data are written.
      */
     mimmo::GenericOutputMPVData * write = new mimmo::GenericOutputMPVData();
     write->setWriteDir("./");
@@ -58,28 +64,30 @@ void test00002() {
     write->setCSV(true);
     write->setBinary(false);
 
-    /* Setup pin connections.
+    /*
+        Define connection between read an write block, that is the
+        list of point coordinates stored into a MimmoPiercedVector container.
      */
     mimmo::pin::addPin(read, write, M_VECTORFIELD, M_VECTORFIELD);
 
-    /* Setup execution chain.
+    /*
+        Define execution chain and push blocks into it.
      */
     mimmo::Chain ch0;
     ch0.addObject(read);
     ch0.addObject(write);
 
-    /* Execution of chain.
-     * Use debug flag true to print out the execution steps.
+    /*
+        Execute the chain.
+        Use debug flag true to print out log info on execution.
      */
     ch0.exec(true);
 
-    /* Clean up & exit;
+    /*
+        Clean up & exit;
      */
     delete read;
     delete write;
-
-    read = NULL;
-    write = NULL;
 
 }
 
@@ -93,7 +101,7 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);
 #endif
-        /**<Calling mimmo Test routines*/
+        /**<Calling core function*/
         try{
             test00002();
         }

@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -32,11 +32,12 @@
  *
  * \brief Reading of a CGNS volume mesh and check it with MeshChecker class.
  *
- * Using: IOCGNS, MeshChecker.
+ * Using: IOCGNS, MeshChecker, Partition(MPI version).
  *
  * Depends on mimmo optional module geohandlers
  *
- * <b>To run</b>: ./iocgns_example_00002  \n
+ * <b>To run</b>             : ./iocgns_example_00002  \n
+ * <b>To run(MPI version)</b>: mpirun -np X iocgns_example_00002  \n
  *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -45,20 +46,27 @@
 
 void example00002() {
 
-    /* Create IO_CGNS object to import input file. */
+    /*
+       Create IOCGNS object to import the cgns mesh.
+       Bulk volume and relative boundary mesh will be exposed
+    */
 	mimmo::IOCGNS * cgnsI = new mimmo::IOCGNS(mimmo::IOCGNS::IOCGNS_Mode::READ);
     cgnsI->setDir("geodata");
     cgnsI->setFilename("grid");
 
 #if MIMMO_ENABLE_MPI
-    /* Instantiation of a Partition object with default patition method space filling curve.
-     * Plot Optional results during execution active for Partition block.
+    /*
+        Distribute bulk/boundary meshes among processes
      */
     mimmo::Partition *partition = new mimmo::Partition();
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition->setPlotInExecution(true);
 #endif
 
+    /*
+        Check the status of the mesh elements: min/max volume, skewness
+        skewness of the boundary cell elements etc...
+    */
     mimmo::MeshChecker* checkmesh = new mimmo::MeshChecker();
     checkmesh->setPlotInExecution(true);
     checkmesh->setMinimumVolumeTolerance(1.0E-1);
@@ -68,7 +76,7 @@ void example00002() {
     checkmesh->setMinimumFaceValidityTolerance(0.2);
     checkmesh->setMinimumVolumeChangeTolerance(5.0E-2);
 
-    /* Create PINs. */
+    /* Create block connections. */
 #if MIMMO_ENABLE_MPI
     mimmo::pin::addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
     mimmo::pin::addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
@@ -110,7 +118,7 @@ int main( int argc, char *argv[] ) {
     {
 #endif
         try{
-            /**< Call mimmo example routine. */
+            /**< Call core function. */
             example00002();
         }
         catch(std::exception & e){

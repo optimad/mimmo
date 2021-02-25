@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -32,6 +32,8 @@
  * \example ioofoam_example_00001.cpp
  *
  * \brief Example of reading,morphing and writing of a OpenFOAM case mesh.
+          BEWARE: the case is meant for SERIAL version or MPI version running
+          only with 1 processor.
  *
  * PART1 - reading,morphing and writing of a OpenFOAM case mesh.
 
@@ -46,23 +48,30 @@
    geometrical displacements using the local boundary mesh normals.
    Then apply the displacements to the boundary mesh and save the deformed version in a vtu file.
  *
- * Using: IOOFOAM, FFDLattice, IOOFOAMScalarField, Apply
+ * Using: IOOFOAM, FFDLattice, IOOFOAMScalarField, Apply, Chain
 
  * <b>To run</b>: ./ioofoam_example_00001 \n
+ * <b>To run (MPI version)</b>: mpirun -np 1 ioofoam_example_00001 \n
+
+   Beware: mpi version of the example works only with np=1
  *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
 void OFOAM_manip() {
 
+    /* read a OpenFoam mesh, expose bulk volume and boundary mesh */
     mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(false);
     reader->setDir("geodata/OFOAM");
 
+    /* Define a FFDLattice manipulation shaped as a box. Default dimension are 2x2x2 */
     mimmo::FFDLattice * ffd = new mimmo::FFDLattice();
     ffd->setShape(mimmo::ShapeType::CUBE);
 
+    /* set up origin and span of the lattice box */
     darray3E origin = {{0.367, 0., 0.}};
     darray3E span   = {{0.2, 0.1, 0.1}};
+    /* define displacements of the lattice nodes */
     dvecarr3E displ(12,{{0.0,0.0,0.0}});
     displ[4][1] = 0.045;
     displ[5][1] = 0.045;
@@ -76,17 +85,22 @@ void OFOAM_manip() {
     ffd->setDisplacements(displ);
     ffd->setPlotInExecution(true);
 
+    /* Define Apply block to apply deformation field from ffd to the target volume mesh*/
     mimmo::Apply * applier = new mimmo::Apply();
 
+    /* In the same openfoam case folder, the block will write the new modified vertices only*/
     mimmo::IOOFOAM * writer = new mimmo::IOOFOAM(true);
+    writer->setDir("geodata/OFOAM");
     writer->setWritePointsOnly(true);
     writer->setOverwrite(false);
 
+    /* define block connections */
     mimmo::pin::addPin(reader, ffd, M_GEOMOFOAM, M_GEOM);
     mimmo::pin::addPin(reader, applier, M_GEOMOFOAM, M_GEOM);
     mimmo::pin::addPin(ffd, applier, M_GDISPLS, M_GDISPLS);
     mimmo::pin::addPin(applier, writer, M_GEOM, M_GEOMOFOAM);
 
+    /*Define chain */
     mimmo::Chain c0;
     c0.addObject(reader);
     c0.addObject(ffd);
@@ -94,6 +108,7 @@ void OFOAM_manip() {
     c0.addObject(writer);
     c0.exec(true);
 
+    /*clean up */
     delete reader;
     delete ffd;
     delete applier;
@@ -104,29 +119,38 @@ void OFOAM_manip() {
 
 void OFOAM_sensi() {
 
+    /* read a OpenFoam mesh, expose bulk volume and boundary mesh */
     mimmo::IOOFOAM * reader = new mimmo::IOOFOAM(false);
     reader->setDir("geodata/OFOAM");
 
+    /* read a scalar field p, defined onto the OpenFoam boundary mesh */
     mimmo::IOOFOAMScalarField * fieldreader = new mimmo::IOOFOAMScalarField(false);
     fieldreader->setDir("geodata/OFOAM");
     fieldreader->setFieldName("p");
 
+    /*
+       Create apply block. Use p field to define a "deformation field" onto the surface
+       boundary mesh and using the surface normals. Scaling is used to
+       globally modulate the p value  */
     mimmo::Apply * applier = new mimmo::Apply();
     applier->setScaling(0.1);
 
+    /*
+        Write the modified boundary mesh to vtu file
+    */
     mimmo::MimmoGeometry * writer = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     writer->setWriteDir(".");
     writer->setWriteFileType(FileType::SURFVTU);
     writer->setWriteFilename("ofoam_sensi_output");
 
-
+    /* Define block pin connections */
     mimmo::pin::addPin(reader, fieldreader, M_GEOMOFOAM2, M_GEOMOFOAM2);
     mimmo::pin::addPin(reader, fieldreader, M_UMAPIDS, M_UMAPIDS);
     mimmo::pin::addPin(reader, applier, M_GEOMOFOAM2, M_GEOM);
     mimmo::pin::addPin(fieldreader, applier, M_SCALARFIELD2, M_SCALARFIELD);
     mimmo::pin::addPin(applier, writer, M_GEOM, M_GEOM);
 
-
+    /* Define the execution chain*/
     mimmo::Chain c0;
     c0.addObject(reader);
     c0.addObject(fieldreader);
@@ -134,6 +158,7 @@ void OFOAM_sensi() {
     c0.addObject(writer);
     c0.exec(true);
 
+    /*Clean up */
     delete reader;
     delete fieldreader;
     delete applier;
@@ -150,7 +175,7 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);
 #endif
-		/**<Calling mimmo Test routines*/
+		/**<Calling core functions*/
         try{
              OFOAM_sensi() ;
         }

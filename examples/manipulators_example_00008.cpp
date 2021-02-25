@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -39,18 +39,19 @@
     on the local normal and will be applied to geometry to obtain the final deformation.
     Nodal RBF are distributed on surface with CreateSeedsOnSurface block.
 
-    Geometry deformation block used: MRBF/CreateSeedsOnSurface.
+    Using: MimmoGeometry, CreateSeedsOnSurface, GenericInput, MRBF, Apply, Chain, Partition(MPI version).
 
-	<b>To run</b>: ./manipulators_example_00008 \n
+	<b>To run</b>              : ./manipulators_example_00008 \n
+    <b>To run(MPI version)</b> : mpirun -np X manipulators_example_00008 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
 void test00008() {
 
-    /* Creation of mimmo containers.
-     * Input and output MimmoGeometry are instantiated
-     * as two different objects (no loop in chain are permitted).
+    /*
+        Read a pipe sample from vtu mesh. Convert mode is to save the just read geometry in
+        another file with name manipulators_output_00008.0000.stl
      */
     mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
@@ -60,7 +61,7 @@ void test00008() {
     mimmo0->setWriteFileType(FileType::SURFVTU);
     mimmo0->setWriteFilename("manipulators_output_00008.0000");
 
-
+    /* write the deformed mesh to file */
     mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::SURFVTU);
@@ -68,15 +69,17 @@ void test00008() {
 
 
 #if MIMMO_ENABLE_MPI
-    /* Creation of a Partition object.
+    /*
+        Distribute mesh among processes
     */
     mimmo::Partition* partition= new mimmo::Partition();
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition->setPlotInExecution(true);
 #endif
 
-    /* Seed 10 3D points on the surface, acting as RBF point cloud.
-       Using a CreateSeedsOnSurface block.
+    /*
+        Seed 10 3D points on the surface. Thi will be used as RBF nodes to
+        create the manipulator
     */
     mimmo::CreateSeedsOnSurface * seeder = new mimmo::CreateSeedsOnSurface();
     seeder->setNPoints(10);
@@ -86,7 +89,8 @@ void test00008() {
     seeder->setRandomSignature(12457834);
     seeder->setPlotInExecution(true);
 
-    /* Read Dof for RBF Cloud for plain txt file.
+    /*
+        Read d.o.f. for RBF Cloud from plain txt file.
        For each node is associated a scalar DOF, in order to obtain a "scalar"
        field of displacements from MRBF
      */
@@ -94,22 +98,23 @@ void test00008() {
     inputDof->setReadDir("input");
     inputDof->setFilename("manipulators_input_00008.txt");
 
-    /* Instantiation of a MRBF object with a distribution of 10 nodes from CreateSeedsOnSurface
-     * and scalar DOF coming from inputDOF
-     * Plot Optional results during execution active for MRBF block.
+    /*
+        MRBF manipulator. Setting function and support radius.
+        Plot Optional results during execution active for MRBF block.
      */
     mimmo::MRBF* mrbf = new mimmo::MRBF(mimmo::MRBFSol::NONE);
     mrbf->setFunction(bitpit::RBFBasisFunction::C1C2);
     mrbf->setSupportRadiusReal(0.6);
     mrbf->setPlotInExecution(true);
 
-    /* Create applier block.
-     * It applies the MRBF output scalar field onto the original input geometry, using
+    /*
+        It applies the MRBF output scalar field onto the original input geometry, using
        the local vertex normals of the original geometry.
      */
     mimmo::Apply* applier = new mimmo::Apply();
 
-    /* Setup pin connections.
+    /*
+        Setup pin connections.
      */
 #if MIMMO_ENABLE_MPI
     mimmo::pin::addPin(mimmo0, partition, M_GEOM, M_GEOM);
@@ -127,10 +132,8 @@ void test00008() {
     mimmo::pin::addPin(mrbf, applier, M_SCALARFIELD, M_SCALARFIELD);
     mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
-    /* Setup execution chain.
-     * The object can be insert in the chain in random order.
-     * The chain object recover the correct order of execution from
-     * the pin connections.
+    /*
+        Setup execution chain.
      */
     mimmo::Chain ch0;
     ch0.addObject(inputDof);
@@ -143,12 +146,14 @@ void test00008() {
     ch0.addObject(mrbf);
     ch0.addObject(mimmo1);
 
-    /* Execution of chain.
-     * Use debug flag true to print out the execution steps.
+    /*
+        Execute the chain.
+        Use debug flag true to print out the execution steps.
      */
     ch0.exec(true);
 
-    /* Clean up & exit;
+    /*
+        Clean up & exit;
      */
     delete mrbf;
     delete seeder;
@@ -172,7 +177,7 @@ int	main( int argc, char *argv[] ) {
     MPI_Init(&argc, &argv);
 #endif
         try{
-            /**<Calling mimmo Test routine*/
+            /**<Calling core function*/
             test00008() ;
         }
         catch(std::exception & e){

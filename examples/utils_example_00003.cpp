@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -37,10 +37,11 @@
 	\brief Deform a sphere using a set of mirrored RBF points. Check for collisions
            of the deformed object with the D=0.25 level-set isolevel of the original geometry.
 
-	Using: MimmoGeometry, SpecularPoints, RBFBox, ControlDeformMaxDistance,
-           MRBF, Applier, SelectionByBox, ReconstructVector
+	Using: MimmoGeometry, SpecularPoints, RBFBox, SelectionByBox, MRBF, ReconstructVector,
+           ControlDeformMaxDistance, Apply, Chain, Partition(MPI version)
 
-	<b>To run</b>: ./utils_example_00003 \n
+	<b>To run</b>              : ./utils_example_00003 \n
+    <b>To run (MPI version)</b>: mpirun -np X utils_example_00003 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -50,7 +51,9 @@ void test00003() {
 
     mimmo::setExpertMode(true); // avoid control of unlinked ports.
 
-    /* Creation of mimmo containers.
+    /*
+        Read a target geometry from file. CONVERT option will let the block to write
+        the just read file in another file, immediately after the reading.
      */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setName("converterGeometry");
@@ -62,7 +65,8 @@ void test00003() {
     mimmo0->setWriteFilename("utils_mesh_00003.0000");
 
 #if MIMMO_ENABLE_MPI
-    /* Instantiation of a Partition object for target mesh partitioning.
+    /*
+        Distribute target mesh among processes.
     */
     mimmo::Partition* partitioner = new mimmo::Partition();
     partitioner->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
@@ -73,7 +77,7 @@ void test00003() {
     //declare a support Radius for RBF cloud
     double suppR = 0.2;
 
-    //create a RBF cloud with a set of displacements.
+    //create manually a RBF cloud with a set of displacements attached.
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> rbfPointCloud(new mimmo::MimmoObject(3));
     mimmo::MimmoPiercedVector<darray3E> rbfDispls(rbfPointCloud, mimmo::MPVLocation::POINT);
 
@@ -169,15 +173,14 @@ void test00003() {
     mimmo::Apply * applier = new mimmo::Apply();
 
 #if MIMMO_ENABLE_MPI
-    /* Instantiation of a Partition object for target mesh reserialization.
+    /*
+        Serialize the final deformed mesh
     */
     mimmo::Partition* serialize = new mimmo::Partition();
     serialize->setName("mimmo.Serialization");
     serialize->setPlotInExecution(false);
     serialize->setPartitionMethod(mimmo::PartitionMethod::SERIALIZE);
 #endif
-
-
 
 
     /* Setup pin connections.
@@ -243,7 +246,7 @@ void test00003() {
     ch0.addObject(serialize);
 #endif
 
-    /* Execution of chain.
+    /* Execute the chain.
      * Use debug flag false to avoid to print out the execution steps on console.
      */
     ch0.exec(true);
@@ -285,11 +288,9 @@ int main(int argc, char *argv[]) {
     {
 #endif
 
-        /**<Change the name of mimmo logger file (default mimmo.log)
-         * before initialization of BaseManipulation objects*/
         mimmo::setLogger("mimmo");
 
-        /**<Calling mimmo Test routines*/
+        /**<Calling core function*/
         try{
             test00003() ;
         }

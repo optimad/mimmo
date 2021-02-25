@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -31,9 +31,10 @@
 
 	\brief Example of Lattice creation.
 
-	Geometry handler block used: Lattice.
+	Using: Lattice.
 
-	<b>To run</b>: ./core_example_00002 \n
+	<b>To run</b>              : ./core_example_00002 \n
+    <b>To run (MPI version)</b>: mpirun -np X core_example_00002 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -43,6 +44,9 @@
 
 void test00002() {
 
+    /*
+        Create a Lattice of cylindrical shape
+    */
     mimmo::Lattice * latt3 = new mimmo::Lattice();
     latt3->setShape(mimmo::ShapeType::CYLINDER);
     latt3->setOrigin({{0.5, 0.0, 0.0}});
@@ -53,6 +57,9 @@ void test00002() {
     latt3->setPlotInExecution(true);
     latt3->exec();
 
+    /*
+        Create a Lattice of wedge shape (prism with triangular basis)
+    */
     mimmo::Lattice * lattw = new mimmo::Lattice();
     lattw->setShape(mimmo::ShapeType::WEDGE);
     lattw->setOrigin({{1.0, 0.0, 0.0}});
@@ -82,11 +89,11 @@ int main( int argc, char *argv[] ) {
     MPI_Init(&argc, &argv);
 #endif
 		try{
-            /**<Calling mimmo Test routine*/
+            /**<Calling core function*/
             test00002();
         }
         catch(std::exception & e){
-            std::cout<<"geohandlers_example_00001 exited with an error of type : "<<e.what()<<std::endl;
+            std::cout<<"core_example_00002 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
 #if MIMMO_ENABLE_MPI
