@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -31,11 +31,12 @@
 /*!
 	\example geohandlers_example_00002.cpp
 
-	\brief Example of usage of stitching block of two input geometry.
+	\brief Example of usage of stitching block of two input geometries.
 
-	Geometry handler block used: StitchGeometry.
+	Using: MimmoGeometry, StitchGeometry, Chain, Partition(MPI version)
 
-	<b>To run</b>: ./geohandlers_example_00002 \n
+	<b>To run</b>              : ./geohandlers_example_00002 \n
+    <b>To run (MPI version)</b>: mpirun -np X geohandlers_example_00002 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -45,8 +46,9 @@
 
 void test00002() {
 
-    /* Creation of mimmo containers.
-     * Inputs and output MimmoGeometry are instantiated.
+    /*
+        Read a sphere from STL file. Convert mode is to save the just read geometry in
+        another file with name geohandlers_output_00002.0000.stl
      */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
 	mimmo0->setReadDir("geodata");
@@ -56,6 +58,10 @@ void test00002() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00002.0000");
 
+    /*
+        Read the Stanford bunny from STL file. Convert mode is to save the just read geometry in
+        another file with name geohandlers_output_00002.0001.stl
+     */
     mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo1->setReadDir("geodata");
     mimmo1->setReadFilename("stanfordBunny2");
@@ -64,35 +70,37 @@ void test00002() {
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("geohandlers_output_00002.0001");
 
+    /*
+        Write the stiched geometry to STL file.
+     */
     mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo2->setWriteDir("./");
     mimmo2->setWriteFileType(FileType::STL);
     mimmo2->setWriteFilename("geohandlers_output_00002.0002");
 
 #if MIMMO_ENABLE_MPI
-    /* Instantiation of a Partition object with default partition method space filling curve.
-     * Plot Optional results during execution active for Partition block.
-     */
+
+    /* Block to distribute among processors the sphere geometry */
     mimmo::Partition* partition0 = new mimmo::Partition();
     partition0->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition0->setPlotInExecution(true);
 
-    /* Instantiation of a Partition object with default patition method space filling curve.
-     * Plot Optional results during execution active for Partition block.
-     */
+    /* Block to distribute among processors the bunny geometry */
     mimmo::Partition* partition1 = new mimmo::Partition();
     partition1->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition1->setPlotInExecution(true);
 #endif
 
-    /* Instantiation of a Stitcher Geometry block.
+    /*
+       Stitcher of multiple geometries.
      * Plot Optional results during execution active for Stitcher block.
      */
     mimmo::StitchGeometry * stitcher = new mimmo::StitchGeometry(1);
 	stitcher->setPlotInExecution(true);
 	stitcher->setOutputPlot(".");
 
-    /* Setup pin connections.
+    /*
+        Setup block pin connections.
      */
 #if MIMMO_ENABLE_MPI
     mimmo::pin::addPin(mimmo0, partition0, M_GEOM, M_GEOM);
@@ -105,7 +113,8 @@ void test00002() {
 #endif
 	mimmo::pin::addPin(stitcher, mimmo2, M_GEOM, M_GEOM);
 
-    /* Setup execution chain.
+    /*
+        Setup execution chain.
      */
 	mimmo::Chain ch0;
 	ch0.addObject(mimmo0);
@@ -117,8 +126,9 @@ void test00002() {
 	ch0.addObject(stitcher);
 	ch0.addObject(mimmo2);
 
-    /* Execution of chain.
-     * Use debug flag true to to print out the execution steps.
+    /*
+        Execution the chain.
+        Use debug flag true to to print out the execution steps.
      */
     ch0.exec(true);
 
@@ -133,15 +143,6 @@ void test00002() {
     delete mimmo2;
     delete stitcher;
 
-    mimmo0 = NULL;
-    mimmo1 = NULL;
-#if MIMMO_ENABLE_MPI
-    partition0 = NULL;
-    partition1 = NULL;
-#endif
-    mimmo2 = NULL;
-	stitcher = NULL;
-
 	return;
 }
 
@@ -155,7 +156,7 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);
 #endif
-		/**<Calling mimmo Test routines*/
+		/**<Calling core function*/
         try{
             test00002() ;
         }

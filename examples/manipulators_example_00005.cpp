@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -27,22 +27,23 @@
 
 // =================================================================================== //
 /*!
-    \example manipulators_example_00005.cpp
+	\example manipulators_example_00005.cpp
 
-    \brief Example of usage of free form deformation block to manipulate an input geometry defined by a point cloud.
+	\brief Example of usage of free form deformation Lattice to manipulate an input geometry.
 
-    Geometry deformation block used: FFDLattice (Shape->cube).
+	Using: MimmoGeometry, FFDLattice , GenericInput, Apply, Chain.
 
-    <b>To run</b>: ./manipulators_example_00005 \n
+	<b>To run</b>              : ./manipulators_example_00005 \n
+    <b>To run (MPI version)</b>: mpirun -np X manipulators_example_00005 \n
 
-    <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
+	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
 void test00005() {
 
-    /* Creation of mimmo containers.
-     * Input and output MimmoGeometry are instantiated
-     * as two different objects (no loop in chain are permitted).
+    /*
+        Read a sphere as point cloud from VTU file. Convert mode is to save the just read geometry in
+        another file with name manipulators_output_00005.0000.stl
      */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
@@ -53,14 +54,18 @@ void test00005() {
     mimmo0->setWriteFileType(FileType::PCVTU);
     mimmo0->setWriteFilename("manipulators_output_00005.0000");
 
+    /*
+        write the deformed geometry to file
+    */
     mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::PCVTU);
     mimmo1->setWriteFilename("manipulators_output_00005.0001");
 
-    /* Instantiation of a FFDobject with default shape cube.
-     * Setup of span and origin of cube.
-     * Plot Optional results during execution active for FFD block.
+    /*
+        Instantiation of a FFDobject with the default shape as a box
+        Set span, origin, lattice number of nodes and nurbs degrees.
+        Plot Optional results during execution active for FFD block.
      */
     mimmo::FFDLattice* lattice = new mimmo::FFDLattice();
     darray3E origin = {0.0, 0.0, 0.0};
@@ -69,7 +74,8 @@ void test00005() {
     span[1]= 1.2;
     span[2]= 1.2;
 
-    /* Set number of nodes of the mesh (dim) and degree of nurbs functions (deg).
+    /*
+        Set number of nodes of the mesh (dim) and degree of nurbs functions (deg).
      */
     iarray3E dim, deg;
     dim[0] = 20;
@@ -81,26 +87,26 @@ void test00005() {
 
     lattice->setLattice(origin, span, mimmo::ShapeType::CUBE, dim, deg);
 
-    /* Creation of Generic input block to read the
-     * displacements of the control nodes of the lattice.
+    /*
+       Creation of Generic input block to read the
+     * displacements of the control nodes of the lattice from file.
      */
     mimmo::GenericInput* input = new mimmo::GenericInput();
     input->setReadFromFile(true);
     input->setReadDir("input");
     input->setFilename("manipulators_input_00005.txt");
 
-    /* Create applier block.
-     * It applies the deformation displacements to the original input geometry.
+    /*
+        Create applier block.
+        It applies the deformation displacements to the original input geometry.
      */
     mimmo::Apply* applier = new mimmo::Apply();
 
-    /* Setup pin connections.
+    /*
+        Setup pin connections.
      */
     std::cout << " --- create pin ---" << std::endl;
     std::cout << " " << std::endl;
-    /* Add pin with port TAG ONLY
-     */
-
     std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(mimmo0, lattice, M_GEOM, M_GEOM) << std::endl;
     std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(input, lattice, M_DISPLS, M_DISPLS) << std::endl;
     std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(lattice, applier, M_GDISPLS, M_GDISPLS) << std::endl;
@@ -108,7 +114,8 @@ void test00005() {
     std::cout << " add pin info : " << std::boolalpha << mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM) << std::endl;
     std::cout << " " << std::endl;
 
-    /* Setup execution chain.
+    /*
+        Setup execution chain.
      */
     mimmo::Chain ch0;
     ch0.addObject(mimmo0);
@@ -122,7 +129,8 @@ void test00005() {
     //...in the path specified by the User.
     ch0.setOutputDebugResults(".");
 
-    /* Execution of chain.
+    /*
+        Execute the chain.
      * Use debug flag true to full print out the execution steps.
      */
     std::cout << " " << std::endl;
@@ -131,19 +139,14 @@ void test00005() {
     std::cout << " --- execution done --- " << std::endl;
     std::cout << " " << std::endl;
 
-    /* Clean up & exit;
+    /*
+        Clean up & exit;
      */
     delete lattice;
     delete applier;
     delete input;
     delete mimmo0;
     delete mimmo1;
-
-    lattice = NULL;
-    applier = NULL;
-    input   = NULL;
-    mimmo0  = NULL;
-    mimmo1  = NULL;
 
 }
 
@@ -155,7 +158,7 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);
 #endif
-        /**<Calling mimmo Test routine*/
+        /**<Calling core function*/
         try{
             test00005() ;
         }

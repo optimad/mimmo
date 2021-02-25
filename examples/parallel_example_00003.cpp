@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -35,7 +35,7 @@ typedef std::chrono::high_resolution_clock Clock;
 
 	brief Example of usage of Serialization of a partioned geometry.
 
-	Block used: Partition and Serialization.
+	Using: Partition, MimmoGeometry.
 
 	<b>To run</b>: mpirun -np X parallel_example_00003 \n
 
@@ -44,7 +44,10 @@ typedef std::chrono::high_resolution_clock Clock;
 
 
 // =================================================================================== //
-//creating a mesh on master rank 0 and fill on it lists of marked boundary vertices
+/*
+    creating a mesh on master rank 0 and return 2 lists of marked boundary vertices
+    suitable for pidding creation
+*/
 mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std::vector<long> &bcdir1_vertlist, std::vector<long> &bcdir2_vertlist){
 
 	std::array<double,3> center({{0.0,0.0,0.0}});
@@ -123,7 +126,9 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std
 }
 
 // =================================================================================== //
-
+/*
+    Core function
+*/
 int test00003() {
 
 	// Initialize mpi
@@ -132,13 +137,15 @@ int test00003() {
 	MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+    //create a volume mesh
 	std::vector<long> bc1list, bc2list;
 	mimmo::MimmoSharedPointer<mimmo::MimmoObject> mesh = createTestVolumeMesh(rank, bc1list, bc2list);
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> boundary= mesh->extractBoundaryMesh();
-    //pidding the boundary
+
+    //using marked list of boundary vertices to pid manually the portion of boundary involved.
     livector1D pidlist1 = boundary->getCellFromVertexList(bc1list, true);
     livector1D pidlist2 = boundary->getCellFromVertexList(bc2list, true);
-    //pid the cells.
+
     for(long cellid : pidlist1){
         boundary->setPIDCell(cellid, long(1));
     }
@@ -168,9 +175,9 @@ int test00003() {
     bDirMesh->updateInterfaces();
     bDirMesh->update();
 
-	/* Instantiation of a Partition object with default patition method space filling curve.
-	 * Plot Optional results during execution active for Partition block.
-	 */
+	/*
+        Distribute mesh and bDirMesh among processes.
+    */
 	mimmo::Partition* partition = new mimmo::Partition();
 	partition->setPlotInExecution(true);
 	partition->setGeometry(mesh);
@@ -186,7 +193,9 @@ int test00003() {
 				<< std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
 				<< " seconds" << std::endl;
 	}
-	/* Creation of mimmo containers. MimmoGeometry used to dump partitioned mesh
+
+    /*
+        dump the partitioned mesh to file into mimmo's own format
 	 */
 	mimmo::MimmoGeometry * mimmoVolumeOut = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
 	mimmoVolumeOut->setWriteDir("./");
@@ -195,7 +204,8 @@ int test00003() {
 	mimmoVolumeOut->setGeometry(mesh);
 	mimmoVolumeOut->exec();
 
-	/* Creation of mimmo containers. MimmoGeometry used to restore partitioned mesh
+    /*
+        restore the dumped partitioned mesh and convert it into parallel vtu format.
 	 */
 	mimmo::MimmoGeometry * mimmoVolumeIn = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
 	mimmoVolumeIn->setReadDir("./");
@@ -206,13 +216,13 @@ int test00003() {
 	mimmoVolumeIn->setWriteFilename("parallel_example_00003.volume.restored");
 	mimmoVolumeIn->exec();
 
-	/* Instantiation of a Partition object with serialize partition method.
-	 * Plot Optional results during execution active for Partition block.
-	 */
+	/*
+        Serialize the partitioned mesh
+     */
 	mimmo::Partition* serialize = new mimmo::Partition();
 	serialize->setName("mimmo.Serialization");
 	serialize->setPlotInExecution(true);
-	serialize->setGeometry(mesh);//mimmoVolumeIn->getGeometry());
+	serialize->setGeometry(mesh);
 	serialize->setBoundaryGeometry(bDirMesh);
 	serialize->setPartitionMethod(mimmo::PartitionMethod::SERIALIZE);
 
@@ -244,9 +254,16 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
 	MPI_Init(&argc, &argv);
 #endif
-	/**<Calling mimmo Test routines*/
 
-	int val = test00003() ;
+    int val = 1;
+    try{
+        /**<Calling core function*/
+        val = test00003() ;
+    }
+    catch(std::exception & e){
+        std::cout<<"parallel_example_00003 exited with an error of type : "<<e.what()<<std::endl;
+        return 1;
+    }
 
 #if MIMMO_ENABLE_MPI
 	MPI_Finalize();

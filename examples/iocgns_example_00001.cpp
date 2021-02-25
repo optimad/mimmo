@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -40,11 +40,13 @@
          - application of deformation to volume mesh
          - write deformed mesh to CGNS file
  *
- * Using: IOCGNS, SelectionByPID, SelectionByBox, ReconstructVector, RotationGeometry, Apply, ExtractVectorFields
+ * Using: IOCGNS, SelectionByPID, SelectionByBox, RotationGeometry, ReconstructVector
+          PropagateVectorField, ExtractVectorField, Apply, Chain, Partition(MPI version)
  *
- * Depends on mimmo optional module geohandlers
+ * Depends on mimmo optional modules: iocgns, geohandlers, propagators
  *
- * <b>To run</b>: ./iocgns_example_00001 \n
+ * <b>To run</b>              : ./iocgns_example_00001 \n
+ * <b>To run (MPI version)</b>: mpirun -np X iocgns_example_00001 \n
  *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -53,71 +55,94 @@
 
 void example00001() {
 
-    /* Create IO_CGNS object to import input file. */
+    /* Create IOCGNS object to import cgns input file. Bulk volume and its boundary
+       meshes will be available.
+    */
 	mimmo::IOCGNS * cgnsI = new mimmo::IOCGNS(mimmo::IOCGNS::IOCGNS_Mode::READ);
     cgnsI->setDir("geodata");
     cgnsI->setFilename("grid");
     cgnsI->setTolerance(1.0e-12);
 
-    /* Create IO_CGNS object to export output file. */
+    /* Create IOCGNS object to export deformed volume mesh and its boundary to a cgns file. */
     mimmo::IOCGNS * cgnsO = new mimmo::IOCGNS(mimmo::IOCGNS::IOCGNS_Mode::WRITE);
     cgnsO->setDir(".");
     cgnsO->setFilename("iocgns_output_00001");
 
 #if MIMMO_ENABLE_MPI
 
-    /* Instantiation of a Partition object with default patition method space filling curve.
-     * Plot Optional results during execution active for Partition block.
+    /*
+        Distribute the target compound of volume/boundary meshes among processes.
+        Plot Optional results during execution active for Partition block.
      */
     mimmo::Partition *partition = new mimmo::Partition();
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition->setPlotInExecution(true);
 
-    /* Instantiation of a Partition object to serialize mesh right before the writing cgns.
+    /*
+        Serialize the distributed target compound volume/boundary meshes
+        right before writing it in a cgns file.
      */
     mimmo::Partition *serialize = new mimmo::Partition();
     serialize->setPartitionMethod(mimmo::PartitionMethod::SERIALIZE);
     serialize->setPlotInExecution(true);
 #endif
 
-    /* Create CGNS PID extractor object to test input file.
-     * Extraction of PID = 1,2 (Wing wall and outer part boundaries
-     * where imposing Dirichlet conditions).
+    /*
+      Select and extract from target boundary mesh the compound of PID = 1,2
+      (Wing wall and outer part boundaries where Dirichlet conditions for field propagator
+       must be enforced).
      */
     mimmo::SelectionByPID * cgnsDirichlet = new mimmo::SelectionByPID();
     cgnsDirichlet->setPID({1, 2});
     cgnsDirichlet->setPlotInExecution(true);
 
-    /* Create CGNS PID extractor object to test input file.
-     * Extraction of PID = 3 (Simmetry plane
-     * where imposing Slip/impermeability conditions).
+    /*
+      Select and extract from target boundary mesh the PID = 3
+      (Simmetry plane where Slip/impermeability conditions for field propagator
+      will be imposed).
      */
     mimmo::SelectionByPID * cgnsSlip = new mimmo::SelectionByPID();
     cgnsSlip->setPID({3});
     cgnsSlip->setPlotInExecution(true);
 
-    /* Instantiation of a Selection By Box block.
-     * Setup of span and origin of cube.
+    /*
+        Sub-select with a Box primitive the result of cgnDirichlet block.
+        to isolate the wing surface
+        It will require span and origin to define properly the box .
      */
     mimmo::SelectionByBox * boxSel = new mimmo::SelectionByBox();
     boxSel->setOrigin({{700., 800., 0.}});
     boxSel->setSpan(1500.,1600.,100.);
     boxSel->setPlotInExecution(true);
 
-    /* Creation of rotation block.
+    /*
+        Create a Rotation global manipulator. It will Rotate the isolated wing sub-selection
+        of a prescribed rotation angle around a prescribed axis direction, and make the
+        relative deformation field available
      */
     mimmo::RotationGeometry* rotation = new mimmo::RotationGeometry();
     rotation->setDirection(darray3E{0.1,1.,0.});
     rotation->setRotation((BITPIT_PI/18.0));
 
-    /* Create reconstruct vector block and set to reconstruct rotation
-     * displacement field over the whole Dirichlet surface geometry
+    /*
+      It will reconstruct the rotation deformation field defined on the isolated wing patch to
+      the cgnsDirichlet compound sub-patch.
      */
     mimmo::ReconstructVector* recon = new mimmo::ReconstructVector();
     recon->setPlotInExecution(true);
 
-    /* Create propagate vector block and set to propagate over the whole
-     * input volume geometry the displacements field.
+    /*
+        The block will propagate the reconstructed deformation field defined on
+        cgnsDirichlet subpatch into the bulk volume mesh, moving its internal points
+        coherently.
+        Dirichlet conditions will be applied connecting cgnsDirichlet subpatch and
+        the field just reconstructed on it.
+        Slip/impermeability conditions will be enforced on cgnsSlip sub-patch to
+        keep the simmetry of the wall.
+        The final result will be a consistent deformation field defined on the whole
+        volume mesh, boundaries included.
+        For set up of damping and narrowband features of the class please visit the
+        doxygen documentation
      */
     mimmo::PropagateVectorField* prop = new mimmo::PropagateVectorField();
     prop->setPlotInExecution(true);
@@ -134,26 +159,30 @@ void example00001() {
     prop->forcePlanarSlip(true);
     prop->setSolverMultiStep(1);
 
-    /* Create propagate vector block and set to propagate over the whole
-     * input volume geometry the displacements field.
+    /*
+      Extract the deformation field of the whole boundary mesh from
+      the deformation field of the whole volume mesh resulting from the prop block
+      Using the id association of bulk volume and boundary meshes
      */
     mimmo::ExtractVectorField* extrF = new mimmo::ExtractVectorField();
     extrF->setMode(1);
     extrF->setPlotInExecution(true);
 
-    /* Create applier block.
-     * It applies the deformation displacements
-     * to the selected input volume geometry.
+    /*
+       Create an Apply block.
+       It applies the deformation displacements
+       to the selected input volume geometry.
      */
     mimmo::Apply* applier = new mimmo::Apply();
 
-    /* Create applier block.
-     * It applies the deformation displacements
-     * to the selected input surface geometry.
+    /*
+       Create an Apply block.
+       It applies the deformation displacements
+       to the selected input surface boundary geometry.
      */
     mimmo::Apply* applierS = new mimmo::Apply();
 
-    /* Create PINs. */
+    /* Define connection between blocks. */
 #if MIMMO_ENABLE_MPI
     mimmo::pin::addPin(cgnsI, partition, M_GEOM, M_GEOM)  ;
     mimmo::pin::addPin(cgnsI, partition, M_GEOM2, M_GEOM2)  ;
@@ -182,6 +211,7 @@ void example00001() {
 
     mimmo::pin::addPin(recon, prop, M_VECTORFIELD, M_GDISPLS)  ;
     mimmo::pin::addPin(prop, applier, M_GDISPLS, M_GDISPLS)  ;
+
 #if MIMMO_ENABLE_MPI
     mimmo::pin::addPin(partition, applier, M_GEOM, M_GEOM)  ;
     mimmo::pin::addPin(partition, extrF, M_GEOM2, M_GEOM)  ;
@@ -207,8 +237,10 @@ void example00001() {
 
     mimmo::pin::addPin(cgnsI, cgnsO, M_BCCGNS, M_BCCGNS)  ;
 
-    /* Create and execute chain. */
+    /* Create chains and execute them */
     mimmo::Chain ch0, ch1;
+
+    //first one
     ch0.addObject(cgnsI);
 #if MIMMO_ENABLE_MPI
     ch0.addObject(partition);
@@ -226,8 +258,10 @@ void example00001() {
        ch0.addObject(serialize);
     #endif
 
+    //second one
     ch1.addObject(cgnsO);
 
+    //executing them with debug flag on to provide info on execution.
     ch0.exec(true);
     ch1.exec(true);
 
@@ -264,7 +298,7 @@ int main( int argc, char *argv[] ) {
     {
 #endif
         try{
-            /**< Call mimmo example routine. */
+            /**< Call core functions. */
             example00001();
         }
         catch(std::exception & e){

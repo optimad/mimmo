@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -31,11 +31,13 @@
 /*!
 	\example geohandlers_example_00004.cpp
 
-	\brief Using Pid Selection, Clipping and  Surface Triangulator to extract a mesh
+	\brief Extract and manipulate topology of a geometry mesh subportion using
+           Pid Selection, Clipping and a Surface Triangulator in a chain
 
-	Geometry handler block used: SelectionByPID, CLipGeometry, SurfaceTriangulator.
+	Using: SelectionByPID, ClipGeometry, SurfaceTriangulator, Chain, Partition(MPI version).
 
-	<b>To run</b>: ./geohandlers_example_00004 \n
+	<b>To run</b>              : ./geohandlers_example_00004 \n
+    <b>To run (MPI version)</b>: mpirun -np X geohandlers_example_00004 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -44,10 +46,10 @@
 // =================================================================================== //
 
 /*
- * Creating surface polygonal mesh and return it in a MimmoObject.
- * Pidding the "M I O" texture with PID=1;
+ * Create a surface polygonal mesh and return it in a MimmoObject.
+ * Pidding the "M I O" mesh subpart with PID = 1;
  *
- * \return unique ptr to the polygonal surface mesh
+ * \return pointer to the filled polygonal surface mesh
  */
 mimmo::MimmoSharedPointer<mimmo::MimmoObject> createMIOMesh(){
 
@@ -119,19 +121,19 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createMIOMesh(){
 }
 
 
-
+// core function
 void test00001() {
 
     mimmo::setExpertMode(true);
 
     /*
-     * Create a surface polygonal mesh with texture MIO pidded as PID=1
+     * Create a surface polygonal mesh with sub-part MIO pidded as PID=1
      */
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> geo = createMIOMesh();
 
 #if MIMMO_ENABLE_MPI
-    /* Instantiation of a Partition object with default partition method space filling curve.
-     * Plot Optional results during execution active for Partition block.
+    /*
+        Distribute geo among the processes.
      */
     std::unique_ptr<mimmo::Partition> partition(new mimmo::Partition());
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
@@ -140,7 +142,9 @@ void test00001() {
 #endif
 
     /*
-     * extract texture MIO with SelectionByPID
+     * extract subpart MIO with SelectionByPID
+       MPI version will absorb distributed geo from partition block input connection.
+       Serial case will require an explicit set of the target geometry
      */
     std::unique_ptr<mimmo::SelectionByPID> sel(new mimmo::SelectionByPID());
     sel->setName("PIDExtraction");
@@ -152,7 +156,9 @@ void test00001() {
     sel->setPlotInExecution(true);
 
     /*
-     * isolate M from MIO using a plane clipping
+     * Isolate M from MIO sub part using a plane clipping.
+       The block will require the input of a point and normal to define the plane
+       InsideOut will control the emispace active for the clipping
      */
     std::unique_ptr<mimmo::ClipGeometry> clip(new mimmo::ClipGeometry());
     clip->setName("PlaneClipping");
@@ -162,14 +168,15 @@ void test00001() {
     clip->setPlotInExecution(true);
 
     /*
-     * triangulate the M polygonal tessellation
+     * Triangulate the polygonal tessellation of the M subpart
      */
     std::unique_ptr<mimmo::SurfaceTriangulator> triang(new mimmo::SurfaceTriangulator());
     triang->setName("TriangulateSurface");
     triang->setPlotInExecution(true);
 
 
-    /* Setup pin connections.
+    /*
+        Define block pin connections.
      */
 #if MIMMO_ENABLE_MPI
     mimmo::pin::addPin(partition.get(), sel.get(), M_GEOM, M_GEOM);
@@ -177,7 +184,8 @@ void test00001() {
     mimmo::pin::addPin(sel.get(), clip.get(), M_GEOM, M_GEOM);
     mimmo::pin::addPin(clip.get(), triang.get(), M_GEOM, M_GEOM);
 
-    /* Setup execution chain.
+    /*
+        Setup execution chain.
      */
     mimmo::Chain ch0;
 #if MIMMO_ENABLE_MPI
@@ -187,8 +195,9 @@ void test00001() {
     ch0.addObject(clip.get());
     ch0.addObject(triang.get());
 
-    /* Execution of chain.
-     * Use debug flag true to to print out the execution steps.
+    /*
+        Execute the chain.
+        Use debug flag true to to print out the execution steps.
      */
     ch0.exec(true);
 
@@ -206,11 +215,11 @@ int main( int argc, char *argv[] ) {
     MPI_Init(&argc, &argv);
 #endif
 		try{
-            /**<Calling mimmo Test routine*/
+            /**<Calling core functino*/
             test00001();
         }
         catch(std::exception & e){
-            std::cout<<"geohandlers_example_00001 exited with an error of type : "<<e.what()<<std::endl;
+            std::cout<<"geohandlers_example_00004 exited with an error of type : "<<e.what()<<std::endl;
             return 1;
         }
 #if MIMMO_ENABLE_MPI

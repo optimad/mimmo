@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -32,11 +32,13 @@
 /*!
 	\example geohandlers_example_00001.cpp
 
-	\brief Example of usage of selection block to select a sub-patch of an input geometry.
+	\brief Example of usage of selection and refinement of a target geometry sub-patch.
 
-	Geometry handler block used: SelectionByBox, SelectionBySphere.
+	Using: MimmoGeometry, SelectionByBox, SelectionBySphere, RefineGeometry, Chain,
+           Partition (only MPI ).
 
-	<b>To run</b>: ./geohandlers_example_00001 \n
+	<b>To run</b>              : ./geohandlers_example_00001 \n
+    <b>To run (MPI Version)</b>: mpirun -np X geohandlers_example_00001 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -46,9 +48,9 @@
 
 void test00001() {
 
-    /* Creation of mimmo containers.
-     * Input and output MimmoGeometry are instantiated
-     * as two different objects (no loop in chain are permitted).
+    /*
+        Read a target geometry from file. CONVERT option will let the block to write
+        the just read file in another file, immediately after the reading.
      */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setName("mimmo0");
@@ -59,48 +61,60 @@ void test00001() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("geohandlers_output_00001.0000");
 
+    /*
+        Write a geometry to file
+    */
     mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::SURFVTU);
     mimmo1->setWriteFilename("geohandlers_output_00001.0001");
 
+    /*
+        Write a geometry to file
+    */
     mimmo::MimmoGeometry * mimmo2 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo2->setWriteDir(".");
     mimmo2->setWriteFileType(FileType::SURFVTU);
     mimmo2->setWriteFilename("geohandlers_output_00001.0002");
 
 #if MIMMO_ENABLE_MPI
-    /* Instantiation of a Partition object with default partition method space filling curve.
-     * Plot Optional results during execution active for Partition block.
-     */
+    /*
+        Distribute a target mesh geometry among processors
+    */
     mimmo::Partition* partition = new mimmo::Partition();
     partition->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     partition->setPlotInExecution(true);
 #endif
 
-    /* Instantiation of a Selection By Box block.
-     * Setup of span and origin of cube.
+    /*
+        Select a portion of geometry incapsulated inside a Box/Cube.
+        Span and origin of the box are needed.
      */
     mimmo::SelectionByBox * boxSel = new mimmo::SelectionByBox();
 	boxSel->setOrigin({{-0.5,-0.5,0.2}});
 	boxSel->setSpan(0.6,0.6,0.6);
 
-    /* Instantiation of a Selection By Sphere block.
-     * Setup of span and origin of sphere.
+    /*
+        Select a portion of geometry incapsulated inside a Sphere.
+        Radius, angular spans and origin of the sphere are needed.
      */
 	mimmo::SelectionBySphere * sphSel = new mimmo::SelectionBySphere();
 	sphSel->setOrigin({{-0.5, 0.5,0.2}});
 	sphSel->setSpan(0.34, 2*BITPIT_PI, BITPIT_PI);
 
-    /* Instantiation of a Refine Geometry block.
-     * Setup refining.
+    /*
+       Block to refine triangles of a target mesh
+       Refine Engine type and number of refinement steps are needed.
+       Smoothing steps >0 activate a n-steps procedure to attempt smoothing/regularizing
+       the final refined mesh.
      */
 	mimmo::RefineGeometry * refine = new mimmo::RefineGeometry();
     refine->setRefineType(mimmo::RefineType::REDGREEN);
     refine->setRefineSteps(2);
     refine->setSmoothingSteps(1);
 
-    /* Setup pin connections.
+    /*
+        Define block pin connections.
      */
 #if MIMMO_ENABLE_MPI
     mimmo::pin::addPin(mimmo0, partition, M_GEOM, M_GEOM);
@@ -114,7 +128,8 @@ void test00001() {
     mimmo::pin::addPin(refine, mimmo1, M_GEOM, M_GEOM);
     mimmo::pin::addPin(sphSel, mimmo2, M_GEOM, M_GEOM);
 
-    /* Setup execution chain.
+    /*
+        Setup execution chain.
      */
     mimmo::Chain ch0;
     ch0.addObject(mimmo0);
@@ -127,12 +142,14 @@ void test00001() {
     ch0.addObject(mimmo1);
     ch0.addObject(mimmo2);
 
-    /* Execution of chain.
-     * Use debug flag true to to print out the execution steps.
+    /*
+        Execute the chain.
+        Use debug flag true to to print out the execution steps.
      */
     ch0.exec(true);
 
-    /* Clean up & exit;
+    /*
+        Clean up & exit;
      */
 	delete boxSel;
 	delete sphSel;
@@ -143,16 +160,6 @@ void test00001() {
     delete refine;
     delete mimmo1;
     delete mimmo2;
-
-    boxSel = NULL;
-    sphSel = NULL;
-    mimmo0 = NULL;
-#if MIMMO_ENABLE_MPI
-    partition = NULL;
-#endif
-    refine = NULL;
-    mimmo1 = NULL;
-    mimmo2 = NULL;
 
 	return;
 }
@@ -168,7 +175,7 @@ int main( int argc, char *argv[] ) {
     MPI_Init(&argc, &argv);
 #endif
 		try{
-            /**<Calling mimmo Test routine*/
+            /**<Calling core function*/
             test00001();
         }
         catch(std::exception & e){

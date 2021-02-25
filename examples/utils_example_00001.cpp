@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -35,9 +35,10 @@
 	Using: MimmoGeometry, CreateSeedsOnSurface
 
 	<b>To run</b>: ./utils_example_00001 \n
-    <b>To run</b>: mpirun -np 2 utils_example_00001 \n
+    <b>To run</b>: mpirun -np X utils_example_00001 \n
 
-    Please note MPI version of the example partition a very coarse support mesh. Do not exceed with number of processors.
+    Please note MPI version of the example partition a very coarse support mesh.
+    Do not exceed with number of processors (X=2 is fine).
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -45,7 +46,9 @@
 
 void test00001() {
 
-    /* Creation of mimmo containers.
+    /*
+        Read a target polygonal mesh from file. CONVERT option will let the block to write
+        the just read file in another file, immediately after the reading.
      */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     bitpit::Logger & log = mimmo0->getLog();
@@ -62,8 +65,13 @@ void test00001() {
     mimmo0->exec();
     log<<"Reading and converting the initial mesh"<<std::endl;
 
+
     mimmo::MimmoSharedPointer<mimmo::MimmoObject> target;
+
 #if MIMMO_ENABLE_MPI
+    /*
+        Distribute the mesh among the processes
+    */
     mimmo::Partition * part = new mimmo::Partition();
     part->setPartitionMethod(mimmo::PartitionMethod::PARTGEOM);
     part->setGeometry(mimmo0->getGeometry());
@@ -77,8 +85,10 @@ void test00001() {
     target = mimmo0->getGeometry();
 #endif
 
-    //create a custom sensitivity field on target points
-    // use a linear decay in spherical coordinates from center 0.5,0.5,0.
+    /*
+     Create a custom sensitivity field on target points
+     use a linear decay in spherical coordinates from center 0.5,0.5,0.
+    */
     mimmo::MimmoPiercedVector<double> sensitivity;
     sensitivity.initialize(target, mimmo::MPVLocation::POINT, 1.);
 
@@ -100,8 +110,9 @@ void test00001() {
     log<<"Creating artificial sensitivity"<<std::endl;
 
 
-    /*Creation of the seeder. Use Level set engine to place 9 points on
-     * surface, starting from a seed point in the absolute origin.
+    /*
+        Creation of the seeder. Use Level set engine to place 9 points on
+        surface, starting from a seed point in the absolute origin.
      */
     mimmo::CreateSeedsOnSurface * cseed = new mimmo::CreateSeedsOnSurface();
     cseed->setSeed(center);
@@ -117,10 +128,16 @@ void test00001() {
 
     log<<"Seeding points on surface mesh"<<std::endl;
 
+    /*
+        plot on screen the id to reproduce random distribution if a Random engine
+        is selected into cseed block.
+    */
     if(cseed->getEngineENUM() == mimmo::CSeedSurf::RANDOM){
         log<<"utils_example_0001: Random seeder used signature : "<<cseed->getRandomSignature()<<std::endl;
     }
-    /* Clean up & exit;
+
+    /*
+        Clean up & exit;
      */
     delete mimmo0;
     delete cseed;
@@ -143,11 +160,7 @@ int main(int argc, char *argv[]) {
     {
 #endif
 
-        /**<Change the name of mimmo logger file (default mimmo.log)
-         * before initialization of BaseManipulation objects*/
-//        mimmo::setLogger("mimmo");
-
-        /**<Calling mimmo Test routines*/
+        /**<Calling core function*/
         try{
             test00001() ;
         }

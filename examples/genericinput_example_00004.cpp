@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -28,11 +28,13 @@
 /*!
  * \example genericinput_example_00004.cpp
  *
- * \brief Example of reading point positions and displacements related to a RBF manipulator set
+ * \brief Example of reading point positions and displacements related to a RBF manipulator,
+          and applying deformation to a target mesh
 
- * Using: IOCloudPoints, MRBF
+ * Using: IOCloudPoints, MRBF, MimmoGeometry, Chain
  *
- * <b>To run</b>: ./genericinput_example_00003 \n
+ * <b>To run</b>              : ./genericinput_example_00003 \n
+ * <b>To run (MPI version)</b>: mpirun -np X genericinput_example_00003 \n
  *
  * <b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
@@ -42,10 +44,9 @@
 
 void test00004() {
 
-    /* Reading plane
-     */
-     /* Reading plane
-      */
+    /*
+        Reading and Writing a STL geometry (namely a plane)
+    */
 	mimmo::MimmoGeometry * read = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
      read->setReadDir("geodata");
      read->setReadFilename("plane4");
@@ -54,8 +55,9 @@ void test00004() {
      read->setWriteFilename("./genericinput_output_00004.0001");
      read->setWriteFileType(FileType::SURFVTU);
 
-
-    /* Reading rbf set of points and their diplacements from file
+    /*
+        Reading a point cloud and their associated displacements from file.
+        These will serve as input to create the RBF manipulator
      */
      mimmo::IOCloudPoints * iocp = new mimmo::IOCloudPoints(true);
     iocp->setName("genericinput_example_00004_RBFSet");
@@ -63,20 +65,24 @@ void test00004() {
     iocp->setReadFilename("generic_iocloud.txt");
     iocp->setPlotInExecution(true);
 
-    /*!Create RBF manipulator, specyfing only the RBF shape and support Radius
+    /*
+       Create the RBF manipulator. Shape and Support Radius of RBF function
+       need to be specified
     */
     mimmo::MRBF * rbf = new mimmo::MRBF();
     rbf->setFunction(bitpit::RBFBasisFunction::C1C1);
     rbf->setSupportRadiusReal(0.6);
-    rbf->setApply(true);
+    rbf->setApply(true); //when chain executed, this will apply directly the deformation calculated to the target geometry
 
-    /* Setup pin connections.
+    /*
+        Create block connections.
      */
     mimmo::pin::addPin(read, rbf, M_GEOM, M_GEOM);
     mimmo::pin::addPin(iocp, rbf, M_GEOM, M_GEOM2);
     mimmo::pin::addPin(iocp, rbf, M_VECTORFIELD, M_VECTORFIELD);
 
-    /* Setup execution chain.
+    /*
+        Define the execution chain.
      */
     mimmo::Chain ch0;
     ch0.addObject(read);
@@ -84,8 +90,9 @@ void test00004() {
     ch0.addObject(rbf);
 
 
-    /* Execution of chain.
-     * Use debug flag true to print out the execution steps.
+    /*
+        Execute the chain.
+        Use debug flag true to print out the execution steps.
      */
     ch0.exec(true);
 
@@ -113,7 +120,7 @@ int main( int argc, char *argv[] ) {
 #if MIMMO_ENABLE_MPI
     MPI_Init(&argc, &argv);
 #endif
-        /**<Calling mimmo Test routines*/
+        /**<Calling core function*/
         try{
             test00004();
         }

@@ -2,7 +2,7 @@
  *
  *  mimmo
  *
- *  Copyright (C) 2015-2017 OPTIMAD engineering Srl
+ *  Copyright (C) 2015-2021 OPTIMAD engineering Srl
  *
  *  -------------------------------------------------------------------------
  *  License
@@ -31,20 +31,21 @@
 /*!
 	\example manipulators_example_00004.cpp
 
-	\brief Example of usage of free form deformation block to manipulate an input geometry.
+	\brief Example of usage of free form deformation Lattice to manipulate an input geometry.
 
-	Geometry deformation block used: FFDLattice (Shape->sphere).
+	Using: MimmoGeometry, FFDLattice , GenericInput, GenericOutput, Apply, Chain.
 
-	<b>To run</b>: ./manipulators_example_00004 \n
+	<b>To run</b>              : ./manipulators_example_00004 \n
+    <b>To run (MPI version)</b>: mpirun -np X manipulators_example_00004 \n
 
 	<b> visit</b>: <a href="http://optimad.github.io/mimmo/">mimmo website</a> \n
  */
 
 void test00004() {
 
-    /* Creation of mimmo containers.
-     * Input and output MimmoGeometry are instantiated
-     * as two different objects (no loop in chain are permitted).
+    /*
+        Read a sphere from STL file. Convert mode is to save the just read geometry in
+        another file with name manipulators_output_00004.0000.stl
      */
 	mimmo::MimmoGeometry * mimmo0 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::CONVERT);
     mimmo0->setReadDir("geodata");
@@ -54,14 +55,18 @@ void test00004() {
     mimmo0->setWriteFileType(FileType::STL);
     mimmo0->setWriteFilename("manipulators_output_00004.0000");
 
+    /*
+        write the deformed geometry to file
+    */
     mimmo::MimmoGeometry * mimmo1 = new mimmo::MimmoGeometry(mimmo::MimmoGeometry::IOMode::WRITE);
     mimmo1->setWriteDir(".");
     mimmo1->setWriteFileType(FileType::STL);
     mimmo1->setWriteFilename("manipulators_output_00004.0001");
 
-    /* Instantiation of a FFDobject with spherical shape.
-     * Setup of origin and span (radius and span angles) of sphere.
-     * Plot Optional results during execution active for FFD block.
+    /*
+        Instantiation of a FFDobject with spherical shape.
+        Setup of sphere dimensions and number of lattice nodes/nurbs degrees
+        for each spherical coordinate.
      */
     mimmo::FFDLattice* lattice = new mimmo::FFDLattice();
     darray3E origin = {0.0, 0.0,0.0};
@@ -82,23 +87,25 @@ void test00004() {
 
     lattice->setLattice(origin,span,mimmo::ShapeType::SPHERE,dim, deg);
 
-    /* Change reference system to work in local spherical coordinates.
-     * Set coordinates as CLAMPED (continuity in origins of angles).
+    /*
+        Change reference system to work in local spherical coordinates.
+        Set coordinates as CLAMPED (continuity in origins of angles).
      */
     lattice->setRefSystem(2, darray3E{0,1,0});
     lattice->setCoordType(mimmo::CoordType::CLAMPED, 2);
     lattice->setPlotInExecution(true);
 
-    /* Build mesh of lattice outside the execution chain
-     * to use it during setup the displacements.
+    /*
+        Build mesh of lattice outside the execution chain
+        to use it during setup the displacements.
      */
     lattice->build();
 
-    /* Creation of Generic input block and set it with the
-     * displacements of the control nodes of the lattice.
+    /* Creation of displacements for control nodes of the lattice.
      * Use random values to set the displacements of the control nodes at a longitude
      * angle smaller than PI and expansion on radius direction for nodes with longitude
      * angle greater than PI.
+     * As exercise GenericInput/Output blocks are used to write them down to file
      */
     int ndeg = lattice->getNNodes();
     dvecarr3E displ(ndeg, darray3E{0,0,0});
@@ -119,25 +126,29 @@ void test00004() {
 
     }
 
-    /* Set Generic input block with the
-     * displacements defined above.
+    /*
+       Set Generic input block with the
+       displacements defined above.
      */
     mimmo::GenericInput* input = new mimmo::GenericInput();
     input->setInput(displ);
 
-    /* Set Generic output block to write the
-     * displacements defined above.
+    /*
+        Set Generic output block to write the
+        displacements defined above.
      */
     mimmo::GenericOutput * output = new mimmo::GenericOutput();
     output->setFilename("manipulators_output_00004.csv");
     output->setCSV(true);
 
-    /* Create applier block.
-     * It applies the deformation displacements to the original input geometry.
+    /*
+        Create applier block.
+        It applies the deformation displacements to the original input geometry.
      */
     mimmo::Apply* applier = new mimmo::Apply();
 
-    /* Setup pin connections.
+    /*
+        Setup pin connections.
      */
     mimmo::pin::addPin(mimmo0, lattice, M_GEOM, M_GEOM);
     mimmo::pin::addPin(mimmo0, applier, M_GEOM, M_GEOM);
@@ -146,10 +157,8 @@ void test00004() {
     mimmo::pin::addPin(lattice, applier, M_GDISPLS, M_GDISPLS);
     mimmo::pin::addPin(applier, mimmo1, M_GEOM, M_GEOM);
 
-    /* Setup execution chain.
-     * The object can be insert in the chain in random order.
-     * The chain object recover the correct order of execution from
-     * the pin connections.
+    /*
+        Setup execution chain.
      */
     mimmo::Chain ch0;
     ch0.addObject(input);
@@ -159,12 +168,13 @@ void test00004() {
     ch0.addObject(mimmo1);
     ch0.addObject(mimmo0);
 
-    /* Execution of chain.
+    /* Execute the chain.
      * Use debug flag false to avoid printing intermediate results of the execution steps.
      */
     ch0.exec(false);
 
-    /* Clean up & exit;
+    /*
+        Clean up & exit;
      */
     delete lattice;
     delete applier;
@@ -172,13 +182,6 @@ void test00004() {
     delete output;
     delete mimmo0;
     delete mimmo1;
-
-    lattice = NULL;
-    applier = NULL;
-    input   = NULL;
-    output   = NULL;
-    mimmo0 = NULL;
-    mimmo1 = NULL;
 
     return;
 }
@@ -192,7 +195,7 @@ int	main( int argc, char *argv[] ) {
     MPI_Init(&argc, &argv);
 #endif
         try{
-            /**<Calling mimmo Test routine*/
+            /**<Calling core function*/
             test00004() ;
         }
         catch(std::exception & e){
