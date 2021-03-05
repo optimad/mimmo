@@ -411,6 +411,8 @@ void initializeCase(const char *rootPath, Foam::Time **foamRunTime_retPtr, Foam:
     if (processorCount > 1){
         nArguments = 4;
     }
+#else
+    BITPIT_UNUSED(processorCount);
 #endif
     char **arguments = new char*[nArguments];
 
