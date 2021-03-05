@@ -1722,7 +1722,7 @@ void NastranInterface::read(std::string& inputDir, std::string& surfaceName, dve
             int ispolygon = int(nv > 4);
             face.resize(nv+ispolygon);
             face[0] = nv;
-            for (int i=0; i<nv; i++){
+            for (std::size_t i=0; i<nv; i++){
                 face[i+ispolygon] = conn[i];
             }
             faces.push_back(face);
@@ -1756,7 +1756,7 @@ void NastranInterface::read(std::string& inputDir, std::string& surfaceName, dve
             int ispolygon = int(nv > 4);
             face.resize(nv+ispolygon);
             face[0] = nv;
-            for (int i=0; i<nv; i++){
+            for (std::size_t i=0; i<nv; i++){
                 face[i+ispolygon] = conn[i];
             }
             faces.push_back(face);
