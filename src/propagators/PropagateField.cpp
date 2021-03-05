@@ -1045,7 +1045,8 @@ void PropagateVectorField::initializeSlipSurfaceAsPlane(){
     //loop on m_slipReferenceSurfaces list. Already checked and updated.
     for(MimmoSharedPointer<MimmoObject> obj : m_slipReferenceSurfaces){
         bitpit::SurfaceKernel * surfkernss = dynamic_cast<bitpit::SurfaceKernel*>(obj->getPatch());
-
+        if(!surfkernss) continue;
+        
         //start evaluating barycenter of interior points.
         for(auto itV = surfkernss->vertexBegin(); itV != surfkernss->vertexEnd(); ++itV){
             if(obj->isPointInterior(itV.getId())){
