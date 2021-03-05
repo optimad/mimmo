@@ -107,7 +107,7 @@ MRBF::MRBF(const MRBF & other):BaseManipulation(other), bitpit::RBF(other){
     m_rbfScalarDispl = other.m_rbfScalarDispl;
     m_rbfSupportRadii = other.m_rbfSupportRadii;
     m_diagonalFactor = other.m_diagonalFactor;
-    m_diagonalFactor = other.m_diagonalFactor;
+    m_areScalarResults = other.m_areScalarResults;
 };
 
 /*! Assignment operator. Result geometry displacement are not copied.
@@ -1158,7 +1158,7 @@ MRBF::computeEffectiveSupportRadiusList(){
     }
 
     // now you are working with singular supportRadius
-    double candidateRadius;
+    double candidateRadius = 0.0;
     //check if it's negative.
     if(m_supportRadiusValue < std::numeric_limits<double>::min()) {
     //get maximum weight/value displ and assign support radius a 3 times this value.
