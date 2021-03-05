@@ -210,7 +210,9 @@ private:
  */
 #define REGISTER_PORT(Name, Container, Datatype, ManipBlock) \
 /* Register a Port in the mimmo::portManager*/ \
-static long port_##Name##_##Container##_##Datatype##_##ManipBlock = mimmo::PortManager::instance().addPort(Name, Container, Datatype, __FILE__);\
+__attribute__((unused)) static long port_##Name##_##Container##_##Datatype##_##ManipBlock = mimmo::PortManager::instance().addPort(Name, Container, Datatype, __FILE__);\
+
+/*static long port_##Name##_##Container##_##Datatype##_##ManipBlock = mimmo::PortManager::instance().addPort(Name, Container, Datatype, __FILE__);\ */
 
 
 /*!
