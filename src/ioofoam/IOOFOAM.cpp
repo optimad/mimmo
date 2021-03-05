@@ -449,7 +449,9 @@ IOOFOAM::buildPorts(){
 void
 IOOFOAM::setWritePointsOnly(bool flag){
 	//m_writepointsonly = flag;
-    m_writepointsonly = true; //TODO set to flag once write() is coded
+    //TODO return back to properly flag once write() is coded
+    BITPIT_UNUSED(flag);
+    m_writepointsonly = true;
 }
 
 /*!
@@ -786,18 +788,15 @@ IOOFOAM::read(){
 	        for (auto & entry : ghostCellExchangeSources){
 
 	            int target_rank = entry.first;
-	            std::unordered_set<long> & cellList = entry.second;
 	            std::unordered_set<long> & vertexList = vertexCellExchangeSources[target_rank];
 
-	            // Prepare buffer for source cells and vertices of the source cells
-	            long vertexCount = 0;
-	            for (long vertexId : vertexList){
-	                vertexCount++;
-	            }
+	            // Prepare buffer for source vertices
+	            long vertexCount = vertexList.size();
+
 	            dataCommunicator->setSend(target_rank, vertexCount*sizeof(long));
 	            bitpit::SendBuffer &buffer = dataCommunicator->getSendBuffer(target_rank);
 
-	            // Fill the buffer with the source cells and vertices
+	            // Fill the buffer with the source  vertices
 	            buffer << vertexCount;
 	            dataCommunicator->startSend(target_rank);
 	        }
@@ -1002,7 +1001,7 @@ IOOFOAM::read(){
 	                ghostCell.renumberVertices(oldToNewVertexId[source_rank]);
 	                ghostCell.setId(bitpit::Cell::NULL_ID);
 	                long ghostId = mesh->addCell(ghostCell, int(source_rank));
-
+                    BITPIT_UNUSED(ghostId);
 	            }
 	            ++nCompletedRecvs;
 	        }
@@ -1046,7 +1045,6 @@ IOOFOAM::read(){
         std::size_t j(0);
         while(iBIT < 0 && j<sizeFList){
             bitpit::ConstProxyVector<long> vconn = bitInterfaces[bitFaceList[j]].getVertexIds();
-            std::size_t vconnsize = vconn.size();
             std::vector<long> vListBIT(vconn.begin(), vconn.end());
             std::sort(vListBIT.begin(), vListBIT.end());
 
