@@ -99,8 +99,6 @@ void IOCloudPoints::swap(IOCloudPoints & x) noexcept
     std::swap(m_template    , x.m_template);
     std::swap(m_labels      , x.m_labels);
     std::swap(m_points      , x.m_points);
-    std::swap(m_scalarfield , x.m_scalarfield);
-    std::swap(m_vectorfield , x.m_vectorfield);
     m_scalarfield.swap(x.m_scalarfield);
     m_vectorfield.swap(x.m_vectorfield);
     BaseManipulation::swap(x);

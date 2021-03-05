@@ -2593,7 +2593,7 @@ void IOWavefrontOBJ::writeObjectData(WavefrontOBJData* objData, std::ofstream & 
             }//ending leaflist - chunk of cells.
         }// ending sublist of materials
     }  // ending cellgroups
-
+    
 }
 
 /*!

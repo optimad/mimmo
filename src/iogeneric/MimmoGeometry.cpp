@@ -94,6 +94,7 @@ MimmoGeometry::MimmoGeometry(const MimmoGeometry & other):BaseManipulation(other
     m_multiSolidSTL = other.m_multiSolidSTL;
     m_tolerance = other.m_tolerance;
     m_clean = other.m_clean;
+    m_parallelRestore = other.m_parallelRestore;
 };
 
 /*!
@@ -124,6 +125,7 @@ void MimmoGeometry::swap(MimmoGeometry & x) noexcept
     std::swap(m_multiSolidSTL, x.m_multiSolidSTL);
     std::swap(m_tolerance, x.m_tolerance);
     std::swap(m_clean, x.m_clean);
+    std::swap(m_parallelRestore, x.m_parallelRestore);
     BaseManipulation::swap(x);
 }
 
@@ -162,7 +164,7 @@ MimmoGeometry::setDefaults(){
     m_winfo.ftype    = static_cast<int>(FileType::STL);
     m_winfo.fdir    = "./";
 
-    m_wformat        = Short;
+    m_wformat        =  Short;
     m_codex            = true;
     m_buildSkdTree    = false;
     m_buildKdTree    = false;
@@ -1285,6 +1287,7 @@ NastranInterface::NastranInterface(){
     disable(NastranElementType::CBAR);
     disable(NastranElementType::RBE2);
     disable(NastranElementType::RBE3);
+    m_wformat = WFORMAT::Short;
 }
 
 /*!
