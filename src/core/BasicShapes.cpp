@@ -94,12 +94,9 @@ BasicShape::BasicShape(){
 	m_origin.fill(0.0);
 	m_span.fill(0.0);
 	m_infLimits.fill(0.0);
-	for(int i=0; i<3; ++i){
-		m_sdr[i].fill(0.0);
-        m_sdr_inverse[i].fill(0.0);
-	}
-	m_sdr[0][0] = m_sdr[1][1] = m_sdr[2][2] = 1.0;
-    m_sdr_inverse[0][0] = m_sdr_inverse[1][1] = m_sdr_inverse[2][2] = 1.0;
+    m_sdr[0] = m_sdr_inverse[0] = {{1.0,0.0,0.0}};
+    m_sdr[1] = m_sdr_inverse[1] = {{0.0,1.0,0.0}};
+    m_sdr[2] = m_sdr_inverse[2] = {{0.0,0.0,1.0}};
 	m_typeCoord.fill(CoordType::CLAMPED);
 	m_scaling.fill(1.0);
 };

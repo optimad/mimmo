@@ -245,6 +245,9 @@ MimmoObject::MimmoObject(int type, bool isParallel):m_patch(nullptr),m_extpatch(
     m_nprocs = 1;
 #endif
 
+    //initialize the logger
+    initializeLogger();
+
 	m_type = std::max(type,1);
 	switch(m_type){
 	case 1:
@@ -289,8 +292,6 @@ MimmoObject::MimmoObject(int type, bool isParallel):m_patch(nullptr),m_extpatch(
 	}
 
 	m_internalPatch = true;
-
-    initializeLogger();
 
     // Set skdTreeSync and kdTreeSync to none
     m_skdTreeSync = SyncStatus::NONE;
@@ -358,6 +359,8 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
     m_rank = 0;
     m_nprocs = 1;
 #endif
+    //initialize the logger.
+    initializeLogger();
 
 	m_type = std::max(type,1);
 	switch(m_type){
@@ -403,8 +406,6 @@ MimmoObject::MimmoObject(int type, dvecarr3E & vertex, livector2D * connectivity
 	}
 
 	m_internalPatch = true;
-
-    initializeLogger();
 
     // Set skdTreeSync and kdTreeSync to none
     m_skdTreeSync = SyncStatus::NONE;
@@ -3428,12 +3429,12 @@ void MimmoObject::update()
     if (status != SyncStatus::SYNC){
         updatePointGhostExchangeInfo();
     }
-#endif
 
-    // Reset structures if needed
+    // Reset structures if needed. This can happen only in MPI
     if (resetAdjacencies){
         destroyAdjacencies();
     }
+#endif
 }
 
 /*!
