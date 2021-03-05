@@ -107,8 +107,8 @@ void SpecularPoints::swap(SpecularPoints & x) noexcept
     std::swap(m_origin, x.m_origin);
     std::swap(m_normal, x.m_normal);
     std::swap(m_implicit, x.m_implicit);
-    std::swap(m_scalarMirrored, x.m_scalarMirrored);
-    std::swap(m_vectorMirrored, x.m_vectorMirrored);
+    m_scalarMirrored.swap(x.m_scalarMirrored);
+    m_vectorMirrored.swap(x.m_vectorMirrored);
     std::swap(m_pc,x.m_pc);
 
     ProjPatchOnSurface::swap(x);
