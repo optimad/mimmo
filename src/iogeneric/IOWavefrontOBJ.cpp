@@ -149,7 +149,7 @@ WavefrontOBJData::dump(std::ostream & out){
 
     int location  = static_cast<int>(MPVLocation::CELL);
     std::string name;
-    std::size_t totSize, listSize;
+    std::size_t totSize;
 
     //dump materials
     name = materials.getName();
@@ -212,9 +212,9 @@ WavefrontOBJData::dump(std::ostream & out){
 void
 WavefrontOBJData::restore(std::istream & in){
 
-    int location, status;
+    int location;
     std::string name;
-    std::size_t totSize, listSize;
+    std::size_t totSize;
     long id;
 
     materials.clear();
@@ -229,7 +229,7 @@ WavefrontOBJData::restore(std::istream & in){
         materials.reserve(totSize);
 
         std::string data;
-        for(int i=0; i<totSize; ++i){
+        for(std::size_t i=0; i<totSize; ++i){
             bitpit::utils::binary::read(in, id);
             bitpit::utils::binary::read(in, data);
             materials.insert(id, data);
@@ -248,7 +248,7 @@ WavefrontOBJData::restore(std::istream & in){
         cellgroups.reserve(totSize);
 
         std::string data;
-        for(int i=0; i<totSize; ++i){
+        for(std::size_t i=0; i<totSize; ++i){
             bitpit::utils::binary::read(in, id);
             bitpit::utils::binary::read(in, data);
             cellgroups.insert(id, data);
@@ -267,7 +267,7 @@ WavefrontOBJData::restore(std::istream & in){
         smoothids.reserve(totSize);
 
         long data;
-        for(int i=0; i<totSize; ++i){
+        for(std::size_t i=0; i<totSize; ++i){
             bitpit::utils::binary::read(in, id);
             bitpit::utils::binary::read(in, data);
             smoothids.insert(id, data);
@@ -836,10 +836,8 @@ void ManipulateWFOBJData::computeAnnotations(){
                     if(cgs[id].empty()){
                         cgs[id] = data.getName();
                     }else{
-                        // be sure to skip marking if the data.getName() string is already here.
-                        if(!checkEntry(data.getName(), cgs[id])){
-                            cgs[id] = cgs[id] + " " + data.getName();
-                        }
+                        //append data name with a blank space in front.
+                        cgs[id] = cgs[id] + " " + data.getName();
                     }
                     break;
                 case OverlapAnnotationMode::GETALLNOBLANKS:
@@ -891,7 +889,6 @@ void ManipulateWFOBJData::computeNormals(){
     m_normalsCells.squeezeOutExcept(geoCellsIds, false);
 
     bitpit::PiercedVector<bitpit::Cell> & motherCells = m_extData->refGeometry->getCells();
-    bitpit::PiercedVector<bitpit::Cell> & normalsCells = vnormals->getCells();
     std::array<double,3> candidateNormal;
 
     livector1D candidateCells = m_normalsCells.getIds();
@@ -916,7 +913,6 @@ void ManipulateWFOBJData::computeNormals(){
     std::vector<long> conn_normals;
     std::vector<long> motherRing;
     std::size_t locsize;
-    long newID;
     int rank;
 
     bitpit::SurfaceKernel * motherSK = static_cast<bitpit::SurfaceKernel*>(mother->getPatch());
@@ -937,7 +933,7 @@ void ManipulateWFOBJData::computeNormals(){
 
             // for each local vertices find the 1Ring, calculate the new normals, and
             // fill the local connectivity ready to be pushed in vnormals as the new cell with id=idCell.
-            for(int i=0; i<locsize; ++i){
+            for(std::size_t i=0; i<locsize; ++i){
                 candidateNormal = evalVNormal(motherSK, idCell, motherCell.findVertex(mother_vids[i]));
 
                 conn_normals[i] = vnormals->addVertex(candidateNormal, bitpit::Vertex::NULL_ID);
@@ -1015,8 +1011,8 @@ void ManipulateWFOBJData::extractPinnedLists(){
             //you need to check if m_pinCellGroups entry is a subpart of the cellgroups[id] entry
             std::unordered_set<std::string>::iterator itinput = m_pinCellGroups.begin();
             bool found = false;
-            while(itinput != m_pinCellGroups.end() && found){
-                found = checkEntry(*itinput, root);
+            while(itinput != m_pinCellGroups.end() && !found){
+                found = (root.find(*itinput) != std::string::npos);
                 ++itinput;
             }
             if(found)   idcontainer.insert(it.getId());
@@ -1130,26 +1126,6 @@ ManipulateWFOBJData::evalVNormal(bitpit::SurfaceKernel * mesh, long idCell, int 
     return result;
 }
 
-/*!
-    Check if entry string is contained in a root string. Comparison is
-    done between portions of root separated by blank spaces.
-    Return true if entry matches one of this portions.
-    \param[in] entry string
-    \param[in] root  string
-    \return true/false if entry matches one of the blank-space separated portions of root
-*/
-bool ManipulateWFOBJData::checkEntry(const std::string& entry, const std::string& root)
-{
-    std::stringstream(ss);
-    std::unordered_set<std::string> portions;
-    std::string temp;
-    ss>>temp;
-    while(ss.good()){
-        portions.insert(temp);
-        ss>>temp;
-    }
-    return (portions.count(entry)>0);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////              IOWAVEFRONTOBJ IMPLEMENTATION               ////////
@@ -1910,7 +1886,6 @@ void IOWavefrontOBJ::write(const std::string & filename){
 
     std::array<std::vector<long>,3> vertexLists;
     std::vector<long> cellList;
-    long cOffset(1);
     std::array<long,3> vOffsets;
     vOffsets.fill(1);
     std::array<std::unordered_map<long,long>,3> vinsertion_maps; // key long id, written id.
@@ -1971,7 +1946,7 @@ void IOWavefrontOBJ::write(const std::string & filename){
                 //force writing g defaultGroup for each new object.
                 activeGroup = -1000;
                 writeObjectData(objData, out, vertexLists, cellList, vOffsets,
-                        cOffset, vinsertion_maps, defaultGroup, activeGroup,
+                        vinsertion_maps, defaultGroup, activeGroup,
                         activeMaterial, activeSmoothId);
             }
 
@@ -1994,7 +1969,7 @@ void IOWavefrontOBJ::restore(std::istream & in){
 
     bitpit::utils::binary::read(in, m_tol);
 
-    bool geoMark, txtMark, dataMark;
+    bool geoMark, dataMark;
 
     bitpit::utils::binary::read(in, geoMark);
     if(geoMark){
@@ -2483,7 +2458,6 @@ void IOWavefrontOBJ::readObjectData(std::ifstream & in, const std::streampos &be
     \param[in] vertexLists list of points involved for the object for all 3 type v, vt, vn
     \param[in] cellList list of cells involved for the object
     \param[in,out] vOffsets offset for local v,vt,vn counting
-    \param[in,out] cOffset offset for local facet/cell counting
     \param[in,out] vinsertion_maps local map id-written insertion index for v,vt,vn (to avoid rewrite vertices)
     \param[in] defaultGroup name of the current object part (save all empty cellgroups entry in defaultGroup).
     \param[in,out] activeGroup currently active cellgroup for the mesh
@@ -2494,7 +2468,6 @@ void IOWavefrontOBJ::writeObjectData(WavefrontOBJData* objData, std::ofstream & 
                                      const std::array<std::vector<long>,3> & vertexLists,
                                      const std::vector<long> & cellList,
                                      std::array<long,3> &vOffsets,
-                                     long &cOffset,
                                      std::array<std::unordered_map<long,long>,3> & vinsertion_maps,
                                      const std::string & defaultGroup,
                                      long & activeGroup, long & activeMaterial, long &activeSmoothId)
@@ -2575,7 +2548,7 @@ void IOWavefrontOBJ::writeObjectData(WavefrontOBJData* objData, std::ofstream & 
                         {
                             bitpit::ConstProxyVector<long> txtIds= objData->textures->getCells().at(idCell).getVertexIds();
                             out<<"f ";
-                            for(int i=0; i<countV; ++i){
+                            for(std::size_t i=0; i<countV; ++i){
                                 out<<vinsertion_maps[0].at(meshIds[i])<<"/";
                                 out<<vinsertion_maps[1].at(txtIds[i])<<" ";
                             }
@@ -2588,7 +2561,7 @@ void IOWavefrontOBJ::writeObjectData(WavefrontOBJData* objData, std::ofstream & 
                             bitpit::ConstProxyVector<long> txtIds= objData->textures->getCells().at(idCell).getVertexIds();
                             bitpit::ConstProxyVector<long> normalIds= objData->normals->getCells().at(idCell).getVertexIds();
                             out<<"f ";
-                            for(int i=0; i<countV; ++i){
+                            for(std::size_t i=0; i<countV; ++i){
                                 out<<vinsertion_maps[0].at(meshIds[i])<<"/";
                                 out<<vinsertion_maps[1].at(txtIds[i])<<"/";
                                 out<<vinsertion_maps[2].at(normalIds[i])<<" ";
@@ -2602,7 +2575,7 @@ void IOWavefrontOBJ::writeObjectData(WavefrontOBJData* objData, std::ofstream & 
                         {
                             bitpit::ConstProxyVector<long> normalIds= objData->normals->getCells().at(idCell).getVertexIds();
                             out<<"f ";
-                            for(int i=0; i<countV; ++i){
+                            for(std::size_t i=0; i<countV; ++i){
                                 out<<vinsertion_maps[0].at(meshIds[i])<<"//";
                                 out<<vinsertion_maps[2].at(normalIds[i])<<" ";
                             }
@@ -2611,7 +2584,7 @@ void IOWavefrontOBJ::writeObjectData(WavefrontOBJData* objData, std::ofstream & 
                         break;
                     default: // v only
                             out<<"f ";
-                            for(int i=0; i<countV; ++i){
+                            for(std::size_t i=0; i<countV; ++i){
                                 out<<vinsertion_maps[0].at(meshIds[i])<<" ";
                             }
                             out<<'\n';
@@ -2701,16 +2674,16 @@ long IOWavefrontOBJ::pushCell(MimmoSharedPointer<MimmoObject> obj, std::vector<l
         //not allowed cases
         break;
     case 3: //triangles
-        markedid = obj->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, PID, id, -1);
+        markedid = obj->addConnectedCell(conn, bitpit::ElementType::TRIANGLE, PID, id, rank);
         break;
     case 4: //quads
-        markedid = obj->addConnectedCell(conn, bitpit::ElementType::QUAD, PID, id, -1);
+        markedid = obj->addConnectedCell(conn, bitpit::ElementType::QUAD, PID, id, rank);
         break;
     default: //polygons
         {
             std::vector<long> tt(1,conn.size());
             tt.insert(tt.end(), conn.begin(), conn.end());
-            markedid =  obj->addConnectedCell(tt, bitpit::ElementType::POLYGON, PID, id, -1);
+            markedid =  obj->addConnectedCell(tt, bitpit::ElementType::POLYGON, PID, id, rank);
         }
         break;
     }

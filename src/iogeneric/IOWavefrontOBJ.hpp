@@ -242,8 +242,6 @@ protected:
 
     std::array<std::vector<long>, 4> m_pinnedCellLists; /**< list of cell pinned 0-material, 1-cellgroups, 2-smoothids, 3-objects/subparts */
 
-    bool checkEntry(const std::string& entry, const std::string& root);
-
 private:
     //make useless base class methods private;
     MimmoSharedPointer<MimmoObject> getGeometry(){return nullptr;};
@@ -410,7 +408,6 @@ protected:
                          const std::array<std::vector<long>,3> & vertexLists,
                          const std::vector<long> & cellList,
                          std::array<long,3> &vOffsets,
-                         long &cOffset,
                          std::array<std::unordered_map<long,long>,3> & vinsertion_maps,
                          const std::string & defaultGroup,
                          long & activeGroup, long & activeMaterial, long &activeSmoothId);
