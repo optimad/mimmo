@@ -378,7 +378,6 @@ OBBox::execute(){
 
     if (!m_writeInfo) return;
     //OK, write the resume file.
-    long idClass = getId();
 #if MIMMO_ENABLE_MPI
     //allow only rank-0 to write the resume file
     if(m_rank == 0)
