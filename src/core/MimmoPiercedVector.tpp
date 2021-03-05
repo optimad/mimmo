@@ -425,7 +425,6 @@ MimmoPiercedVector<mpv_t>::checkDataIdsCoherence(){
 	break;
 	case MPVLocation::INTERFACE:
 	{
-		size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
 		auto vint = m_geometry->getPatch()->getInterfaces();
 		for(auto el : ids){
 			check =check && vint.exists(el);
@@ -479,7 +478,6 @@ MimmoPiercedVector<mpv_t>::resizeToCoherentDataIds(){
 	case MPVLocation::INTERFACE:
 	{
         bitpit::PiercedVector<bitpit::Interface> & interfaces = m_geometry->getInterfaces();
-		size_t sizeInterfaces = interfaces.size();
         result.reserve(interfaces.size());
         long id;
         for(auto it=this->begin(); it!=this->end(); ++it){
@@ -530,24 +528,21 @@ MimmoPiercedVector<mpv_t>::intIsValidLocation(int &value){
 template<typename mpv_t>
 livector1D
 MimmoPiercedVector<mpv_t>::getGeometryIds(bool ordered){
-	if(getGeometry()==nullptr) return livector1D(0);
-	switch(m_loc){
-	case MPVLocation::POINT:
-		return getGeometry()->getVertices().getIds(ordered);
-		break;
-	case MPVLocation::CELL:
-		return getGeometry()->getCells().getIds(ordered);
-		break;
-	case MPVLocation::INTERFACE:
-	{
-		size_t sizeInterfaces = m_geometry->getPatch()->getInterfaces().size();
-		return getGeometry()->getInterfaces().getIds(ordered);
-	}
-	break;
-	default:
-		return livector1D(0);
-		break;
-	}
+    if(getGeometry()==nullptr) return livector1D(0);
+    switch(m_loc){
+        case MPVLocation::POINT:
+            return getGeometry()->getVertices().getIds(ordered);
+            break;
+        case MPVLocation::CELL:
+            return getGeometry()->getCells().getIds(ordered);
+            break;
+        case MPVLocation::INTERFACE:
+            return getGeometry()->getInterfaces().getIds(ordered);
+            break;
+        default:
+            return livector1D(0);
+            break;
+    }
 }
 
 /*!

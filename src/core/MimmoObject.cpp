@@ -1645,6 +1645,7 @@ MimmoObject::isPointInterior(long id)
 #if MIMMO_ENABLE_MPI
 	return getPatch()->getVertex(id).isInterior();
 #else
+    BITPIT_UNUSED(id);
 	return true;
 #endif
 }
@@ -2958,7 +2959,6 @@ MimmoObject::extractBoundaryMesh(){
     int rank;
     long PID;
     long * conn = nullptr;
-    bitpit::ElementType eltype;
     for(long idI: boundaryInterfaces){
         bitpit::Interface & bInt = bulkInterf[idI];
         rank = -1;
@@ -4147,7 +4147,6 @@ MimmoObject::getCellsNarrowBandToExtSurfaceWDist(MimmoObject & surface, const do
     //First step check seed list and precalculate distance. If dist >= maxdist
     //the seed candidate is out.
     int npoints(0);
-    darray3E point;
     dvecarr3E points;
     dvector1D distances;
     livector1D surface_ids;
@@ -4359,7 +4358,6 @@ MimmoObject::getVerticesNarrowBandToExtSurfaceWDist(MimmoObject & surface, const
     //First step check seed list and precalculate distance. If dist >= maxdist
     //the seed candidate is out.
     int npoints(0);
-    darray3E point;
     dvecarr3E points;
     dvector1D distances;
     livector1D surface_ids;
