@@ -412,18 +412,16 @@ std::vector<long>
 RefineGeometry::ternaryRefineCell(const long & cellId, const std::vector<bitpit::Vertex> & vertices, const std::array<double,3> & center)
 {
 
-    long newID, newVertID;
+    long newVertID;
 
 	std::vector<long> newCellIDs;
 
-	bitpit::ElementType eletype;
 	bitpit::ElementType eletri = bitpit::ElementType::TRIANGLE;
 	livector1D connTriangle(3);
 
     // Take a cell copy, after the emplace back of the refined cells the reference can be changed
     const bitpit::Cell & cell = getGeometry()->getPatch()->getCell(cellId);
 
-	eletype = cell.getType();
 	long pid = cell.getPID();
     int rank = -1;
 
@@ -520,7 +518,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
 
         // Fill initial sources and targets values
         for (auto & source_tuple : geometry->getPatch()->getGhostCellExchangeSources()){
-            int rank = source_tuple.first;
+            //int rank = source_tuple.first;
             for (long id : source_tuple.second){
                 if (!refinementTagCommunicated.exists(id)){
                     refinementTagCommunicated.insert(id,-1);
@@ -529,7 +527,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
             }
         }
         for (auto & target_tuple : geometry->getPatch()->getGhostCellExchangeTargets()){
-            int rank = target_tuple.first;
+            //int rank = target_tuple.first;
             for (long id : target_tuple.second){
                 // Initialize targets (ghosts) to -1
                 if (!refinementTagCommunicated.exists(id)){
@@ -648,7 +646,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                 // The if needed insert new edges and put new reds in stack
                 // Fill with sources and targets values
                 for (auto & source_tuple : geometry->getPatch()->getGhostCellExchangeSources()){
-                    int rank = source_tuple.first;
+                    //int rank = source_tuple.first;
                     for (long id : source_tuple.second){
                         refinementTagCommunicated.at(id) = refinementTag.at(id);
                         if (greenSplitFaceIndex.count(id)){
@@ -660,7 +658,7 @@ RefineGeometry::redgreenRefine(std::unordered_map<long,long> * mapping, mimmo::M
                     }
                 }
                 for (auto & target_tuple : geometry->getPatch()->getGhostCellExchangeTargets()){
-                    int rank = target_tuple.first;
+                    //int rank = target_tuple.first;
                     for (long id : target_tuple.second){
                         // Initialize targets (ghosts) to -1
                         refinementTagCommunicated.at(id) = -1;
@@ -986,7 +984,7 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 
     // Fill initial sources and targets values
     for (auto source_tuple : geometry->getPointGhostExchangeSources()){
-        int rank = source_tuple.first;
+        //int rank = source_tuple.first;
         for (long id : source_tuple.second){
             if (!newCoordinatesCommunicated.exists(id)){
                 newCoordinatesCommunicated.insert(id, std::array<double,3>({{0.,0.,0.}}));
@@ -994,7 +992,7 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
         }
     }
     for (auto target_tuple : geometry->getPointGhostExchangeTargets()){
-        int rank = target_tuple.first;
+        //int rank = target_tuple.first;
         for (long id : target_tuple.second){
             if (!newCoordinatesCommunicated.exists(id)){
                 newCoordinatesCommunicated.insert(id,  std::array<double,3>({{0.,0.,0.}}));
@@ -1056,7 +1054,7 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 
                 // Fill with sources and targets values
                 for (auto source_tuple : geometry->getPointGhostExchangeSources()){
-                    int rank = source_tuple.first;
+                    //int rank = source_tuple.first;
                     for (long id : source_tuple.second){
                         newCoordinatesCommunicated.at(id) = newcoordinates.at(id);
                     }
@@ -1067,7 +1065,7 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 
                 // Update coordinates of ghost vertices with communicated ones
                 for (auto target_tuple : geometry->getPointGhostExchangeTargets()){
-                    int rank = target_tuple.first;
+                    //int rank = target_tuple.first;
                     for (long id : target_tuple.second){
                         newcoordinates[id] = newCoordinatesCommunicated.at(id);
                     } // end id
@@ -1108,8 +1106,7 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 					sumweights = 0.;
 					for (long idneigh : pointconnectivity){
 						neighcoords = geometry->getVertexCoords(idneigh);
-						std::array<double,3> distancevector = (neighcoords-oldcoords);
-						weight = 1.;
+						weight = 1.0;
 						sumweights += weight;
 						newcoords += kappa*weight*(neighcoords-oldcoords);
 					}
@@ -1130,7 +1127,7 @@ RefineGeometry::smoothing(std::set<long> * constrainedVertices)
 
                 // Fill with sources and targets values
                 for (auto source_tuple : geometry->getPointGhostExchangeSources()){
-                    int rank = source_tuple.first;
+                    //int rank = source_tuple.first;
                     for (long id : source_tuple.second){
                         newCoordinatesCommunicated.at(id) = newcoordinates.at(id);
                     }
