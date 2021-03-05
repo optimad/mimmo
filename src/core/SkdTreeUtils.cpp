@@ -296,10 +296,10 @@ std::vector<long> selectByPatch(bitpit::PatchSkdTree *selection, bitpit::PatchSk
 void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit::SkdNode*> & leafSelection, std::vector<long> &extracted, double tol){
 
     if(leafSelection.empty())   return;
-    long rootId = 0;
+    std::size_t rootId = 0;
 
     std::vector<long> candidates;
-    std::vector<std::pair< long, std::vector<const bitpit::SkdNode*> > > nodeStack;
+    std::vector<std::pair< std::size_t, std::vector<const bitpit::SkdNode*> > > nodeStack;
 
     std::vector<const bitpit::SkdNode*> tocheck;
     for (int i=0; i<(int)leafSelection.size(); i++){
@@ -325,7 +325,7 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<const bitpit:
         bool isLeaf = true;
         for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {
             bitpit::SkdNode::ChildLocation childLocation = static_cast<bitpit::SkdNode::ChildLocation>(i);
-            long childId = node.getChildId(childLocation);
+            std::size_t childId = node.getChildId(childLocation);
             if (childId != bitpit::SkdNode::NULL_ID) {
                 isLeaf = false;
                 tocheck.clear();
@@ -1055,7 +1055,6 @@ void locatePointOnGlobalPatch(int nP, const std::array<double,3> *points, const 
         const std::array<double,3> & point = points[ip];
         const long & cellId = cellIds[ip];
         const int & cellRank = ranks[ip];
-        double & distance = distances[ip];
 
         // If the current rank is the the owner of the cell check if the point belongs to the closest cell
         if (cellRank == myrank){
@@ -1333,16 +1332,16 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
 {
 
     if(leafSelectionBoxes.empty()) return;
-    long rootId = 0;
+    std::size_t rootId = 0;
 
     // Candidates saved in set to avoid duplicate
-    std::unordered_set<long> candidates;
+    std::unordered_set<std::size_t> candidates;
 
     // Loop on leaf selection boxes and go across the target tree with a node stack
     for (const bitpit::SkdBox & selectionBox : leafSelectionBoxes){
 
         // Initialize stack with target root node
-        std::queue<long> nodeStack;
+        std::queue<std::size_t> nodeStack;
         nodeStack.push(rootId);
 
         // Pop and push target tree nodes checked with current selection boxe
@@ -1350,14 +1349,14 @@ void extractTarget(bitpit::PatchSkdTree *target, const std::vector<bitpit::SkdBo
         // Stop when stack is empty
         while(!nodeStack.empty()){
 
-            long nodeId = nodeStack.front();
+            std::size_t nodeId = nodeStack.front();
             nodeStack.pop();
             const bitpit::SkdNode & node = target->getNode(nodeId);
 
             bool isLeaf = true;
             for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {
                 bitpit::SkdNode::ChildLocation childLocation = static_cast<bitpit::SkdNode::ChildLocation>(i);
-                long childId = node.getChildId(childLocation);
+                std::size_t childId = node.getChildId(childLocation);
                 if (childId != bitpit::SkdNode::NULL_ID) {
                     isLeaf = false;
                     if (bitpit::CGElem::intersectBoxBox(selectionBox.getBoxMin(), selectionBox.getBoxMax(),
@@ -1435,9 +1434,10 @@ long findSharedPointClosestGlobalCell(int nPoints, const std::array<double, 3> *
 long findSharedPointClosestGlobalCell(int nPoints, const std::array<double, 3> *points, const bitpit::PatchSkdTree *tree,
         long *ids, int *ranks, double *distances, double *r)
 {
+    //TODO evaluate if to use a provided r or always a numeric_limits::max here as maxDistance. Clean it up useless stuffs then.
+    BITPIT_UNUSED(r); // just to suppress warnings.
 
     long nDistanceEvaluations = 0;
-
     std::vector<double> maxDistances(nPoints, std::numeric_limits<double>::max());
 
     // Early return is the patch is not partitioned
@@ -1462,9 +1462,7 @@ long findSharedPointClosestGlobalCell(int nPoints, const std::array<double, 3> *
         throw std::runtime_error ("There is no communicator set for the patch.");
     }
 
-    MPI_Comm communicator = tree->getPatch().getCommunicator();
     int nprocs = tree->getPatch().getProcessorCount();
-    int myRank = tree->getPatch().getRank();
 
     // Initialize distance information
     std::vector<bitpit::SkdGlobalCellDistance> globalCellDistances(nPoints);
@@ -1573,20 +1571,20 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Patc
     // Initialize the distance with an estimate
     //
     // The real distance will be lesser than or equal to the estimate.
-    long rootId = 0;
+    std::size_t rootId = 0;
     const bitpit::SkdNode &root = tree->getNode(rootId);
     *distance = std::min(root.evalPointMaxDistance(point), maxDistance);
 
     // Get a list of candidates nodes
     //
     // Initialize list of candidates
-    std::vector<long> candidateIds;
+    std::vector<std::size_t> candidateIds;
     std::vector<double> candidateMinDistances;
 
-    std::vector<long> nodeStack;
+    std::vector<std::size_t> nodeStack;
     nodeStack.push_back(rootId);
     while (!nodeStack.empty()) {
-        long nodeId = nodeStack.back();
+        std::size_t nodeId = nodeStack.back();
         const bitpit::SkdNode &node = tree->getNode(nodeId);
         nodeStack.pop_back();
 
@@ -1609,7 +1607,7 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Patc
         bool isLeaf = true;
         for (int i = bitpit::SkdNode::CHILD_BEGIN; i != bitpit::SkdNode::CHILD_END; ++i) {
             bitpit::SkdNode::ChildLocation childLocation = static_cast<bitpit::SkdNode::ChildLocation>(i);
-            long childId = node.getChildId(childLocation);
+            std::size_t childId = node.getChildId(childLocation);
             if (childId != bitpit::SkdNode::NULL_ID) {
                 isLeaf = false;
                 nodeStack.push_back(childId);
@@ -1624,7 +1622,7 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Patc
 
     // Process the candidates and find the closest cell
     long nDistanceEvaluations = 0;
-    for (int k = 0; k < candidateIds.size(); ++k) {
+    for (std::size_t k = 0; k < candidateIds.size(); ++k) {
         // Do not consider nodes with a minimum distance greater than
         // the distance estimate
         if (candidateMinDistances[k] > *distance) {
@@ -1632,7 +1630,7 @@ long findPointClosestCell(const std::array<double, 3> &point, const bitpit::Patc
         }
 
         // Evaluate the distance
-        long nodeId = candidateIds[k];
+        std::size_t nodeId = candidateIds[k];
         const bitpit::SkdNode &node = tree->getNode(nodeId);
 
         node.updatePointClosestCell(point, interiorOnly, id, distance);

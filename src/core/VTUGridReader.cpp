@@ -256,29 +256,28 @@ void VTUGridStreamer::decodeRawData(bitpit::PatchKernel & patch)
 
     //reading mesh connectivity by offsets and store it in cells.
     //check cell labels if any;
-    bool checkCellsID, checkFaceOffset, checkPID, checkRank;
-    {
-        std::unordered_set<long> checkSet(cellsID.begin(), cellsID.end());
-        checkCellsID = ( checkSet.size() == nCells);
-        checkFaceOffset = ( (faceoffsets.size() == nCells) && (faces.size()>= nCells) );
-        checkPID = (pids.size() == nCells);
+    bool checkCellsID, checkFaceOffset, checkPID;
+    std::unordered_set<long> checkSet(cellsID.begin(), cellsID.end());
+    checkCellsID = ( checkSet.size() == nCells);
+    checkFaceOffset = ( (faceoffsets.size() == nCells) && (faces.size()>= nCells) );
+    checkPID = (pids.size() == nCells);
 #if MIMMO_ENABLE_MPI
-        checkRank = (cellsRank.size() == nCells);
+    bool checkRank = (cellsRank.size() == nCells);
 #endif
-    }
+    checkSet.clear();
     //insert points;
     counter = 0;
-    long idC=0;
-    int rank;
+    long idC = bitpit::Cell::NULL_ID;
+#if MIMMO_ENABLE_MPI
+    int rank = -1;
+#endif
     int posCellBegin = 0, posFaceBegin=0;
     bitpit::ElementType eltype;
-    long PID;
+    long PID = 0;
     livector1D conn;
     std::size_t connSize;
+
     for(const auto & off : offsets){
-        idC = bitpit::Cell::NULL_ID;
-        PID = 0;
-        rank = -1;
         if(checkCellsID)  {idC= cellsID[counter];}
         if(checkPID)      {PID = pids[counter];}
 #if MIMMO_ENABLE_MPI
