@@ -190,7 +190,7 @@ Partition::execute(){
     };
 
     if(m_mode == PartitionMethod::CUSTOM){
-        if (m_partition.size() != m_geometry->getNCells())
+        if (m_partition.size() != std::size_t(m_geometry->getNCells()))
             throw std::runtime_error(m_name + " : partition size different from number of cells");
     }
 
@@ -376,7 +376,7 @@ Partition::parmetisPartGeom(){
 
 			int ret = METIS_PartGraphKway ( &nvtxs, &ncon, xadj.data(), adjncy.data(), nullptr, nullptr,
 					nullptr, &nParts, nullptr, nullptr, nullptr, &objval, part.data() );
-
+            BITPIT_UNUSED(ret);
 			m_partition.clear();
 			m_partition.reserve(nvtxs);
 			for (long i=0; i<nvtxs; i++){
