@@ -220,10 +220,9 @@ ApplyFilter::checkInput(){
 	    }
 	}
 	if (!check){
-		m_log->setPriority(bitpit::log::Verbosity::DEBUG);
+		m_log->setPriority(bitpit::log::Verbosity::NORMAL);
 		(*m_log) << m_name + " : not valid inputs found" << std::endl;
 		throw std::runtime_error (m_name + " : not valid inputs found");
-		m_log->setPriority(bitpit::log::Verbosity::NORMAL);
 	}
 };
 
