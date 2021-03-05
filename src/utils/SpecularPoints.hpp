@@ -150,7 +150,7 @@ private:
     //interface method disabling
     void setPatch(MimmoSharedPointer<MimmoObject>geo){ProjPatchOnSurface::setPatch(geo);};
     MimmoSharedPointer<MimmoObject> getProjectedElement(){return ProjPatchOnSurface::getProjectedElement();};
-    void setBuildSkdTree(bool build){ProjPrimitivesOnSurfaces::setBuildSkdTree(false);};
+    void setBuildSkdTree(bool build){BITPIT_UNUSED(build); ProjPrimitivesOnSurfaces::setBuildSkdTree(false);};
     void setWorkingOnTarget(bool flag){ProjPatchOnSurface::setWorkingOnTarget(flag);}
     bool isWorkingOnTarget(){return ProjPatchOnSurface::isWorkingOnTarget();}
 

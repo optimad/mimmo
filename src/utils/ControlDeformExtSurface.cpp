@@ -361,7 +361,6 @@ ControlDeformExtSurface::execute(){
     }
 
     // start examining one by one all external constraints
-    bool checkOpen;
     darray3E bbMin, bbMax;
 
     for(MimmoSharedPointer<MimmoObject> localg : constraint_geos){
@@ -435,7 +434,6 @@ ControlDeformExtSurface::absorbSectionXML(const bitpit::Config::Section & slotXM
         for(auto & subfile : filesXML.getSections()){
             std::string path;
             std::string tag, tolstring;
-            double value = 1.E-8;
 
             if(subfile.second->hasOption("fullpath"))    {
                 path = subfile.second->get("fullpath");
@@ -579,7 +577,6 @@ ControlDeformExtSurface::evaluateSignedDistance(const std::vector<darray3E> &poi
 
     geo->buildSkdTree();
 
-    double dist = std::numeric_limits<double>::max();
     double rate = 0.05;
     int kmax = 1000;
     int kiter = 0;
