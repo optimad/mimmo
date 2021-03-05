@@ -62,8 +62,10 @@ int test1() {
     {
         std::vector<double> input(5, 1.12);
         std::vector<double*> input_ptr(5, nullptr);
-        for(int i=0; i<5; ++i){
-            input_ptr[i] = &input[i];
+        int counter(0);
+        for(auto it = input.begin(); it != input.end(); ++it){
+            input_ptr[counter] = &(*it);
+            ++counter;
         }
 
         outbuf.seekg(0); //clean it
