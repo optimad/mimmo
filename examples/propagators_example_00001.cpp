@@ -131,14 +131,13 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createTestVolumeMesh(int rank, std
 int test00001() {
 
 #if MIMMO_ENABLE_MPI
-	// Initialize mpi
-	int nProcs;
-	int    rank;
-	MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    // Initialize mpi
+    int nProcs;
+    int    rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #else
-	int nProcs = 1;
-	int rank = 0;
+    int rank = 0;
 #endif
 
     //create the volume mesh
@@ -271,7 +270,7 @@ std::chrono::time_point<Clock> t1,t2;
 	delete partition;
 #endif
 	delete prop;
-    
+
 	return int(error);
 }
 
