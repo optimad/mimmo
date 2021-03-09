@@ -150,7 +150,7 @@ mimmo::MimmoSharedPointer<mimmo::MimmoObject> createSubMesh(mimmo::MimmoObject *
 
 	result->updateAdjacencies();
 
-	return std::move(result);
+	return result;
 }
 
 

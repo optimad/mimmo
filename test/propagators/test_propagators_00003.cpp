@@ -192,7 +192,6 @@ int test1() {
     MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #else
-    int nProcs = 1;
     int rank = 0;
 #endif
 
