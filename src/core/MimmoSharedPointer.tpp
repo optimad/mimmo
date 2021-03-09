@@ -57,7 +57,16 @@ mimmo::OBinaryStream& operator<<(mimmo::OBinaryStream &buffer, const mimmo::Mimm
 namespace mimmo{
 
 /*!
-   Default constructor of MimmoSharedPointer.
+   Default Constructor of MimmoSharedPointer.
+ */
+template<class O>
+MimmoSharedPointer<O>::MimmoSharedPointer()
+{
+    _init(nullptr, nullptr);
+}
+
+/*!
+   Constructor of MimmoSharedPointer.
    The class must be initialized with a pointer to a O type class, dynamically
    allocated. If a valid pointer is passed, the class will set its counter
    to 1.

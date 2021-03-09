@@ -148,7 +148,8 @@ friend mimmo::OBinaryStream& (::operator<<) (mimmo::OBinaryStream &buffer, const
 
 public:
 
-    MimmoSharedPointer(O* object = nullptr);
+    MimmoSharedPointer();
+    MimmoSharedPointer(O* object);
     ~MimmoSharedPointer();
     MimmoSharedPointer(const MimmoSharedPointer<O> & other);
     MimmoSharedPointer(MimmoSharedPointer<O> && other);
