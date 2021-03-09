@@ -60,7 +60,11 @@ public:
     DataType(containerTAG conType, dataTAG dataType);
     virtual ~DataType();
 
-    DataType(const DataType & other);
+    /*! Default copy constructor */
+    DataType(const DataType&) = default;
+    /*! Default copy assignment */
+    DataType& operator=(const DataType&) = default;
+
     bool operator==(const DataType & other);
 
 };

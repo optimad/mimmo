@@ -3434,6 +3434,8 @@ void MimmoObject::update()
     if (resetAdjacencies){
         destroyAdjacencies();
     }
+#else
+    BITPIT_UNUSED(resetAdjacencies);
 #endif
 }
 

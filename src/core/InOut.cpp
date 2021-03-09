@@ -53,14 +53,6 @@ DataType::DataType(containerTAG conType, dataTAG dataType){
  */
 DataType::~DataType(){};
 
-/*!
- * Copy constructor of DataType.
- */
-DataType::DataType(const DataType & other){
-    m_conType 	= other.m_conType;
-    m_dataType	= other.m_dataType;
-    return;
-};
 
 /*!
  * Compare operator of DataType.

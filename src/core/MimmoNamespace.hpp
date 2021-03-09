@@ -44,7 +44,10 @@ struct FileDataInfo{
 
     FileDataInfo();
     virtual ~FileDataInfo();
-    FileDataInfo(const FileDataInfo & other);
+    /*! Default copy constructor */
+    FileDataInfo(const FileDataInfo&) = default;
+    /*! Default copy assignment */
+    FileDataInfo & operator=(const FileDataInfo&) = default;
 };
 
 }
