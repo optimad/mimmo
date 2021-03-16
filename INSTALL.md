@@ -7,12 +7,12 @@ Full compliance with MacOS systems is currently under investigation by developer
 mimmo depends on
 * c++ compiler supporting `-std=c++11`. It has been tested with g++ = 4.8.5
 * cmake. Tested with cmake >= 3.13.2
-* bitpit library. It has been tested with bitpit 1.7.0. Visit www.optimad.it/products/bitpit/ for further information.
+* bitpit library. It has been tested with bitpit 1.7.1. Visit www.optimad.it/products/bitpit/ for further information.
 * (optionally) cgns. It has been tested with cgns = 3.3.1, with sub-dependency hdf5 = 1.10.4.
 * (optionally) OpenFoam. It has been tested with OpenFoam Foundation 7 and ESI-OpenCFD v1906+ versions.
    Retro-compatibility with older versions has be not been verified yet and may be not guaranteed.
    Anyway, share with us your own experience, will be glad to integrate this current guide.
-* (optionally) MPI implementation. It has been tested with OpenMPI >= 4.0.0. 
+* (optionally) MPI implementation. It has been tested with OpenMPI >= 4.0.0.
 * (optionally) Metis/parMetis. Needed by MPI version, it has been tested with Metis = 5.1.0, parMetis = 4.0.3         
 
 
