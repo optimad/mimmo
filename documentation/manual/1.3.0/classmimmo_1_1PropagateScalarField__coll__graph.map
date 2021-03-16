@@ -1,9 +1,0 @@
-<map id="mimmo::PropagateScalarField" name="mimmo::PropagateScalarField">
-<area shape="rect" id="node2" href="$classmimmo_1_1PropagateField.html" title="mimmo::PropagateField\&lt; 1 \&gt;" alt="" coords="1188,123,1379,149"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="589,47,765,73"/>
-<area shape="rect" id="node11" href="$classmimmo_1_1PropagateField.html" title="Executable block that provides the computation of a field over a 3D volume mesh. The field is calcula..." alt="" coords="944,115,1104,157"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="217,47,371,73"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; std::array\&lt; double, NCOMP \&gt; \&gt;" alt="" coords="567,189,788,230"/>
-<area shape="rect" id="node7" href="$classmimmo_1_1MimmoPiercedVector.html" title="MimmoPiercedVector is the basic data container for mimmo library. " alt="" coords="195,225,393,266"/>
-<area shape="rect" id="node9" href="$classmimmo_1_1MimmoPiercedVector.html" title="mimmo::MimmoPiercedVector\l\&lt; double \&gt;" alt="" coords="578,278,777,319"/>
-</map>

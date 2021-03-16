@@ -1,6 +1,0 @@
-<map id="mimmo::IOOFOAM" name="mimmo::IOOFOAM">
-<area shape="rect" id="node2" href="$classmimmo_1_1IOOFOAM__Kernel.html" title="Abstract class to import/export an OpenFOAM volume mesh alongside its boundary information or field a..." alt="" coords="31,249,209,276"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1MimmoFvMesh.html" title="MimmoFvMesh is an abstract executable class for handling 3D and 2D mesh with their boundary informati..." alt="" coords="39,173,201,200"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="175,96,351,123"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="5,5,160,32"/>
-</map>

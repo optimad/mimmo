@@ -1,0 +1,4 @@
+<map id="mimmo::Creator&lt; Base, Derived &gt;" name="mimmo::Creator&lt; Base, Derived &gt;">
+<area shape="rect" id="node1" title="Template class to create an object Base * = new Derived creator class, where Derived is a generic der..." alt="" coords="5,95,185,136"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1Factory_1_1AbstractCreator.html" title="Abstract class embedded in Factory to link creators of type Base* &lt;&gt;(const bitpit::Config::Section &amp; ..." alt="" coords="8,5,183,47"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="mimmo::PortOut" name="mimmo::PortOut">
+<area shape="rect" id="node1" title="PortOut is the abstract PIN base class dedicated to exchange data from a target class to other ones (..." alt="" coords="163,171,294,197"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1OBinaryStream.html" title="mimmo custom derivation of bitpit OBinaryStream (see relative doc)" alt="" coords="5,81,185,108"/>
+<area shape="rect" id="node3" title=" " alt="" coords="14,5,177,32"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1DataType.html" title="Class DataType defines the container and the type of data communicated by ports." alt="" coords="209,81,352,108"/>
+</map>

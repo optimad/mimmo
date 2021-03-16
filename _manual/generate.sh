@@ -59,29 +59,11 @@ cmake ${MIMMO_SOURCE_DIR} \
     -DCMAKE_INSTALL_PREFIX:PATH="" \
     -DBITPIT_DIR="${BITPIT_DIR}" \
     -DBUILD_DOCUMENTATION=ON \
-    -DENABLE_MPI=OFF \
-    -DMIMMO_MODULE_GEOHANDLERS=ON \
-    -DMIMMO_MODULE_IOCGNS=ON \
-    -DMIMMO_MODULE_IOOFOAM=ON \
-    -DMIMMO_MODULE_IOVTK=ON \
-    -DMIMMO_MODULE_PROPAGATORS=ON \
-    -DMIMMO_MODULE_PARALLEL=OFF \
-    -DMIMMO_MODULE_UTILS=ON \
     -DDOXY_HTML_HEADER="${MANUAL_BUILD_DIR}/templates/doxygen_header.html" \
     -DDOXY_HTML_FOOTER="${MANUAL_BUILD_DIR}/templates/doxygen_footer.html" \
     -DDOXY_HTML_EXTRA_STYLESHEET="${MANUAL_BUILD_DIR}/stylesheets/manual.css" \
     -DDOXY_DISABLE_INDEX="NO" \
-    -DDOXY_GENERATE_TREEVIEW="NO" \
-    -DPETSC_COMPILER:FILEPATH="mpicxx" \
-    -DPETSC_CURRENT:BOOL=OFF \
-    -DPETSC_DEFINITIONS:STRING="-D__INSDIR__=" \
-    -DPETSC_DIR:PATH="/usr/lib/petsc" \
-    -DPETSC_INCLUDES:STRING="/usr/lib/petscdir/3.7.7/x86_64-linux-gnu-real/include;/usr/include/hypre;/usr/include/superlu;/usr/include/suitesparse;/usr/lib/x86_64-linux-gnu/hdf5/openmpi/include;/usr/include/scotch;/usr/lib/x86_64-linux-gnu/openmpi/include" \
-    -DPETSC_INCLUDE_CONF:PATH="/usr/lib/petsc/include" \
-    -DPETSC_INCLUDE_DIR:PATH="/usr/lib/petsc/include" \
-    -DPETSC_LIBRARIES:STRING="/usr/lib/petscdir/3.7.7/x86_64-linux-gnu-real/lib/libpetsc_real.so;/usr/lib/x86_64-linux-gnu/libdmumps.so;/usr/lib/x86_64-linux-gnu/libzmumps.so;/usr/lib/x86_64-linux-gnu/libsmumps.so;/usr/lib/x86_64-linux-gnu/libcmumps.so;/usr/lib/x86_64-linux-gnu/libmumps_common.so;/usr/lib/x86_64-linux-gnu/libpord.so;/usr/lib/x86_64-linux-gnu/libHYPRE_IJ_mv.so;/usr/lib/x86_64-linux-gnu/libHYPRE_parcsr_ls.so;/usr/lib/x86_64-linux-gnu/libHYPRE_sstruct_ls.so;/usr/lib/x86_64-linux-gnu/libHYPRE_sstruct_mv.so;/usr/lib/x86_64-linux-gnu/libHYPRE_struct_ls.so;/usr/lib/x86_64-linux-gnu/libHYPRE_struct_mv.so;/usr/lib/x86_64-linux-gnu/libHYPRE_utilities.so;/usr/lib/x86_64-linux-gnu/libsuperlu.so;/usr/lib/x86_64-linux-gnu/libscalapack-openmpi.so;/usr/lib/x86_64-linux-gnu/libfftw3.so;/usr/lib/x86_64-linux-gnu/libfftw3_mpi.so;/usr/lib/x86_64-linux-gnu/libumfpack.so;/usr/lib/x86_64-linux-gnu/libamd.so;/usr/lib/x86_64-linux-gnu/libcholmod.so;/usr/lib/x86_64-linux-gnu/libklu.so;/usr/lib/x86_64-linux-gnu/liblapack.so;/usr/lib/x86_64-linux-gnu/libblas.so;/usr/lib/x86_64-linux-gnu/hdf5/openmpi/lib/libhdf5hl_fortran.so;/usr/lib/x86_64-linux-gnu/hdf5/openmpi/lib/libhdf5_fortran.so;/usr/lib/x86_64-linux-gnu/hdf5/openmpi/lib/libhdf5_hl.so;/usr/lib/x86_64-linux-gnu/hdf5/openmpi/lib/libhdf5.so;/usr/lib/x86_64-linux-gnu/libhwloc.so;/usr/lib/x86_64-linux-gnu/libptesmumps.so;/usr/lib/x86_64-linux-gnu/libptscotch.so;/usr/lib/x86_64-linux-gnu/libptscotcherr.so;/usr/lib/x86_64-linux-gnu/libssl.so;/usr/lib/x86_64-linux-gnu/libcrypto.so;/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_usempif08.so;/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_usempi_ignore_tkr.so;/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_mpifh.so;/usr/lib/gcc/x86_64-linux-gnu/7/libgfortran.so;/usr/lib/gcc/x86_64-linux-gnu/7/libquadmath.so;/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so;/usr/lib/gcc/x86_64-linux-gnu/7/libstdc++.so;/usr/lib/x86_64-linux-gnu/libm.so;/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so;/usr/lib/gcc/x86_64-linux-gnu/7/libgcc_s.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/usr/lib/x86_64-linux-gnu/libdl.so"
-    -DPETSC_LIBRARY_SINGLE:FILEPATH="/usr/lib/petscdir/3.7.7/x86_64-linux-gnu-real/lib/libpetsc_real.so" \
-    -DPETSC_MPIEXEC:FILEPATH="mpiexec" \
+    -DDOXY_GENERATE_TREEVIEW="NO"
 
     
 cd doc

@@ -1,0 +1,4 @@
+<map id="mimmo::Cylinder" name="mimmo::Cylinder">
+<area shape="rect" id="node1" title="Elementary Shape Representation of a Cylinder or portion of it." alt="" coords="16,80,151,107"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation." alt="" coords="5,5,161,32"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="mimmo::BendGeometry" name="mimmo::BendGeometry">
+<area shape="rect" id="node1" title="BendGeometry applies custom bending deformations along axis&#45;directions of a target geometry." alt="" coords="15,80,194,107"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="5,5,204,32"/>
+</map>

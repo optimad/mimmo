@@ -1,0 +1,6 @@
+<map id="mimmo::PortIn" name="mimmo::PortIn">
+<area shape="rect" id="node1" title="PortIn is the abstract PIN base class dedicated to carry data to a target class from other ones (inpu..." alt="" coords="91,171,209,197"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1DataType.html" title="Class DataType defines the container and the type of data communicated by ports." alt="" coords="5,81,148,108"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1IBinaryStream.html" title="mimmo custom derivation of bitpit IBinaryStream (see relative doc)" alt="" coords="172,81,347,108"/>
+<area shape="rect" id="node4" title=" " alt="" coords="181,5,338,32"/>
+</map>

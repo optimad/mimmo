@@ -1,0 +1,5 @@
+<map id="mimmo::SelectionByElementList" name="mimmo::SelectionByElementList">
+<area shape="rect" id="node1" title="Selection through list of cells/vertices of the target mesh." alt="" coords="5,155,240,181"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes." alt="" coords="27,80,218,107"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="23,5,222,32"/>
+</map>

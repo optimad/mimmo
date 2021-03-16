@@ -1,5 +1,0 @@
-<map id="mimmo::ExtractField" name="mimmo::ExtractField">
-<area shape="rect" id="node3" href="$classmimmo_1_1ExtractScalarField.html" title="ExtractScalarField is specialized derived class of ExtractField to extract a scalar field of doubles..." alt="" coords="5,155,185,181"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1ExtractVectorField.html" title="ExtractVectorField is specialized derived class of ExtractField to extract a vector field of array&lt;do..." alt="" coords="210,155,391,181"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="110,5,286,32"/>
-</map>

@@ -1,0 +1,13 @@
+<map id="mimmo::ManipulateWFOBJData" name="mimmo::ManipulateWFOBJData">
+<area shape="rect" id="node1" title="Executable block manipulating optional data of WavefrontOBJ mesh." alt="" coords="1351,114,1580,141"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="1025,199,1223,226"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="664,212,887,253"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1WavefrontOBJData.html" title="struct for storing cell data attached to Wavefront OBJ polygonal mesh" alt="" coords="1023,114,1225,141"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="208,219,431,246"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1MimmoPiercedVector.html" title=" " alt="" coords="665,27,885,68"/>
+<area shape="rect" id="node7" title=" " alt="" coords="243,5,396,47"/>
+<area shape="rect" id="node8" href="$classmimmo_1_1MimmoPiercedVector.html" title="MimmoPiercedVector is the basic data container for mimmo library." alt="" coords="209,71,429,112"/>
+<area shape="rect" id="node10" href="$classmimmo_1_1MimmoPiercedVector.html" title=" " alt="" coords="665,107,885,148"/>
+<area shape="rect" id="node9" title=" " alt="" coords="5,71,159,112"/>
+<area shape="rect" id="node11" title=" " alt="" coords="232,136,407,177"/>
+</map>

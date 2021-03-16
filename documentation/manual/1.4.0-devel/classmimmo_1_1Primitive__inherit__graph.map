@@ -1,0 +1,5 @@
+<map id="mimmo::Primitive" name="mimmo::Primitive">
+<area shape="rect" id="node1" title="Primitive object generation." alt="" coords="137,80,277,107"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="5,5,204,32"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1UStructMesh.html" title="Class for 3D uniform structured mesh." alt="" coords="228,5,392,32"/>
+</map>

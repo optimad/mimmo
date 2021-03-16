@@ -1,0 +1,7 @@
+<map id="mimmo::PortInT&lt; T, O &gt;" name="mimmo::PortInT&lt; T, O &gt;">
+<area shape="rect" id="node1" title="PortInT is the PIN class to get input data arriving to an object from other objects." alt="" coords="59,247,241,273"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1PortIn.html" title="PortIn is the abstract PIN base class dedicated to carry data to a target class from other ones (inpu..." alt="" coords="91,171,209,197"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1DataType.html" title="Class DataType defines the container and the type of data communicated by ports." alt="" coords="5,81,148,108"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1IBinaryStream.html" title="mimmo custom derivation of bitpit IBinaryStream (see relative doc)" alt="" coords="172,81,347,108"/>
+<area shape="rect" id="node5" title=" " alt="" coords="181,5,338,32"/>
+</map>

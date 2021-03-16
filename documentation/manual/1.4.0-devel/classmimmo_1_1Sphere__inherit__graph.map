@@ -1,0 +1,5 @@
+<map id="mimmo::Sphere" name="mimmo::Sphere">
+<area shape="rect" id="node1" title="Elementary Shape Representation of a Sphere or portion of it." alt="" coords="43,80,170,107"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1SelectionBySphere.html" title="Selection through sphere primitive." alt="" coords="5,155,208,181"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation." alt="" coords="29,5,185,32"/>
+</map>

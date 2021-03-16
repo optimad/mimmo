@@ -1,0 +1,7 @@
+<map id="mimmo::ProjSegmentOnSurface" name="mimmo::ProjSegmentOnSurface">
+<area shape="rect" id="node1" title="Executable block class capable of projecting an elemental segment on a 3D surface mesh defined by a M..." alt="" coords="13,351,244,377"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1ProjPrimitivesOnSurfaces.html" title="Class for projecting 1D/2D primitives on a target 3D surface mesh." alt="" coords="5,275,252,301"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="199,199,397,225"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="23,95,245,136"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="23,5,245,32"/>
+</map>

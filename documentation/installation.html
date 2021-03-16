@@ -19,7 +19,7 @@ In order to build mimmo and bitpit library you need at least the following softw
 </p>
 <ul>
 <li>
-    a standard compliant C++ compiler, tested are g++ (4.8.5) and Clang (3.4).
+    a standard compliant C++ compiler, tested with g++ (4.8.5).
     Recent versions of ICC (15) should work, older versions (like 14.0.3)
     are discouraged
 </li>
@@ -27,44 +27,37 @@ In order to build mimmo and bitpit library you need at least the following softw
     CMake (3.13.2)
 </li>
 <li>
-    bitpit (1.6.1)
-</li>
-<!-- <li>
-    lapacke/lapack (3.8.0)
+    bitpit (1.7.1)
 </li>
 <li>
-    xml2 (2.9.1)
-</li> --> <!-- bitpit dependencies --> 
-<!-- <li>
     OpenMPI (4.0.0) [optional]
-</li> -->
+</li>
+<li>
+    metis (5.1.0) and parmetis (4.0.3) needed by MPI version [optional]
+</li>
 <li>
     cgns (3.3.1) [optional]
 </li>
-<!--<li>
-    hdf5 (1.10.4) [optional]
-</li> -->
 <li>
-    OpenFOAM (16.06) [optional]
+    hdf5 (1.10.4) [optional]
 </li>
 <li>
-    vtk (8.1.2) [optional]
+    OpenFOAM tested with OpenFOAM Foundation (7) and ESI-OpenCFD (v1906+) distributions [optional]
 </li>
 </ul>
 
 <p>
 Bitpit modules have additional dependencies, in order to have a list of the required
-libraries and softwares, please refer to <a href="http://optimad.github.io/bitpit/documentation/installation.html">bitpit documentation<a>.
+libraries and softwares, please refer to <a href="http://optimad.github.io/bitpit/documentation/installation.html">bitpit documentation</a>.
 </p>
 
-<!-- 
+ 
 <p>
 To take advangate of multi-processor systems, mimmo can be compiled, optionally,
 with parallel support. The parallel implementation of mimmo uses the
-Message-Passing Interface (MPI). Any MPI implemetation, either OpenMPI, LAM,
-or MPICH suffice.
+Message-Passing Interface (MPI). The library was tested with OpenMPI implementation.
 </p>
--->
+
 
 
 <h2>Download mimmo source code</h2>
@@ -174,24 +167,26 @@ be used to complete.
 
    <br />    
 
-<!--   <dt><strong>ENABLE_MPI</strong></dt>
+   <dt><strong>ENABLE_MPI</strong></dt>
     <dd>
     Controls if mimmo will be compiled with parallel support and allow the dependency on MPI libraries.
     </dd>
 
-    <br />    -->
+    <br /> 
     
    <dt><strong>MIMMO_MODULES</strong></dt>
     <dd>
     The module variables (available in the advanced mode) can be used to compile each module singularly by setting the related varible ON/OFF.
-    <br><b>MIMMO_MODULE_CORE</b> is always compiled, while for <b>MIMMO_MODULE_GEOHANDLERS</b>, <b>MIMMO_MODULE_IOCGNS</b>, <b>MIMMO_MODULE_IOOFOAM</b>, <b>MIMMO_MODULE_IOVTK</b>, 
+    <br><b>MIMMO_MODULE_CORE</b> is always compiled, while for <b>MIMMO_MODULE_GEOHANDLERS</b>, <b>MIMMO_MODULE_IOCGNS</b>, <b>MIMMO_MODULE_IOOFOAM</b>, 
     <b>MIMMO_MODULE_PROPAGATORS</b> and <b>MIMMO_MODULE_UTILS</b> the compilation can be toggled. <br>Possible dependencies between mimmo modules are automatically resolved.
     Dependencies on external libraries when possible are automatically resolved through find package command. Otherwise the setup for the new variables is required.
     </dd>
 
     <br />	
     <p>
-    Some of the new variables that appear by activating all the modules are:
+    When possible, dependencies on external libraries are automatically resolved. 
+    Otherwise cmake will ask to specify the installation info of the missing packages. 
+    In particular:
     </p>
     <br />	
 
@@ -204,34 +199,33 @@ be used to complete.
     Path to the libraries directory of cgns package.
     </dd>
 
+    <dt><strong>METIS_DIR</strong></dt>
+    <dd>
+    Installation path of metis library. If package is regularly found, a METIS_DIR_FOUND variable will be filled accordingly. Exposed only with ENABLE_MPI activated.
+    </dd>
+    <dt><strong>PARMETIS_DIR</strong></dt>
+    <dd>
+    Path to parmetis library. If package is regularly found, a PARMETIS_DIR_FOUND variable will be filled accordingly. Exposed with ENABLE_MPI activated.
+    </dd>
+
     <dt><strong>OPENFOAM_ARCH</strong></dt>
     <dd>
     System architecture of OpenFOAM compilation, tipically it can be 64 or 32 (bit).
     </dd>
 
+    <dt><strong>OPENFOAM_DISTRO</strong></dt>
+    <dd>
+    OpenFOAM distrivbution type. Allowed distributions: OpenFOAM Foundation and ESI-OpendCFD.
+    </dd>
+
     <dt><strong>OPENFOAM_DIR</strong></dt>
     <dd>
-    Path to OpenFOAM installation.
+    OpenFOAM installation directory, automatically filled if package is regularly found.
     </dd>
 
-    <dt><strong>OPENFOAM_LABEL</strong></dt>
+    <dt><strong>OPENFOAM_API</strong></dt>
     <dd>
-    Maximum size of OpenFOAM label, it can be 32 or 64 (bit).
-    </dd>
-
-    <dt><strong>OPENFOAM_OLDVER</strong></dt>
-    <dd>
-    ON/OFF if the installed OpenFOAM version is older then the Official Foundation 5.0.x release.
-    </dd>
-
-    <dt><strong>OPENFOAM_PREC</strong></dt>
-    <dd>
-    It sets the precision of the installed OpenFOAM, typical values are WM_SP for single precision or WM_DP for double precision.
-    </dd>
-
-    <dt><strong>VTK_DIR</strong></dt>
-    <dd>
-    Sets the installation directory of VTK library (<i>i.e.</i> the directory where the file of a CMake configuration of VTK resides).
+    OpenFOAM API information, automatically filled when package is regularly found.
     </dd>
 
 </dl>

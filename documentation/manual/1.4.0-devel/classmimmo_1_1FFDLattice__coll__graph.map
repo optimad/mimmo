@@ -1,0 +1,12 @@
+<map id="mimmo::FFDLattice" name="mimmo::FFDLattice">
+<area shape="rect" id="node1" title="Free Form Deformation of a 3D surface and point clouds, with structured lattice." alt="" coords="1513,93,1664,119"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1Lattice.html" title="Structured 3D Cartesian Mesh." alt="" coords="1229,63,1354,90"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="831,13,1029,39"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="461,5,684,47"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="5,13,228,39"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1UStructMesh.html" title="Class for 3D uniform structured mesh." alt="" coords="848,63,1012,90"/>
+<area shape="rect" id="node7" href="$classmimmo_1_1MimmoPiercedVector.html" title=" " alt="" coords="1181,115,1401,156"/>
+<area shape="rect" id="node8" title=" " alt="" coords="847,115,1013,156"/>
+<area shape="rect" id="node9" href="$classmimmo_1_1MimmoPiercedVector.html" title="MimmoPiercedVector is the basic data container for mimmo library." alt="" coords="820,180,1040,221"/>
+<area shape="rect" id="node10" title=" " alt="" coords="496,180,649,221"/>
+</map>

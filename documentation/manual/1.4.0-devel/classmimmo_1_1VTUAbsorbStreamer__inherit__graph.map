@@ -1,0 +1,5 @@
+<map id="mimmo::VTUAbsorbStreamer" name="mimmo::VTUAbsorbStreamer">
+<area shape="rect" id="node1" title="Abstract class for custom reader/absorber of *.vtu mesh external files." alt="" coords="5,80,219,107"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1VTUGridStreamer.html" title="Custom mesh/data absorber for unstructured grids given by external files *.vtu." alt="" coords="15,155,209,181"/>
+<area shape="rect" id="node2" title=" " alt="" coords="21,5,203,32"/>
+</map>

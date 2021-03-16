@@ -1,0 +1,7 @@
+<map id="mimmo::ProjPrimitivesOnSurfaces" name="mimmo::ProjPrimitivesOnSurfaces">
+<area shape="rect" id="node1" title="Class for projecting 1D/2D primitives on a target 3D surface mesh." alt="" coords="107,80,354,107"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1ProjPatchOnSurface.html" title="Executable block class capable of projecting a surface patch, 3DCurve or PointCloud on a 3D surface,..." alt="" coords="5,155,213,181"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1ProjSegmentOnSurface.html" title="Executable block class capable of projecting an elemental segment on a 3D surface mesh defined by a M..." alt="" coords="238,155,469,181"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="131,5,330,32"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1SpecularPoints.html" title="SpecularPoints is a class that mirrors a point cloud w.r.t. a reference plane, on a target surface ge..." alt="" coords="21,229,198,256"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="mimmo::MeshChecker" name="mimmo::MeshChecker">
+<area shape="rect" id="node1" title="MeshChecker is the class to evaluate the quality of a volume mesh." alt="" coords="1169,49,1337,75"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="831,18,1029,45"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="461,5,684,47"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="5,13,228,39"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1MimmoPiercedVector.html" title=" " alt="" coords="820,71,1040,112"/>
+<area shape="rect" id="node6" title=" " alt="" coords="496,71,649,112"/>
+<area shape="rect" id="node7" href="$classmimmo_1_1MimmoPiercedVector.html" title="MimmoPiercedVector is the basic data container for mimmo library." alt="" coords="463,136,683,177"/>
+<area shape="rect" id="node8" title=" " alt="" coords="40,136,193,177"/>
+</map>

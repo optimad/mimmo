@@ -1,0 +1,4 @@
+<map id="mimmo::MeshChecker" name="mimmo::MeshChecker">
+<area shape="rect" id="node1" title="MeshChecker is the class to evaluate the quality of a volume mesh." alt="" coords="21,80,189,107"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="5,5,204,32"/>
+</map>

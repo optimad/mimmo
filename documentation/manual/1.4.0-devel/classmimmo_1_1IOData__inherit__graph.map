@@ -1,0 +1,4 @@
+<map id="mimmo::IOData" name="mimmo::IOData">
+<area shape="rect" id="node1" title="IOData is the base class of generic data stored as input or result in a Port." alt="" coords="28,5,155,32"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1IODataT.html" title="IODataT is the templated class of generic data derived from IOData base class." alt="" coords="5,80,177,107"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="mimmo::SelectVectorField" name="mimmo::SelectVectorField">
+<area shape="rect" id="node1" title="SelectVectorField is specialized derived class of SelectField to Select a vector field." alt="" coords="20,351,213,377"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1SelectField.html" title="SelectField is an abstract executable block class capable of Selecting a field from a list of fields." alt="" coords="41,275,193,301"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="17,199,216,225"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="5,95,228,136"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="5,5,228,32"/>
+</map>

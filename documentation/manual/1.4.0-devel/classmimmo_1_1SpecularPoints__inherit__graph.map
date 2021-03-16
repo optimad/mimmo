@@ -1,0 +1,6 @@
+<map id="mimmo::SpecularPoints" name="mimmo::SpecularPoints">
+<area shape="rect" id="node1" title="SpecularPoints is a class that mirrors a point cloud w.r.t. a reference plane, on a target surface ge..." alt="" coords="40,229,217,256"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1ProjPatchOnSurface.html" title="Executable block class capable of projecting a surface patch, 3DCurve or PointCloud on a 3D surface,..." alt="" coords="25,155,233,181"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1ProjPrimitivesOnSurfaces.html" title="Class for projecting 1D/2D primitives on a target 3D surface mesh." alt="" coords="5,80,252,107"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="29,5,228,32"/>
+</map>

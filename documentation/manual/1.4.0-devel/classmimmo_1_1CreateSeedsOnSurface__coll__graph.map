@@ -1,0 +1,6 @@
+<map id="mimmo::CreateSeedsOnSurface" name="mimmo::CreateSeedsOnSurface">
+<area shape="rect" id="node1" title="Distribute a raw list of points on a target 3D surface." alt="" coords="5,275,236,301"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="21,199,220,225"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="9,95,232,136"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="9,5,232,32"/>
+</map>

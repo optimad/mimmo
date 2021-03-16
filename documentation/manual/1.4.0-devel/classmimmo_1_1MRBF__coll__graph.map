@@ -1,0 +1,13 @@
+<map id="mimmo::MRBF" name="mimmo::MRBF">
+<area shape="rect" id="node1" title="Radial Basis Function evaluation from clouds of control points." alt="" coords="1191,136,1309,163"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="836,5,1035,32"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="461,29,684,70"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="5,36,228,63"/>
+<area shape="rect" id="node5" title=" " alt="" coords="890,119,981,145"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1MimmoPiercedVector.html" title="MimmoPiercedVector is the basic data container for mimmo library." alt="" coords="463,259,683,301"/>
+<area shape="rect" id="node8" href="$classmimmo_1_1MimmoPiercedVector.html" title=" " alt="" coords="825,170,1045,211"/>
+<area shape="rect" id="node10" href="$classmimmo_1_1MimmoPiercedVector.html" title=" " alt="" coords="825,329,1045,370"/>
+<area shape="rect" id="node7" title=" " alt="" coords="40,259,193,301"/>
+<area shape="rect" id="node9" title=" " alt="" coords="489,170,656,211"/>
+<area shape="rect" id="node11" title=" " alt="" coords="496,338,649,379"/>
+</map>

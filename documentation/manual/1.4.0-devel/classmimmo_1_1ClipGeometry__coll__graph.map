@@ -1,0 +1,6 @@
+<map id="mimmo::ClipGeometry" name="mimmo::ClipGeometry">
+<area shape="rect" id="node1" title="ClipGeometry is a class that clip a 3D geometry according to a plane intersecting it." alt="" coords="31,275,202,301"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="17,199,216,225"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="5,95,228,136"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="5,5,228,32"/>
+</map>

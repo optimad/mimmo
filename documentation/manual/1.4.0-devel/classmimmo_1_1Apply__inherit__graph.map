@@ -1,0 +1,5 @@
+<map id="mimmo::Apply" name="mimmo::Apply">
+<area shape="rect" id="node1" title="Apply is the class that applies the deformation resulting from a manipulation object to the geometry." alt="" coords="45,80,164,107"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1ApplyFilter.html" title="ApplyFilter is a class that applies a filter field to a deformation field defined on a geometry." alt="" coords="29,155,180,181"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="5,5,204,32"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="mimmo::SelectField" name="mimmo::SelectField">
+<area shape="rect" id="node1" title="SelectField is an abstract executable block class capable of Selecting a field from a list of fields." alt="" coords="252,81,404,108"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1SelectLongField.html" title="SelectLongField is specialized derived class of SelectField to Select a scalar field of long data." alt="" coords="457,5,640,32"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1SelectScalarField.html" title="SelectScalarField is specialized derived class of SelectField to Select a scalar field." alt="" coords="453,56,645,83"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1SelectStringField.html" title="SelectStringField is specialized derived class of SelectField to Select a scalar field of string data..." alt="" coords="453,107,644,133"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1SelectVectorField.html" title="SelectVectorField is specialized derived class of SelectField to Select a vector field." alt="" coords="452,157,645,184"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="5,81,204,108"/>
+</map>

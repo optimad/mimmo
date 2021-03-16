@@ -1,0 +1,5 @@
+<map id="mimmo::FVSelectionByCylinder" name="mimmo::FVSelectionByCylinder">
+<area shape="rect" id="node1" title="FVGenericSelection class specialized for selections with volume cylindrical primitive shapes." alt="" coords="5,155,235,181"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1FVGenericSelection.html" title="Interface for applying selection methods simultaneously on bulk+boundary compound meshes." alt="" coords="16,80,224,107"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="21,5,219,32"/>
+</map>

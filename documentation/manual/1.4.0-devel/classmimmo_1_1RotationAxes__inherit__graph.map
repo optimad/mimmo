@@ -1,0 +1,4 @@
+<map id="mimmo::RotationAxes" name="mimmo::RotationAxes">
+<area shape="rect" id="node1" title="RotationAxes is the class that applies a rotation to a given reference system." alt="" coords="21,80,188,107"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="5,5,204,32"/>
+</map>

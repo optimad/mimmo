@@ -1,0 +1,7 @@
+<map id="mimmo::ExtractScalarField" name="mimmo::ExtractScalarField">
+<area shape="rect" id="node1" title="ExtractScalarField is specialized derived class of ExtractField to extract a scalar field of doubles." alt="" coords="17,351,216,377"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1ExtractField.html" title="ExtractField is an abstract executable block class for extracting/restricting an input field defined ..." alt="" coords="37,275,196,301"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="17,199,216,225"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="5,95,228,136"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="5,5,228,32"/>
+</map>

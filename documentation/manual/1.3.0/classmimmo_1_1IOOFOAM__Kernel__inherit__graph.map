@@ -1,7 +1,0 @@
-<map id="mimmo::IOOFOAM_Kernel" name="mimmo::IOOFOAM_Kernel">
-<area shape="rect" id="node4" href="$classmimmo_1_1IOOFOAM.html" title="IOOFOAM_Kernel specialization to import/export an OpenFOAM volume mesh only alongside its boundary in..." alt="" coords="5,229,140,256"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1IOOFOAMScalarField.html" title="IOOFOAM_Kernel specialization to import/export an OpenFOAM scalar field defined on a volume mesh and/..." alt="" coords="165,229,365,256"/>
-<area shape="rect" id="node6" href="$classmimmo_1_1IOOFOAMVectorField.html" title="IOOFOAM_Kernel specialization to import/export an OpenFOAM vector field defined on a volume mesh and/..." alt="" coords="389,229,591,256"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1MimmoFvMesh.html" title="MimmoFvMesh is an abstract executable class for handling 3D and 2D mesh with their boundary informati..." alt="" coords="183,80,346,107"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="177,5,353,32"/>
-</map>

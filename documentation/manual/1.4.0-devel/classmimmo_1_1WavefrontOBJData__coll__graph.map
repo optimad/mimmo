@@ -1,0 +1,11 @@
+<map id="mimmo::WavefrontOBJData" name="mimmo::WavefrontOBJData">
+<area shape="rect" id="node1" title="struct for storing cell data attached to Wavefront OBJ polygonal mesh" alt="" coords="1023,121,1225,147"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1MimmoPiercedVector.html" title=" " alt="" coords="665,113,885,155"/>
+<area shape="rect" id="node3" title=" " alt="" coords="243,136,396,177"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoPiercedVector.html" title="MimmoPiercedVector is the basic data container for mimmo library." alt="" coords="209,71,429,112"/>
+<area shape="rect" id="node8" href="$classmimmo_1_1MimmoPiercedVector.html" title=" " alt="" coords="665,47,885,88"/>
+<area shape="rect" id="node5" title=" " alt="" coords="5,71,159,112"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="664,193,887,235"/>
+<area shape="rect" id="node7" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="208,202,431,229"/>
+<area shape="rect" id="node9" title=" " alt="" coords="232,5,407,47"/>
+</map>

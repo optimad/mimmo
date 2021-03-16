@@ -1,6 +1,0 @@
-<map id="mimmo::ProjPrimitivesOnSurfaces" name="mimmo::ProjPrimitivesOnSurfaces">
-<area shape="rect" id="node3" href="$classmimmo_1_1Proj3DCurveOnSurface.html" title="It is an executable block class capable of projecting a 3D curve defined by multiple elemental connec..." alt="" coords="5,155,216,181"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1ProjPatchOnSurface.html" title="Executable block class capable of projecting a 3D surface patch on another 3D surface, both defined as MimmoObject. " alt="" coords="240,155,432,181"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1ProjSegmentOnSurface.html" title="Executable block class capable of projecting an elemental segment on a 3D surface mesh defined by a M..." alt="" coords="456,155,667,181"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="248,5,424,32"/>
-</map>

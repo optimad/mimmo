@@ -1,7 +1,0 @@
-<map id="mimmo::PropagateField&lt; NCOMP &gt;" name="mimmo::PropagateField&lt; NCOMP &gt;">
-<area shape="rect" id="node3" href="$classmimmo_1_1PropagateField.html" title="mimmo::PropagateField\&lt; 1 \&gt;" alt="" coords="11,185,202,212"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1PropagateField.html" title="mimmo::PropagateField\&lt; 3 \&gt;" alt="" coords="230,185,421,212"/>
-<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="125,5,301,32"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1PropagateScalarField.html" title="Executable block that provides the computation of a scalar field over a 3D mesh. The field is calcula..." alt="" coords="5,261,203,288"/>
-<area shape="rect" id="node6" href="$classmimmo_1_1PropagateVectorField.html" title="Executable block that provides the computation of a 3D array field over a 3D mesh. The field is calculated solving a Laplacian problem over the mesh with given boundary conditions. " alt="" coords="227,261,426,288"/>
-</map>

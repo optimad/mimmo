@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title=" " alt="" coords="5,31,164,57"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1VTUGridReader.html" title="Custom reader of unstructured grids from external files *.vtu." alt="" coords="226,5,407,32"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1VTUGridWriterASCII.html" title="Custom writer of ASCII unstructured grids to external files *.vtu." alt="" coords="212,56,421,83"/>
+</map>

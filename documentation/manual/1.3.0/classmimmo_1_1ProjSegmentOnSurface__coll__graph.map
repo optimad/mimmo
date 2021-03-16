@@ -1,5 +1,0 @@
-<map id="mimmo::ProjSegmentOnSurface" name="mimmo::ProjSegmentOnSurface">
-<area shape="rect" id="node2" href="$classmimmo_1_1ProjPrimitivesOnSurfaces.html" title="Class for projecting 1D/2D primitives on a target 3D surface mesh. " alt="" coords="5,171,228,197"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="29,95,205,121"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="39,5,194,32"/>
-</map>

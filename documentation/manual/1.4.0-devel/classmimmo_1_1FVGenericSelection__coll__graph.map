@@ -1,0 +1,7 @@
+<map id="mimmo::FVGenericSelection" name="mimmo::FVGenericSelection">
+<area shape="rect" id="node1" title="Interface for applying selection methods simultaneously on bulk+boundary compound meshes." alt="" coords="1221,85,1429,112"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="973,85,1172,112"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="480,71,703,113"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="5,115,228,141"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="727,130,949,171"/>
+</map>

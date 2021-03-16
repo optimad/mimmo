@@ -1,0 +1,6 @@
+<map id="mimmo::UStructMesh" name="mimmo::UStructMesh">
+<area shape="rect" id="node1" title="Class for 3D uniform structured mesh." alt="" coords="77,5,241,32"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1Lattice.html" title="Structured 3D Cartesian Mesh." alt="" coords="18,80,143,107"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1Primitive.html" title="Primitive object generation." alt="" coords="168,80,308,107"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1FFDLattice.html" title="Free Form Deformation of a 3D surface and point clouds, with structured lattice." alt="" coords="5,155,156,181"/>
+</map>

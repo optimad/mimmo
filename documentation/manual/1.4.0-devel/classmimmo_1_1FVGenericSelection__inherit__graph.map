@@ -1,0 +1,7 @@
+<map id="mimmo::FVGenericSelection" name="mimmo::FVGenericSelection">
+<area shape="rect" id="node1" title="Interface for applying selection methods simultaneously on bulk+boundary compound meshes." alt="" coords="240,80,448,107"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1FVSelectionByBox.html" title="FVGenericSelection class specialized for selections with volume box primitive shapes." alt="" coords="5,155,205,181"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1FVSelectionByCylinder.html" title="FVGenericSelection class specialized for selections with volume cylindrical primitive shapes." alt="" coords="229,155,459,181"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1FVSelectionBySphere.html" title="FVGenericSelection class specialized for selections with volume spherical primitive shapes." alt="" coords="483,155,703,181"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="245,5,443,32"/>
+</map>

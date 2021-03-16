@@ -1,0 +1,5 @@
+<map id="mimmo::SelectionByMapping" name="mimmo::SelectionByMapping">
+<area shape="rect" id="node1" title="Selection mapping external surfaces/volume/3D curves on a target mesh of the same topology." alt="" coords="5,155,220,181"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes." alt="" coords="17,80,208,107"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="13,5,212,32"/>
+</map>

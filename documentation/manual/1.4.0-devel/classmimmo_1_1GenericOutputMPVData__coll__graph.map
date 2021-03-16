@@ -1,0 +1,6 @@
+<map id="mimmo::GenericOutputMPVData" name="mimmo::GenericOutputMPVData">
+<area shape="rect" id="node1" title="GenericOutputMPVData is the class that write a generic data to file output as mimmo::MimmoPiercedVect..." alt="" coords="5,275,240,301"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="23,199,222,225"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="11,95,234,136"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="11,5,234,32"/>
+</map>

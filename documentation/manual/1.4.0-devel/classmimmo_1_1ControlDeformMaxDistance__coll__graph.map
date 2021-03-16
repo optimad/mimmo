@@ -1,0 +1,6 @@
+<map id="mimmo::ControlDeformMaxDistance" name="mimmo::ControlDeformMaxDistance">
+<area shape="rect" id="node1" title="ControlDeformMaxDistance is a class that check a deformation field associated to a MimmoObject surfac..." alt="" coords="5,275,268,301"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="37,199,236,225"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="25,95,248,136"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="25,5,248,32"/>
+</map>

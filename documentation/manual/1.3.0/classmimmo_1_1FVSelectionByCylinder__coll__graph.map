@@ -1,7 +1,0 @@
-<map id="mimmo::FVSelectionByCylinder" name="mimmo::FVSelectionByCylinder">
-<area shape="rect" id="node2" href="$classmimmo_1_1FVGenericSelection.html" title="Abstract Interface for selection classes working with MimmoFvMesh mesh types (bulk + boundary) ..." alt="" coords="176,171,365,197"/>
-<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library. " alt="" coords="183,95,359,121"/>
-<area shape="rect" id="node4" href="$classmimmo_1_1MimmoObject.html" title="MimmoObject is the basic geometry container for mimmo library. " alt="" coords="5,5,160,32"/>
-<area shape="rect" id="node5" href="$classmimmo_1_1Cylinder.html" title="Elementary Shape Representation of a Cylinder or portion of it. " alt="" coords="393,171,514,197"/>
-<area shape="rect" id="node6" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation. " alt="" coords="383,95,526,121"/>
-</map>

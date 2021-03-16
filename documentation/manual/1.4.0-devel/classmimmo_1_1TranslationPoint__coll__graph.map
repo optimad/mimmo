@@ -1,0 +1,6 @@
+<map id="mimmo::TranslationPoint" name="mimmo::TranslationPoint">
+<area shape="rect" id="node1" title="TranslationPoint is the class that applies the a translation to a point." alt="" coords="24,275,209,301"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="17,199,216,225"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="5,95,228,136"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="5,5,228,32"/>
+</map>

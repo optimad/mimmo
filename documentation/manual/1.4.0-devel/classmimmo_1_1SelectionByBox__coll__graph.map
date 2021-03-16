@@ -1,0 +1,9 @@
+<map id="mimmo::SelectionByBox" name="mimmo::SelectionByBox">
+<area shape="rect" id="node1" title="Selection through volume box primitive." alt="" coords="1308,72,1491,99"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1GenericSelection.html" title="Abstract Interface for selection classes." alt="" coords="1068,45,1259,72"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="820,45,1019,72"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="461,7,684,49"/>
+<area shape="rect" id="node5" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="5,15,228,41"/>
+<area shape="rect" id="node6" href="$classmimmo_1_1Cube.html" title="Elementary Shape Representation of a Cube." alt="" coords="1106,96,1221,123"/>
+<area shape="rect" id="node7" href="$classmimmo_1_1BasicShape.html" title="Abstract Interface class for Elementary Shape Representation." alt="" coords="841,96,997,123"/>
+</map>

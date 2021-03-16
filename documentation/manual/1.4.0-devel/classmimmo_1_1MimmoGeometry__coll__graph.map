@@ -1,0 +1,7 @@
+<map id="mimmo::MimmoGeometry" name="mimmo::MimmoGeometry">
+<area shape="rect" id="node1" title="MimmoGeometry is an executable block class wrapping(linking or internally instantiating) a Mimmo Obje..." alt="" coords="171,303,367,329"/>
+<area shape="rect" id="node2" href="$classmimmo_1_1BaseManipulation.html" title="BaseManipulation is the base class of any manipulation object of the library." alt="" coords="17,199,216,225"/>
+<area shape="rect" id="node3" href="$classmimmo_1_1MimmoSharedPointer.html" title=" " alt="" coords="5,95,228,136"/>
+<area shape="rect" id="node4" href="$classmimmo_1_1MimmoSharedPointer.html" title="MimmoSharedPointer is a custom implementation of shared pointer." alt="" coords="5,5,228,32"/>
+<area shape="rect" id="node5" href="$structmimmo_1_1FileDataInfo.html" title="FileDataInfo is a struct to stock data relative to names of external files." alt="" coords="239,199,399,225"/>
+</map>
